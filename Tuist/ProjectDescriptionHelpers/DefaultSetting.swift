@@ -15,7 +15,6 @@ public struct DefaultSetting {
         .debugInformationFormat(DebugInformationFormat.dwarfWithDsym)
         .otherLinkerFlags(["$(inherited) -ObjC"])
         .bitcodeEnabled(false)
-        .merging(["PRODUCT_NAME": SettingValue(stringLiteral: "Link")])
 }
 
 public extension DefaultSetting {
@@ -50,5 +49,12 @@ public extension SettingsDictionary {
     func setProvisioning() -> SettingsDictionary {
         merging(["PROVISIONING_PROFILE_SPECIFIER": SettingValue(stringLiteral: "$(APP_PROVISIONING_PROFILE)")])
             .merging(["PROVISIONING_PROFILE": SettingValue(stringLiteral: "$(APP_PROVISIONING_PROFILE)")])
+    }
+    
+    
+    func setAppInfo() -> SettingsDictionary {
+        merging(["MARKETING_VERSION": SettingValue(stringLiteral: "1.0.0")])
+            .merging(["CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: "1")])
+            .merging(["INFOPLIST_KEY_CFBundleDisplayName": SettingValue(stringLiteral: "Link")])
     }
 }
