@@ -16,6 +16,8 @@ let project = Project.makeModule(
     targets: [],
     dependencies: [
         .SPM.moya,
+        .SPM.rxMoya,
+        .SPM.combineMoya,
         .Domain.repositoryInterface,
         .Domain.entity
     ]
