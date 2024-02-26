@@ -13,7 +13,11 @@ public struct XCConfig {
     }
     
     public static let project: [Configuration] = [
-        .debug(name: .debug, xcconfig: Path.project("DEV")),
+        .debug(name: .debug,
+               settings: [
+                "PRODUCT_NAME": "Link-DEV"
+            ],
+               xcconfig: Path.project("DEV")),
         .release(name: .release, xcconfig: Path.project("PROD")),
     ]
 }
