@@ -15,7 +15,7 @@ extension Project {
         dependencies: [ProjectDescription.TargetDependency]
     ) -> Project {
         let settings: Settings = .settings(
-            base: DefaultSetting.baseProductSetting,
+            base: DefaultSetting.baseProductSetting.setAppInfo(),
             configurations: XCConfig.project,
             defaultSettings: .recommended
           )
