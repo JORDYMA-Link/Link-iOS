@@ -1,0 +1,3 @@
+#include "../shared.xcconfig"
+
+CODE_SIGN_IDENTITY = Apple Distribution
