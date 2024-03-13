@@ -25,7 +25,7 @@ open class BaseViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .green
 #if DEBUG
-        view.backgroundColor = .systemBlue
+        view.backgroundColor = .bkColor(.red)
 #endif
     }
 }
