@@ -13,15 +13,16 @@ let dependencies = Dependencies(
         .github(path: "realm/realm-swift", requirement: .upToNext("10.46.0"))
     ],
     swiftPackageManager: SwiftPackageManagerDependencies([
+        .swinject,
         .reactorKit,
         .rxSwift,
         .moya,
         .snapkit,
-        .then,
-        .rxDatasources,
         .kingFisher,
         .fsCalendar,
         .lottie,
+        .panModal,
+        .toaster,
         .firebase
     ],
                                                          productTypes: [

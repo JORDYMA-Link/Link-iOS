@@ -17,12 +17,12 @@ let project = Project.makeModule(
     dependencies: [
         .SPM.rxSwift,
         .SPM.reactorKit,
-        .SPM.rxDatasources,
         .SPM.fsCalendar,
         .SPM.kingFisher,
         .SPM.lottie,
         .SPM.snapkit,
-        .SPM.then,
+        .SPM.panModal,
+        .SPM.toaster,
         .Carthage.realm,
         .Carthage.realmSwift
     ]

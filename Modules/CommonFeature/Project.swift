@@ -22,7 +22,6 @@ let project = Project.makeModule(
     ],
     dependencies: [
         .Domain.useCase,
-        .data,
         .core
     ]
 )

@@ -12,8 +12,12 @@ let project = Project.app(
     name: DefaultSetting.appIdentifier,
     dependencies: [
         .Feature.features,
+        .Domain.entity,
+        .Domain.repositoryInterface,
+        .Domain.useCase,
         .data,
         .SPM.firebaseMessaging,
-        .SPM.firebaseAnalytics
+        .SPM.firebaseAnalytics,
+        .SPM.swinject
     ]
 )
