@@ -1,6 +1,0 @@
-#include "../shared.xcconfig"
-
-CODE_SIGN_IDENTITY = Apple Distribution
-PROVISIONING_PROFILE_SPECIFIER = Link-iOS.Release
-CODE_SIGN_STYLE = Manual
-DEVELOPMENT_TEAM = 8LJ2P85FNV

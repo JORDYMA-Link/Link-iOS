@@ -1,5 +1,0 @@
-//
-//  Example.swift
-//  ProjectDescriptionHelpers
-//
-//

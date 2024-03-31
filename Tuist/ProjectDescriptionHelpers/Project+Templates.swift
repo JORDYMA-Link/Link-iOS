@@ -1,90 +1,74 @@
 import ProjectDescription
 
-public enum MicroFeatureTarget {
-    case unitTest
-    case demo
-}
+/// Project helpers are functions that simplify the way you define your project.
+/// Share code to create targets, settings, dependencies,
+/// Create your own conventions, e.g: a func that makes sure all shared targets are "static frameworks"
+/// See https://docs.tuist.io/guides/helpers/
 
 extension Project {
-    public static func makeModule(
-        name: String,
-        product: Product,
-        targets: Set<MicroFeatureTarget>,
-        package: [Package] = [],
-        infoPlist: InfoPlist = .default,
-        includeSource: Bool = true,
-        includeResource: Bool = false,
-        resourceSynthesizers: [ResourceSynthesizer] = [],
-        dependencies: [ProjectDescription.TargetDependency]
-    ) -> Project {
-        let settings: Settings = .settings(
-            base: DefaultSetting.baseProductSetting,
-            configurations: [
-                .debug(name: .debug),
-                .release(name: .release)
-            ],
-            defaultSettings: .recommended
-        )
-        
-        var allTargets: [Target] = [
-            Target(
-                name: name,
-                destinations: .iOS,
-                product: product,
-                bundleId: DefaultSetting.bundleId(moduleName: name),
-                deploymentTargets: .iOS(DefaultSetting.targetVersion.stringValue),
-                infoPlist: infoPlist,
-                sources: includeSource ? .default : nil,
-                resources: includeResource ? [.glob(pattern: "Resources/**", excluding: [])] : [],
-                dependencies: dependencies
-            )
-        ]
-        
-        if targets.contains(.unitTest) {
-            let testTarget = Target(
-                name: "\(name)Tests",
-                destinations: .iOS,
+    /// Helper function to create the Project for this ExampleApp
+    public static func app(name: String, destinations: Destinations, additionalTargets: [String]) -> Project {
+        var targets = makeAppTargets(name: name,
+                                     destinations: destinations,
+                                     dependencies: additionalTargets.map { TargetDependency.target(name: $0) })
+        targets += additionalTargets.flatMap({ makeFrameworkTargets(name: $0, destinations: destinations) })
+        return Project(name: name,
+                       organizationName: "tuist.io",
+                       targets: targets)
+    }
+
+    // MARK: - Private
+
+    /// Helper function to create a framework target and an associated unit test target
+    private static func makeFrameworkTargets(name: String, destinations: Destinations) -> [Target] {
+        let sources = Target(name: name,
+                destinations: destinations,
+                product: .framework,
+                bundleId: "io.tuist.\(name)",
+                infoPlist: .default,
+                sources: ["Targets/\(name)/Sources/**"],
+                resources: [],
+                dependencies: [])
+        let tests = Target(name: "\(name)Tests",
+                destinations: destinations,
                 product: .unitTests,
-                bundleId: "\(DefaultSetting.bundleId(moduleName: name.lowercased())).\(name)Tests",
+                bundleId: "io.tuist.\(name)Tests",
                 infoPlist: .default,
-                sources: ["Tests/Sources/**"],
-                resources: includeResource ? [.glob(pattern: "Tests/Resources/**", excluding: [])] : nil,
-                dependencies: [
-                    .target(name: name)
-                ]
-            )
-            
-            allTargets.append(testTarget)
-        }
-        
-        if targets.contains(.demo) {
-            let demoTarget = Target(
-                name: "\(name)Demo",
-                destinations: .iOS,
-                product: .app,
-                bundleId: "\(DefaultSetting.bundleId(moduleName: name.lowercased())).\(name)Demo",
-                infoPlist: .default,
-                sources: ["Demo/Sources/**"],
-                dependencies: [
-                    .target(name: name)
-                ]
-            )
-            
-            allTargets.append(demoTarget)
-        }
-        
-        let schemes: [Scheme] = targets.contains(.demo) ?
-        [.makeScheme(target: .debug, name: name), .makeDemoScheme(target: .debug, name: name)] :
-        [.makeScheme(target: .debug, name: name)]
-        
-        return Project(
+                sources: ["Targets/\(name)/Tests/**"],
+                resources: [],
+                dependencies: [.target(name: name)])
+        return [sources, tests]
+    }
+
+    /// Helper function to create the application target and the unit test target.
+    private static func makeAppTargets(name: String, destinations: Destinations, dependencies: [TargetDependency]) -> [Target] {
+        let infoPlist: [String: Plist.Value] = [
+            "CFBundleShortVersionString": "1.0",
+            "CFBundleVersion": "1",
+            "UILaunchStoryboardName": "LaunchScreen"
+            ]
+
+        let mainTarget = Target(
             name: name,
-            organizationName: DefaultSetting.organizaationName,
-            packages: package,
-            settings: settings,
-            targets: allTargets,
-            schemes: schemes,
-            resourceSynthesizers: resourceSynthesizers
+            destinations: destinations,
+            product: .app,
+            bundleId: "io.tuist.\(name)",
+            infoPlist: .extendingDefault(with: infoPlist),
+            sources: ["Targets/\(name)/Sources/**"],
+            resources: ["Targets/\(name)/Resources/**"],
+            dependencies: dependencies
         )
+
+        let testTarget = Target(
+            name: "\(name)Tests",
+            destinations: destinations,
+            product: .unitTests,
+            bundleId: "io.tuist.\(name)Tests",
+            infoPlist: .default,
+            sources: ["Targets/\(name)/Tests/**"],
+            dependencies: [
+                .target(name: "\(name)")
+        ])
+        return [mainTarget, testTarget]
     }
 }
