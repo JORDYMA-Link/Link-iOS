@@ -1,0 +1,6 @@
+#include "../shared.xcconfig"
+
+CODE_SIGN_IDENTITY = Apple Development
+PROVISIONING_PROFILE_SPECIFIER = Link-iOS.Debug
+CODE_SIGN_STYLE = Manual
+DEVELOPMENT_TEAM = 8LJ2P85FNV
