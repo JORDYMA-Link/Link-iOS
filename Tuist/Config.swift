@@ -1,7 +1,3 @@
 import ProjectDescription
 
-let config = Config(
-    plugins: [
-        .local(path: .relativeToManifest("../../Plugins/LinkIOS")),
-    ]
-)
+let config = Config()
