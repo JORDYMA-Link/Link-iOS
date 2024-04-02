@@ -1,8 +1,6 @@
 import SwiftUI
 import UserNotifications
 
-import Features
-
 @main
 struct BlinkApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate

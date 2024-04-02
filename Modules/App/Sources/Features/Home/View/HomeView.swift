@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import SwiftUIIntrospect
 
 public struct HomeView: View {
     
@@ -23,6 +24,12 @@ public struct HomeView: View {
 #if DEBUG
         Text("Debug")
 #endif
+    }
+}
+
+public struct HomeView_Previews: PreviewProvider {
+    public static var previews: some View {
+        HomeView()
     }
 }
 
