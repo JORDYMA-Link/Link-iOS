@@ -13,7 +13,7 @@ let name = "CommonFeature"
 let project = Project.makeModule(
     name: name,
     product: .staticFramework,
-    targets: [],
+    targets: [.demo],
     includeResource: true,
     resourceSynthesizers: [
         .custom(name: "Lottie", parser: .json, extensions: ["lottie"]),
@@ -21,8 +21,6 @@ let project = Project.makeModule(
         .assets()
     ],
     dependencies: [
-        .Domain.useCase,
-        .data,
         .core
     ]
 )

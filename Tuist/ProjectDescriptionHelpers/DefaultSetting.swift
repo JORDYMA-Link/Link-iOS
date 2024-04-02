@@ -10,7 +10,7 @@ import ProjectDescription
 public struct DefaultSetting {
     public static let targetVersion: SettingValue = "16.0"
     public static let organizaationName = "jordyma"
-    public static let appIdentifier = "Link"
+    public static let appIdentifier = "Blink"
     public static let baseProductSetting: SettingsDictionary = SettingsDictionary()
         .debugInformationFormat(DebugInformationFormat.dwarfWithDsym)
         .otherLinkerFlags(["$(inherited) -ObjC"])
@@ -55,6 +55,6 @@ public extension SettingsDictionary {
     func setAppInfo() -> SettingsDictionary {
         merging(["MARKETING_VERSION": SettingValue(stringLiteral: "1.0.0")])
             .merging(["CURRENT_PROJECT_VERSION": SettingValue(stringLiteral: "1")])
-            .merging(["INFOPLIST_KEY_CFBundleDisplayName": SettingValue(stringLiteral: "Link")])
+            .merging(["INFOPLIST_KEY_CFBundleDisplayName": SettingValue(stringLiteral: "Blink")])
     }
 }
