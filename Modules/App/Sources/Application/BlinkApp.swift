@@ -7,7 +7,7 @@ struct BlinkApp: App {
     
     var body: some Scene {
         WindowGroup {
-            HomeView()
+                BKTabView()
         }
     }
 }
