@@ -11,8 +11,11 @@ import ProjectDescriptionHelpers
 let project = Project.app(
     name: DefaultSetting.appIdentifier,
     dependencies: [
-        .Feature.features,
+        .commonFeature,
         .data,
+        .Domain.useCase,
+        .Domain.entity,
+        .core,
         .SPM.firebaseMessaging,
         .SPM.firebaseAnalytics
     ]

@@ -9,12 +9,12 @@
 import Foundation
 
 public protocol BaseDIContainer {
-    associatedtype ViewContrller
+//    associatedtype View
     associatedtype ViewModel
     associatedtype UseCase
     associatedtype Repository
     
-    func makeViewController() -> ViewContrller
+//    func makeViewController() -> View
     func makeViewModel() -> ViewModel
     func makeUseCase() -> UseCase
     func makeRepository() -> Repository

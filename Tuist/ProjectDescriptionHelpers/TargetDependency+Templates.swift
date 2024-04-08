@@ -76,19 +76,15 @@ public extension TargetDependency {
     }
     
     class SPM {
-        public static let reactorKit = TargetDependency.external(name: "ReactorKit")
-        public static let rxSwift = TargetDependency.external(name: "RxSwift")
         public static let moya = TargetDependency.external(name: "Moya")
         public static let combineMoya = TargetDependency.external(name: "CombineMoya")
-        public static let rxMoya = TargetDependency.external(name: "RxMoya")
-        public static let snapkit = TargetDependency.external(name: "SnapKit")
-        public static let then = TargetDependency.external(name: "Then")
         public static let firebaseMessaging = TargetDependency.external(name: "FirebaseMessaging")
         public static let firebaseAnalytics = TargetDependency.external(name: "FirebaseAnalytics")
-        public static let rxDatasources = TargetDependency.external(name: "RxDataSources")
         public static let kingFisher = TargetDependency.external(name: "Kingfisher")
         public static let fsCalendar = TargetDependency.external(name: "FSCalendar")
         public static let lottie = TargetDependency.external(name: "Lottie")
+        public static let introspect = TargetDependency.external(name: "SwiftUIIntrospect")
+        public static let keyboardObserving = TargetDependency.external(name: "KeyboardObserving")
     }
     
     class Carthage {

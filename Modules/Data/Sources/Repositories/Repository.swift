@@ -13,7 +13,6 @@ import Entity
 
 import Moya
 import CombineMoya
-import RxMoya
 import Alamofire
 
 final public class CoinRepository: RepositoryInterface {
