@@ -72,7 +72,7 @@ struct BKTabView: View {
                     .padding(.bottom, 144)
             }
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(edges: .bottom)
     }
 }
 
