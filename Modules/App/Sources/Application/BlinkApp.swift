@@ -7,7 +7,7 @@ struct BlinkApp: App {
     
     var body: some Scene {
         WindowGroup {
-                BKTabView()
+            BKTabView()
         }
     }
 }
@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
-
+        
         return true
     }
 }
