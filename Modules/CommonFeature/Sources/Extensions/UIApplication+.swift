@@ -19,4 +19,15 @@ public extension UIApplication {
         
         return topWindow.safeAreaInsets.top
     }
+    
+    static var bottomSafeAreaInset: CGFloat {
+        guard let windowScene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first,
+              let topWindow = windowScene.windows.first else {
+            return 0
+        }
+        
+        return topWindow.safeAreaInsets.bottom
+    }
 }
