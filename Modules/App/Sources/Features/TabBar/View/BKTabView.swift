@@ -15,64 +15,67 @@ struct BKTabView: View {
     @ObservedObject var viewModel = BKTabViewModel()
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                
-                Spacer(minLength: 0)
-                
-                ZStack {
-                    viewModel.view
+        NavigationStack {
+            ZStack(alignment: .bottom) {
+                VStack(spacing: 0) {
+                    Spacer(minLength: 0)
                     
-                    if showMenu {
-                        Color.bkColor(.black).opacity(0.6)
-                            .edgesIgnoringSafeArea(.all)
-                            .onTapGesture {
-                                withAnimation {
-                                    showMenu = false
-                                }
-                            }
-                    }
-                }
-                
-                Spacer(minLength: 0)
-                
-                HStack {
-                    Spacer()
-                    
-                    VStack {
-                        TabIcon(tabViewType: .home, viewModel: viewModel, showMenu: $showMenu)
-                            .padding(.top, 15)
+                    ZStack {
+                        viewModel.view
                         
-                        Spacer()
-                    }
-                    
-                    TabCircleIcon(showMenu: $showMenu)
-                        .onTapGesture {
-                            withAnimation {
-                                showMenu.toggle()
+                        if showMenu {
+                            Color.bkColor(.black).opacity(0.6)
+                                .edgesIgnoringSafeArea(.all)
+                                .onTapGesture {
+                                    withAnimation {
+                                        showMenu = false
+                                    }
+                                }
                             }
                         }
                     
-                    VStack {
-                        TabIcon(tabViewType: .folder, viewModel: viewModel, showMenu: $showMenu)
-                            .padding(.top, 15)
+                    Spacer(minLength: 0)
+                    
+                    HStack {
+                        Spacer()
+                        Spacer()
+                        
+                        VStack {
+                            TabIcon(tabViewType: .home, viewModel: viewModel, showMenu: $showMenu)
+                                .padding(.top, 15)
+                            
+                            Spacer()
+                        }
+                        
+                        TabCircleIcon(showMenu: $showMenu)
+                            .onTapGesture {
+                                withAnimation {
+                                    showMenu.toggle()
+                                }
+                            }
+                        
+                        VStack {
+                            TabIcon(tabViewType: .folder, viewModel: viewModel, showMenu: $showMenu)
+                                .padding(.top, 15)
+                            
+                            Spacer()
+                        }
                         
                         Spacer()
+                        Spacer()
                     }
-                    
-                    Spacer()
+                    .frame(height: 82)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.bkColor(.white))
                 }
-                .frame(height: 82)
-                .frame(maxWidth: .infinity)
-                .background(Color.bkColor(.white))
+                
+                if showMenu {
+                    PopUpMenu()
+                        .padding(.bottom, 144)
+                }
             }
-            
-            if showMenu {
-                PopUpMenu()
-                    .padding(.bottom, 144)
-            }
+            .ignoresSafeArea(edges: .bottom)
         }
-        .ignoresSafeArea()
     }
 }
 
