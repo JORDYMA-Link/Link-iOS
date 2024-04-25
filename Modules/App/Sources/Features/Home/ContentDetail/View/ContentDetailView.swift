@@ -130,12 +130,12 @@ struct ContentDetailView: View {
                 .foregroundColor(Color.bkColor(.white))
                 .lineLimit(2)
             
-            Text("2024.02.12")
+            Text("2024.02.123")
                 .font(.regular(size: BKFont.BtntxtSize.Btntxt1))
                 .foregroundColor(Color.bkColor(.white))
         }
     }
-    
+
     private var topButtonView: some View {
         HStack(spacing: 20) {
             Button {
