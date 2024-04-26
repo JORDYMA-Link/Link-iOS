@@ -11,7 +11,7 @@ import SwiftUI
 import CommonFeature
 
 struct TabIcon: View {
-    let tabViewType: TabViewType
+    let tabViewType: BKTabViewType
     @ObservedObject var viewModel: BKTabViewModel
     @Binding var showMenu: Bool
     
