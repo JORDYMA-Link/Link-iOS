@@ -20,23 +20,30 @@ public struct HomeView: View {
     public init() {}
     
     public var body: some View {
-            VStack {
-                HStack {
-                    Text("asad")
-                }
-                ScrollView {
-                    Text("비트코인 2억간다.")
-                        .foregroundColor(Color.bkColor(.green))
-                    Text("비트코인 3억간다.")
-                        .foregroundColor(Color.bkColor(.main700))
-                        .font(.semiBold(size: ._56))
-                }
-                .background(.pink)
+        VStack(spacing: 0) {
+            makeBKNavigationView(leadingType: .home, trailingType: .twoIcon(leftAction: {
+                print("go to Alarm")
+            }, rightAction: {
+                print("go to setting")
+            }, leftIcon: CommonFeatureAsset.Images.icoBell.swiftUIImage, rightIcon: CommonFeatureAsset.Images.icoSettings.swiftUIImage))
+            
+            ScrollView {
+                Text("비트코인 2억간다.")
+                    .foregroundColor(Color.bkColor(.green))
+                Text("비트코인 3억간다.")
+                    .foregroundColor(Color.bkColor(.main700))
+                    .font(.semiBold(size: ._56))
             }
-            .onAppear {
-                viewModel.loadCoinData()
-            }
+            .frame(maxWidth: .infinity)
+            .background(.pink)
+        }
+        .onAppear {
+            viewModel.loadCoinData()
+        }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
-
+#Preview {
+    HomeView()
+}
