@@ -23,7 +23,7 @@ struct KeywordChipView: View {
     
     private var keywordText: some View {
         Text("Design System")
-            .font(.semiBold(size: BKFont.CaptionSize.Caption3))
+            .font(.semiBold(size: ._11))
             .foregroundColor(.bkColor(.gray700))
             .padding(.vertical, 5)
             .padding(.horizontal, 9)

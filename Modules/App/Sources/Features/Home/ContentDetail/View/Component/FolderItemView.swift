@@ -15,7 +15,7 @@ struct FolderItemView: View {
     
     var body: some View {
         Text(text)
-            .font(.regular(size: BKFont.BodySize.Body2))
+            .font(.regular(size: ._14))
             .foregroundColor(.bkColor(.gray900))
             .padding(.vertical, 10)
             .padding(.horizontal, 14)

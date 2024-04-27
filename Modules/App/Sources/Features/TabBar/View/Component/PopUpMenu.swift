@@ -77,7 +77,7 @@ struct MenuItem: View {
             
             Text(menuType.title)
                 .foregroundColor(Color.bkColor(.white))
-                .font(.semiBold(size: BKFont.BodySize.Body1))
+                .font(.semiBold(size: ._15))
         }
     }
 }

@@ -29,7 +29,7 @@ public struct HomeView: View {
                         .foregroundColor(Color.bkColor(.green))
                     Text("비트코인 3억간다.")
                         .foregroundColor(Color.bkColor(.main700))
-                        .font(.semiBold(size: BKFont.DisplaySize.Display1))
+                        .font(.semiBold(size: ._56))
                 }
                 .background(.pink)
             }
