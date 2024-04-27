@@ -10,7 +10,17 @@ import SwiftUI
 
 struct StorageBoxView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            Color.bkColor(.gray300)
+                .ignoresSafeArea(.all)
+            
+            VStack(spacing: 0) {
+                makeBKNavigationView(leadingType: .tab("보관함"), trailingType: .none)
+                
+                Spacer()
+            }
+        }
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
