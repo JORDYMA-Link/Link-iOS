@@ -31,81 +31,50 @@ public enum BKFont {
     }
 }
 
-public protocol FontSizeProtocol {
-    var rawValue: CGFloat { get }
-}
-
-public extension BKFont {
-    enum DisplaySize: CGFloat, FontSizeProtocol {
-        case Display1 = 56
-        case Display2 = 48
-        case Display3 = 40
-        case Display4 = 36
-        case Display5 = 32
-        case Display6 = 28
-    }
-    
-    enum HeadlineSize: CGFloat, FontSizeProtocol {
-        case Headline1 = 32
-        case Headline2 = 28
-        case Headline3 = 24
-        case Headline4 = 20
-        case Headline5 = 18
-        case Headline6 = 16
-    }
-    
-    enum TitileSize: CGFloat, FontSizeProtocol {
-        case Titile1 = 24
-        case Titile2 = 20
-        case Titile3 = 18
-        case Titile4 = 16
-    }
-    
-    enum BodySize: CGFloat, FontSizeProtocol {
-        case Body1 = 15
-        case Body2 = 14
-        case Body3 = 13
-        case Body4 = 12
-    }
-    
-    enum CaptionSize: CGFloat, FontSizeProtocol {
-        case Caption1 = 13
-        case Caption2 = 12
-        case Caption3 = 11
-    }
-    
-    enum BtntxtSize: CGFloat, FontSizeProtocol {
-        case Btntxt1 = 16
-        case Btntxt2 = 14
-        case Btntxt3 = 13
-        case Btntxt4 = 12
+public extension CGFloat {
+    enum Size: CGFloat {
+        case _56 = 56
+        case _48 = 48
+        case _40 = 40
+        case _36 = 36
+        case _32 = 32
+        case _28 = 28
+        case _24 = 24
+        case _20 = 20
+        case _18 = 18
+        case _16 = 16
+        case _15 = 15
+        case _14 = 14
+        case _13 = 13
+        case _12 = 12
+        case _11 = 11
     }
 }
 
 public extension UIFont {
-    static func light<S: FontSizeProtocol>(size: S) -> UIFont {
+    static func light(size: CGFloat.Size) -> UIFont {
         return BKFont.Light.fontName(size: size.rawValue)
     }
     
-    static func regular<S: FontSizeProtocol>(size: S) -> UIFont {
+    static func regular(size: CGFloat.Size) -> UIFont {
         return BKFont.Regular.fontName(size: size.rawValue)
     }
     
-    static func semiBold<S: FontSizeProtocol>(size: S) -> UIFont {
+    static func semiBold(size: CGFloat.Size) -> UIFont {
         return BKFont.SemiBold.fontName(size: size.rawValue)
     }
 }
 
 public extension Font {
-    static func light<S: FontSizeProtocol>(size: S) -> Font {
+    static func light(size: CGFloat.Size) -> Font {
         return BKFont.Light.fontName(size: size.rawValue)
     }
     
-    static func regular<S: FontSizeProtocol>(size: S) -> Font {
+    static func regular(size: CGFloat.Size) -> Font {
         return BKFont.Regular.fontName(size: size.rawValue)
     }
     
-    static func semiBold<S: FontSizeProtocol>(size: S) -> Font {
+    static func semiBold(size: CGFloat.Size) -> Font {
         return BKFont.SemiBold.fontName(size: size.rawValue)
     }
 }
