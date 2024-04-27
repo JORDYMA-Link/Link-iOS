@@ -33,7 +33,7 @@ struct ContentDetailView: View {
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("요약 내용")
-                            .font(.semiBold(size: BKFont.TitileSize.Titile3))
+                            .font(.semiBold(size: ._18))
                             .foregroundColor(Color.bkColor(.black))
                             .frame(maxWidth: .infinity, alignment: .leading)
                         ContentDetailTextView(text: viewModel.dummyText1)
@@ -45,10 +45,10 @@ struct ContentDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 6) {
                             Text("폴더")
-                                .font(.semiBold(size: BKFont.TitileSize.Titile3))
+                                .font(.semiBold(size: ._18))
                                 .foregroundColor(Color.bkColor(.black))
                             Text("수정")
-                                .font(.regular(size: BKFont.BodySize.Body4))
+                                .font(.regular(size: ._12))
                                 .foregroundColor(Color.bkColor(.gray600))
                             Spacer()
                         }
@@ -60,10 +60,10 @@ struct ContentDetailView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 6) {
                             Text("메모")
-                                .font(.semiBold(size: BKFont.TitileSize.Titile3))
+                                .font(.semiBold(size: ._18))
                                 .foregroundColor(Color.bkColor(.black))
                             Text("수정")
-                                .font(.regular(size: BKFont.BodySize.Body4))
+                                .font(.regular(size: ._12))
                                 .foregroundColor(Color.bkColor(.gray600))
                             Spacer()
                         }
@@ -80,7 +80,7 @@ struct ContentDetailView: View {
                 print("원문보기")
             } label: {
                 Text("원문보기")
-                    .font(.semiBold(size: BKFont.BtntxtSize.Btntxt1))
+                    .font(.semiBold(size: ._16))
                     .foregroundColor(.bkColor(.white))
                     .padding(.vertical, 14)
                     .padding(.horizontal, 16)
@@ -126,12 +126,12 @@ struct ContentDetailView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             Text("방문자 상위 50위 생성형 AI 웹 서비스 분석")
-                .font(.regular(size: BKFont.DisplaySize.Display6))
+                .font(.regular(size: ._28))
                 .foregroundColor(Color.bkColor(.white))
                 .lineLimit(2)
             
             Text("2024.02.123")
-                .font(.regular(size: BKFont.BtntxtSize.Btntxt1))
+                .font(.regular(size: ._16))
                 .foregroundColor(Color.bkColor(.white))
         }
     }
