@@ -9,7 +9,7 @@
 import SwiftUI
 
 final class BKTabViewModel: ObservableObject {
-    @Published var currentItem: TabViewType = .home
+    @Published var currentItem: BKTabViewType = .home
     
     var view: some View {
         return currentItem.view

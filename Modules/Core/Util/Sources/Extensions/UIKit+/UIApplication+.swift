@@ -1,5 +1,5 @@
 //
-//  UIWindowScene+.swift
+//  UIApplication+.swift
 //  CommonFeature
 //
 //  Created by 김규철 on 2024/04/21.

@@ -19,7 +19,7 @@ struct ContentDetailTextView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             
             Text(text)
-                .font(.regular(size: BKFont.BodySize.Body2))
+                .font(.regular(size: ._14))
                 .foregroundColor(.bkColor(.main800))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 13)

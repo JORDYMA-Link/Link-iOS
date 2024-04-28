@@ -10,6 +10,33 @@ import SwiftUI
 
 import CommonFeature
 
+// MARK: - PopUpMenuType
+
+enum PopUpMenuType: Int, CaseIterable {
+    case link
+    case text
+    
+    var image: Image {
+        switch self {
+        case .link:
+            return CommonFeatureAsset.Images.icoLink.swiftUIImage
+        case .text:
+            return CommonFeatureAsset.Images.icoRoundEdit.swiftUIImage
+        }
+    }
+    
+    var title: String {
+        switch self {
+        case .link:
+            return "링크 저장"
+        case .text:
+            return "텍스트 저장"
+        }
+    }
+}
+
+// MARK: - PopUpMenu
+
 struct PopUpMenu: View {
     var body: some View {
         HStack(spacing: 24) {
@@ -50,7 +77,7 @@ struct MenuItem: View {
             
             Text(menuType.title)
                 .foregroundColor(Color.bkColor(.white))
-                .font(.semiBold(size: BKFont.BodySize.Body1))
+                .font(.semiBold(size: ._15))
         }
     }
 }
