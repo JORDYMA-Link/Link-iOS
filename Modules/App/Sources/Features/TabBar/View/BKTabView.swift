@@ -10,6 +10,43 @@ import SwiftUI
 
 import CommonFeature
 
+// MARK: - BKTabViewType
+
+enum BKTabViewType: Int, CaseIterable {
+    case home
+    case folder
+    
+    var image: Image {
+        switch self {
+        case .home:
+            return CommonFeatureAsset.Images.icoHome.swiftUIImage
+        case .folder:
+            return CommonFeatureAsset.Images.icoFolder.swiftUIImage
+        }
+    }
+    
+    var selectedImage: Image {
+        switch self {
+        case .home:
+            return CommonFeatureAsset.Images.icoHomeClcik.swiftUIImage
+        case .folder:
+            return CommonFeatureAsset.Images.icoFolderClick.swiftUIImage
+        }
+    }
+    
+    @ViewBuilder
+    var view: some View {
+        switch self {
+        case .home:
+            HomeView()
+        case .folder:
+            StorageBoxView()
+        }
+    }
+}
+
+// MARK: - BKTabbar
+
 struct BKTabView: View {
     @State private var showMenu = false
     @ObservedObject var viewModel = BKTabViewModel()
@@ -39,6 +76,7 @@ struct BKTabView: View {
                     HStack {
                         Spacer()
                         Spacer()
+                        Spacer()
                         
                         VStack {
                             TabIcon(tabViewType: .home, viewModel: viewModel, showMenu: $showMenu)
@@ -63,6 +101,7 @@ struct BKTabView: View {
                         
                         Spacer()
                         Spacer()
+                        Spacer()
                     }
                     .frame(height: 82)
                     .frame(maxWidth: .infinity)
@@ -75,6 +114,7 @@ struct BKTabView: View {
                 }
             }
             .ignoresSafeArea(edges: .bottom)
+            .toolbar(.hidden, for: .tabBar)
         }
     }
 }
