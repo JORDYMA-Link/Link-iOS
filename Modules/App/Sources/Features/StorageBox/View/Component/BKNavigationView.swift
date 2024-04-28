@@ -12,6 +12,9 @@ import CommonFeature
 
 // MARK: - makeBKNavigationView
 
+// makeBKNavigationView는 toolbar를 사용하지 않고 커스텀해야할 때 사용하면 될 거 같습니다.
+// Ex: BottomSheet의 NavigationBar -> toolbar는 padding과 height 커스텀 X
+
 @ViewBuilder
 func makeBKNavigationView(leadingType: LeadingItemTypes, trailingType: TrailingItemTypes, tintColor: Color = Color.bkColor(.black), containerColor: Color = Color.bkColor(.white)) -> some View {
     HStack {

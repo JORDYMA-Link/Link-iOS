@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+import Util
 import CommonFeature
 
 struct ContentDetailView: View {
