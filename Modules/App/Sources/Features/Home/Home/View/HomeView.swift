@@ -16,7 +16,8 @@ import SwiftUIIntrospect
 public struct HomeView: View {
     
     @StateObject private var viewModel = HomeDIContainer().makeViewModel()
-    @State private var isNavigate = false
+    @State private var pushToNotification = false
+    @State private var pushToSetting = false
     
     public init() {}
     
@@ -31,8 +32,11 @@ public struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
             .background(.pink)
-            .navigationDestination(isPresented: $isNavigate, destination: {
+            .navigationDestination(isPresented: $pushToNotification, destination: {
                 NotificationListView()
+            })
+            .navigationDestination(isPresented: $pushToSetting, destination: {
+                SettingView()
             })
             .onAppear {
                 viewModel.loadCoinData()
@@ -44,9 +48,9 @@ public struct HomeView: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     TrailingItem(type: .twoIcon(leftAction: {
-                        isNavigate.toggle()
+                        pushToNotification.toggle()
                     }, rightAction: {
-                        isNavigate.toggle()
+                        pushToSetting.toggle()
                     }, leftIcon: CommonFeatureAsset.Images.icoBell.swiftUIImage, rightIcon: CommonFeatureAsset.Images.icoSettings.swiftUIImage), tintColor: .bkColor(.gray900)
                     )
                 }
