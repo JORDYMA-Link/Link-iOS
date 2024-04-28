@@ -16,17 +16,12 @@ import SwiftUIIntrospect
 public struct HomeView: View {
     
     @StateObject private var viewModel = HomeDIContainer().makeViewModel()
+    @State private var isNavigate = false
     
     public init() {}
     
     public var body: some View {
         VStack(spacing: 0) {
-            makeBKNavigationView(leadingType: .home, trailingType: .twoIcon(leftAction: {
-                print("go to Alarm")
-            }, rightAction: {
-                print("go to setting")
-            }, leftIcon: CommonFeatureAsset.Images.icoBell.swiftUIImage, rightIcon: CommonFeatureAsset.Images.icoSettings.swiftUIImage))
-            
             ScrollView {
                 Text("비트코인 2억간다.")
                     .foregroundColor(Color.bkColor(.green))
@@ -36,11 +31,27 @@ public struct HomeView: View {
             }
             .frame(maxWidth: .infinity)
             .background(.pink)
+            .navigationDestination(isPresented: $isNavigate, destination: {
+                NotificationListView()
+            })
+            .onAppear {
+                viewModel.loadCoinData()
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    LeadingItem(type: .home)
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    TrailingItem(type: .twoIcon(leftAction: {
+                        isNavigate.toggle()
+                    }, rightAction: {
+                        isNavigate.toggle()
+                    }, leftIcon: CommonFeatureAsset.Images.icoBell.swiftUIImage, rightIcon: CommonFeatureAsset.Images.icoSettings.swiftUIImage), tintColor: .bkColor(.gray900)
+                    )
+                }
+            }
         }
-        .onAppear {
-            viewModel.loadCoinData()
-        }
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
