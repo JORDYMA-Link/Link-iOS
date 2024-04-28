@@ -9,21 +9,45 @@
 import SwiftUI
 
 struct StorageBoxView: View {
+    @State private var contentText: String = ""
+    
+    let columns: [GridItem] = [GridItem(.flexible(), spacing: 14), GridItem(.flexible())]
+    
     var body: some View {
-        ZStack {
-            Color.bkColor(.gray300)
-                .ignoresSafeArea(.all)
+        VStack {
+            TextField("콘텐츠를 찾아드립니다.", text: $contentText)
+                .frame(height: 43)
+                .background(Color.bkColor(.gray300))
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
             
-            VStack(spacing: 0) {
-                makeBKNavigationView(leadingType: .tab("보관함"), trailingType: .none)
-                
-                Spacer()
+            ScrollView(showsIndicators: false) {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    Rectangle()
+                        .frame(height: 80)
+                        .foregroundColor(Color.red)
+                    
+                    ForEach(1..<20) { index in
+                        Rectangle()
+                            .frame(height: 80)
+                            .foregroundColor(Color.blue)
+                    }
+                }
+                .padding(.vertical, 32)
+            }
+            .padding(.horizontal, 16)
+            .background(Color.bkColor(.gray300))
+        }
+        .background(Color.bkColor(.white))
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                LeadingItem(type: .tab("보관함"))
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
 #Preview {
-    StorageBoxView()
+    NavigationStack {
+        StorageBoxView()
+    }
 }
