@@ -37,8 +37,11 @@ struct ContentDetailView: View {
                             .font(.semiBold(size: ._18))
                             .foregroundColor(Color.bkColor(.black))
                             .frame(maxWidth: .infinity, alignment: .leading)
+                        
                         ContentDetailTextView(text: viewModel.dummyText1)
-                        KeywordChipView()
+                        
+                        BKChipView(keyword: ["Design", "Design", "Design"], textColor: .bkColor(.gray700), strokeColor: .bkColor(.gray500), font: .semiBold(size: ._11))
+                       
                     }
                     .padding(.horizontal, 16)
                     .padding(.bottom, 16)
