@@ -1,18 +1,16 @@
 //
 //  BKNavigationViewItem.swift
-//  Blink
+//  CommonFeature
 //
-//  Created by kyuchul on 4/26/24.
+//  Created by 김규철 on 5/5/24.
 //  Copyright © 2024 jordyma. All rights reserved.
 //
 
 import SwiftUI
 
-import CommonFeature
-
 // MARK: - LeadingItemTypes
 
-enum LeadingItemTypes {
+public enum LeadingItemTypes {
     case home
     case tab(String)
     case pop(String)
@@ -21,10 +19,14 @@ enum LeadingItemTypes {
 
 // MARK: - LeadingItem
 
-struct LeadingItem: View {
-    var type: LeadingItemTypes
+public struct LeadingItem: View {
+    public var type: LeadingItemTypes
     
-    var body: some View {
+    public init(type: LeadingItemTypes) {
+        self.type = type
+    }
+    
+    public var body: some View {
         switch type {
         case .home:
             CommonFeatureAsset.Images.homeLogo.swiftUIImage
@@ -67,7 +69,7 @@ struct LeadingItem: View {
 
 // MARK: - TrailingItemTypes
 
-enum TrailingItemTypes {
+public enum TrailingItemTypes {
     case twoIcon(leftAction: () -> Void, rightAction: () -> Void, leftIcon: Image, rightIcon: Image)
     case oneIcon(action: () -> Void, icon: Image)
     case pop
@@ -76,11 +78,16 @@ enum TrailingItemTypes {
 
 // MARK: - TrailingItem
 
-struct TrailingItem: View {
-    var type: TrailingItemTypes
-    var tintColor: Color
+public struct TrailingItem: View {
+    public var type: TrailingItemTypes
+    public var tintColor: Color
     
-    var body: some View {
+    public init(type: TrailingItemTypes, tintColor: Color) {
+        self.type = type
+        self.tintColor = tintColor
+    }
+    
+    public var body: some View {
         switch type {
         case let .twoIcon(leftAction, rightAction, leftIcon, rightIcon):
             HStack(alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/, spacing: 18) {
