@@ -13,6 +13,7 @@ import CommonFeature
 struct StorageBoxView: View {
     @State private var contentText: String = ""
     @State private var pushToContentList = false
+    @State private var isPresented = false
     
     var body: some View {
         VStack {
@@ -33,7 +34,7 @@ struct StorageBoxView: View {
                             folderCount: 90,
                             folderName: "할리스커피",
                             menuAction: {
-                                print("설정 바텀시트")
+                                isPresented = true
                             }
                         )
                         .onTapGesture {
@@ -54,6 +55,10 @@ struct StorageBoxView: View {
             ToolbarItem(placement: .topBarLeading) {
                 LeadingItem(type: .tab("보관함"))
             }
+        }
+        .bottomSheet(isPresented: $isPresented, detents: [.height(154)], leadingTitle: "폴더 설정") {
+            menuBottomSheetContent
+                .padding(.horizontal, 16)
         }
     }
     
@@ -118,6 +123,32 @@ struct StorageBoxView: View {
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .frame(height: 80)
             .shadow(color: .bkColor(.gray900).opacity(0.08), radius: 5, x: 0, y: 4)
+        }
+    }
+    
+    private var menuBottomSheetContent: some View {
+        HStack(spacing:0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Button(action: {
+                    print("폴더 이름 수정하기")
+                }) {
+                    Text("폴더 이름 수정하기")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.gray900))
+                        .padding(.vertical, 8)
+                }
+                
+                Button(action: {
+                    print("폴더 삭제하기")
+                }) {
+                    Text("폴더 삭제하기")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.red))
+                        .padding(.vertical, 8)
+                }
+            }
+            
+            Spacer(minLength: 0)
         }
     }
 }

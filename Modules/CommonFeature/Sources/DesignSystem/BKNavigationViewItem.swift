@@ -72,7 +72,7 @@ public struct LeadingItem: View {
 public enum TrailingItemTypes {
     case twoIcon(leftAction: () -> Void, rightAction: () -> Void, leftIcon: Image, rightIcon: Image)
     case oneIcon(action: () -> Void, icon: Image)
-    case pop
+    case pop(action: () -> Void)
     case none
 }
 
@@ -98,8 +98,8 @@ public struct TrailingItem: View {
         case let .oneIcon(action, icon):
             makeIconItem(action: action, icon: icon)
             
-        case .pop:
-            makeIcon(icon: CommonFeatureAsset.Images.icoClose.swiftUIImage)
+        case let .pop(action):
+            makeIconItem(action: action, icon: CommonFeatureAsset.Images.icoClose.swiftUIImage)
                 .padding(.trailing, 20)
             
         case .none:
