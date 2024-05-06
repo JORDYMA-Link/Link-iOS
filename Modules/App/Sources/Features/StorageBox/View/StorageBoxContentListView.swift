@@ -13,6 +13,7 @@ import CommonFeature
 struct StorageBoxContentListView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var contentText: String = ""
+    @State private var isPresented = false
     
     var body: some View {
         VStack {
@@ -48,6 +49,10 @@ struct StorageBoxContentListView: View {
                 LeadingItem(type: .tab("보관함"))
             }
         }
+        .bottomSheet(isPresented: $isPresented, detents: [.height(193)], leadingTitle: "정렬") {
+            sortBottomSheetContent
+                .padding(.horizontal, 16)
+        }
     }
     
     @ViewBuilder
@@ -64,7 +69,9 @@ struct StorageBoxContentListView: View {
             
             Spacer(minLength: 0)
             
-            Button(action: {}) {
+            Button(action: {
+                isPresented = true
+            }) {
                 makeCategoryView(categoryTitle: "최신순")
             }
         }
@@ -77,6 +84,44 @@ struct StorageBoxContentListView: View {
                 .font(.regular(size: ._13))
                 .foregroundStyle(Color.bkColor(.gray700))
             BKIcon(image: CommonFeatureAsset.Images.icoChevronDown.swiftUIImage, color: .bkColor(.gray700), size: CGSize(width: 16, height: 16))
+        }
+    }
+    
+    private var sortBottomSheetContent: some View {
+        HStack(spacing:0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Button(action: {
+                    print("최신순")
+                }) {
+                    Text("최신순")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.black))
+                        .frame(alignment: .leading)
+                        .padding(.vertical, 8)
+                }
+                
+                Button(action: {
+                    print("날짜순")
+                }) {
+                    Text("날짜순")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.black))
+                        .frame(alignment: .leading)
+                        .padding(.vertical, 8)
+                }
+                
+                Button(action: {
+                    print("가나다순")
+                }) {
+                    Text("가나다순")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.black))
+                        .frame(alignment: .leading)
+                        .padding(.vertical, 8)
+                }
+            }
+            
+            Spacer(minLength: 0)
         }
     }
 }
