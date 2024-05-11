@@ -73,6 +73,10 @@ struct BKTabView: View {
                     
                     Spacer(minLength: 0)
                     
+                    Color.bkColor(.gray300)
+                        .frame(height: 1)
+                        .frame(maxWidth: .infinity)
+                    
                     HStack {
                         Spacer()
                         Spacer()
