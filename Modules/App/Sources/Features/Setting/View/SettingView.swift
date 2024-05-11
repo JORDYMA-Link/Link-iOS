@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+import CommonFeature
+
 struct SettingView: View {
     @Environment(\.dismiss) private var dismiss
     

@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+import CommonFeature
+
 struct NotificationListView: View {
     @Environment(\.dismiss) private var dismiss
     
