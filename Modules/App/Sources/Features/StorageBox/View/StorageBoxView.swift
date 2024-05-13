@@ -26,6 +26,8 @@ struct StorageBoxView: View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
                 makeBKNavigationView(leadingType: .tab("폴더함"), trailingType: .none)
+                    .padding(.horizontal, 16)
+                
                 if isHiddenShadow {
                     Color.gray
                         .frame(height: 6)
@@ -58,7 +60,6 @@ struct StorageBoxView: View {
                                 isPresented = true
                             }
                         )
-                        .id(index)
                         .onTapGesture {
                             pushToContentList.toggle()
                         }
@@ -73,18 +74,13 @@ struct StorageBoxView: View {
             }
         }
         .onReceive(scrollViewDelegate.$contentOffset) { scroll in
-                isHiddenShadow = scroll
+            isHiddenShadow = scroll
         }
         .background(Color.bkColor(.white))
         .navigationDestination(isPresented: $pushToContentList) {
             StorageBoxContentListView()
         }
         .toolbar(.hidden, for: .navigationBar)
-        //        .toolbar {
-        //            ToolbarItem(placement: .topBarLeading) {
-        //                LeadingItem(type: .tab("보관함"))
-        //            }
-        //        }
         .bottomSheet(isPresented: $isPresented, detents: [.height(154)], leadingTitle: "폴더 설정") {
             menuBottomSheetContent
                 .padding(.horizontal, 16)
@@ -193,11 +189,10 @@ final class ScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject
     private var isScroll = false
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.y > 50 && !isScroll {
+        if scrollView.contentOffset.y > 70 && !isScroll {
             contentOffset = true
             isScroll = true
-        } else if scrollView.contentOffset.y < 50 && isScroll {
-            // 스크롤이 80 이하로 내려갔을 때만 isScroll을 false로 설정하여 다음 80 이상의 스크롤을 기다립니다.
+        } else if scrollView.contentOffset.y < 70 && isScroll {
             contentOffset = false
             isScroll = false
         }
