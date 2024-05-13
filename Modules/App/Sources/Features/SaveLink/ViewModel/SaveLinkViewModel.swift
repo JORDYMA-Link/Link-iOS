@@ -67,7 +67,8 @@ final class SaveLinkViewModel: ViewModelable {
             } else {
                 self.state = .buttonActivate(value: true)
             }
-        }.store(in: &cancellables)
+        }
+        .store(in: &cancellables)
     }
     
     private func togglePresentLoading() -> Bool {
