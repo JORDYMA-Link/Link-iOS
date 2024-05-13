@@ -31,9 +31,9 @@ public struct ClearableTextField: View {
             HStack {
                 Spacer()
                 if !text.isEmpty {
-                    Button(action: {
+                    Button {
                         text = ""
-                    }) {
+                    } label: {
                         Image(systemName: "multiply.circle.fill")
                             .foregroundStyle(Color.gray)
                     }
