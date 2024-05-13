@@ -8,12 +8,38 @@
 
 import SwiftUI
 
-struct ClearableTextField: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+public struct ClearableTextField: View {
+    @Binding var text: String
+    var placeholder: String
+    
+    public init(text: Binding<String>, placeholder: String) {
+        self._text = text
+        self.placeholder = placeholder
     }
-}
-
-#Preview {
-    ClearableTextField()
+    
+    public var body: some View {
+        TextField(text: $text) {
+            Text("링크를 붙여주세요")
+                .font(.regular(size: BKFont.BodySize.Body2))
+                .foregroundStyle(Color.bkColor(.gray800))
+        }
+        .frame(height: 46)
+        .padding(.leading, 10)
+        .background(Color.bkColor(.gray300))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
+        .overlay(
+            HStack {
+                Spacer()
+                if !text.isEmpty {
+                    Button(action: {
+                        text = ""
+                    }) {
+                        Image(systemName: "multiply.circle.fill")
+                            .foregroundStyle(Color.gray)
+                    }
+                    .padding(.trailing, 10)
+                }
+            }
+        )
+    }
 }
