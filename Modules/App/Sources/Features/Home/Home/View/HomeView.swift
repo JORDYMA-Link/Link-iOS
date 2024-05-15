@@ -10,35 +10,61 @@ import SwiftUI
 
 import CommonFeature
 
+import SwiftUIIntrospect
+
 struct HomeView: View {
     @StateObject private var viewModel = HomeDIContainer().makeViewModel()
+    @StateObject private var scrollViewDelegate = HomeScrollViewDelegate()
     @State private var categorySelectedIndex: Int? = 0
     @State private var pushToSetting = false
     
     var body: some View {
-        GeometryReader { proxy in
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 12) {
-                    useBlinkBanner
-                    calendarBanner
-                }
-                .padding(.init(top: 8, leading: 16, bottom: 24, trailing: 16))
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                makeBKNavigationView(leadingType: .home, trailingType: .oneIcon(action: {
+                    pushToSetting.toggle()
+                }, icon: CommonFeatureAsset.Images.icoSettings.swiftUIImage), tintColor: .bkColor(.gray900))
+                .padding(.horizontal, 16)
                 
-                ZStack {
-                    Color.bkColor(.gray300)
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        useBlinkBanner
+                        calendarBanner
+                    }
+                    .padding(.init(top: 8, leading: 16, bottom: 24, trailing: 16))
                     
-                    VStack(spacing: 16) {
-                        CategoryHorizontalList(selectedIndex: $categorySelectedIndex, categories: ["중요", "미분류"])
+                    ZStack {
+                        Color.bkColor(.gray300)
                         
-                        LazyVStack(spacing: 20) {
-                            ForEach(1...10, id: \.self) { count in
-                                BKCardCell(width: proxy.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"])
+                        LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+                            Section {
+                                ForEach(1...10, id: \.self) { count in
+                                    BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"])
+                                }
+                            } header: {
+                                CategoryHorizontalList(selectedIndex: $categorySelectedIndex, categories: ["중요", "미분류"])
+                                    .background(GeometryReader { proxy in
+                                        Color.clear.preference(key: HeaderMaxYPreferenceKey.self, value: proxy.frame(in: .global).maxY)
+                                    })
+                                    .onPreferenceChange(HeaderMaxYPreferenceKey.self) { maxY in
+                                        // 섹션 헤더의 최대 Y 위치 업데이트
+                                        let navigationBarMaxY = geometry.safeAreaInsets.top
+                                        let headerMaxY = maxY + navigationBarMaxY
+                                        
+                                        DispatchQueue.main.async {
+                                            scrollViewDelegate.headerMaxY = headerMaxY
+                                        }
+                                    }
+                                    .background(scrollViewDelegate.headerBackground)
                             }
                         }
+                        .padding(.vertical, 16)
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 16)
                 }
+            }
+            .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
+                scrollView.delegate = scrollViewDelegate
             }
         }
         .onAppear {
@@ -47,17 +73,7 @@ struct HomeView: View {
         .navigationDestination(isPresented: $pushToSetting) {
             SettingView()
         }
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                LeadingItem(type: .home)
-            }
-            
-            ToolbarItem(placement: .topBarTrailing) {
-                TrailingItem(type: .oneIcon(action: {
-                    pushToSetting.toggle()
-                }, icon: CommonFeatureAsset.Images.icoSettings.swiftUIImage), tintColor: .bkColor(.gray900))
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
     }
     
     private var useBlinkBanner: some View {
@@ -166,4 +182,25 @@ struct HomeView: View {
 
 #Preview {
     BKTabView()
+}
+
+final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
+    @Published var headerBackground: Color = .clear
+    @Published var headerMaxY: CGFloat = .zero
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.y > headerMaxY {
+            headerBackground = .red
+        } else {
+            headerBackground = .clear
+        }
+    }
+}
+
+struct HeaderMaxYPreferenceKey: PreferenceKey {
+    static var defaultValue: CGFloat = .zero
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
 }
