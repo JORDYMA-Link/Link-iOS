@@ -15,7 +15,9 @@ import SwiftUIIntrospect
 struct HomeView: View {
     @StateObject private var viewModel = HomeDIContainer().makeViewModel()
     @StateObject private var scrollViewDelegate = HomeScrollViewDelegate()
+    
     @State private var categorySelectedIndex: Int? = 0
+    @State private var topToCategory: Bool = false
     @State private var pushToSetting = false
     
     var body: some View {
@@ -36,39 +38,43 @@ struct HomeView: View {
                     ZStack {
                         Color.bkColor(.gray300)
                         
-                        LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
+                        LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
                             Section {
                                 ForEach(1...10, id: \.self) { count in
                                     BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"])
+                                        .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
                                 }
                             } header: {
-                                CategoryHorizontalList(selectedIndex: $categorySelectedIndex, categories: ["중요", "미분류"])
+                                CategoryHorizontalList(selectedIndex: $categorySelectedIndex)
                                     .background(GeometryReader { proxy in
                                         Color.clear.preference(key: HeaderMaxYPreferenceKey.self, value: proxy.frame(in: .global).maxY)
                                     })
                                     .onPreferenceChange(HeaderMaxYPreferenceKey.self) { maxY in
                                         // 섹션 헤더의 최대 Y 위치 업데이트
-                                        let navigationBarMaxY = geometry.safeAreaInsets.top
+                                        let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
                                         let headerMaxY = maxY + navigationBarMaxY
                                         
                                         DispatchQueue.main.async {
                                             scrollViewDelegate.headerMaxY = headerMaxY
                                         }
                                     }
-                                    .background(scrollViewDelegate.headerBackground)
+                                    .background(topToCategory ? Color.white : Color.clear)
+                                    .clipped()
+                                    .shadow(color: topToCategory ? .bkColor(.gray900).opacity(0.08) : .clear, radius: 5, x: 0, y: 4)
                             }
                         }
-                        .padding(.vertical, 16)
-                        .padding(.horizontal, 16)
                     }
                 }
             }
             .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
-                scrollView.delegate = scrollViewDelegate
+                    scrollView.delegate = scrollViewDelegate
             }
         }
         .onAppear {
             viewModel.loadCoinData()
+        }
+        .onReceive(scrollViewDelegate.$topToCategory.receive(on: DispatchQueue.main)) { item in
+            self.topToCategory = item
         }
         .navigationDestination(isPresented: $pushToSetting) {
             SettingView()
@@ -146,18 +152,18 @@ struct HomeView: View {
     
     private struct CategoryHorizontalList: View {
         @Binding var selectedIndex: Int?
-        var categories: [String]
+        var categories = ["중요", "미분류"]
         
         var body: some View {
             ScrollView(.horizontal) {
-                LazyHStack(spacing: 8) {
+                HStack(spacing: 8) {
                     ForEach(categories.indices, id: \.self) { index in
                         ZStack {
                             RoundedRectangle(cornerRadius: 100)
                                 .fill(selectedIndex == index ? Color.black : Color.white)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 100)
-                                        .stroke(selectedIndex == index ? Color.black : Color.bkColor(.gray500), lineWidth: 1)
+                                        .stroke(selectedIndex == index ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
                                 )
                             
                             Text(categories[index])
@@ -175,7 +181,11 @@ struct HomeView: View {
                         }
                     }
                 }
+                .padding(.leading, 16)
             }
+            .scrollDisabled(true)
+            .padding(.top, 8)
+            .padding(.bottom, 12)
         }
     }
 }
@@ -184,15 +194,24 @@ struct HomeView: View {
     BKTabView()
 }
 
+
+@MainActor
 final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
     @Published var headerBackground: Color = .clear
     @Published var headerMaxY: CGFloat = .zero
+    @Published var topToCategory: Bool = false
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if scrollView.contentOffset.y > headerMaxY {
-            headerBackground = .red
+            DispatchQueue.main.async {
+                self.headerBackground = .white
+                self.topToCategory = true
+            }
         } else {
-            headerBackground = .clear
+            DispatchQueue.main.async {
+                self.headerBackground = .clear
+                self.topToCategory = false
+            }
         }
     }
 }
