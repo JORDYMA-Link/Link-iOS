@@ -58,7 +58,7 @@ struct HomeView: View {
                                             scrollViewDelegate.headerMaxY = headerMaxY
                                         }
                                     }
-                                    .background(topToCategory ? Color.white : Color.clear)
+                                    .background(topToCategory ? Color.white : Color.bkColor(.gray300))
                                     .clipped()
                                     .shadow(color: topToCategory ? .bkColor(.gray900).opacity(0.08) : .clear, radius: 5, x: 0, y: 4)
                             }
@@ -74,7 +74,9 @@ struct HomeView: View {
             viewModel.loadCoinData()
         }
         .onReceive(scrollViewDelegate.$topToCategory.receive(on: DispatchQueue.main)) { item in
-            self.topToCategory = item
+            withAnimation(.easeIn(duration: 0.2)) {
+                self.topToCategory = item
+            }
         }
         .navigationDestination(isPresented: $pushToSetting) {
             SettingView()
