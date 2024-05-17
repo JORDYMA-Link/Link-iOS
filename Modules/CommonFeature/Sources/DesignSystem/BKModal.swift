@@ -39,11 +39,11 @@ public struct BKModal: View {
             }
 
             Text(modalType.modalTitle)
-                .font(.semiBold(size: BKFont.TitileSize.Titile4))
+                .font(.semiBold(size: ._14))
                 .padding(.bottom, 8)
             
             Text(modalType.modalDescription)
-                .font(.regular(size: BKFont.BodySize.Body2))
+                .font(.regular(size: ._14))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(BKColor.gray700.swiftUIColor)
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
