@@ -85,6 +85,7 @@ public extension TargetDependency {
         public static let lottie = TargetDependency.external(name: "Lottie")
         public static let introspect = TargetDependency.external(name: "SwiftUIIntrospect")
         public static let keyboardObserving = TargetDependency.external(name: "KeyboardObserving")
+        public static let swipeActions = TargetDependency.external(name: "SwipeActions")
     }
     
     class Carthage {

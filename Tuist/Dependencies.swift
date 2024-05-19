@@ -26,7 +26,8 @@ let dependencies = Dependencies(
         .lottie,
         .firebase,
         .introspect,
-        .keyboardObserving
+        .keyboardObserving,
+        .swipeActions
     ],
                                                          productTypes: [
                                                             "Lottie" : .framework

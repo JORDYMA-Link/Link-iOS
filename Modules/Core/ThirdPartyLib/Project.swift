@@ -20,6 +20,7 @@ let project = Project.makeModule(
         .SPM.lottie,
         .SPM.introspect,
         .SPM.keyboardObserving,
+        .SPM.swipeActions,
         .Carthage.realm,
         .Carthage.realmSwift
     ]
