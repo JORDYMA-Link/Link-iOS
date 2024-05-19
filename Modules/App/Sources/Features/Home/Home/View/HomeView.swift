@@ -11,6 +11,7 @@ import SwiftUI
 import CommonFeature
 
 import SwiftUIIntrospect
+import SwipeActions
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeDIContainer().makeViewModel()
@@ -141,8 +142,32 @@ extension HomeView {
             LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
                 Section {
                     ForEach(1...10, id: \.self) { count in
-                        BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"])
-                            .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+                        SwipeView {
+                            BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은 한강 위로 고양이가 걸어다닙니다. 꽁꽁얼어붙은 한강 위로 고양이가 걸어다닙니다. 꽁꽁얼어붙은 한강 위로 고양이가 걸어다닙니다.", keyword: ["Design System", "디자인", "UI/UX"])
+                        } leadingActions: { _ in
+                            SwipeAction {
+                                print("스와이프 이동 액션")
+                            } label: {_ in
+                                Text("이동")
+                                    .font(.semiBold(size: ._16))
+                                    .foregroundStyle(Color.bkColor(.white))
+                            } background: { _ in
+                                Color.bkColor(.main300)
+                            }
+                        } trailingActions: { SwipeContext in
+                            SwipeAction {
+                                print("스와이프 삭제 액션")
+                            } label: {_ in
+                                Text("삭제")
+                                    .font(.semiBold(size: ._16))
+                                    .foregroundStyle(Color.bkColor(.white))
+                            } background: { _ in
+                                Color.bkColor(.red)
+                                    .opacity(0.7)
+                            }
+                        }
+                        .swipeActionCornerRadius(10)
+                        .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
                     }
                 } header: {
                     makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
@@ -168,7 +193,7 @@ extension HomeView {
     
     @ViewBuilder
     private func makeCategorySectionHeader(selectedIndex: Binding<Int?>) -> some View {
-        var categories = ["중요", "미분류"]
+        let categories = ["중요", "미분류"]
         
         ScrollView(.horizontal) {
             HStack(spacing: 8) {
@@ -213,11 +238,6 @@ extension HomeView {
         }
     }
 }
-
-#Preview {
-    BKTabView()
-}
-
 
 @MainActor
 final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
