@@ -256,14 +256,8 @@ final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableOb
     @Published var topToCategory: Bool = false
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.y > headerMaxY {
-            DispatchQueue.main.async {
-                self.topToCategory = true
-            }
-        } else {
-            DispatchQueue.main.async {
-                self.topToCategory = false
-            }
+        DispatchQueue.main.async {
+            self.topToCategory = scrollView.contentOffset.y >  self.headerMaxY
         }
     }
 }
