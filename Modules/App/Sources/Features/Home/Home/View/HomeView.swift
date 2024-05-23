@@ -27,13 +27,18 @@ struct HomeView: View {
                 makeNavigationView()
                 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 12) {
-                        makeUseBlinkBanner()
-                        makeCalendarBanner()
+                    VStack(spacing: 0) {
+                        VStack(spacing: 12) {
+                            makeUseBlinkBanner()
+                            makeCalendarBanner()
+                        }
+                        .padding(.init(top: 8, leading: 16, bottom: 24, trailing: 16))
+                        
+                        Divider()
+                            .foregroundStyle(Color.bkColor(.gray400))
+                        
+                        makeArticleListView(geometry)
                     }
-                    .padding(.init(top: 8, leading: 16, bottom: 24, trailing: 16))
-                    
-                    makeArticleListView(geometry)
                 }
                 .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
                     scrollView.delegate = scrollViewDelegate
@@ -170,24 +175,30 @@ extension HomeView {
                         .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
                     }
                 } header: {
-                    makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
-                        .background(GeometryReader { proxy in
-                            Color.clear.preference(key: CategorySectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
-                        })
-                        .onPreferenceChange(CategorySectionHeaderPreferenceKey.self) { maxY in
-                            // 섹션 헤더의 최대 Y 위치 업데이트
-                            let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
-                            let headerMaxY = maxY + navigationBarMaxY
-                            
-                            DispatchQueue.main.async {
-                                scrollViewDelegate.headerMaxY = headerMaxY
+                    VStack(spacing: 0) {
+                        makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
+                            .background(GeometryReader { proxy in
+                                Color.clear.preference(key: CategorySectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
+                            })
+                            .onPreferenceChange(CategorySectionHeaderPreferenceKey.self) { maxY in
+                                // 섹션 헤더의 최대 Y 위치 업데이트
+                                let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
+                                let headerMaxY = maxY + navigationBarMaxY
+                                
+                                DispatchQueue.main.async {
+                                    scrollViewDelegate.headerMaxY = headerMaxY
+                                }
                             }
-                        }
-                        .background(topToCategory ? Color.white : Color.bkColor(.gray300))
-                        .clipped()
-                        .shadow(color: topToCategory ? .bkColor(.gray900).opacity(0.08) : .clear, radius: 5, x: 0, y: 4)
+                            .background(topToCategory ? Color.white : Color.bkColor(.gray300))
+                        
+                        Divider()
+                            .foregroundStyle(Color.bkColor(.gray400))
+                            .opacity(topToCategory ? 1 : 0)
+                        
+                    }
                 }
             }
+            .padding(.top, 8)
         }
     }
     
