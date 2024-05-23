@@ -7,89 +7,95 @@
 //
 
 import SwiftUI
-import UIKit
 
 import CommonFeature
 
-import Combine
 import SwiftUIIntrospect
 
 struct StorageBoxView: View {
-    @StateObject var scrollViewDelegate = ScrollViewDelegate()
+    @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
     
     @State private var contentText: String = ""
     @State private var pushToContentList = false
     @State private var isPresented = false
-    @State private var isHiddenShadow = false
+    @State private var isHiddenDivider = false
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                makeBKNavigationView(leadingType: .tab("폴더함"), trailingType: .none)
-                    .padding(.horizontal, 16)
-                
-                if isHiddenShadow {
-                    Color.gray
-                        .frame(height: 6)
-                        .shadow(color: .bkColor(.gray900).opacity(0.08), radius: 5, x: 0, y: 4)
-                }
-            }
+            makeNavigationView()
             
             ScrollView(showsIndicators: false) {
-                ZStack {
-                    Color.white
+                VStack(spacing: 0) {
+                    ZStack {
+                        Color.bkColor(.white)
+                        
+                        TextField("콘텐츠를 찾아드립니다.", text: $contentText)
+                            .frame(height: 43)
+                            .background(Color.bkColor(.gray300))
+                            .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
+                    }
                     
-                    TextField("콘텐츠를 찾아드립니다.", text: $contentText)
-                        .frame(height: 43)
-                        .background(Color.bkColor(.gray300))
-                        .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
-                }
-                
-                
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
-                    AddStorageBoxCell()
-                        .onTapGesture {
-                            print("폴더 추가하기")
-                        }
+                    Divider()
+                        .foregroundStyle(Color.bkColor(.gray400))
                     
-                    ForEach(1..<20) { index in
-                        StorageBoxCell(
-                            folderCount: 90,
-                            folderName: "할리스커피",
-                            menuAction: {
-                                isPresented = true
+                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
+                        makeAddStorageBoxCell()
+                            .onTapGesture {
+                                print("폴더 추가하기")
                             }
-                        )
-                        .onTapGesture {
-                            pushToContentList.toggle()
+                        
+                        ForEach(1..<20) { index in
+                            makeStorageBoxCell(
+                                count: 90,
+                                name: "할리스커피",
+                                menuAction: {
+                                    isPresented = true
+                                }
+                            )
+                            .onTapGesture {
+                                pushToContentList.toggle()
+                            }
                         }
                     }
+                    .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
+                    .background(Color.bkColor(.gray300))
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 32)
-                .background(Color.bkColor(.gray300))
             }
             .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
                 scrollView.delegate = scrollViewDelegate
             }
         }
-        .onReceive(scrollViewDelegate.$contentOffset) { scroll in
-            isHiddenShadow = scroll
-        }
         .background(Color.bkColor(.white))
+        .toolbar(.hidden, for: .navigationBar)
+        .onReceive(scrollViewDelegate.$contentOffset.receive(on: DispatchQueue.main)) { isHidden in
+            isHiddenDivider = isHidden
+            
+        }
         .navigationDestination(isPresented: $pushToContentList) {
             StorageBoxContentListView()
         }
-        .toolbar(.hidden, for: .navigationBar)
         .bottomSheet(isPresented: $isPresented, detents: [.height(154)], leadingTitle: "폴더 설정") {
-            menuBottomSheetContent
+            makeMenuBottomSheetContent()
                 .padding(.horizontal, 16)
         }
     }
 }
 
-private struct AddStorageBoxCell: View {
-    var body: some View {
+extension StorageBoxView {
+    @ViewBuilder
+    private func makeNavigationView() -> some View {
+        VStack(spacing: 0) {
+            makeBKNavigationView(leadingType: .tab("보관함"), trailingType: .none)
+                .padding(.horizontal, 16)
+            
+            Divider()
+                .foregroundStyle(Color.bkColor(.gray400))
+                .opacity(isHiddenDivider ? 1 : 0)
+        }
+    }
+    
+    @ViewBuilder
+    private func makeAddStorageBoxCell() -> some View {
         ZStack {
             Color(.bkColor(.white))
             
@@ -109,20 +115,15 @@ private struct AddStorageBoxCell: View {
         .frame(height: 80)
         .shadow(color: .bkColor(.gray900).opacity(0.08), radius: 5, x: 0, y: 4)
     }
-}
-
-private struct StorageBoxCell: View {
-    var folderCount: Int
-    var folderName: String
-    var menuAction: () -> Void
     
-    var body: some View {
+    @ViewBuilder
+    private func makeStorageBoxCell(count: Int, name: String, menuAction: @escaping () -> Void) -> some View {
         ZStack {
             Color(.bkColor(.white))
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("\(folderCount)개")
+                    Text("\(count)개")
                         .font(.regular(size: ._12))
                         .foregroundStyle(Color.bkColor(.gray800))
                         .lineLimit(1)
@@ -139,7 +140,7 @@ private struct StorageBoxCell: View {
                     })
                 }
                 
-                Text(folderName)
+                Text(name)
                     .font(.semiBold(size: ._14))
                     .foregroundStyle(Color.bkColor(.gray900))
                     .lineLimit(1)
@@ -150,51 +151,48 @@ private struct StorageBoxCell: View {
         .frame(height: 80)
         .shadow(color: .bkColor(.gray900).opacity(0.08), radius: 5, x: 0, y: 4)
     }
-}
-
-private var menuBottomSheetContent: some View {
-    HStack(spacing:0) {
-        VStack(alignment: .leading, spacing: 8) {
-            Button(action: {
-                print("폴더 이름 수정하기")
-            }) {
-                Text("폴더 이름 수정하기")
-                    .font(.regular(size: ._16))
-                    .foregroundStyle(Color.bkColor(.gray900))
-                    .padding(.vertical, 8)
+    
+    @ViewBuilder
+    private func makeMenuBottomSheetContent() -> some View {
+        HStack(spacing:0) {
+            VStack(alignment: .leading, spacing: 8) {
+                Button(action: {
+                    print("폴더 이름 수정하기")
+                }) {
+                    Text("폴더 이름 수정하기")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.gray900))
+                        .padding(.vertical, 8)
+                }
+                
+                Button(action: {
+                    print("폴더 삭제하기")
+                }) {
+                    Text("폴더 삭제하기")
+                        .font(.regular(size: ._16))
+                        .foregroundStyle(Color.bkColor(.red))
+                        .padding(.vertical, 8)
+                }
             }
             
-            Button(action: {
-                print("폴더 삭제하기")
-            }) {
-                Text("폴더 삭제하기")
-                    .font(.regular(size: ._16))
-                    .foregroundStyle(Color.bkColor(.red))
-                    .padding(.vertical, 8)
-            }
+            Spacer(minLength: 0)
         }
-        
-        Spacer(minLength: 0)
+    }
+}
+
+@MainActor
+final class StorageBoxScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
+    @Published var contentOffset = false
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        DispatchQueue.main.async {
+            self.contentOffset = scrollView.contentOffset.y > 80
+        }
     }
 }
 
 #Preview {
     NavigationStack {
         StorageBoxView()
-    }
-}
-
-final class ScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
-    @Published var contentOffset = false
-    private var isScroll = false
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if scrollView.contentOffset.y > 70 && !isScroll {
-            contentOffset = true
-            isScroll = true
-        } else if scrollView.contentOffset.y < 70 && isScroll {
-            contentOffset = false
-            isScroll = false
-        }
     }
 }
