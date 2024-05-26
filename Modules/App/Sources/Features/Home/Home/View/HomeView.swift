@@ -148,7 +148,7 @@ extension HomeView {
                 Section {
                     ForEach(1...10, id: \.self) { count in
                         SwipeView {
-                            BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은 한강 위로 고양이가 걸어다닙니다. 꽁꽁얼어붙은 한강 위로 고양이가 걸어다닙니다. 꽁꽁얼어붙은 한강 위로 고양이가 걸어다닙니다.", keyword: ["Design System", "디자인", "UI/UX"])
+                            BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeatureAsset.Images.graphicBell.swiftUIImage, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
                         } leadingActions: { _ in
                             SwipeAction {
                                 print("스와이프 이동 액션")
