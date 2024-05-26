@@ -10,10 +10,12 @@ import SwiftUI
 
 import CommonFeature
 
+import ComposableArchitecture
 import SwiftUIIntrospect
 
 struct StorageBoxView: View {
     @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
+    let store: StoreOf<StorageBoxFeature>
     
     @State private var contentText: String = ""
     @State private var pushToContentList = false
@@ -21,62 +23,63 @@ struct StorageBoxView: View {
     @State private var isHiddenDivider = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            makeNavigationView()
-            
-            ScrollView(showsIndicators: false) {
-                VStack(spacing: 0) {
-                    ZStack {
-                        Color.bkColor(.white)
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
+            VStack(spacing: 0) {
+                makeNavigationView()
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        ZStack {
+                            Color.bkColor(.white)
+                            
+                            TextField("콘텐츠를 찾아드립니다.", text: $contentText)
+                                .frame(height: 43)
+                                .background(Color.bkColor(.gray300))
+                                .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
+                        }
                         
-                        TextField("콘텐츠를 찾아드립니다.", text: $contentText)
-                            .frame(height: 43)
-                            .background(Color.bkColor(.gray300))
-                            .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
-                    }
-                    
-                    Divider()
-                        .foregroundStyle(Color.bkColor(.gray400))
-                    
-                    LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
-                        makeAddStorageBoxCell()
-                            .onTapGesture {
-                                print("폴더 추가하기")
-                            }
+                        Divider()
+                            .foregroundStyle(Color.bkColor(.gray400))
                         
-                        ForEach(1..<20) { index in
-                            makeStorageBoxCell(
-                                count: 90,
-                                name: "할리스커피",
-                                menuAction: {
-                                    isPresented = true
+                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
+                            makeAddStorageBoxCell()
+                                .onTapGesture {
+                                    print("폴더 추가하기")
                                 }
-                            )
-                            .onTapGesture {
-                                pushToContentList.toggle()
+                            
+                            ForEach(1..<20) { index in
+                                makeStorageBoxCell(
+                                    count: 90,
+                                    name: "할리스커피",
+                                    menuAction: {
+                                        viewStore.send(.showMenuBottomSheet)
+                                    }
+                                )
+                                .onTapGesture {
+                                    pushToContentList.toggle()
+                                }
                             }
                         }
+                        .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
+                        .background(Color.bkColor(.gray300))
                     }
-                    .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
-                    .background(Color.bkColor(.gray300))
+                }
+                .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
+                    scrollView.delegate = scrollViewDelegate
                 }
             }
-            .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
-                scrollView.delegate = scrollViewDelegate
+            .background(Color.bkColor(.white))
+            .toolbar(.hidden, for: .navigationBar)
+            .onReceive(scrollViewDelegate.$contentOffset.receive(on: DispatchQueue.main)) { isHidden in
+                isHiddenDivider = isHidden
+                
             }
-        }
-        .background(Color.bkColor(.white))
-        .toolbar(.hidden, for: .navigationBar)
-        .onReceive(scrollViewDelegate.$contentOffset.receive(on: DispatchQueue.main)) { isHidden in
-            isHiddenDivider = isHidden
-            
-        }
-        .navigationDestination(isPresented: $pushToContentList) {
-            StorageBoxContentListView()
-        }
-        .bottomSheet(isPresented: $isPresented, detents: [.height(154)], leadingTitle: "폴더 설정") {
-            makeMenuBottomSheetContent()
-                .padding(.horizontal, 16)
+            .navigationDestination(isPresented: $pushToContentList) {
+                StorageBoxContentListView()
+            }
+            .bottomSheet(isPresented: viewStore.$showingMenuBottomSheet, detents: [.height(154)], leadingTitle: "폴더 설정") {
+                makeMenuBottomSheetContent()
+                    .padding(.horizontal, 16)
+            }
         }
     }
 }
@@ -191,8 +194,10 @@ final class StorageBoxScrollViewDelegate: NSObject, UIScrollViewDelegate, Observ
     }
 }
 
-#Preview {
-    NavigationStack {
-        StorageBoxView()
-    }
-}
+//#Preview {
+//    NavigationStack {
+//        StorageBoxView(store: .init(initialState: StorageBoxFeature.State()) {
+//            StorageBoxFeature()
+//        })
+//    }
+//}
