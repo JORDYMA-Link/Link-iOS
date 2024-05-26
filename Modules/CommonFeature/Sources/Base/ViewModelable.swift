@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-protocol ViewModelable: ObservableObject {
+public protocol ViewModelable: ObservableObject {
   associatedtype Action
   associatedtype State
   
