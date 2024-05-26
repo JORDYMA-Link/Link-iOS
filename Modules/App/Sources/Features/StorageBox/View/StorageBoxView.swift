@@ -15,15 +15,14 @@ import SwiftUIIntrospect
 
 struct StorageBoxView: View {
     @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
-    let store: StoreOf<StorageBoxFeature>
+    @Perception.Bindable var store: StoreOf<StorageBoxFeature>
     
     @State private var contentText: String = ""
     @State private var pushToContentList = false
-    @State private var isPresented = false
     @State private var isHiddenDivider = false
     
     var body: some View {
-        WithViewStore(self.store, observe: { $0 }) { viewStore in
+        WithPerceptionTracking {
             VStack(spacing: 0) {
                 makeNavigationView()
                 ScrollView(showsIndicators: false) {
@@ -43,7 +42,7 @@ struct StorageBoxView: View {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
                             makeAddStorageBoxCell()
                                 .onTapGesture {
-                                    print("폴더 추가하기")
+                                    store.send(.showAddFolderBottomSheet)
                                 }
                             
                             ForEach(1..<20) { index in
@@ -51,7 +50,7 @@ struct StorageBoxView: View {
                                     count: 90,
                                     name: "할리스커피",
                                     menuAction: {
-                                        viewStore.send(.showMenuBottomSheet)
+                                        store.send(.showMenuBottomSheet)
                                     }
                                 )
                                 .onTapGesture {
@@ -76,9 +75,12 @@ struct StorageBoxView: View {
             .navigationDestination(isPresented: $pushToContentList) {
                 StorageBoxContentListView()
             }
-            .bottomSheet(isPresented: viewStore.$showingMenuBottomSheet, detents: [.height(154)], leadingTitle: "폴더 설정") {
+            .bottomSheet(isPresented: $store.showingMenuBottomSheet, detents: [.height(154)], leadingTitle: "폴더 설정") {
                 makeMenuBottomSheetContent()
                     .padding(.horizontal, 16)
+            }
+            .bottomSheet(isPresented: $store.showingAddFolderBottomSheet, detents: [.height(202)], leadingTitle: "폴더 추가") {
+                Text("폴더 추가")
             }
         }
     }
@@ -193,11 +195,3 @@ final class StorageBoxScrollViewDelegate: NSObject, UIScrollViewDelegate, Observ
         }
     }
 }
-
-//#Preview {
-//    NavigationStack {
-//        StorageBoxView(store: .init(initialState: StorageBoxFeature.State()) {
-//            StorageBoxFeature()
-//        })
-//    }
-//}
