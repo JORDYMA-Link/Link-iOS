@@ -114,16 +114,21 @@ public struct BKCardCell: View {
         
     @ViewBuilder
     private func makeBodySection() -> some View {
+        let descriptionFontHeight = UIFont.semiBold(size: ._14).lineHeight
+        let titleFontHeight = UIFont.semiBold(size: ._16).lineHeight
+        
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.semiBold(size: ._16))
                 .foregroundStyle(Color.bkColor(.gray900))
+                .padding(.vertical, (24 - titleFontHeight) / 2)
                 .lineLimit(1)
             
             Text(description)
                 .font(.regular(size: ._14))
                 .foregroundStyle(Color.bkColor(.gray700))
-                .lineSpacing(2)
+                .padding(.vertical, (20 - descriptionFontHeight) / 2)
+                .lineSpacing(20 - descriptionFontHeight)
                 .lineLimit(2)
         }
     }
