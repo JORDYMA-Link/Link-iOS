@@ -39,7 +39,7 @@ public struct BKModal: View {
             }
 
             Text(modalType.modalTitle)
-                .font(.semiBold(size: ._16))
+                .font(.semiBold(size: ._14))
                 .padding(.bottom, 8)
             
             Text(modalType.modalDescription)
