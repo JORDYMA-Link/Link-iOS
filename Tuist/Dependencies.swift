@@ -22,11 +22,12 @@ let dependencies = Dependencies(
     swiftPackageManager: SwiftPackageManagerDependencies([
         .moya,
         .kingFisher,
-        .fsCalendar,
         .lottie,
         .firebase,
+        .composableArchitecture,
         .introspect,
-        .keyboardObserving
+        .keyboardObserving,
+        .swipeActions
     ],
                                                          productTypes: [
                                                             "Lottie" : .framework
