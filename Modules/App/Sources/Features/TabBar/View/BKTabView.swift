@@ -40,7 +40,9 @@ enum BKTabViewType: Int, CaseIterable {
         case .home:
             HomeView()
         case .folder:
-            StorageBoxView()
+            StorageBoxView(store: .init(initialState: StorageBoxFeature.State()) {
+                StorageBoxFeature()
+            })
         }
     }
 }

@@ -23,8 +23,9 @@ public extension Package {
     static let moya = Package.remote(repo: "Moya/Moya", version: "15.0.0")
     static let firebase = Package.remote(repo: "firebase/firebase-ios-sdk", version: "10.18.0")
     static let kingFisher = Package.remote(repo: "onevcat/Kingfisher", version: "7.9.1")
-    static let fsCalendar = Package.remote(repo: "WenchaoD/FSCalendar", version: "2.8.3")
     static let lottie = Package.remote(repo: "airbnb/lottie-ios", version: "4.4.0")
     static let introspect = Package.remote(repo: "siteline/swiftui-introspect", branch: "main")
     static let keyboardObserving = Package.remote(repo: "nickffox/KeyboardObserving", branch: "master")
+    static let swipeActions = Package.remote(repo: "aheze/SwipeActions", branch: "main")
+    static let composableArchitecture = Package.remote(repo: "pointfreeco/swift-composable-architecture", version: "1.10.4")
 }

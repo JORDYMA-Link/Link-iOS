@@ -15,11 +15,12 @@ let project = Project.makeModule(
     product: .framework,
     targets: [],
     dependencies: [
-        .SPM.fsCalendar,
+        .SPM.composableArchitecture,
         .SPM.kingFisher,
         .SPM.lottie,
         .SPM.introspect,
         .SPM.keyboardObserving,
+        .SPM.swipeActions,
         .Carthage.realm,
         .Carthage.realmSwift
     ]

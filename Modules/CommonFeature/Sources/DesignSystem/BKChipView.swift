@@ -22,8 +22,8 @@ public struct BKChipView: View {
     }
     
     public var body: some View {
-        ScrollView(.horizontal) {
-            LazyHStack {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 4) {
                 ForEach(keyword, id: \.self) { text in
                     chipTextItem(text)
                 }
@@ -38,8 +38,9 @@ public struct BKChipView: View {
             .padding(.vertical, 5)
             .padding(.horizontal, 9)
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
+                RoundedRectangle(cornerRadius: 100)
                     .stroke(strokeColor, lineWidth: 1)
+                    .padding(1)
             )
     }
 }

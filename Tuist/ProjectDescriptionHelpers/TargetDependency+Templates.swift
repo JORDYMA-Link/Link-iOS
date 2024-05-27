@@ -81,10 +81,11 @@ public extension TargetDependency {
         public static let firebaseMessaging = TargetDependency.external(name: "FirebaseMessaging")
         public static let firebaseAnalytics = TargetDependency.external(name: "FirebaseAnalytics")
         public static let kingFisher = TargetDependency.external(name: "Kingfisher")
-        public static let fsCalendar = TargetDependency.external(name: "FSCalendar")
         public static let lottie = TargetDependency.external(name: "Lottie")
         public static let introspect = TargetDependency.external(name: "SwiftUIIntrospect")
         public static let keyboardObserving = TargetDependency.external(name: "KeyboardObserving")
+        public static let swipeActions = TargetDependency.external(name: "SwipeActions")
+        public static let composableArchitecture = TargetDependency.external(name: "ComposableArchitecture")
     }
     
     class Carthage {
