@@ -20,7 +20,7 @@ public struct ClearableTextField: View {
     public var body: some View {
         TextField(text: $text) {
             Text("링크를 붙여주세요")
-                .font(.regular(size: BKFont.BodySize.Body2))
+                .font(.regular(size: ._14))
                 .foregroundStyle(Color.bkColor(.gray800))
         }
         .frame(height: 46)
