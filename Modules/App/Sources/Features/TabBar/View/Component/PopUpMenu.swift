@@ -81,9 +81,3 @@ struct MenuItem: View {
         }
     }
 }
-
-struct PopUpMenu_Previews: PreviewProvider {
-    static var previews: some View {
-        PopUpMenu()
-    }
-}

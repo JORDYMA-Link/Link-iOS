@@ -14,5 +14,4 @@ final class BKTabViewModel: ObservableObject {
     var view: some View {
         return currentItem.view
     }
-    
 }
