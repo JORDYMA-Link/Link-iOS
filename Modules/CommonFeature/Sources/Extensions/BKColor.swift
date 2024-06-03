@@ -36,6 +36,7 @@ public enum BKColor: Equatable, Hashable {
     case gradient300
     case gradient200
     case gradient100
+    case kakaoYellow
 }
 
 public extension BKColor {
@@ -67,6 +68,7 @@ public extension BKColor {
         case .gradient300: return CommonFeatureAsset.Colors.gradient300.color
         case .gradient200: return CommonFeatureAsset.Colors.gradient200.color
         case .gradient100: return CommonFeatureAsset.Colors.gradient100.color
+        case .kakaoYellow: return CommonFeatureAsset.Colors.kakaoYellow.color
         }
     }
 
@@ -98,6 +100,7 @@ public extension BKColor {
         case .gradient300: return CommonFeatureAsset.Colors.gradient300.swiftUIColor
         case .gradient200: return CommonFeatureAsset.Colors.gradient200.swiftUIColor
         case .gradient100: return CommonFeatureAsset.Colors.gradient100.swiftUIColor
+        case .kakaoYellow: return CommonFeatureAsset.Colors.kakaoYellow.swiftUIColor
         }
     }
 }
