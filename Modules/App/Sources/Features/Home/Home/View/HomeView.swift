@@ -10,10 +10,12 @@ import SwiftUI
 
 import CommonFeature
 
+import ComposableArchitecture
 import SwiftUIIntrospect
 import SwipeActions
 
 struct HomeView: View {
+    @Perception.Bindable var store: StoreOf<HomeFeature>
     @StateObject private var viewModel = HomeDIContainer().makeViewModel()
     @StateObject private var scrollViewDelegate = HomeScrollViewDelegate()
     
