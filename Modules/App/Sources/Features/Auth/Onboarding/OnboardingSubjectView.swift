@@ -10,7 +10,10 @@ import SwiftUI
 
 import CommonFeature
 
+import ComposableArchitecture
+
 struct OnboardingSubjectView: View {
+    @Perception.Bindable var store: StoreOf<OnboardingSubjectFeature>
     private let subjects = [
         ("💰", "경제"),
         ("🖌️", "기획"),
@@ -27,21 +30,23 @@ struct OnboardingSubjectView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            makeTitle()
-            
-            makeSubjectGrid()
-                .padding(EdgeInsets(top: 24, leading: 12, bottom: 0, trailing: 12))
-            
-            Spacer()
-            
-            makeConfirmButton()
-        }
-        .padding(EdgeInsets(top: 28, leading: 16, bottom: 16, trailing: 16))
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                makeToolbarItem()
+        WithPerceptionTracking {
+            VStack(spacing: 0) {
+                makeTitle()
+                
+                makeSubjectGrid()
+                    .padding(EdgeInsets(top: 24, leading: 12, bottom: 0, trailing: 12))
+                
+                Spacer()
+                
+                makeConfirmButton()
+            }
+            .padding(EdgeInsets(top: 28, leading: 16, bottom: 16, trailing: 16))
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    makeToolbarItem()
+                }
             }
         }
     }
@@ -75,20 +80,20 @@ struct OnboardingSubjectView: View {
         
         LazyVGrid(columns: gridItem, spacing: 16) {
             ForEach(subjects, id: \.1) { item in
-                makeSubjectCell(emoji: item.0, title: item.1)
+                makeSubjectCell(emoji: item.0, title: item.1, isSelected: store.subjects.contains(item.1))
                     .onTapGesture {
-                        print("Tap Subject")
+                        store.send(.selectSubject(item.1))
                     }
             }
         }
     }
     
     @ViewBuilder
-    private func makeSubjectCell(emoji: String, title: String) -> some View {
+    private func makeSubjectCell(emoji: String, title: String, isSelected: Bool) -> some View {
         let lineHeight = UIFont.regular(size: ._16).lineHeight
         
         ZStack {
-            Color(.bkColor(.gray300))
+            Color(.bkColor(isSelected ? .main300 : .gray300))
             
             VStack(spacing: 0) {
                 Text(emoji)
@@ -97,6 +102,7 @@ struct OnboardingSubjectView: View {
                 
                 Text(title)
                     .font(.regular(size: ._16))
+                    .foregroundStyle(Color.bkColor(isSelected ? .white : .black))
                     .padding(.vertical, (24 - lineHeight) / 2)
             }
             .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
@@ -112,15 +118,16 @@ struct OnboardingSubjectView: View {
         } label: {
             ZStack {
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.bkColor(.gray500))
+                    .fill(Color.bkColor(store.subjects.isEmpty ? .gray500 : .main300))
                     .frame(maxWidth: .infinity)
                 
                 Text("확인")
                     .font(.semiBold(size: ._16))
-                    .foregroundStyle(Color.bkColor(.gray600))
+                    .foregroundStyle(Color.bkColor(store.subjects.isEmpty ? .gray600 : .white))
                     .padding(EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
             }
             .frame(height: 52)
         }
+        .disabled(store.subjects.isEmpty)
     }
 }
