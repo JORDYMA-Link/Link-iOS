@@ -44,7 +44,7 @@ struct OnboardingSubjectFeature {
                 }
                 return .none
             case .confirmButtonTapped:
-                <#code#>
+                return .none
             }
         }
     }
