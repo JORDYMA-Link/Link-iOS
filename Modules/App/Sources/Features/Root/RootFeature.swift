@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Util
+
 import ComposableArchitecture
 
 @Reducer
@@ -32,13 +34,22 @@ struct RootFeature: Reducer {
         case mainTab(BKTabFeature.Action)
     }
     
+    @Dependency(\.userDefaultsClient) var userDefault
+    
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .onAppear:
                 return .run {  send in
-                    try await Task.sleep(nanoseconds: 3 * 1_000_000_000)
-                    await send(.changeScreen(.mainTab()), animation: .spring)
+                    try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+                    
+                    userDefault.set(false, .isFirstLanch)
+                    
+                    if userDefault.bool(.isFirstLanch) ?? true {
+                        await send(.changeScreen(.login()), animation: .spring)
+                    } else {
+                        await send(.changeScreen(.mainTab()), animation: .spring)
+                    }
                 }
                 
             case let .changeScreen(newState):
