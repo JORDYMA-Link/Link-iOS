@@ -1,6 +1,8 @@
 import SwiftUI
 import UserNotifications
 
+import ComposableArchitecture
+
 @main
 struct BlinkApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
@@ -9,9 +11,11 @@ struct BlinkApp: App {
         setupNavigationBarAppearance()
     }
     
+    let store = Store(initialState: RootFeature.State()) { RootFeature() }
+    
     var body: some Scene {
         WindowGroup {
-            BKTabView()
+            RootView(store: store)
         }
     }
 }
