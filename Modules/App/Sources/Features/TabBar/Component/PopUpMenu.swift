@@ -14,14 +14,15 @@ import CommonFeature
 
 enum PopUpMenuType: Int, CaseIterable {
     case link
-    case text
+    // 1.0.0 출시 이후 업데이트 버전에 추가 예정
+//     case text
     
     var image: Image {
         switch self {
         case .link:
             return CommonFeatureAsset.Images.icoLink.swiftUIImage
-        case .text:
-            return CommonFeatureAsset.Images.icoRoundEdit.swiftUIImage
+//        case .text:
+//            return CommonFeatureAsset.Images.icoRoundEdit.swiftUIImage
         }
     }
     
@@ -29,8 +30,8 @@ enum PopUpMenuType: Int, CaseIterable {
         switch self {
         case .link:
             return "링크 저장"
-        case .text:
-            return "텍스트 저장"
+//        case .text:
+//            return "텍스트 저장"
         }
     }
 }
@@ -38,6 +39,12 @@ enum PopUpMenuType: Int, CaseIterable {
 // MARK: - PopUpMenu
 
 struct PopUpMenu: View {
+    var saveLinkAction: (() -> Void)
+    
+    init(saveLinkAction: @escaping () -> Void) {
+        self.saveLinkAction = saveLinkAction
+    }
+    
     var body: some View {
         HStack(spacing: 24) {
             Spacer()
@@ -46,6 +53,9 @@ struct PopUpMenu: View {
             
             ForEach(PopUpMenuType.allCases, id: \.self) { item in
                 MenuItem(menuType: item)
+                    .onTapGesture {
+                        saveLinkAction()
+                    }
             }
       
             Spacer()
@@ -79,11 +89,5 @@ struct MenuItem: View {
                 .foregroundColor(Color.bkColor(.white))
                 .font(.semiBold(size: ._15))
         }
-    }
-}
-
-struct PopUpMenu_Previews: PreviewProvider {
-    static var previews: some View {
-        PopUpMenu()
     }
 }
