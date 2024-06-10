@@ -10,11 +10,14 @@ import SwiftUI
 
 public enum BKTextFieldType {
     case addFolder
+    case addKeyword
     
     var placeholder: String {
         switch self {
         case .addFolder:
             return "추가할 폴더를 입력해주세요"
+        case .addKeyword:
+            return "추가할 키워드를 입력해주세요"
         }
     }
     
@@ -22,6 +25,8 @@ public enum BKTextFieldType {
         switch self {
         case .addFolder:
             return "폴더 이름은 10글자 이내로 입력해주세요"
+        case .addKeyword:
+            return "키워드는 최대 3개까지 지정할 수 있습니다."
         }
     }
     
@@ -56,6 +61,16 @@ public struct BKTextField: View {
     public init(text: Binding<String>, isHighlight: Binding<Bool>, textFieldType: BKTextFieldType, height: CGFloat, textCount: Int) {
         _text = text
         _isHighlight = isHighlight
+        self.textFieldType = textFieldType
+        self.height = height
+        self.textCount = textCount
+    }
+    
+    // 외부 FocusState 사용
+    public init(text: Binding<String>, isHighlight: Binding<Bool>, textIsFocused: FocusState<Bool>, textFieldType: BKTextFieldType, height: CGFloat, textCount: Int) {
+        _text = text
+        _isHighlight = isHighlight
+        _textIsFocused = textIsFocused
         self.textFieldType = textFieldType
         self.height = height
         self.textCount = textCount
@@ -98,6 +113,7 @@ extension BKTextField {
                 textIsFocused = false
             }
         
+        // textField 정규식 체크가 필요할 시
         if #available(iOS 17.0, *) {
             textField
                 .onChange(of: text) { updateIsHighlight() }
@@ -106,23 +122,7 @@ extension BKTextField {
                 .onChange(of: text, perform: { _ in updateIsHighlight()})
         }
     }
-    
-    @ViewBuilder
-    private func makeClearButton() -> some View {
-        Button {
-            text = ""
-            textIsFocused = true
-        } label: {
-            CommonFeatureAsset.Images.icoCircleClose.swiftUIImage
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .foregroundStyle(Color.bkColor(.gray600))
-                .frame(width: 18, height: 18)
-        }
-        .opacity(!text.isEmpty && textIsFocused ? 1 : 0)
-    }
-    
+        
     @ViewBuilder
     private func makeValidationLabel() -> some View {
         let errorMessage: String = {
@@ -153,15 +153,19 @@ extension BKTextField {
     private func updateIsHighlight() {
         switch textFieldType {
         case .addFolder:
-            if !isValidation(text: text) {
+            if !isValidationFolderName(text: text) {
                 isHighlight = true
             } else {
                 isHighlight = false
             }
+            
+        default:
+            break
         }
     }
     
-    private func isValidation(text: String) -> Bool {
+    // 폴더 이름 체크 정규식
+    private func isValidationFolderName(text: String) -> Bool {
         let pattern = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{1,10}$"
         
         if text.hasPrefix(" ") || text.hasSuffix(" ") {
@@ -181,7 +185,6 @@ extension BKTextField {
                 }
             }
         }
-        
         return false
     }
 }
