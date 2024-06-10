@@ -11,6 +11,7 @@ import SwiftUI
 public enum BKTextFieldType {
     case addFolder
     case addKeyword
+    case searchKeyword
     
     var placeholder: String {
         switch self {
@@ -18,6 +19,8 @@ public enum BKTextFieldType {
             return "추가할 폴더를 입력해주세요"
         case .addKeyword:
             return "추가할 키워드를 입력해주세요"
+        case .searchKeyword:
+            return "검색어를 입력해 주세요"
         }
     }
     
@@ -27,6 +30,8 @@ public enum BKTextFieldType {
             return "폴더 이름은 10글자 이내로 입력해주세요"
         case .addKeyword:
             return "키워드는 최대 3개까지 지정할 수 있습니다."
+        default:
+            return ""
         }
     }
     
