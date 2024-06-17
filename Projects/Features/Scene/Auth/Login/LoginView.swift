@@ -39,7 +39,7 @@ public struct LoginView: View {
             }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
             
             makeLoginButton(action: {
-              pushToOnboarding = true
+              store.send(.appleLoginButtonTapped)
             }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
             
             makeTerms(

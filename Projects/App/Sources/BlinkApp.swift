@@ -48,12 +48,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     return true
   }
-  
-  func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
-    let sceneConfig = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
-    sceneConfig.delegateClass = SceneDelegate.self
-    return sceneConfig
-  }
 }
 
 extension BlinkApp {
