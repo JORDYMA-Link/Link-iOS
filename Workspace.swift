@@ -9,7 +9,7 @@ let workspace = Workspace(
   schemes: [
     .scheme(
       name: "Release-Blink",
-      buildAction: .buildAction(targets: [.project(path: "./Projects/App", target: "Release-Blink")]),
+      buildAction: .buildAction(targets: [.project(path: "./Projects/App", target: "Blink")]),
       runAction: .runAction(
         configuration: .release,
         arguments: .arguments(environmentVariables: ["IDEPreferLogStreaming": "YES"])
@@ -20,7 +20,7 @@ let workspace = Workspace(
     ),
     .scheme(
       name: "Dev-Blink",
-      buildAction: .buildAction(targets: [.project(path: "./Projects/App", target: "Dev-Blink")]),
+      buildAction: .buildAction(targets: [.project(path: "./Projects/App", target: "Blink")]),
       runAction: .runAction(
         configuration: .debug,
         arguments: .arguments(environmentVariables: ["IDEPreferLogStreaming": "YES"])
