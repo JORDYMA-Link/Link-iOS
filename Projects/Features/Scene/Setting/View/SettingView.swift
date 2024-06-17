@@ -9,6 +9,7 @@
 import SwiftUI
 
 import CommonFeature
+import Common
 
 struct SettingView: View {
     @Environment(\.dismiss) private var dismiss
@@ -30,7 +31,7 @@ struct SettingView: View {
                     Button(action: {
                         viewmodel.action(.tappedNicknameEdit)
                     }, label: {
-                        BKIcon(image: CommonFeatureAsset.Images.icoEdit.swiftUIImage, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
+                        BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
                     })
                 }
                 Text(viewmodel.userEmail)
@@ -247,7 +248,7 @@ extension SettingView {
                 Button {
                     dismiss()
                 } label: {
-                    BKIcon(image: CommonFeatureAsset.Images.icoClose.swiftUIImage, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
+                    BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
                 }
             }
 
