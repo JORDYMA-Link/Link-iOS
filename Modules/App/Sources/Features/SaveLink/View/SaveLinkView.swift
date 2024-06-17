@@ -23,7 +23,7 @@ struct SaveLinkView: View {
                     + Text("를 입력해주세요")
                         .foregroundStyle(Color.bkColor(.gray900))
                 )
-                .font(.semiBold(size: BKFont.HeadlineSize.Headline3))
+                .font(.semiBold(size: ._24))
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
                 
             } else {
@@ -32,7 +32,7 @@ struct SaveLinkView: View {
             
             Text("블링크가 무엇이든 요약해줍니다")
                 .frame(alignment: .leading)
-                .font(.regular(size: BKFont.BodySize.Body2))
+                .font(.regular(size: ._14))
                 .foregroundStyle(Color.bkColor(.gray700))
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
             
@@ -40,9 +40,9 @@ struct SaveLinkView: View {
                 switch viewModel.state {
                 case .notValidationURL:
                     VStack(alignment: .leading){
-                        TextField(text: Binding(get: {viewModel.urlText}, set: {viewModel.urlText = $0 })) {
+                        TextField(text: $viewModel.urlText) {
                             Text("링크를 붙여주세요")
-                                .font(.regular(size: BKFont.BodySize.Body2))
+                                .font(.regular(size: ._14))
                                 .foregroundStyle(Color.bkColor(.gray800))
                         }
                         .frame(height: 46)
@@ -52,14 +52,15 @@ struct SaveLinkView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .stroke(Color.bkColor(.red), lineWidth: 1)
                         )
+                        
                         Text("URL 형식이 올바르지 않아요. 다시 입력해주세요.")
-                            .font(.regular(size: BKFont.BodySize.Body4))
+                            .font(.regular(size: ._12))
                             .foregroundStyle(Color.bkColor(.red))
                     }
                     
                     
                 default:
-                    ClearableTextField(text: Binding(get: {viewModel.urlText}, set: {viewModel.urlText = $0 }), placeholder: "링크를 붙여주세요")
+                    ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
                 }
                 
                 
@@ -79,9 +80,10 @@ struct SaveLinkView: View {
                     viewModel.action(.onTapBackButton)
                 }, label: {
                     HStack{
-                        CommonFeatureAsset.Images.icoChevronLeft.swiftUIImage
+                        BKIcon(image: CommonFeatureAsset.Images.icoChevronLeft.swiftUIImage, color: .bkColor(.gray900), size: CGSize(width: 6, height: 12))
+                        
                         Text("링크 저장")
-                            .font(.semiBold(size: BKFont.TitileSize.Titile4))
+                            .font(.semiBold(size: ._16))
                             .foregroundStyle(Color.bkColor(.gray800))
                     }
                 })
@@ -89,7 +91,7 @@ struct SaveLinkView: View {
             }
         }
         .fullScreenCover(
-            isPresented: Binding(get: {viewModel.presentLoading}, set: {viewModel.presentLoading = $0}),
+            isPresented: $viewModel.presentLoading,
             content: {
                     BKModal(modalType: .linkLoading(checkAction: {}, cancelAction: {
                         self.viewModel.presentLoading.toggle()

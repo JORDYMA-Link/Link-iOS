@@ -13,6 +13,7 @@ import Lottie
 public struct BKModal: View {
     //MARK: - Properties
     private let modalType: BKModalType
+    @Environment(\.dismiss) var dismiss
     
     //MARK: - Initialization
     public init(modalType: BKModalType) {
@@ -23,7 +24,14 @@ public struct BKModal: View {
     public var body: some View {
         ZStack(content: {
             Color(.black.withAlphaComponent(0.6)).ignoresSafeArea()
-            modalView
+            GeometryReader { geometry in
+                VStack {
+                    modalView
+                        .frame(width: geometry.size.width - 24) // 너비에서 24만큼 줄임
+                        .padding(.top, geometry.safeAreaInsets.top) // 상단 safe area만큼 패딩 추가
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center) // 전체 화면
+            }
         })
     }
     
@@ -31,6 +39,19 @@ public struct BKModal: View {
     @ViewBuilder
     public var modalView: some View {
         VStack{
+//            if case .withdrawNotice = modalType {
+//                HStack{
+//                    Spacer()
+//                    
+//                    Button {
+//                        dismiss()
+//                    } label: {
+//                        BKIcon(image: CommonFeatureAsset.Images.icoClose.swiftUIImage, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
+//                    }
+//                }
+//                
+//            }
+            
             if case .linkLoading(_, _) = modalType {
                 LottieView(animation: .named("lodingAnimation", bundle: CommonFeatureResources.bundle))
                     .playing(loopMode: .loop)
@@ -48,6 +69,21 @@ public struct BKModal: View {
                 .foregroundStyle(BKColor.gray700.swiftUIColor)
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
             
+//            if case .withdrawNotice = modalType {
+//                Button(action: {
+//                    print("check")
+//                }, label: {
+//                    HStack {
+//                        Image(systemName: "square")
+//                            .foregroundStyle(Color.bkColor(.gray700))
+//                        Text("안내사항을 확인하였으며, 이에 동의합니다")
+//                            .font(.regular(size: ._13))
+//                            .foregroundStyle(Color.bkColor(.gray900))
+//                    }
+//                    
+//                })
+//            }
+            
             
             switch modalType {
             case .linkLoading(let checkAction, let cancelAction), .cancelConfirm(checkAction: let checkAction, cancelAction: let cancelAction), .deleteFolder(let checkAction, let cancelAction), .deleteContent(let checkAction, let cancelAction):
@@ -56,6 +92,10 @@ public struct BKModal: View {
                 
             case .custom(_, _, let checkAction, let cancelAction):
                 configureButton(checkAction: checkAction, cancelAction: cancelAction)
+            case .logout(let checkAction, let cancelAction):
+                configureButton(checkAction: checkAction, cancelAction: cancelAction)
+            default:
+                EmptyView()
             }
         }
         .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
@@ -68,7 +108,7 @@ public struct BKModal: View {
         HStack(content: {
             if let cancelAction{
                 Button(action: cancelAction, label: {
-                    Text("취소")
+                    Text(modalType.cancelText)
                         .foregroundStyle(BKColor.gray700.swiftUIColor)
                 })
                 .frame(maxWidth: 140, maxHeight: 48)
@@ -78,7 +118,7 @@ public struct BKModal: View {
             }
             
             Button(action: checkAction, label: {
-                Text("확인")
+                Text(modalType.okText)
                     .foregroundStyle(BKColor.white.swiftUIColor)
             })
             .frame(maxWidth: 140, maxHeight: 48)

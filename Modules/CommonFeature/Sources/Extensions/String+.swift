@@ -12,4 +12,9 @@ extension String {
     public var containsHTTPorHTTPS: Bool {
             return self.lowercased().hasPrefix("http") || self.lowercased().hasPrefix("https")
         }
+    
+    public var containsOnlyKorean: Bool {
+        let regex = "^[가-힣]+$"
+        return self.range(of: regex, options: .regularExpression) != nil
+    }
 }
