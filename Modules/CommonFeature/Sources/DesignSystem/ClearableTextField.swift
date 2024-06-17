@@ -11,29 +11,32 @@ import SwiftUI
 public struct ClearableTextField: View {
     @Binding var text: String
     var placeholder: String
+    let showClearButton: Bool
     
-    public init(text: Binding<String>, placeholder: String) {
+    
+    public init(text: Binding<String>, placeholder: String, showClearButton: Bool = true) {
         self._text = text
         self.placeholder = placeholder
+        self.showClearButton = showClearButton
     }
     
     public var body: some View {
         TextField(text: $text) {
             Text("링크를 붙여주세요")
-                .font(.regular(size: BKFont.BodySize.Body2))
+                .font(.regular(size: ._14))
                 .foregroundStyle(Color.bkColor(.gray800))
         }
         .frame(height: 46)
         .padding(.leading, 10)
         .background(Color.bkColor(.gray300))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
+        overlay(
             HStack {
                 Spacer()
-                if !text.isEmpty {
-                    Button {
+                if showClearButton && !text.isEmpty {
+                    Button(action: {
                         text = ""
-                    } label: {
+                    }) {
                         Image(systemName: "multiply.circle.fill")
                             .foregroundStyle(Color.gray)
                     }
