@@ -13,6 +13,11 @@ extension String {
     return self.lowercased().hasPrefix("http") || self.lowercased().hasPrefix("https")
   }
   
+  public var containsOnlyKorean: Bool {
+      let regex = "^[가-힣]+$"
+      return self.range(of: regex, options: .regularExpression) != nil
+  }
+  
   public func calculateHeight(font: UIFont, width: CGFloat) -> CGFloat {
     let attributedText = NSAttributedString(string: self, attributes: [NSAttributedString.Key.font: font])
     
