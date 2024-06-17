@@ -16,21 +16,26 @@ public struct SocialLoginClient {
   public var initKakaoSDK: @Sendable () -> Void
   public var handleKakaoUrl: @Sendable (URL) -> Void
   public var kakaoLogin: @Sendable () async throws -> SocialLogin
+  public var appleLogin: @Sendable () async throws -> SocialLogin
 }
 
 extension SocialLoginClient: DependencyKey {
   public static var liveValue: SocialLoginClient {
-    let kakaoLoginClient = KakaoLogin()
+    let kakaoLogin = KakaoLogin()
+    let appleLogin = AppleLogin()
     
     return Self(
       initKakaoSDK: {
-        kakaoLoginClient.initSDK()
+        kakaoLogin.initSDK()
       },
       handleKakaoUrl: {
-        kakaoLoginClient.handleKakaoTalkLoginUrl(url: $0)
+        kakaoLogin.handleKakaoTalkLoginUrl(url: $0)
       },
       kakaoLogin: {
-        try await kakaoLoginClient.kakaoLogin()
+        try await kakaoLogin.kakaoLogin()
+      },
+      appleLogin: {
+        try await appleLogin.appleLogin()
       }
     )
   }

@@ -16,6 +16,7 @@ let project = Project.make(
             infoPlist: .file(path: .relativeToRoot("Projects/App/Info.plist")),
             sources: ["Sources/**"],
             resources: ["Resources/**"],
+            entitlements: .file(path: .relativeToRoot("Projects/App/Blink.entitlements")),
             dependencies: [
                 .project(target: .coreKit, projectPath: .core),
                 .project(target: .features, projectPath: .features),
