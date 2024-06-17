@@ -35,7 +35,7 @@ public struct LoginView: View {
           
           VStack(spacing: 12) {
             makeLoginButton(action: {
-              pushToOnboarding = true
+              store.send(.kakaoLoginButtonTapped)
             }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
             
             makeLoginButton(action: {

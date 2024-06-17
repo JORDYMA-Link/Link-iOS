@@ -10,6 +10,8 @@ let project = Project.make(
       bundleId: DefaultSetting.bundleId(moduleName: "features"),
       sources: ["Scene/**"],
       dependencies: [
+                .project(target: .commonFeature, projectPath: .commonFeature),
+                .project(target: .coreKit, projectPath: .core),
 				.external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .introspect),
                 .external(externalDependency: .kingFisher),
