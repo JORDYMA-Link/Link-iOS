@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Services
+
 import ComposableArchitecture
 
 @Reducer
@@ -21,7 +23,10 @@ public struct LoginFeature: Reducer {
   
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
+    case kakaoLoginButtonTapped
   }
+  
+  @Dependency(\.socialLogin) var socialLogin
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -30,8 +35,12 @@ public struct LoginFeature: Reducer {
       switch action {
       case .binding:
         return .none
+      case .kakaoLoginButtonTapped:
+        return .run { send in
+          let info = try await socialLogin.kakaoLogin()
+          print(info)
+        }
       }
     }
   }
-  
 }

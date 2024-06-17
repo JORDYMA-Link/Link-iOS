@@ -21,7 +21,6 @@ let project = Project.make(
         .project(target: .features, projectPath: .features),
         .project(target: .commonFeature, projectPath: .commonFeature),
         .external(externalDependency: .composableArchitecture),
-        .external(externalDependency: .kakaoSDK),
         .package(product: "FirebaseMessaging")
       ],
       settings: .settings(
@@ -32,8 +31,6 @@ let project = Project.make(
           "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
           "OTHER_LDFLAGS": "$(inherited) -ObjC",
           "ENABLE_BITCODE": "NO"
-//          "PROVISIONING_PROFILE_SPECIFIER": "match Development com.mashup.gabbangzip",
-//          "CODE_SIGN_IDENTITY": "Apple Development: Hyerin Choe (QKKN56KGD9)"
         ],
         configurations: [
           .release(name: .release, xcconfig: "./xcconfigs/Blink.release.xcconfig")
@@ -52,7 +49,6 @@ let project = Project.make(
         .project(target: .features, projectPath: .features),
         .project(target: .commonFeature, projectPath: .commonFeature),
         .external(externalDependency: .composableArchitecture),
-        .external(externalDependency: .kakaoSDK),
         .package(product: "FirebaseMessaging")
       ],
       settings: .settings(
@@ -63,8 +59,6 @@ let project = Project.make(
           "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
           "OTHER_LDFLAGS": "$(inherited) -ObjC",
           "ENABLE_BITCODE": "NO"
-//          "PROVISIONING_PROFILE_SPECIFIER": "match Development com.mashup.gabbangzip-dev",
-//          "CODE_SIGN_IDENTITY": "Apple Development: Hyerin Choe (QKKN56KGD9)"
         ],
         configurations: [
           .debug(name: .debug, xcconfig: "./xcconfigs/Blink.debug.xcconfig")
@@ -74,6 +68,7 @@ let project = Project.make(
   ],
   
   additionalFiles: [
-    "./xcconfigs/Blink.shared.xcconfig"
+    "./xcconfigs/Blink.shared.xcconfig",
+    "./xcconfigs/APIKey.xcconfig"
   ]
 )
