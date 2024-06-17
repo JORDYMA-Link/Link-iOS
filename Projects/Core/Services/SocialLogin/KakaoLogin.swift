@@ -23,7 +23,7 @@ final class KakaoLogin {
   
   /// Kakao initSDK
   func initSDK() {
-    KakaoSDK.initSDK(appKey: "dfb20dcf41d536b7c531ddafd8dddd8a")
+    KakaoSDK.initSDK(appKey: APIKey.kakao)
   }
   
   /// Handle KakaoTalkLoginUrl
