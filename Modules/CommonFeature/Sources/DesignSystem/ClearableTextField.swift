@@ -11,10 +11,13 @@ import SwiftUI
 public struct ClearableTextField: View {
     @Binding var text: String
     var placeholder: String
+    let showClearButton: Bool
     
-    public init(text: Binding<String>, placeholder: String) {
+    
+    public init(text: Binding<String>, placeholder: String, showClearButton: Bool = true) {
         self._text = text
         self.placeholder = placeholder
+        self.showClearButton = showClearButton
     }
     
     public var body: some View {
@@ -27,13 +30,13 @@ public struct ClearableTextField: View {
         .padding(.leading, 10)
         .background(Color.bkColor(.gray300))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
+        overlay(
             HStack {
                 Spacer()
-                if !text.isEmpty {
-                    Button {
+                if showClearButton && !text.isEmpty {
+                    Button(action: {
                         text = ""
-                    } label: {
+                    }) {
                         Image(systemName: "multiply.circle.fill")
                             .foregroundStyle(Color.gray)
                     }
