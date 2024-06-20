@@ -20,23 +20,28 @@ public struct StorageBoxFeature {
   // 상태는 중복되지 않고 각 고유하기에 이 상태의 변화를 비교하기 위해 Equatable을 따라야함
   @ObservableState
   public struct State: Equatable {
-    var menuBomttomSheet: StorageBoxMenuBottomSheetFeature.State = .init()
-    var editFolderNameBomttomSheet: EditFolderNameBottomSheetFeature.State = .init()
+    var menuBottomSheet: StorageBoxMenuBottomSheetFeature.State = .init()
+    var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
   }
   
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
-    case menuBomttomSheet(StorageBoxMenuBottomSheetFeature.Action)
-    case editFolderNameBomttomSheet(EditFolderNameBottomSheetFeature.Action)
+    case menuBottomSheet(StorageBoxMenuBottomSheetFeature.Action)
+    case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
   }
   
   // 리듀서에서는 Action을 기반으로 현재 State를 다음 State로 어떻게 바꿀지 실제적인 구현을 해주는 역할의 프로토콜
   public var body: some ReducerOf<Self> {
-    Scope(state: \.menuBomttomSheet, action: \.menuBomttomSheet) {
+    Scope(state: \.menuBottomSheet, action: \.menuBottomSheet) {
       StorageBoxMenuBottomSheetFeature()
     }
-    Scope(state: \.editFolderNameBomttomSheet, action: \.editFolderNameBomttomSheet) {
+    Scope(state: \.editFolderNameBottomSheet, action: \.editFolderNameBottomSheet) {
       EditFolderNameBottomSheetFeature()
+    }
+    Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
+      AddFolderBottomSheetFeature()
     }
     
     BindingReducer()
@@ -46,9 +51,9 @@ public struct StorageBoxFeature {
       case .binding:
         return .none
                 
-      case let .menuBomttomSheet(.menuTapped(type)):
-        state.menuBomttomSheet.isMenuBottomSheetPresented = false
-        guard let folder = state.menuBomttomSheet.seletedFolder else { return .none }
+      case let .menuBottomSheet(.menuTapped(type)):
+        state.menuBottomSheet.isMenuBottomSheetPresented = false
+        guard let folder = state.menuBottomSheet.seletedFolder else { return .none }
         return showEditFolerBottomSheet(type: type, folder: folder)
                 
       default:
@@ -64,7 +69,7 @@ extension StorageBoxFeature {
           switch type {
           case .editFolderName:
             try await Task.sleep(for: .seconds(0.1))
-            await send(.editFolderNameBomttomSheet(.editFolderNameTapped(folder)))
+            await send(.editFolderNameBottomSheet(.editFolderNameTapped(folder)))
           case .deleteFoler:
             break
           }

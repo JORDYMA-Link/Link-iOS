@@ -40,7 +40,7 @@ struct StorageBoxView: View {
           LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
             makeAddStorageBoxCell()
               .onTapGesture {
-//                store.send(.menuBomttomSheet(.closeButtonTapped))
+                store.send(.addFolderBottomSheet(.addFolderTapped))
               }
             
             ForEach(Folder.makeFolderMock()) { item in
@@ -48,7 +48,7 @@ struct StorageBoxView: View {
                 count: item.count,
                 name: item.title,
                 menuAction: {
-                  store.send(.menuBomttomSheet(.storageBoxMenuTapped(item)))
+                  store.send(.menuBottomSheet(.storageBoxMenuTapped(item)))
                 }
               )
               .onTapGesture {
@@ -73,15 +73,16 @@ struct StorageBoxView: View {
     .navigationDestination(isPresented: $pushToContentList) {
       StorageBoxContentListView()
     }
-//    .bottomSheet(isPresented: $true, detents: [.height(202)], leadingTitle: "폴더 추가") {
-//      Text("폴더 추가")
-//    }
-    .bottomSheet(isPresented: $store.menuBomttomSheet.isMenuBottomSheetPresented, detents: [.height(154)], leadingTitle: "폴더 설정", closeButtonAction: { store.send(.menuBomttomSheet(.closeButtonTapped)) } ) {
-      StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBomttomSheet, action: \.menuBomttomSheet))
+    .bottomSheet(isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented, detents: [.height(202)], leadingTitle: "폴더 추가", closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) } ) {
+      AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
+        .interactiveDismissDisabled()
+    }
+    .bottomSheet(isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented, detents: [.height(154)], leadingTitle: "폴더 설정", closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) } ) {
+      StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBottomSheet, action: \.menuBottomSheet))
         .padding(.horizontal, 16)
     }
-    .bottomSheet(isPresented: $store.editFolderNameBomttomSheet.isEditFolderBottomSheetPresented, detents: [.height(202)], leadingTitle: "폴더 수정", closeButtonAction: { store.send(.editFolderNameBomttomSheet(.closeButtonTapped)) }) {
-      EditFolderNameBottomSheet(store: store.scope(state: \.editFolderNameBomttomSheet, action: \.editFolderNameBomttomSheet))
+    .bottomSheet(isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented, detents: [.height(202)], leadingTitle: "폴더 수정", closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }) {
+      EditFolderNameBottomSheet(store: store.scope(state: \.editFolderNameBottomSheet, action: \.editFolderNameBottomSheet))
         .interactiveDismissDisabled()
     }
   }
@@ -191,33 +192,6 @@ extension StorageBoxView {
     .clipShape(RoundedRectangle(cornerRadius: 12))
     .frame(height: 80)
     .shadow(color: .bkColor(.gray900).opacity(0.08), radius: 5, x: 0, y: 4)
-  }
-  
-  @ViewBuilder
-  private func makeMenuBottomSheetContent() -> some View {
-    HStack(spacing:0) {
-      VStack(alignment: .leading, spacing: 8) {
-        Button(action: {
-          print("폴더 이름 수정하기")
-        }) {
-          Text("폴더 이름 수정하기")
-            .font(.regular(size: ._16))
-            .foregroundStyle(Color.bkColor(.gray900))
-            .padding(.vertical, 8)
-        }
-        
-        Button(action: {
-          print("폴더 삭제하기")
-        }) {
-          Text("폴더 삭제하기")
-            .font(.regular(size: ._16))
-            .foregroundStyle(Color.bkColor(.red))
-            .padding(.vertical, 8)
-        }
-      }
-      
-      Spacer(minLength: 0)
-    }
   }
 }
 
