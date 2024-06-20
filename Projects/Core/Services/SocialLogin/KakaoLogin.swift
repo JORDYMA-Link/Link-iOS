@@ -52,16 +52,16 @@ final class KakaoLogin {
       guard let self else { return }
       
       if let error {
-        continuation?.resume(throwing: error)
-        continuation = nil
+        self.continuation?.resume(throwing: error)
+        self.continuation = nil
         debugPrint("\(error)")
         return
       } else if let token = OAuthToken {
         self.setSocialLoginData(token: token.accessToken)
         debugPrint("loginWithKakaoTalk() success., \(#function), \(#line)")
       } else {
-        continuation?.resume(throwing: KakaoErrorType.invalidToken)
-        continuation = nil
+        self.continuation?.resume(throwing: KakaoErrorType.invalidToken)
+        self.continuation = nil
         return
       }
     }
@@ -73,16 +73,16 @@ final class KakaoLogin {
       guard let self else { return }
       
       if let error {
-        continuation?.resume(throwing: error)
-        continuation = nil
+        self.continuation?.resume(throwing: error)
+        self.continuation = nil
         debugPrint("\(error)")
         return
       } else if let token = OAuthToken {
         self.setSocialLoginData(token: token.accessToken)
         debugPrint("loginWithWeb() success., \(#function), \(#line)")
       } else {
-        continuation?.resume(throwing: KakaoErrorType.invalidToken)
-        continuation = nil
+        self.continuation?.resume(throwing: KakaoErrorType.invalidToken)
+        self.continuation = nil
         return
       }
     }
