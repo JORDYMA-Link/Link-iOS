@@ -85,6 +85,14 @@ struct StorageBoxView: View {
       EditFolderNameBottomSheet(store: store.scope(state: \.editFolderNameBottomSheet, action: \.editFolderNameBottomSheet))
         .interactiveDismissDisabled()
     }
+    .fullScreenCover(isPresented: $store.isDeleteFolderPresented) {
+      BKModal(modalType: .deleteFolder(checkAction: {
+        store.send(.deleteFolderModalConfirmTapped)
+      }, cancelAction: {
+        store.send(.deleteFolderModalCancelTapped)
+      })
+      )
+    }
   }
 }
 
