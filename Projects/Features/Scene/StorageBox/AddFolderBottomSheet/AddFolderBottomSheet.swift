@@ -1,8 +1,8 @@
 //
-//  EditFolderNameBottomSheet.swift
+//  AddFolderBottomSheet.swift
 //  Features
 //
-//  Created by kyuchul on 6/18/24.
+//  Created by kyuchul on 6/20/24.
 //  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
@@ -13,8 +13,8 @@ import CommonFeature
 import ComposableArchitecture
 import SwiftUIIntrospect
 
-struct EditFolderNameBottomSheet: View {
-  @Bindable var store: StoreOf<EditFolderNameBottomSheetFeature>
+struct AddFolderBottomSheet: View {
+  @Bindable var store: StoreOf<AddFolderBottomSheetFeature>
   @FocusState private var textIsFocused: Bool
   var textFieldDelegate = TextFieldDelegate()
   
@@ -23,7 +23,7 @@ struct EditFolderNameBottomSheet: View {
       Color.clear.ignoresSafeArea()
       
       VStack(spacing: 0) {
-        BKTextField(text: $store.folderInput.title, isHighlight: $store.isHighlight, textIsFocused: _textIsFocused, textFieldType: .editFolderName, height: 36, textCount: 10)
+        BKTextField(text: $store.folderInput.title, isHighlight: $store.isHighlight, textIsFocused: _textIsFocused, textFieldType: .addFolder, height: 36, textCount: 10)
           .introspect(.textField, on: .iOS(.v17)) { textField in
               textField.delegate = textFieldDelegate
           }
@@ -42,10 +42,4 @@ struct EditFolderNameBottomSheet: View {
       }
     }
   }
-}
-
-final class TextFieldDelegate: NSObject, UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        return false
-    }
 }
