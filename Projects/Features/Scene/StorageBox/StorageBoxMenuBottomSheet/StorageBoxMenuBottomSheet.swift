@@ -19,20 +19,20 @@ struct StorageBoxMenuBottomSheet: View {
       HStack(spacing:0) {
         VStack(alignment: .leading, spacing: 8) {
           makeMenuButton(title: "폴더 이름 수정하기", action: { store.send(.menuTapped(.editFolderName)) })
-          makeMenuButton(title: "폴더 삭제하기", action: { store.send(.menuTapped(.deleteFoler)) })
+          makeMenuButton(title: "폴더 삭제하기", isEdit: false, action: { store.send(.menuTapped(.deleteFoler)) })
         }
         Spacer(minLength: 0)
       }
     }
   
   @ViewBuilder
-  private func makeMenuButton(title: String, action: @escaping (() -> Void)) -> some View {
+  private func makeMenuButton(title: String, isEdit: Bool = true, action: @escaping (() -> Void)) -> some View {
     Button {
       action()
     } label: {
       Text(title)
         .font(.regular(size: ._16))
-        .foregroundStyle(Color.bkColor(.gray900))
+        .foregroundStyle(Color.bkColor(isEdit ? .gray900 : .red))
         .padding(.vertical, 8)
     }
   }
