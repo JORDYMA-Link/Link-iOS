@@ -68,22 +68,14 @@ struct BKBottomSheetModifier<SheetContent: View>: ViewModifier {
             }))
             
             sheetContent()
-            
-            Spacer(minLength: 0)
           }
-          .presentationDetentsIfNeeded(detents: detents, currentDetent: currentDetent)
+          .if(currentDetent == nil) { view in
+            view.presentationDetents(detents)
+          }
+          .ifLet(currentDetent) { view, currentDetent in
+            view.presentationDetents(detents, selection: currentDetent)
+          }
         }
-    }
-  }
-}
-
-fileprivate extension View {
-  @ViewBuilder
-  func presentationDetentsIfNeeded(detents: Set<PresentationDetent>, currentDetent: Binding<PresentationDetent>?) -> some View {
-    if let currentDetent = currentDetent {
-      self.presentationDetents(detents, selection: currentDetent)
-    } else {
-      self.presentationDetents(detents)
     }
   }
 }
