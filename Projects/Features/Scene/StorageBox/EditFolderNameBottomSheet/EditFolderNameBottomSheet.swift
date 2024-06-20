@@ -1,0 +1,51 @@
+//
+//  EditFolderNameBottomSheet.swift
+//  Features
+//
+//  Created by kyuchul on 6/18/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
+//
+
+import SwiftUI
+
+import CommonFeature
+
+import ComposableArchitecture
+import SwiftUIIntrospect
+
+struct EditFolderNameBottomSheet: View {
+  @Bindable var store: StoreOf<EditFolderNameBottomSheetFeature>
+  @FocusState private var textIsFocused: Bool
+  var textFieldKeyboardBehavior = TextFieldDelegate()
+  
+  var body: some View {
+    ZStack {
+      Color.clear.ignoresSafeArea()
+      
+      VStack(spacing: 0) {
+        BKTextField(text: $store.folderInput.title, isHighlight: $store.isHighlight, textIsFocused: _textIsFocused, textFieldType: .editFolderName, height: 36, textCount: 10)
+          .introspect(.textField, on: .iOS(.v17)) { textField in
+              textField.delegate = textFieldKeyboardBehavior
+          }
+          .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
+        
+        Spacer()
+        
+        BKConfirmButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+      }
+    }
+    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
+    .animation(.spring, value: textIsFocused)
+    .onAppear {
+      DispatchQueue.main.async {
+        textIsFocused = true
+      }
+    }
+  }
+}
+
+final class TextFieldDelegate: NSObject, UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        return false
+    }
+}
