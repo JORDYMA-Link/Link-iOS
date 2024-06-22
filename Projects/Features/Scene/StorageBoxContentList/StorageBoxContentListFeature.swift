@@ -39,6 +39,7 @@ public struct StorageBoxContentListFeature: Reducer {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case closeButtonTapped
     
     // MARK: Child Action
     case sortFolderBottomSheet(SortFolderBottomSheetFeature.Action)
@@ -67,6 +68,9 @@ public struct StorageBoxContentListFeature: Reducer {
           return requestContentList(type)
         }
         
+      case .closeButtonTapped:
+         return .run { _ in await self.dismiss() }
+    
       default:
         return .none
       }

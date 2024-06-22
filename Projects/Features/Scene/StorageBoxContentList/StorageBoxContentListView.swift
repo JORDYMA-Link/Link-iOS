@@ -121,7 +121,7 @@ extension StorageBoxContentListView {
   private func makeContentListHeaderView(title: String) -> some View {
     HStack(spacing: 8) {
       Button {
-        
+        store.send(.closeButtonTapped)
       }
     label: {
       BKIcon(image: CommonFeature.Images.icoChevronLeft, color: .bkColor(.gray900), size: CGSize(width: 24, height: 24))
