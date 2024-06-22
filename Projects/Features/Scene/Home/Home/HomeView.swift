@@ -184,9 +184,9 @@ extension HomeView {
           VStack(spacing: 0) {
             makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
               .background(GeometryReader { proxy in
-                Color.clear.preference(key: CategorySectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
+                Color.clear.preference(key: SectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
               })
-              .onPreferenceChange(CategorySectionHeaderPreferenceKey.self) { maxY in
+              .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
                 // 섹션 헤더의 최대 Y 위치 업데이트
                 let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
                 let headerMaxY = maxY + navigationBarMaxY
@@ -247,23 +247,15 @@ extension HomeView {
 }
 
 extension HomeView {
-  private struct CategorySectionHeaderPreferenceKey: PreferenceKey {
-    static var defaultValue: CGFloat = .zero
+  @MainActor
+  final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
+    @Published var headerMaxY: CGFloat = .zero
+    @Published var topToCategory: Bool = false
     
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-      value = max(value, nextValue())
-    }
-  }
-}
-
-@MainActor
-final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
-  @Published var headerMaxY: CGFloat = .zero
-  @Published var topToCategory: Bool = false
-  
-  func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    DispatchQueue.main.async {
-      self.topToCategory = scrollView.contentOffset.y >  self.headerMaxY
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+      DispatchQueue.main.async {
+        self.topToCategory = scrollView.contentOffset.y >  self.headerMaxY
+      }
     }
   }
 }
