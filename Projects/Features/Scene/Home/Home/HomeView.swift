@@ -47,6 +47,7 @@ public struct HomeView: View {
       }
     }
     .toolbar(.hidden, for: .navigationBar)
+    .background(Color.bkColor(.white))
     .onAppear {
       print("homeView")
     }
