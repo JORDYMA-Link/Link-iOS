@@ -40,8 +40,8 @@ public struct EditFolderNameBottomSheetFeature: Reducer {
         return .none
         
       case let .editFolderNameTapped(folder):
-        state.isEditFolderBottomSheetPresented = true
         state.folderInput = folder
+        state.isEditFolderBottomSheetPresented = true
         return .none
         
       case .confirmButtonTapped:
