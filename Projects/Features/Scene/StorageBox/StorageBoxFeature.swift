@@ -13,7 +13,7 @@ import Models
 import ComposableArchitecture
 
 @Reducer
-public struct StorageBoxFeature {
+public struct StorageBoxFeature: Reducer {
   
   // State를 통해 앱의 상태 변화를 업데이트하는것이 초점이기에 이 앱의 상태들이 변경되면 바인딩된 뷰를 자동으로 업데이트
   // State가 참조 타입이라면 객체 참조가 결국 동일하기에 이를 값의 변화로 보지 않기에 Struct 타입이 적절
@@ -23,20 +23,27 @@ public struct StorageBoxFeature {
     var menuBottomSheet: StorageBoxMenuBottomSheetFeature.State = .init()
     var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
-    
+        
     var isDeleteFolderPresented: Bool = false
     var deleteFolder: Folder?
+    
+    @Presents var storageBoxContentList: StorageBoxContentListFeature.State?
   }
   
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
-    case menuBottomSheet(StorageBoxMenuBottomSheetFeature.Action)
-    case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
-    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     
+    // MARK: User Action
     case deleteFolderTapped(Folder)
     case deleteFolderModalConfirmTapped
     case deleteFolderModalCancelTapped
+    case folderCellTapped(Folder)
+    
+    // MARK: Child Action
+    case menuBottomSheet(StorageBoxMenuBottomSheetFeature.Action)
+    case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
+    case storageBoxContentList(PresentationAction<StorageBoxContentListFeature.Action>)
   }
   
   // 리듀서에서는 Action을 기반으로 현재 State를 다음 State로 어떻게 바꿀지 실제적인 구현을 해주는 역할의 프로토콜
@@ -76,10 +83,17 @@ public struct StorageBoxFeature {
         state.deleteFolder = nil
         state.isDeleteFolderPresented = false
         return .none
+        
+      case let .folderCellTapped(folder):
+        state.storageBoxContentList = .init(folderInput: folder)
+        return .none
                 
       default:
         return .none
       }
+    }
+    .ifLet(\.$storageBoxContentList, action: \.storageBoxContentList) {
+      StorageBoxContentListFeature()
     }
   }
 }

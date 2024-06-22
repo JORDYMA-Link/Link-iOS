@@ -15,16 +15,15 @@ import ComposableArchitecture
 import SwiftUIIntrospect
 
 struct StorageBoxView: View {
-  @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
   @Bindable var store: StoreOf<StorageBoxFeature>
   
-  @State private var contentText: String = ""
-  @State private var pushToContentList = false
+  @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
   @State private var isHiddenDivider = false
   
   var body: some View {
     VStack(spacing: 0) {
       makeNavigationView()
+      
       ScrollView(showsIndicators: false) {
         VStack(spacing: 0) {
           ZStack {
@@ -33,9 +32,6 @@ struct StorageBoxView: View {
             makeCalendarBanner()
               .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
           }
-          
-          Divider()
-            .foregroundStyle(Color.bkColor(.gray400))
           
           LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
             makeAddStorageBoxCell()
@@ -52,12 +48,13 @@ struct StorageBoxView: View {
                 }
               )
               .onTapGesture {
-                pushToContentList.toggle()
+                store.send(.folderCellTapped(item))
               }
             }
           }
           .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
           .background(Color.bkColor(.gray300))
+          .animation(nil, value: UUID())
         }
       }
       .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
@@ -68,24 +65,46 @@ struct StorageBoxView: View {
     .toolbar(.hidden, for: .navigationBar)
     .onReceive(scrollViewDelegate.$contentOffset.receive(on: DispatchQueue.main)) { isHidden in
       isHiddenDivider = isHidden
-      
     }
-    .navigationDestination(isPresented: $pushToContentList) {
-      StorageBoxContentListView()
+    .navigationDestination(
+      item: $store.scope(
+        state: \.storageBoxContentList,
+        action: \.storageBoxContentList
+      )
+    ) { store in
+      StorageBoxContentListView(store: store)
     }
-    .bottomSheet(isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented, detents: [.height(202)], leadingTitle: "폴더 추가", closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) } ) {
+
+    .bottomSheet(
+      isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
+      detents: [.height(202)],
+      leadingTitle: "폴더 추가",
+      closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
+    ) {
       AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
         .interactiveDismissDisabled()
     }
-    .bottomSheet(isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented, detents: [.height(154)], leadingTitle: "폴더 설정", closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) } ) {
+    .bottomSheet(
+      isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented,
+      detents: [.height(154)],
+      leadingTitle: "폴더 설정",
+      closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) }
+    ) {
       StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBottomSheet, action: \.menuBottomSheet))
         .padding(.horizontal, 16)
     }
-    .bottomSheet(isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented, detents: [.height(202)], leadingTitle: "폴더 수정", closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }) {
+    .bottomSheet(
+      isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented,
+      detents: [.height(202)],
+      leadingTitle: "폴더 수정",
+      closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }
+    ) {
       EditFolderNameBottomSheet(store: store.scope(state: \.editFolderNameBottomSheet, action: \.editFolderNameBottomSheet))
         .interactiveDismissDisabled()
     }
-    .fullScreenCover(isPresented: $store.isDeleteFolderPresented) {
+    .fullScreenCover(
+      isPresented: $store.isDeleteFolderPresented
+    ) {
       BKModal(modalType: .deleteFolder(checkAction: {
         store.send(.deleteFolderModalConfirmTapped)
       }, cancelAction: {
@@ -213,5 +232,3 @@ final class StorageBoxScrollViewDelegate: NSObject, UIScrollViewDelegate, Observ
     }
   }
 }
-
-
