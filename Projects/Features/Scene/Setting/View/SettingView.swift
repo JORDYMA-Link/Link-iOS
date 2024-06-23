@@ -17,6 +17,63 @@ struct SettingView: View {
     @StateObject var viewmodel = SettingViewModel(state: .none, nickname: "블링크", userEmail: "blink@naver.com")
     
     var body: some View {
+        
+        
+        ZStack(content: {
+            
+            settingView
+            
+            Spacer()
+            
+                .navigationBarBackButtonHidden(true)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        LeadingItem(type: .dismiss("설정", {
+                            dismiss()
+                        }))
+                    }
+                }
+            
+            if viewmodel.showWithdrawModal {
+                withdrawModal
+            }
+        })
+        
+        .bottomSheet(isPresented: $viewmodel.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
+            VStack(alignment: .center, content: {
+                if viewmodel.targetNickname.containsOnlyKorean {
+                    nicknameTextField
+                } else {
+                    nicknameNoticeTextField
+                }
+
+                Spacer()
+                
+                Button(action: {
+                    viewmodel.action(.tappedCompletedEditingNickname)
+                }, label: {
+                    Text("완료")
+                        .foregroundStyle(Color.bkColor(.white))
+                })
+                .frame(maxWidth: .infinity, maxHeight: 52)
+                .background(Color.bkColor(.main300))
+            })
+        }
+
+        .fullScreenCover(isPresented: $viewmodel.showLogoutConfirmModal, content: {
+            BKModal(modalType: .logout(checkAction: {
+                
+            }, cancelAction: {
+                viewmodel.showLogoutConfirmModal = false
+            }))
+        })
+    }
+    
+}
+
+extension SettingView {
+    @ViewBuilder
+    private var settingView: some View {
         VStack(alignment: .leading) {
             VStack(alignment: .leading) {
                 HStack {
@@ -137,52 +194,8 @@ struct SettingView: View {
             .padding(EdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16))
             
         }
-        
-        Spacer()
-        
-        .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                LeadingItem(type: .dismiss("설정", {
-                    dismiss()
-                }))
-            }
-        }
-        .bottomSheet(isPresented: $viewmodel.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
-            VStack(alignment: .center, content: {
-                if viewmodel.targetNickname.containsOnlyKorean {
-                    nicknameTextField
-                } else {
-                    nicknameNoticeTextField
-                }
-
-                Spacer()
-                
-                Button(action: {
-                    viewmodel.action(.tappedCompletedEditingNickname)
-                }, label: {
-                    Text("완료")
-                        .foregroundStyle(Color.bkColor(.white))
-                })
-                .frame(maxWidth: .infinity, maxHeight: 52)
-                .background(Color.bkColor(.main300))
-            })
-        }
-        .fullScreenCover(isPresented: $viewmodel.showWithdrawModal, content: {
-            withdrawModal
-        })
-        .fullScreenCover(isPresented: $viewmodel.showLogoutConfirmModal, content: {
-            BKModal(modalType: .logout(checkAction: {
-                
-            }, cancelAction: {
-                viewmodel.showLogoutConfirmModal = false
-            }))
-        })
     }
     
-}
-
-extension SettingView {
     @ViewBuilder
     private var nicknameTextField: some View {
         TextField(text: $viewmodel.targetNickname) {
@@ -246,7 +259,7 @@ extension SettingView {
                 Spacer()
                 
                 Button {
-                    dismiss()
+                    viewmodel.showWithdrawModal.toggle()
                 } label: {
                     BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
                 }
@@ -266,8 +279,13 @@ extension SettingView {
                 viewmodel.action(.tappedConfirmWithdrawNotice)
             }, label: {
                 HStack {
-                    Image(systemName: "square")
-                        .foregroundStyle(Color.bkColor(.gray700))
+                    if viewmodel.state != .confirmedWithdrawNotice {
+                        Image(systemName: "square" )
+                            .foregroundStyle(Color.bkColor(.gray700))
+                    } else {
+                        CommonFeatureAsset.Images.icoCheckBox.swiftUIImage
+                    }
+                    
                     Text("안내사항을 확인하였으며, 이에 동의합니다")
                         .font(.regular(size: ._13))
                         .foregroundStyle(Color.bkColor(.gray900))
@@ -279,12 +297,12 @@ extension SettingView {
                 
             }, label: {
                 Text(BKModalType.withdrawNotice.okText)
-                    .foregroundStyle(BKColor.white.swiftUIColor)
+                    .foregroundStyle(viewmodel.state != .confirmedWithdrawNotice ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
                     .frame(maxWidth: 140, maxHeight: 48)
             })
-            .disabled(viewmodel.state == .confirmedWithdrawNotice)
+            .disabled(viewmodel.state != .confirmedWithdrawNotice)
             .frame(maxWidth: .infinity, maxHeight: 48)
-            .background(BKColor.gray900.swiftUIColor)
+            .background(viewmodel.state != .confirmedWithdrawNotice ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         }
         .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
