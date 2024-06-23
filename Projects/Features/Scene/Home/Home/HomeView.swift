@@ -9,6 +9,7 @@
 import SwiftUI
 
 import CommonFeature
+import Models
 
 import ComposableArchitecture
 import SwiftUIIntrospect
@@ -58,6 +59,23 @@ public struct HomeView: View {
     }
     .navigationDestination(isPresented: $pushToSetting) {
       SaveLinkView()
+    }
+    .bottomSheet(
+      isPresented: $store.linkPostMenuBottomSheet.isMenuBottomSheetPresented,
+      detents: [.height(178)],
+      leadingTitle: "설정",
+      closeButtonAction: { store.send(.linkPostMenuBottomSheet(.closeButtonTapped)) }
+    ) {
+      LinkPostMenuBottomSheet(store: store.scope(state: \.linkPostMenuBottomSheet, action: \.linkPostMenuBottomSheet))
+        .padding(.horizontal, 16)
+    }
+    .bottomSheet(
+      isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+      detents: [.height(132)],
+      leadingTitle: "폴더 수정",
+      closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+    ) {
+      EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
     }
   }
 }
@@ -153,12 +171,14 @@ extension HomeView {
       
       LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
         Section {
-          ForEach(1...10, id: \.self) { count in
+          ForEach(LinkCard.mock(), id: \.id) { item in
             SwipeView {
-              BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
+              BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {
+                store.send(.linkPostMenuBottomSheet(.linkPostMenuTapped(item)))
+              }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
             } leadingActions: { _ in
               SwipeAction {
-                print("스와이프 이동 액션")
+                store.send(.leadingSwipeAction(item))
               } label: {_ in
                 Text("이동")
                   .font(.semiBold(size: ._16))
