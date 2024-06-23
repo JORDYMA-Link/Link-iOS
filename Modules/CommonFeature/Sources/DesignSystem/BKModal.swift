@@ -23,7 +23,11 @@ public struct BKModal: View {
     //MARK: - body
     public var body: some View {
         ZStack(content: {
-            Color(.black.withAlphaComponent(0.6)).ignoresSafeArea()
+            Color(.black)
+                .ignoresSafeArea()
+                .opacity(0.6)
+                .zIndex(0)
+            
             GeometryReader { geometry in
                 VStack {
                     modalView
@@ -39,18 +43,6 @@ public struct BKModal: View {
     @ViewBuilder
     public var modalView: some View {
         VStack{
-//            if case .withdrawNotice = modalType {
-//                HStack{
-//                    Spacer()
-//                    
-//                    Button {
-//                        dismiss()
-//                    } label: {
-//                        BKIcon(image: CommonFeatureAsset.Images.icoClose.swiftUIImage, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
-//                    }
-//                }
-//                
-//            }
             
             if case .linkLoading(_, _) = modalType {
                 LottieView(animation: .named("lodingAnimation", bundle: CommonFeatureResources.bundle))
@@ -69,20 +61,6 @@ public struct BKModal: View {
                 .foregroundStyle(BKColor.gray700.swiftUIColor)
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
             
-//            if case .withdrawNotice = modalType {
-//                Button(action: {
-//                    print("check")
-//                }, label: {
-//                    HStack {
-//                        Image(systemName: "square")
-//                            .foregroundStyle(Color.bkColor(.gray700))
-//                        Text("안내사항을 확인하였으며, 이에 동의합니다")
-//                            .font(.regular(size: ._13))
-//                            .foregroundStyle(Color.bkColor(.gray900))
-//                    }
-//                    
-//                })
-//            }
             
             
             switch modalType {
