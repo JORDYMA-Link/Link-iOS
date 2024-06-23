@@ -18,7 +18,7 @@ struct StorageBoxView: View {
   @Bindable var store: StoreOf<StorageBoxFeature>
   
   @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
-  @State private var isHiddenDivider = false
+  @State private var isScroll = false
   
   var body: some View {
     VStack(spacing: 0) {
@@ -63,8 +63,8 @@ struct StorageBoxView: View {
     }
     .background(Color.bkColor(.white))
     .toolbar(.hidden, for: .navigationBar)
-    .onReceive(scrollViewDelegate.$contentOffset.receive(on: DispatchQueue.main)) { isHidden in
-      isHiddenDivider = isHidden
+    .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
+      isScroll = $0
     }
     .navigationDestination(
       item: $store.scope(
@@ -124,7 +124,7 @@ extension StorageBoxView {
       
       Divider()
         .foregroundStyle(Color.bkColor(.gray400))
-        .opacity(isHiddenDivider ? 1 : 0)
+        .opacity(isScroll ? 1 : 0)
     }
   }
   
@@ -224,11 +224,11 @@ extension StorageBoxView {
 
 @MainActor
 final class StorageBoxScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
-  @Published var contentOffset = false
+  @Published var isScroll = false
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     DispatchQueue.main.async {
-      self.contentOffset = scrollView.contentOffset.y > 80
+      self.isScroll = scrollView.contentOffset.y > 80
     }
   }
 }
