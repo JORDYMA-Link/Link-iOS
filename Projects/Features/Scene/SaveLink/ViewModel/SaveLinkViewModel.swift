@@ -19,7 +19,7 @@ final class SaveLinkViewModel: ViewModelable {
         case onTapBackButton
     }
     
-    enum State {
+  enum State: Equatable {
         case buttonActivate(value: Bool)
         case presentLoadingAlert(valueToggle: Bool)
         case notValidationURL
@@ -28,7 +28,6 @@ final class SaveLinkViewModel: ViewModelable {
     }
     
     @Published var state: State
-    
     @Published var urlText: String = ""
     @Published var presentLoading: Bool = false
     
@@ -56,19 +55,19 @@ final class SaveLinkViewModel: ViewModelable {
     
     private func bind() {
         _urlText.projectedValue.sink { completion in
-            switch completion{
+            switch completion {
             case .failure(let failure):
                 print("failure: \(failure)")
             default:
                 print("finished")
             }
         } receiveValue: { [weak self] string in
-            guard let self else {return}
-            if string.isEmpty {
-                self.state = .buttonActivate(value: false)
-            } else {
-                self.state = .buttonActivate(value: true)
-            }
+          guard let self else {return}
+          if string.isEmpty {
+            self.state = .buttonActivate(value: false)
+          } else {
+            self.state = .buttonActivate(value: true)
+          }
         }
         .store(in: &cancellables)
     }
