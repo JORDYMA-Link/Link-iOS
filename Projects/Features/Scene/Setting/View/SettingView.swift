@@ -283,7 +283,7 @@ extension SettingView {
                         Image(systemName: "square" )
                             .foregroundStyle(Color.bkColor(.gray700))
                     } else {
-                        CommonFeatureAsset.Images.icoCheckBox.swiftUIImage
+                      CommonFeature.Images.icoCheckBox
                     }
                     
                     Text("안내사항을 확인하였으며, 이에 동의합니다")
