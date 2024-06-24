@@ -16,20 +16,15 @@ struct SaveLinkView: View {
   @State private var test: String = ""
     
     var body: some View {
-      VStack(alignment: .leading, content: {
-            if #available(iOS 17.0, *) {
-                (
-                    Text("링크")
-                        .foregroundStyle(Color.bkColor(.main300))
-                    + Text("를 입력해주세요")
-                        .foregroundStyle(Color.bkColor(.gray900))
-                )
-                .font(.semiBold(size: ._24))
-                .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
-                
-            } else {
-
-            }
+      VStack(alignment: .leading) {
+        HStack { 
+          Text("링크")
+              .foregroundStyle(Color.bkColor(.main300))
+          Text("를 입력해주세요")
+              .foregroundStyle(Color.bkColor(.gray900))
+        }
+        .font(.semiBold(size: ._24))
+        .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
             
             Text("블링크가 무엇이든 요약해줍니다")
                 .frame(alignment: .leading)
@@ -41,7 +36,7 @@ struct SaveLinkView: View {
                  
               switch viewModel.state {
               case .notValidationURL:
-                VStack(alignment: .leading){
+                VStack(alignment: .leading) {
                   ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
                   .background(Color.bkColor(.white))
                   .overlay(
@@ -68,7 +63,7 @@ struct SaveLinkView: View {
                 }
             }
             
-        })
+        }
         .padding(EdgeInsets(top: 28, leading: 16, bottom: 0, trailing: 16))
         .navigationBarBackButtonHidden()
         .toolbar {

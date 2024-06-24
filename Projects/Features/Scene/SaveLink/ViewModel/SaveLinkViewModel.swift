@@ -62,7 +62,7 @@ final class SaveLinkViewModel: ViewModelable {
                 print("finished")
             }
         } receiveValue: { [weak self] string in
-          guard let self else {return}
+          guard let self else { return }
           if string.isEmpty {
             self.state = .buttonActivate(value: false)
           } else {
