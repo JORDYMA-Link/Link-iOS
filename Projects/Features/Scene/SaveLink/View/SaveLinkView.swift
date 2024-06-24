@@ -10,25 +10,21 @@ import SwiftUI
 import CommonFeature
 
 struct SaveLinkView: View {
-    @Environment(\.dismiss) private var dismiss
+//    @Environment(\.dismiss) private var dismiss
     
-    @ObservedObject private var viewModel = SaveLinkViewModel()
+    @StateObject private var viewModel = SaveLinkViewModel()
+  @State private var test: String = ""
     
     var body: some View {
-        VStack(alignment: .leading, content: {
-            if #available(iOS 17.0, *) {
-                (
-                    Text("링크")
-                        .foregroundStyle(Color.bkColor(.main300))
-                    + Text("를 입력해주세요")
-                        .foregroundStyle(Color.bkColor(.gray900))
-                )
-                .font(.semiBold(size: ._24))
-                .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
-                
-            } else {
-
-            }
+      VStack(alignment: .leading) {
+        HStack { 
+          Text("링크")
+              .foregroundStyle(Color.bkColor(.main300))
+          Text("를 입력해주세요")
+              .foregroundStyle(Color.bkColor(.gray900))
+        }
+        .font(.semiBold(size: ._24))
+        .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
             
             Text("블링크가 무엇이든 요약해줍니다")
                 .frame(alignment: .leading)
@@ -36,32 +32,28 @@ struct SaveLinkView: View {
                 .foregroundStyle(Color.bkColor(.gray700))
                 .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
             
-            HStack(alignment: .top){
-                switch viewModel.state {
-                case .notValidationURL:
-                    VStack(alignment: .leading){
-                        TextField(text: $viewModel.urlText) {
-                            Text("링크를 붙여주세요")
-                                .font(.regular(size: ._14))
-                                .foregroundStyle(Color.bkColor(.gray800))
-                        }
-                        .frame(height: 46)
-                        .padding(.leading, 10)
-                        .background(Color.bkColor(.white))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(Color.bkColor(.red), lineWidth: 1)
-                        )
-                        
-                        Text("URL 형식이 올바르지 않아요. 다시 입력해주세요.")
-                            .font(.regular(size: ._12))
-                            .foregroundStyle(Color.bkColor(.red))
-                    }
-                    
-                    
-                default:
-                    ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
+            HStack(alignment: .top) {
+                 
+              switch viewModel.state {
+              case .notValidationURL:
+                VStack(alignment: .leading) {
+                  ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
+                  .background(Color.bkColor(.white))
+                  .overlay(
+                    RoundedRectangle(cornerRadius: 10)
+                      .stroke(Color.bkColor(.red), lineWidth: 1)
+                  )
+
+                  
+                  
+                  Text("URL 형식이 올바르지 않아요. 다시 입력해주세요.")
+                    .font(.regular(size: ._12))
+                    .foregroundStyle(Color.bkColor(.red))
+                
                 }
+              default:
+                ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
+              }
                 
                 
                 if case let .buttonActivate(value) = viewModel.state, value {
@@ -71,7 +63,7 @@ struct SaveLinkView: View {
                 }
             }
             
-        })
+        }
         .padding(EdgeInsets(top: 28, leading: 16, bottom: 0, trailing: 16))
         .navigationBarBackButtonHidden()
         .toolbar {
