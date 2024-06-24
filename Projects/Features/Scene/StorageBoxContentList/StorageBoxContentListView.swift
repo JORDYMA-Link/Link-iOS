@@ -17,52 +17,78 @@ import SwiftUIIntrospect
 struct StorageBoxContentListView: View {
   @Bindable var store: StoreOf<StorageBoxContentListFeature>
   
-  @StateObject var scrollViewDelegate = StorageBoxContentListScrollViewDelegate()
-  @State private var isScroll = false
+  @StateObject var scrollViewDelegate = ScrollViewDelegate()
+  @State private var topToHeader: Bool = false
   
   var body: some View {
     GeometryReader { geometry in
       VStack(spacing: 0) {
-        makeNavigationView()
         
-        ZStack {
-          Color.bkColor(.white)
+        VStack(spacing: 0) {
+          if !topToHeader {
+            makeNavigationView()
+          } else {
+            makeScrollHeaderView(title: store.folderInput.title)
+          }
           
-          makeCalendarBanner()
-            .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
+          Divider()
+            .foregroundStyle(Color.bkColor(.gray400))
+            .opacity(!topToHeader ? 0 : 1)
         }
-        .frame(height: 78)
-        
-        Divider()
-          .foregroundStyle(Color.bkColor(.gray400))
-        
+
         ScrollView(showsIndicators: false) {
-          LazyVStack(spacing: 20, pinnedViews: [.sectionHeaders]) {
-            Section {
-              ForEach(LinkCard.mock(), id: \.id) { item in
-                BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {}, title: item.title, description: item.description, keyword: item.keyword)
-                  .padding(.horizontal, 16)
-              }
-            } header: {
-              makeContentListHeaderView(title: store.folderInput.title)
-                .padding(EdgeInsets(top: 20, leading: 16, bottom: isScroll ? 4 : -4, trailing: 16))
-                .background(Color.bkColor(isScroll ? .white : .gray300))
+          VStack(spacing: 0) {
+            
+            ZStack {
+              Color.bkColor(.white)
               
+              makeCalendarBanner()
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
             }
+            .frame(height: 78)
+            
+            Divider()
+              .foregroundStyle(Color.bkColor(.gray400))
+            
+            makeContentListHeaderView(title: store.folderInput.title)
+              .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 16))
+              .background(Color.bkColor(.gray300))
+              .background(GeometryReader { proxy in
+                Color.clear.preference(key: SectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
+              })
+              .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
+                // 섹션 헤더의 최대 Y 위치 업데이트
+                let navigationBarMaxY = (geometry.safeAreaInsets.top)
+                let headerMaxY = maxY + navigationBarMaxY
+                
+                DispatchQueue.main.async {
+                  scrollViewDelegate.headerMaxY = headerMaxY
+                }
+              }
+            
+            LazyVStack(spacing: 20) {
+              Section {
+                ForEach(LinkCard.mock(), id: \.id) { item in
+                  BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {}, title: item.title, description: item.description, keyword: item.keyword)
+                    .padding(.horizontal, 16)
+                }
+              }
+            }
+            .background(Color.bkColor(.gray300))
           }
         }
         .padding(.bottom, 20)
-        .background(Color.bkColor(.gray300))
+        .background(Color.bkColor(.white))
         .introspect(.scrollView, on: .iOS(.v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
         }
       }
     }
-    .animation(.spring, value: isScroll)
     .ignoresSafeArea(edges: .bottom)
     .toolbar(.hidden, for: .navigationBar)
-    .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
-      isScroll = $0
+    .animation(.easeIn(duration: 0.2), value: topToHeader)
+    .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
+      self.topToHeader = $0
     }
     .bottomSheet(
       isPresented: $store.sortFolderBottomSheet.isSortFolderBottomSheetPresented,
@@ -80,6 +106,28 @@ extension StorageBoxContentListView {
   private func makeNavigationView() -> some View {
     makeBKNavigationView(leadingType: .tab("보관함"), trailingType: .none)
       .padding(.horizontal, 16)
+  }
+  
+  @ViewBuilder
+  private func makeScrollHeaderView(title: String) -> some View {
+    HStack(spacing: 8) {
+      Button {
+        store.send(.closeButtonTapped)
+      }
+    label: {
+      BKIcon(image: CommonFeature.Images.icoChevronLeft, color: .bkColor(.gray900), size: CGSize(width: 24, height: 24))
+    }
+      
+      Text(title)
+        .font(.semiBold(size: ._16))
+        .foregroundStyle(Color.bkColor(.gray900))
+        .lineLimit(1)
+      
+      Spacer(minLength: 0)
+    }
+    .padding(.horizontal, 16)
+    .frame(maxWidth: .infinity, minHeight: 56, maxHeight: 56)
+    .background(Color.bkColor(.white))
   }
   
   @ViewBuilder
@@ -152,17 +200,3 @@ extension StorageBoxContentListView {
     }
   }
 }
-
-extension StorageBoxContentListView {
-  @MainActor
-  final class StorageBoxContentListScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
-    @Published var isScroll = false
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-      DispatchQueue.main.async {
-        self.isScroll = scrollView.contentOffset.y > 0
-      }
-    }
-  }
-}
-
