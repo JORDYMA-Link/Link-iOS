@@ -17,7 +17,7 @@ import SwipeActions
 
 public struct HomeView: View {
   @Bindable var store: StoreOf<HomeFeature>
-  @StateObject private var scrollViewDelegate = HomeScrollViewDelegate()
+  @StateObject private var scrollViewDelegate = ScrollViewDelegate()
   
   @State private var categorySelectedIndex: Int? = 0
   @State private var topToCategory: Bool = false
@@ -49,16 +49,15 @@ public struct HomeView: View {
     }
     .toolbar(.hidden, for: .navigationBar)
     .background(Color.bkColor(.white))
+    .animation(.easeIn(duration: 0.2), value: topToCategory)
     .onAppear {
       print("homeView")
     }
-    .onReceive(scrollViewDelegate.$topToCategory.receive(on: DispatchQueue.main)) { item in
-      withAnimation(.easeIn(duration: 0.2)) {
-        self.topToCategory = item
-      }
+    .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
+        self.topToCategory = $0
     }
     .navigationDestination(isPresented: $pushToSetting) {
-      SaveLinkView()
+      SettingView()
     }
     .bottomSheet(
       isPresented: $store.linkPostMenuBottomSheet.isMenuBottomSheetPresented,
@@ -267,16 +266,14 @@ extension HomeView {
   }
 }
 
-extension HomeView {
-  @MainActor
-  final class HomeScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
-    @Published var headerMaxY: CGFloat = .zero
-    @Published var topToCategory: Bool = false
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-      DispatchQueue.main.async {
-        self.topToCategory = scrollView.contentOffset.y >  self.headerMaxY
-      }
+@MainActor
+final class ScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
+  @Published var headerMaxY: CGFloat = .zero
+  @Published var topToHeader: Bool = false
+  
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    DispatchQueue.main.async {
+      self.topToHeader = scrollView.contentOffset.y >  self.headerMaxY
     }
   }
 }
