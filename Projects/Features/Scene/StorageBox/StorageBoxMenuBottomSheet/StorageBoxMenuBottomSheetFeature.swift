@@ -27,6 +27,7 @@ public struct StorageBoxMenuBottomSheetFeature: Reducer {
   }
   
   public enum Action: Equatable {
+    // MARK: User Action
     case storageBoxMenuTapped(Folder)
     case menuTapped(MenuType)
     case closeButtonTapped

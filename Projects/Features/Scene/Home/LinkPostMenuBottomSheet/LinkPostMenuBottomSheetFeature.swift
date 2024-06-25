@@ -27,6 +27,7 @@ public struct LinkPostMenuBottomSheetFeature {
   }
   
   public enum Action: Equatable {
+    // MARK: User Action
     case linkPostMenuTapped(LinkCard)
     case menuTapped(LinkPostMenuType)
     case closeButtonTapped

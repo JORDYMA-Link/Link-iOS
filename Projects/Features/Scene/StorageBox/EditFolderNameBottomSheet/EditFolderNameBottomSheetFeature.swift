@@ -26,6 +26,7 @@ public struct EditFolderNameBottomSheetFeature: Reducer {
 
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
+    // MARK: User Action
     case editFolderNameTapped(Folder)
     case confirmButtonTapped
     case closeButtonTapped
