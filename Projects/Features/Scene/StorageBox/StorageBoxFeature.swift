@@ -22,7 +22,7 @@ public struct StorageBoxFeature: Reducer {
   public struct State: Equatable {
     var menuBottomSheet: StorageBoxMenuBottomSheetFeature.State = .init()
     var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
-    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init(addFolderNavigationType: .storageBox)
         
     var isDeleteFolderPresented: Bool = false
     var deleteFolder: Folder?
