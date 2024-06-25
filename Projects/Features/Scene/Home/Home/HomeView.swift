@@ -75,6 +75,7 @@ public struct HomeView: View {
       closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
     ) {
       EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
+        .interactiveDismissDisabled()
     }
   }
 }
@@ -177,7 +178,7 @@ extension HomeView {
               }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
             } leadingActions: { _ in
               SwipeAction {
-                store.send(.leadingSwipeAction(item))
+                store.send(.leadingSwipeAction(item), animation: .default)
               } label: {_ in
                 Text("이동")
                   .font(.semiBold(size: ._16))
