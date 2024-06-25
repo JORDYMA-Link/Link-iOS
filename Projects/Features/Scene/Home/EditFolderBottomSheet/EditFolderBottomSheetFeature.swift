@@ -16,6 +16,8 @@ import ComposableArchitecture
 public struct EditFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
+    public var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init(addFolderNavigationType: .homeEditFolder)
+    
     public var isEditFolderBottomSheetPresented: Bool = false
     
     public var postLinkId: String?
@@ -26,11 +28,15 @@ public struct EditFolderBottomSheetFeature {
     public init() {}
   }
   
-  public enum Action: Equatable {
+  public enum Action: BindableAction, Equatable {
+    case binding(BindingAction<State>)
     // MARK: User Action
     case editFolderTapped(String)
     case folderCellTapped(Folder)
     case closeButtonTapped
+    
+    // MARK: Child Action
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     
     // MARK: Inner Business Action
     case _onTask
@@ -38,15 +44,26 @@ public struct EditFolderBottomSheetFeature {
     // MARK: Inner SetState Action
     case _setFolderList([Folder])
     case _selectedFolder(Folder)
-    
   }
   
   public var body: some ReducerOf<Self> {
+    Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
+      AddFolderBottomSheetFeature()
+    }
+    
+    BindingReducer()
+    
     Reduce { state, action in
       switch action {
       case let .editFolderTapped(id):
         state.postLinkId = id
         state.isEditFolderBottomSheetPresented = true
+        return .none
+        
+      case let .folderCellTapped(folder):
+        // 해당 폴더로 API 통신
+        print(folder)
+        state.isEditFolderBottomSheetPresented = false
         return .none
         
       case .closeButtonTapped:
@@ -63,6 +80,10 @@ public struct EditFolderBottomSheetFeature {
         
       case let ._selectedFolder(folder):
         state.seletedFolder = folder
+        return .none
+        
+      case .addFolderBottomSheet(.delegate(.didUpdateFolderList)):
+        print("폴더 추가 완료하여 Get 폴더 리스트 API 콜")
         return .none
         
       default:
