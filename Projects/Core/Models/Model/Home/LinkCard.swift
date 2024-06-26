@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct LinkCard: Equatable, Hashable, Identifiable {
+public struct LinkCard: Hashable, Identifiable {
   public var id = UUID().uuidString
   public var sourceTitle: String
   public var sourceImage: String
