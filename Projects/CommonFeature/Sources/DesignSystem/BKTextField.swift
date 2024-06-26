@@ -10,6 +10,7 @@ import SwiftUI
 
 public enum BKTextFieldType {
   case addFolder
+  case editFolderName
   case addKeyword
   case searchKeyword
   
@@ -21,12 +22,14 @@ public enum BKTextFieldType {
       return "추가할 키워드를 입력해주세요"
     case .searchKeyword:
       return "검색어를 입력해 주세요"
+    default:
+      return ""
     }
   }
   
   var errorTitle: String {
     switch self {
-    case .addFolder:
+    case .addFolder, .editFolderName:
       return "폴더 이름은 10글자 이내로 입력해주세요"
     case .addKeyword:
       return "키워드는 최대 3개까지 지정할 수 있습니다."
@@ -37,7 +40,7 @@ public enum BKTextFieldType {
   
   var leadingTrailingWhitespaceErrorTitle: String {
     switch self {
-    case .addFolder:
+    case .addFolder, .editFolderName:
       "폴더 이름 시작과 끝에는 공백을 입력할 수 없어요"
     default:
       ""
@@ -113,7 +116,6 @@ extension BKTextField {
       .tint(.bkColor(.gray900))
       .font(.regular(size: ._14))
       .focused($textIsFocused)
-      .submitLabel(.done)
       .onSubmit {
         textIsFocused = false
       }
@@ -131,7 +133,7 @@ extension BKTextField {
   @ViewBuilder
   private func makeValidationLabel() -> some View {
     let errorMessage: String = {
-      if textFieldType == .addFolder {
+      if textFieldType == .addFolder || textFieldType == .editFolderName  {
         return validationError == .haspifx ? textFieldType.leadingTrailingWhitespaceErrorTitle : textFieldType.errorTitle
       } else {
         return textFieldType.errorTitle
@@ -148,8 +150,11 @@ extension BKTextField {
   
   @ViewBuilder
   private func makeTextCountLabel(textCount: Int) -> some View {
+    let fontHeight = UIFont.regular(size: ._12).lineHeight
+    
     Text("\(text.count)/\(textCount)")
       .font(.regular(size: ._12))
+      .padding(.vertical, (18 - fontHeight) / 2)
       .foregroundStyle(Color.bkColor(.gray600))
   }
 }
@@ -157,7 +162,7 @@ extension BKTextField {
 extension BKTextField {
   private func updateIsHighlight() {
     switch textFieldType {
-    case .addFolder:
+    case .addFolder, .editFolderName:
       if !isValidationFolderName(text: text) {
         isHighlight = true
       } else {
@@ -172,6 +177,11 @@ extension BKTextField {
   // 폴더 이름 체크 정규식
   private func isValidationFolderName(text: String) -> Bool {
     let pattern = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{1,10}$"
+    
+    if text.isEmpty {
+      self.validationError = .textcount
+      return false
+    }
     
     if text.hasPrefix(" ") || text.hasSuffix(" ") {
       self.validationError = .haspifx
