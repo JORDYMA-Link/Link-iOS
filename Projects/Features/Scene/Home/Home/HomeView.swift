@@ -186,7 +186,7 @@ extension HomeView {
         Section {
           ForEach(LinkCard.mock(), id: \.id) { item in
             SwipeView {
-              BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {
+              BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
                 store.send(.linkPostMenuBottomSheet(.linkPostMenuTapped(item)))
               }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
             } leadingActions: { _ in
