@@ -19,6 +19,8 @@ public struct HomeFeature: Reducer {
     public var linkPostMenuBottomSheet: LinkPostMenuBottomSheetFeature.State = .init()
     public var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
+    @Presents var searchKeyword: SearchKeywordFeature.State?
+    
   }
   
   public enum Action: BindableAction, Equatable {
@@ -26,10 +28,12 @@ public struct HomeFeature: Reducer {
     
     // MARK: User Action
     case leadingSwipeAction(LinkCard)
+    case searchBarTapped
     
     // MARK: Child Action
     case linkPostMenuBottomSheet(LinkPostMenuBottomSheetFeature.Action)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
+    case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     
     // MARK: Inner Business Action
     
@@ -54,9 +58,16 @@ public struct HomeFeature: Reducer {
       case let .leadingSwipeAction(linkPost):
         return .send(.editFolderBottomSheet(.editFolderTapped(linkPost.id)))
         
+      case .searchBarTapped:
+        state.searchKeyword = .init()
+        return .none
+        
       default:
         return .none
       }
+    }
+    .ifLet(\.$searchKeyword, action: \.searchKeyword) {
+      SearchKeywordFeature()
     }
   }
 }

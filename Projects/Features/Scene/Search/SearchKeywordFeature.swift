@@ -11,24 +11,34 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct SearchKeywordFeature: Reducer {
-    @ObservableState
-    struct State: Equatable {
-        var text = ""
-    }
+public struct SearchKeywordFeature {
+  @ObservableState
+  public struct State: Equatable {
+    var text = ""
     
-    enum Action: BindableAction, Equatable {
-        case binding(BindingAction<State>)
-    }
+    public init() { }
+  }
+  
+  public enum Action: BindableAction, Equatable {
+    case binding(BindingAction<State>)
     
-    var body: some ReducerOf<Self> {
-        BindingReducer()
+    // MARK: User Action
+    case closeButtonTapped
+  }
+  
+  @Dependency(\.dismiss) var dismiss
+  
+  public var body: some ReducerOf<Self> {
+    BindingReducer()
+    
+    Reduce { state, action in
+      switch action {
+      case .binding:
+        return .none
         
-        Reduce { state, action in
-            switch action {
-            case .binding:
-                return .none
-            }
-        }
+      case .closeButtonTapped:
+         return .run { _ in await self.dismiss() }
+      }
     }
+  }
 }

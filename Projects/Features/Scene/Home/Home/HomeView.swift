@@ -32,7 +32,7 @@ public struct HomeView: View {
           VStack(spacing: 0) {
             VStack(spacing: 12) {
               makeUseBlinkBanner()
-              makeCalendarBanner()
+              makeSearchBarBanner()
             }
             .padding(.init(top: 8, leading: 16, bottom: 24, trailing: 16))
             
@@ -56,8 +56,18 @@ public struct HomeView: View {
     .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
         self.topToCategory = $0
     }
-    .navigationDestination(isPresented: $pushToSetting) {
+    .navigationDestination(
+      isPresented: $pushToSetting
+    ) {
       SettingView()
+    }
+    .navigationDestination(
+      item: $store.scope(
+        state: \.searchKeyword,
+        action: \.searchKeyword
+      )
+    ) { store in
+      SearchKeywordView(store: store)
     }
     .bottomSheet(
       isPresented: $store.linkPostMenuBottomSheet.isMenuBottomSheetPresented,
@@ -130,7 +140,7 @@ extension HomeView {
   }
   
   @ViewBuilder
-  private func makeCalendarBanner() -> some View {
+  private func makeSearchBarBanner() -> some View {
     ZStack {
       Color.bkColor(.gray300)
       
@@ -151,6 +161,9 @@ extension HomeView {
             .fill(Color.bkColor(.gray500))
             .frame(width: 1)
             .padding(.leading, 6)
+        }
+        .onTapGesture {
+          store.send(.searchBarTapped)
         }
         
         CommonFeature.Images.icoCalendar
