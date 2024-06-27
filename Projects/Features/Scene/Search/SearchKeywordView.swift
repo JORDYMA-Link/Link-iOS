@@ -13,7 +13,6 @@ import CommonFeature
 import ComposableArchitecture
 
 struct SearchKeywordView: View {
-    @Environment(\.dismiss) private var dismiss
     @Bindable var store: StoreOf<SearchKeywordFeature>
     
     var body: some View {
@@ -56,7 +55,7 @@ extension SearchKeywordView {
     @ViewBuilder
     private func makeBackButton() -> some View {
         Button {
-            dismiss()
+          store.send(.closeButtonTapped)
         } label: {
             BKIcon(image: CommonFeature.Images.icoChevronLeft, color: .bkColor(.gray900), size: CGSize(width: 24, height: 24))
         }

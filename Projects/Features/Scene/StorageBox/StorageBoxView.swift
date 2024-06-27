@@ -14,13 +14,13 @@ import Models
 import ComposableArchitecture
 import SwiftUIIntrospect
 
-struct StorageBoxView: View {
+public struct StorageBoxView: View {
   @Bindable var store: StoreOf<StorageBoxFeature>
   
   @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
   @State private var isScroll = false
   
-  var body: some View {
+  public var body: some View {
     VStack(spacing: 0) {
       makeNavigationView()
       
@@ -29,7 +29,7 @@ struct StorageBoxView: View {
           ZStack {
             Color.bkColor(.white)
             
-            makeCalendarBanner()
+            makeSearchBarBanner()
               .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
           }
           
@@ -68,13 +68,20 @@ struct StorageBoxView: View {
     }
     .navigationDestination(
       item: $store.scope(
+        state: \.searchKeyword,
+        action: \.searchKeyword
+      )
+    ) { store in
+      SearchKeywordView(store: store)
+    }
+    .navigationDestination(
+      item: $store.scope(
         state: \.storageBoxContentList,
         action: \.storageBoxContentList
       )
     ) { store in
       StorageBoxContentListView(store: store)
     }
-
     .bottomSheet(
       isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
       detents: [.height(202)],
@@ -129,7 +136,7 @@ extension StorageBoxView {
   }
   
   @ViewBuilder
-  private func makeCalendarBanner() -> some View {
+  private func makeSearchBarBanner() -> some View {
     ZStack {
       Color.bkColor(.gray300)
       
@@ -150,6 +157,9 @@ extension StorageBoxView {
             .fill(Color.bkColor(.gray500))
             .frame(width: 1)
             .padding(.leading, 6)
+        }
+        .onTapGesture {
+          store.send(.searchBarTapped)
         }
         
         CommonFeature.Images.icoCalendar
