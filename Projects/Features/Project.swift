@@ -16,7 +16,8 @@ let project = Project.make(
                 .external(externalDependency: .introspect),
                 .external(externalDependency: .kingFisher),
                 .external(externalDependency: .swipeActions),
-				.external(externalDependency: .lottie)
+				.external(externalDependency: .lottie),
+                .external(externalDependency: .FSCalendar)
       ],
       settings: .settings(base: DefaultSetting.baseProductSetting)
     )
