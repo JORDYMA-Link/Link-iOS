@@ -43,4 +43,5 @@ public enum ExternalDependency: String {
     case swipeActions = "SwipeActions"
     case composableArchitecture = "ComposableArchitecture"
     case kakaoSDK = "KakaoSDK"
+    case FSCalendar = "FSCalendar"
 }
