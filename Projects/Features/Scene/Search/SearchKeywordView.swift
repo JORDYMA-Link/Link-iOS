@@ -9,6 +9,8 @@
 import SwiftUI
 
 import CommonFeature
+import CoreKit
+import Models
 
 import ComposableArchitecture
 
@@ -37,8 +39,19 @@ struct SearchKeywordView: View {
                                     .padding(.bottom, 24)
                                 
                                 LazyVStack(spacing: 20) {
-                                    ForEach(1...10, id: \.self) { count in
-                                        BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: false)
+                                  ForEach(SearchKeyword.mock(), id: \.self) { item in
+                                        BKCardCell(
+                                          width: geometry.size.width - 32,
+                                          sourceTitle: item.source,
+                                          sourceImage: CommonFeature.Images.graphicBell,
+                                          isMarked: item.isMarked,
+                                          saveAction: {},
+                                          menuAction: {},
+                                          title: item.title,
+                                          description: item.summary,
+                                          keyword: item.keywords,
+                                          isUncategorized: false
+                                        )
                                     }
                                 }
                             }
