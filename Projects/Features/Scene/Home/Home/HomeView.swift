@@ -179,9 +179,6 @@ extension HomeView {
   
   @ViewBuilder
   private func makeArticleListView(_ geometry: GeometryProxy) -> some View {
-    ZStack {
-      Color.bkColor(.gray300)
-      
       LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
         Section {
           ForEach(LinkCard.mock(), id: \.id) { item in
@@ -239,7 +236,7 @@ extension HomeView {
         }
       }
       .padding(.top, 8)
-    }
+      .background(Color.bkColor(.gray300))
   }
   
   @ViewBuilder
