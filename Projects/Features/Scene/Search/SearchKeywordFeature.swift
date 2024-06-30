@@ -8,7 +8,6 @@
 
 import Foundation
 
-import CoreKit
 import Models
 
 import ComposableArchitecture
