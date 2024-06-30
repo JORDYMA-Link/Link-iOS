@@ -8,7 +8,18 @@
 
 import Foundation
 
-public struct SearchKeyword: Hashable {
+public struct SearchKeywordSection: Equatable, Identifiable {
+  public let id = UUID()
+  public let searchList: [SearchKeyword]
+  public var isSeeMoreButtonHidden = false
+  
+  public init(searchList: [SearchKeyword]) {
+    self.searchList = searchList
+  }
+}
+
+public struct SearchKeyword: Equatable, Identifiable {
+  public var id = UUID()
   public var date: String
   public var folderId: Int
   public var folderName: String
@@ -37,20 +48,20 @@ public struct SearchKeyword: Hashable {
 extension SearchKeyword {
   public static func mock() -> [SearchKeyword] {
     return [SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 10, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"])
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 11, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 12, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 13, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 14, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 15, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 16, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 17, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 18, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 19, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 20, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 21, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 22, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 23, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
+            SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 24, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"])
     ]
   }
 }
