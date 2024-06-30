@@ -8,8 +8,8 @@
 
 import Foundation
 
-public enum APIKey {
-  public static let kakao = {
+enum APIKey {
+  static let kakao = {
         guard let infoDictionary = Bundle.main.infoDictionary else { fatalError("Wrong Info dictionary") }
         guard let key = infoDictionary["KAKAO_NATIVE_APP_KEY"] as? String else { fatalError("Wrong KAKAO_NATIVE_APP_KEY") }
         return key
