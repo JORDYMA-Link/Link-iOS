@@ -6,6 +6,8 @@
 //  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
+import Foundation
+
 import Moya
 
 public struct NetworkLoggerPlugin: PluginType {
@@ -17,10 +19,12 @@ public struct NetworkLoggerPlugin: PluginType {
     let methodRawValue = method.rawValue
     let requestDescription = request.debugDescription
     let headers = String(describing: target.headers)
+    let httpBody = String(describing: String(data: request.httpBody ?? Data(), encoding: .utf8))
 
     let message = """
     [Moya-Logger] - @\(methodRawValue): \(requestDescription)
     [Moya-Logger] headers: \(headers)
+    [Moya-Logger] httpBody: \(httpBody))
     \n
     """
     print(message)
