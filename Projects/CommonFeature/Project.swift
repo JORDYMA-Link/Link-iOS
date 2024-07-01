@@ -11,6 +11,7 @@ let project = Project.make(
       sources: ["Sources/**"],
       resources: ["Resources/**"],
       dependencies: [
+        .project(target: .common, projectPath: .core),
         .external(externalDependency: .lottie)
       ],
       settings: .settings(base: DefaultSetting.baseProductSetting)
