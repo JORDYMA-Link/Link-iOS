@@ -13,8 +13,16 @@ struct CalendarView: View {
   let store: StoreOf<CalendarFeature>
   
     var body: some View {
-      VStack{
-        BKCalendarView(calendarStore: store)
+      VStack(alignment: .leading) {
+        GeometryReader(content: { geometry in
+          
+          BKCalendarView(calendarStore: store)
+            .frame(height: geometry.size.height/2)
+          
+          EmptyView()
+            .background(Color.red)
+        })
+        
       }
     }
 }
