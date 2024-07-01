@@ -1,5 +1,5 @@
 //
-//  BKTokenInterceptor.swift
+//  TokenInterceptor.swift
 //  Services
 //
 //  Created by kyuchul on 6/30/24.
@@ -14,6 +14,9 @@ protocol Interceptorable {
   
 }
 
-public struct BKTokenInterceptor: RequestInterceptor, Interceptorable {
+public final class TokenInterceptor: RequestInterceptor, Interceptorable {
+  
+  static let shard = TokenInterceptor()
+  private init() { }
   
 }
