@@ -8,11 +8,11 @@
 
 import Foundation
 
-public struct SocialLogin {
-  let id: String?
-  let authorization: String
-  var identityToken: String?
-  let provider: Socialtype
+public struct SocialLogin: Equatable {
+  public let id: String?
+  public let authorization: String
+  public var identityToken: String?
+  public let provider: Socialtype
   
   public init(id: String? = nil, authorization: String, identityToken: String? = nil, provider: Socialtype) {
     self.id = id
