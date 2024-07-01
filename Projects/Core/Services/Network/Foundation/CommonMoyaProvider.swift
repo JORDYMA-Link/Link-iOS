@@ -21,7 +21,7 @@ final class CommonMoyaProvider<T: TargetType>: MoyaProvider<T> {
     configuration.timeoutIntervalForRequest = 10
     configuration.timeoutIntervalForResource = 10
     
-    let session = isInterceptor ? Session(configuration: configuration, interceptor: BKTokenInterceptor()) : Session(configuration: configuration)
+    let session = isInterceptor ? Session(configuration: configuration, interceptor: TokenInterceptor.shard) : Session(configuration: configuration)
     let plugIn = NetworkLoggerPlugin()
     
     super.init(session: session, plugins: [plugIn])
