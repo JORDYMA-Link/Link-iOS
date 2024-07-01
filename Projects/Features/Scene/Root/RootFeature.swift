@@ -1,14 +1,13 @@
 //
 //  RootFeature.swift
-//  Blink
+//  Features
 //
-//  Created by kyuchul on 6/6/24.
-//  Copyright © 2024 jordyma. All rights reserved.
+//  Created by kyuchul on 7/1/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
 import Foundation
 
-import Features
 import Common
 import Services
 
@@ -31,6 +30,7 @@ public struct RootFeature: Reducer {
   
   public enum Action {
     case onAppear
+    case onOpenURL(URL)
     case changeScreen(State)
     
     case splash(SplashFeature.Action)
@@ -40,26 +40,34 @@ public struct RootFeature: Reducer {
   }
   
   @Dependency(\.userDefaultsClient) var userDefault
+  @Dependency(\.socialLogin) var socialLogin
   
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .onAppear:
+        socialLogin.initKakaoSDK()
+        
         return .run {  send in
           try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
           
           userDefault.set(true, .isFirstLanch)
           
-          if userDefault.bool(.isFirstLanch) ?? true {
+          if try userDefault.bool(.isFirstLanch) {
             await send(.changeScreen(.login()), animation: .spring)
           } else {
             await send(.changeScreen(.mainTab()), animation: .spring)
           }
         }
         
+      case let .onOpenURL(url):
+        socialLogin.handleKakaoUrl(url)
+        return .none
+        
       case let .changeScreen(newState):
         state = newState
         return .none
+        
       default:
         return .none
       }

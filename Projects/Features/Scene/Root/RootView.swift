@@ -1,14 +1,13 @@
 //
 //  RootView.swift
-//  Blink
+//  Features
 //
-//  Created by kyuchul on 6/6/24.
-//  Copyright © 2024 jordyma. All rights reserved.
+//  Created by kyuchul on 7/1/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
 import SwiftUI
 
-import Features
 import Services
 
 import ComposableArchitecture
@@ -40,6 +39,9 @@ public struct RootView: View {
           BKTabView(store: store)
         }
       }
+    }
+    .onOpenURL { url in
+      store.send(.onOpenURL(url))
     }
     .animation(.spring, value: store.state)
     .task {

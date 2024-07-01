@@ -7,20 +7,26 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
+
+public enum UserDefaultsErrorType: Error {
+  case keyNotFound
+  case typeMismatch
+}
 
 public struct UserDefaultsClient {
     public enum UserDefaultsKey: String {
         case isFirstLanch
     }
     
-    public var string: @Sendable (_ forKey: UserDefaultsKey) -> String?
-    public var integer: @Sendable (_ forKey: UserDefaultsKey) -> Int?
-    public var bool: @Sendable (_ forKey: UserDefaultsKey) -> Bool?
-    public var float: @Sendable (_ forKey: UserDefaultsKey) -> Float?
-    public var double: @Sendable (_ forKey: UserDefaultsKey) -> Double?
-    public var data: @Sendable (_ forKey: UserDefaultsKey) -> Data?
-    public var object: @Sendable (_ forKey: UserDefaultsKey) -> Any?
+    public var string: @Sendable (_ forKey: UserDefaultsKey) throws -> String
+    public var integer: @Sendable (_ forKey: UserDefaultsKey) throws -> Int
+    public var bool: @Sendable (_ forKey: UserDefaultsKey) throws -> Bool
+    public var float: @Sendable (_ forKey: UserDefaultsKey) throws -> Float
+    public var double: @Sendable (_ forKey: UserDefaultsKey) throws -> Double
+    public var data: @Sendable (_ forKey: UserDefaultsKey) throws -> Data
+    public var object: @Sendable (_ forKey: UserDefaultsKey) throws -> Any
     public var set: @Sendable (_ value: Any, _ forKey: UserDefaultsKey) -> Void
     public var removeObject: @Sendable (_ forKey: UserDefaultsKey) -> Void
     
@@ -51,33 +57,44 @@ public struct UserDefaultsClient {
 }
 
 extension UserDefaultsClient: DependencyKey {
-    static func getUserDefaultsObject<T>(_ type: T.Type, forKey key: String) -> T? {
-        let value = UserDefaults.standard.object(forKey: key) as? T
-        return value
+    static func getUserDefaultsObject<T>(_ type: T.Type, forKey key: String) throws -> T {
+      guard let value = UserDefaults.standard.object(forKey: key) else {
+        throw UserDefaultsErrorType.keyNotFound
+      }
+      
+      guard let typeCastedValue = value as? T else {
+        throw UserDefaultsErrorType.typeMismatch
+      }
+              
+      return typeCastedValue
     }
     
     public static var liveValue: UserDefaultsClient {
         return Self(
             string: { key in
-                return getUserDefaultsObject(String.self, forKey: key.rawValue)
+                return try getUserDefaultsObject(String.self, forKey: key.rawValue)
             },
             integer: { key in
-                return getUserDefaultsObject(Int.self, forKey: key.rawValue)
+                return try getUserDefaultsObject(Int.self, forKey: key.rawValue)
             },
             bool: { key in
-                return getUserDefaultsObject(Bool.self, forKey: key.rawValue)
+                return try getUserDefaultsObject(Bool.self, forKey: key.rawValue)
             },
             float: { key in
-                return getUserDefaultsObject(Float.self, forKey: key.rawValue)
+                return try getUserDefaultsObject(Float.self, forKey: key.rawValue)
             },
             double: { key in
-                return getUserDefaultsObject(Double.self, forKey: key.rawValue)
+                return try getUserDefaultsObject(Double.self, forKey: key.rawValue)
             },
             data: { key in
-                return getUserDefaultsObject(Data.self, forKey: key.rawValue)
+                return try getUserDefaultsObject(Data.self, forKey: key.rawValue)
             },
             object: { key in
-                return UserDefaults.standard.object(forKey: key.rawValue)
+              guard let object = UserDefaults.standard.object(forKey: key.rawValue) else {
+                throw UserDefaultsErrorType.typeMismatch
+              }
+              
+              return object
             },
             set: { value, key in
                 return UserDefaults.standard.set(value, forKey: key.rawValue)
