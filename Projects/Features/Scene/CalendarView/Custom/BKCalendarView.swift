@@ -23,16 +23,14 @@ struct BKCalendarView: UIViewRepresentable {
   
   init(calendarStore: StoreOf<CalendarFeature>) {
     self.calendarStore = calendarStore
-    self.customHeaderView = CustomCalendarHeaderView(frame: .zero, title: calendarStore.state.currentPage.toStringYearMonth)
+    self.customHeaderView = CustomCalendarHeaderView(frame: .zero, calendar: self.calendar)
   }
   
   //MARK: - Implementation Protocol
   func makeUIView(context: Context) -> FSCalendar {
-    calendar.calendarHeaderView = customHeaderView
+    calendar.calendarHeaderView.isHidden = true
     
     calendar.locale = Locale(identifier: "ko_KR")
-//    calendar.appearance.headerDateFormat = "YYYY. MM."
-//    calendar.appearance.headerMinimumDissolvedAlpha = 0.0 //The alpha value of month label staying on the fringes. -> 완전 투명하게 만들기
     calendar.scope = .month
     
     calendar.delegate = context.coordinator
@@ -64,7 +62,8 @@ struct BKCalendarView: UIViewRepresentable {
     }
     
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-
+      guard let customHeaderView = calendar.calendarHeaderView as? CustomCalendarHeaderView else { return }
+      customHeaderView.setCurrentPageTitle(currentPage: calendar.currentPage.toStringYearMonth)
     }
     //MARK: - DataSource
     

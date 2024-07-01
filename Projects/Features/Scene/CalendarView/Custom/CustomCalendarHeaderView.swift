@@ -14,18 +14,18 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
     let button = UIButton(frame: .zero)
     var config = UIButton.Configuration.plain()
     config.title = "아나 시발 왜 안돼"
+    config.image = UIImage(systemName: "chevron.down")
     config.imagePlacement = .trailing
     config.baseForegroundColor = .bkColor(.gray900)
-    config.image = UIImage(systemName: "chevron.down")
     button.configuration = config
     return button
   }()
   
   
   //MARK: - initialization
-  init(frame: CGRect, title: String) {
+  init(frame: CGRect, calendar: FSCalendar) {
     super.init(frame: frame)
-    configureLayout(title: title)
+    self.calendar = calendar
   }
   
   required init?(coder: NSCoder) {
@@ -33,22 +33,28 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
   }
   
   //MARK: - FScalendar Method
-  
-  //MARK: - Helper
-  private func configureLayout(title: String) {
+  override func configureAppearance() {
     self.addSubview(monthButton)
-    setCurrentPageTitle(currentPage: title)
+    setCurrentPageTitle(currentPage: calendar.currentPage.toStringYearMonth)
     
     monthButton.translatesAutoresizingMaskIntoConstraints = true
     
     NSLayoutConstraint.activate([
-      monthButton.topAnchor.constraint(equalTo: self.topAnchor),
-      monthButton.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-      monthButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16),
-      monthButton.centerYAnchor.constraint(equalTo: self.centerYAnchor)
+      monthButton.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+      monthButton.leadingAnchor.constraint(equalTo: self.leadingAnchor, constant: 16)
     ])
   }
   
+  override func reloadData() {
+    print("reloadData")
+    super.reloadData()
+    
+    guard let currentPage = calendar?.currentPage else { return }
+    
+    self.monthButton.setTitle(currentPage.toStringYearMonth, for: .normal)
+  }
+  
+  //MARK: - Helpe
   public func setCurrentPageTitle(currentPage: String) {
     self.monthButton.setTitle(currentPage, for: .normal)
   }

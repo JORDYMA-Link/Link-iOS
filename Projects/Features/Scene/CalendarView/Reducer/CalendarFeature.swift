@@ -35,7 +35,6 @@ struct CalendarFeature {
         
       case let .swipeCurrentPage(currentPage):
         state.currentPage = currentPage
-        print(state.currentPage)
         return .none
       }
     }
