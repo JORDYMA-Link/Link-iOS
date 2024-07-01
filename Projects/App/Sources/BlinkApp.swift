@@ -9,6 +9,7 @@ import SwiftUI
 import UserNotifications
 
 import Services
+import Features
 
 import ComposableArchitecture
 import Firebase
@@ -19,20 +20,15 @@ struct BlinkApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   
   init() {
-    setUpKakaoSDK()
+    socialLogin.initKakaoSDK()
     setupNavigationBarAppearance()
   }
-  
-  let store = Store(initialState: RootFeature.State()) { RootFeature() }
   
   @Dependency(\.socialLogin) var socialLogin
   
   var body: some Scene {
     WindowGroup {
-      RootView(store: store)
-        .onOpenURL { url in
-          socialLogin.handleKakaoUrl(url)
-        }
+      RootView(store: Store(initialState: RootFeature.State()) { RootFeature() })
     }
   }
 }
@@ -51,10 +47,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 }
 
 extension BlinkApp {
-  private func setUpKakaoSDK() {
-    socialLogin.initKakaoSDK()
-  }
-  
   private func setupNavigationBarAppearance() {
     let navigationBarAppearance = UINavigationBarAppearance()
     navigationBarAppearance.configureWithOpaqueBackground()
