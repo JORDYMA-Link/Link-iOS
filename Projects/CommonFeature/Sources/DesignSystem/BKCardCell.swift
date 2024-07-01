@@ -26,6 +26,7 @@ public struct BKCardCell: View {
     public var width: CGFloat
     public var sourceTitle: String
     public var sourceImage: Image
+    public var isMarked: Bool
     public var saveAction: () -> Void
     public var menuAction: () -> Void
     public var title: String
@@ -36,10 +37,11 @@ public struct BKCardCell: View {
     public var recommendedFolderAction: (() -> Void)?
     public var addFolderAction: (() -> Void)?
     
-    public init(width: CGFloat, sourceTitle: String, sourceImage: Image, saveAction: @escaping () -> Void, menuAction: @escaping () -> Void, title: String, description: String, keyword: [String], isUncategorized: Bool = false, recommendedFolders: [String]? = nil, recommendedFolderAction: (() -> Void)? = nil, addFolderAction: (() -> Void)? = nil) {
+  public init(width: CGFloat, sourceTitle: String, sourceImage: Image, isMarked: Bool, saveAction: @escaping () -> Void, menuAction: @escaping () -> Void, title: String, description: String, keyword: [String], isUncategorized: Bool = false, recommendedFolders: [String]? = nil, recommendedFolderAction: (() -> Void)? = nil, addFolderAction: (() -> Void)? = nil) {
         self.width = width
         self.sourceTitle = sourceTitle
         self.sourceImage = sourceImage
+        self.isMarked = isMarked
         self.saveAction = saveAction
         self.menuAction = menuAction
         self.title = title
@@ -101,7 +103,7 @@ public struct BKCardCell: View {
             Button {
                 saveAction()
             } label: {
-                BKIcon(image: CommonFeature.Images.icoSave, color: .bkColor(.gray900), size: CGSize(width: 20, height: 20))
+              BKIcon(image: isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave, color: .bkColor(.gray900), size: CGSize(width: 20, height: 20))
             }
             
             Button {

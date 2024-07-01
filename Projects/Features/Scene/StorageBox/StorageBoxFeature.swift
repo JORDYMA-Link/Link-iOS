@@ -28,6 +28,7 @@ public struct StorageBoxFeature: Reducer {
     var deleteFolder: Folder?
     
     @Presents var storageBoxContentList: StorageBoxContentListFeature.State?
+    @Presents var searchKeyword: SearchKeywordFeature.State?
   }
   
   public enum Action: BindableAction, Equatable {
@@ -37,6 +38,7 @@ public struct StorageBoxFeature: Reducer {
     case deleteFolderTapped(Folder)
     case deleteFolderModalConfirmTapped
     case deleteFolderModalCancelTapped
+    case searchBarTapped
     case folderCellTapped(Folder)
     
     // MARK: Child Action
@@ -44,6 +46,7 @@ public struct StorageBoxFeature: Reducer {
     case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     case storageBoxContentList(PresentationAction<StorageBoxContentListFeature.Action>)
+    case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
   }
   
   // 리듀서에서는 Action을 기반으로 현재 State를 다음 State로 어떻게 바꿀지 실제적인 구현을 해주는 역할의 프로토콜
@@ -84,6 +87,10 @@ public struct StorageBoxFeature: Reducer {
         state.isDeleteFolderPresented = false
         return .none
         
+      case .searchBarTapped:
+        state.searchKeyword = .init()
+        return .none
+        
       case let .folderCellTapped(folder):
         state.storageBoxContentList = .init(folderInput: folder)
         return .none
@@ -94,6 +101,9 @@ public struct StorageBoxFeature: Reducer {
     }
     .ifLet(\.$storageBoxContentList, action: \.storageBoxContentList) {
       StorageBoxContentListFeature()
+    }
+    .ifLet(\.$searchKeyword, action: \.searchKeyword) {
+      SearchKeywordFeature()
     }
   }
 }

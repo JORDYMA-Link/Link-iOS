@@ -32,7 +32,7 @@ public struct HomeView: View {
           VStack(spacing: 0) {
             VStack(spacing: 12) {
               makeUseBlinkBanner()
-              makeCalendarBanner()
+              makeSearchBarBanner()
             }
             .padding(.init(top: 8, leading: 16, bottom: 24, trailing: 16))
             
@@ -56,8 +56,18 @@ public struct HomeView: View {
     .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
         self.topToCategory = $0
     }
-    .navigationDestination(isPresented: $pushToSetting) {
+    .navigationDestination(
+      isPresented: $pushToSetting
+    ) {
       SettingView()
+    }
+    .navigationDestination(
+      item: $store.scope(
+        state: \.searchKeyword,
+        action: \.searchKeyword
+      )
+    ) { store in
+      SearchKeywordView(store: store)
     }
     .bottomSheet(
       isPresented: $store.linkPostMenuBottomSheet.isMenuBottomSheetPresented,
@@ -130,7 +140,7 @@ extension HomeView {
   }
   
   @ViewBuilder
-  private func makeCalendarBanner() -> some View {
+  private func makeSearchBarBanner() -> some View {
     ZStack {
       Color.bkColor(.gray300)
       
@@ -152,6 +162,9 @@ extension HomeView {
             .frame(width: 1)
             .padding(.leading, 6)
         }
+        .onTapGesture {
+          store.send(.searchBarTapped)
+        }
         
         CommonFeature.Images.icoCalendar
           .resizable()
@@ -166,14 +179,11 @@ extension HomeView {
   
   @ViewBuilder
   private func makeArticleListView(_ geometry: GeometryProxy) -> some View {
-    ZStack {
-      Color.bkColor(.gray300)
-      
       LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
         Section {
           ForEach(LinkCard.mock(), id: \.id) { item in
             SwipeView {
-              BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {
+              BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
                 store.send(.linkPostMenuBottomSheet(.linkPostMenuTapped(item)))
               }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
             } leadingActions: { _ in
@@ -226,7 +236,7 @@ extension HomeView {
         }
       }
       .padding(.top, 8)
-    }
+      .background(Color.bkColor(.gray300))
   }
   
   @ViewBuilder
