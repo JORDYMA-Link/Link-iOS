@@ -25,13 +25,25 @@ public struct LoginFeature {
   }
   
   public enum Action: BindableAction, Equatable {
+    // MARK: User Action
     case binding(BindingAction<State>)
     case kakaoLoginButtonTapped
     case appleLoginButtonTapped
     
     case _setSocialLoginInfo(SocialLogin)
+    
+    // MARK: Delegate Action
+    public enum Delegate {
+      case moveToOnboarding
+    }
+    
+    case delegate(Delegate)
+    
+    // MARK: Child Action
+    case onboardingSubjectFeature(PresentationAction<OnboardingSubjectFeature.Action>)
   }
   
+  @Dependency(\.userDefaultsClient) var userDefault
   @Dependency(\.socialLogin) var socialLogin
   @Dependency(\.authClient) var authClient
   
@@ -56,11 +68,15 @@ public struct LoginFeature {
       case .appleLoginButtonTapped:
         return .run { send in
           let info = try await socialLogin.appleLogin()
-          print(info)
+          try await requestLogin(info, send: send)
         }
+        .throttle(id: ThrottleId.loginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case let ._setSocialLoginInfo(info):
         state.loginInfo = info
+        return .none
+                
+      default:
         return .none
       }
     }
@@ -78,7 +94,14 @@ extension LoginFeature {
         
         print(login)
       case .apple:
-        print(info)
+        // 온보딩 플로우 테스트
+        userDefault.set(true, .isFirstLogin)
+        
+        if try userDefault.bool(.isFirstLogin) {
+          await send(.delegate(.moveToOnboarding))
+        } else {
+          print(info)
+        }
       }
     } catch {
       print(error)
