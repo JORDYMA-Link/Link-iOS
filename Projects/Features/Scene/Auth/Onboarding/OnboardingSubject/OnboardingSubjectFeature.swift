@@ -12,7 +12,6 @@ import ComposableArchitecture
 
 @Reducer
 public struct OnboardingSubjectFeature {
-  
   public init() {}
   
   @ObservableState
@@ -22,13 +21,21 @@ public struct OnboardingSubjectFeature {
     public init() {}
   }
   
-  @CasePathable
   public enum Action: BindableAction, Equatable {
+    // MARK: User Action
     case binding(BindingAction<State>)
     case selectSubject(String)
+    case skipButtonTapped
     case confirmButtonTapped
+    
+    // MARK: Delegate Action
+    public enum Delegate {
+      case moveToOnboardingFlow
+      case moveToMainTab
+    }
+    
+    case delegate(Delegate)
   }
-  
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -44,7 +51,14 @@ public struct OnboardingSubjectFeature {
           state.subjects.insert(subject)
         }
         return .none
+        
+      case .skipButtonTapped:
+        return .send(.delegate(.moveToMainTab))
+        
       case .confirmButtonTapped:
+        return .send(.delegate(.moveToOnboardingFlow))
+        
+      default:
         return .none
       }
     }
