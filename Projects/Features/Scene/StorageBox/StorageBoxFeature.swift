@@ -33,7 +33,6 @@ public struct StorageBoxFeature: Reducer {
   
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
-    
     // MARK: User Action
     case deleteFolderTapped(Folder)
     case deleteFolderModalConfirmTapped
