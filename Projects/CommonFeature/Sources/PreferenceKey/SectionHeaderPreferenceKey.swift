@@ -15,3 +15,17 @@ public struct SectionHeaderPreferenceKey: PreferenceKey {
     value = max(value, nextValue())
   }
 }
+
+public struct ViewHeightGeometry: View {
+  public init() {}
+  
+  public var body: some View {
+    GeometryReader { proxy in
+      Color.clear
+        .preference(
+          key: SectionHeaderPreferenceKey.self,
+          value: proxy.frame(in: .global).maxY
+        )
+    }
+  }
+}
