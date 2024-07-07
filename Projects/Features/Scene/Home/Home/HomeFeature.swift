@@ -20,6 +20,7 @@ public struct HomeFeature: Reducer {
     public var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
+    @Presents var linkContent: LinkContentFeature.State?
     
   }
   
@@ -29,11 +30,13 @@ public struct HomeFeature: Reducer {
     // MARK: User Action
     case leadingSwipeAction(LinkCard)
     case searchBarTapped
+    case cellTapped
     
     // MARK: Child Action
     case linkPostMenuBottomSheet(LinkPostMenuBottomSheetFeature.Action)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
+    case linkContent(PresentationAction<LinkContentFeature.Action>)
     
     // MARK: Inner Business Action
     
@@ -62,12 +65,19 @@ public struct HomeFeature: Reducer {
         state.searchKeyword = .init()
         return .none
         
+      case .cellTapped:
+        state.linkContent = .init()
+        return .none
+        
       default:
         return .none
       }
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
       SearchKeywordFeature()
+    }
+    .ifLet(\.$linkContent, action: \.linkContent) {
+      LinkContentFeature()
     }
   }
 }
