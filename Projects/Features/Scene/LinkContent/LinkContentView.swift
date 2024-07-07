@@ -77,6 +77,8 @@ struct LinkContentView: View {
 
 #Preview {
   NavigationStack {
-    LinkContentView()
+    LinkContentView(store: .init(initialState: LinkContentFeature.State()) {
+      LinkContentFeature()
+    })
   }
 }
