@@ -78,3 +78,24 @@ public extension Font {
         return BKFont.SemiBold.fontName(size: size.rawValue)
     }
 }
+
+public struct TextLineHeight: ViewModifier {
+  private let font: UIFont
+  private let lineHeight: CGFloat
+  
+  public init(font: UIFont, lineHeight: CGFloat) {
+    self.font = font
+    self.lineHeight = lineHeight
+  }
+  
+  public func body(content: Content) -> some View {
+    content
+      .padding(.vertical, (lineHeight - font.lineHeight) / 2)
+  }
+}
+
+public extension Text {
+    func lineHeight(font: UIFont, lineHeight: CGFloat) -> some View {
+        self.modifier(TextLineHeight(font: font, lineHeight: lineHeight))
+    }
+}
