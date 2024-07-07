@@ -70,6 +70,14 @@ public struct HomeView: View {
     ) { store in
       SearchKeywordView(store: store)
     }
+    .navigationDestination(
+      item: $store.scope(
+        state: \.linkContent,
+        action: \.linkContent
+      )
+    ) { store in
+      LinkContentView(store: store)
+    }
     .bottomSheet(
       isPresented: $store.linkPostMenuBottomSheet.isMenuBottomSheetPresented,
       detents: [.height(178)],
@@ -211,6 +219,9 @@ extension HomeView {
             }
             .swipeActionCornerRadius(10)
             .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+            .onTapGesture {
+              store.send(.cellTapped)
+            }
           }
         } header: {
           VStack(spacing: 0) {
