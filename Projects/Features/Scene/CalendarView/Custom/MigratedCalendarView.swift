@@ -10,31 +10,27 @@ import SwiftUI
 import FSCalendar
 import ComposableArchitecture
 
-struct BKCalendarView: UIViewRepresentable {
+struct MigratedCalendarView: UIViewRepresentable {
   
   //MARK: - typealias
   typealias UIViewType = FSCalendar
   
   //MARK: - Properties
   private let calendar = FSCalendar()
-  private let customHeaderView: CustomCalendarHeaderView
   
   let calendarStore: StoreOf<CalendarFeature> // store은 클래스지만 어차피 구조체가 계속 업데이트 되어 바뀌는 구조일 것 이기 때문에 약한 참조로 선언할 필요가 없을 듯 함.
   
   init(calendarStore: StoreOf<CalendarFeature>) {
     self.calendarStore = calendarStore
-    self.customHeaderView = CustomCalendarHeaderView(frame: .zero, calendar: self.calendar)
   }
   
   //MARK: - Implementation Protocol
   func makeUIView(context: Context) -> FSCalendar {
-    calendar.calendarHeaderView.isHidden = true
-    
-    calendar.locale = Locale(identifier: "ko_KR")
-    calendar.scope = .month
+    configureAppearance()
     
     calendar.delegate = context.coordinator
     calendar.dataSource = context.coordinator
+    
     return calendar
   }
   
@@ -43,12 +39,14 @@ struct BKCalendarView: UIViewRepresentable {
   }
   
   func updateUIView(_ uiView: FSCalendar, context: Context) {
-    customHeaderView.setCurrentPageTitle(currentPage: uiView.currentPage.toStringYearMonth)
+    if calendarStore.state.currentPage != uiView.currentPage {
+      uiView.setCurrentPage(calendarStore.state.currentPage, animated: true)
+    }
   }
   
   //MARK: - Coordinator
   class Coordinator : NSObject, FSCalendarDelegate, FSCalendarDataSource {
-    //MARK: - store
+    //MARK: - Coordinator Property : store
     let calendarStore: StoreOf<CalendarFeature>
     
     //MARK: - Initialization
@@ -62,14 +60,23 @@ struct BKCalendarView: UIViewRepresentable {
     }
     
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
-      guard let customHeaderView = calendar.calendarHeaderView as? CustomCalendarHeaderView else { return }
-      customHeaderView.setCurrentPageTitle(currentPage: calendar.currentPage.toStringYearMonth)
+      calendarStore.send(.swipeCurrentPage(currentPage: calendar.currentPage))
     }
     //MARK: - DataSource
     
   }
+  
+  //MARK: - Helper
+  private func configureAppearance() {
+    calendar.calendarHeaderView.isHidden = true
+    calendar.headerHeight = 0
+  
+    calendar.appearance.weekdayTextColor = UIColor.bkColor(.gray600)
+    
+    calendar.locale = Locale(identifier: "ko_KR")
+    calendar.scope = .month
+  }
 }
-
 
 
 
