@@ -52,7 +52,7 @@ struct LinkContentHeaderView: View {
           .offset(y: isScrolling ? -minY : 0)
         }
     }
-    .frame(height: height > Size.titleMinHeight ? Size.headerMaxHeight : Size.headerMinHeight)
+    .frame(height: height <= Size.titleMinHeight ? Size.headerMinHeight : Size.headerMaxHeight)
   }
   
   @MainActor
@@ -71,12 +71,11 @@ struct LinkContentHeaderView: View {
           .padding(.top, 4)
           .frame(maxWidth: .infinity, minHeight: Size.titleMinHeight, alignment: .topLeading)
           .fixedSize(horizontal: false, vertical: true)
-          .background(ViewHeightGeometry())
-          .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
-            DispatchQueue.main.async {
-              self.height = maxY
+          .background(
+            GeometryReader { proxy in
+              Color.clear.onAppear { self.height = proxy.size.height }
             }
-          }
+          )
         
         Text(link.date)
           .font(.regular(size: ._16))
