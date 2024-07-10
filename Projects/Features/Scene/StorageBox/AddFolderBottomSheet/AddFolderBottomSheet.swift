@@ -31,7 +31,7 @@ struct AddFolderBottomSheet: View {
         
         Spacer()
         
-        BKConfirmButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+        BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
       }
     }
     .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
