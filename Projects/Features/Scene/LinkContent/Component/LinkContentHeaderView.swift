@@ -77,10 +77,13 @@ struct LinkContentHeaderView: View {
             }
           )
         
-        Text(link.date)
-          .font(.regular(size: ._16))
-          .foregroundColor(Color.bkColor(.white))
-          .lineHeight(font: .regular(size: ._16), lineHeight: 24)
+        BKText(
+          text: link.date,
+          font: .regular,
+          size: ._16,
+          lineHeight: 24,
+          color: .white
+        )
       }
       
       Spacer(minLength: 0)
