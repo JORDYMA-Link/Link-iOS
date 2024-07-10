@@ -10,6 +10,9 @@ import SwiftUI
 import FSCalendar
 import ComposableArchitecture
 
+///FSCalendar를 SwiftUI에서 사용할 수 있도록 UIViewRepresentable로 마이그레이션 진행한 View
+///
+///본 클래스는 TCA를 사용하는 것을 기준으로 만든 뷰로서 CalendarFeature의 Store를 구조체 생성시 추가해야합니다.
 struct MigratedCalendarView: UIViewRepresentable {
   
   //MARK: - typealias
