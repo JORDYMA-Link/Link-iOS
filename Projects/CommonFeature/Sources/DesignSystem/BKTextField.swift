@@ -51,9 +51,9 @@ public enum BKTextFieldType {
 public struct BKTextField: View {
   @Binding var text: String
   @Binding var isHighlight: Bool
-  public var textFieldType: BKTextFieldType
-  public var height: CGFloat
-  public var textCount: Int
+  private var textFieldType: BKTextFieldType
+  private var height: CGFloat
+  private var textCount: Int
   
   @FocusState private var textIsFocused: Bool
   @State private var validationError: ValidationError?
@@ -66,7 +66,13 @@ public struct BKTextField: View {
     case haspifx
   }
   
-  public init(text: Binding<String>, isHighlight: Binding<Bool>, textFieldType: BKTextFieldType, height: CGFloat, textCount: Int) {
+  public init(
+    text: Binding<String>,
+    isHighlight: Binding<Bool>,
+    textFieldType: BKTextFieldType,
+    height: CGFloat,
+    textCount: Int
+  ) {
     _text = text
     _isHighlight = isHighlight
     self.textFieldType = textFieldType
@@ -75,7 +81,14 @@ public struct BKTextField: View {
   }
   
   // 외부 FocusState 사용
-  public init(text: Binding<String>, isHighlight: Binding<Bool>, textIsFocused: FocusState<Bool>, textFieldType: BKTextFieldType, height: CGFloat, textCount: Int) {
+  public init(
+    text: Binding<String>,
+    isHighlight: Binding<Bool>,
+    textIsFocused: FocusState<Bool>,
+    textFieldType: BKTextFieldType,
+    height: CGFloat,
+    textCount: Int
+  ) {
     _text = text
     _isHighlight = isHighlight
     _textIsFocused = textIsFocused

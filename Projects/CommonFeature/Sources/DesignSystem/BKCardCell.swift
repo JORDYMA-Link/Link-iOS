@@ -23,19 +23,19 @@ import Common
 ///    }
 
 public struct BKCardCell: View {
-    public var width: CGFloat
-    public var sourceTitle: String
-    public var sourceImage: Image
-    public var isMarked: Bool
-    public var saveAction: () -> Void
-    public var menuAction: () -> Void
-    public var title: String
-    public var description: String
-    public var keyword: [String]
-    public var isUncategorized: Bool
-    public var recommendedFolders: [String]?
-    public var recommendedFolderAction: (() -> Void)?
-    public var addFolderAction: (() -> Void)?
+  private var width: CGFloat
+  private var sourceTitle: String
+  private var sourceImage: Image
+  private var isMarked: Bool
+  private var saveAction: () -> Void
+  private var menuAction: () -> Void
+  private var title: String
+  private var description: String
+  private var keyword: [String]
+  private var isUncategorized: Bool
+  private var recommendedFolders: [String]?
+  private var recommendedFolderAction: (() -> Void)?
+  private var addFolderAction: (() -> Void)?
     
   public init(width: CGFloat, sourceTitle: String, sourceImage: Image, isMarked: Bool, saveAction: @escaping () -> Void, menuAction: @escaping () -> Void, title: String, description: String, keyword: [String], isUncategorized: Bool = false, recommendedFolders: [String]? = nil, recommendedFolderAction: (() -> Void)? = nil, addFolderAction: (() -> Void)? = nil) {
         self.width = width
