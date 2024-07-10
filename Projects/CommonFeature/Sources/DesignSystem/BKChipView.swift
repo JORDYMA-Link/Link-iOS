@@ -10,9 +10,9 @@ import SwiftUI
 
 public struct BKChipView: View {
   @State private var keyword: [String]
-  public var textColor: Color
-  public var strokeColor: Color
-  public var font: Font
+  private var textColor: Color
+  private var strokeColor: Color
+  private var font: Font
   
   public init(keyword: [String], textColor: Color, strokeColor: Color, font: Font) {
     self.keyword = keyword

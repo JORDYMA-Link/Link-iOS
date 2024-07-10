@@ -20,7 +20,7 @@ public enum LeadingItemTypes {
 // MARK: - LeadingItem
 
 public struct LeadingItem: View {
-    public var type: LeadingItemTypes
+    private var type: LeadingItemTypes
     
     public init(type: LeadingItemTypes) {
         self.type = type
@@ -79,8 +79,8 @@ public enum TrailingItemTypes {
 // MARK: - TrailingItem
 
 public struct TrailingItem: View {
-    public var type: TrailingItemTypes
-    public var tintColor: Color
+  private var type: TrailingItemTypes
+  private var tintColor: Color
     
     public init(type: TrailingItemTypes, tintColor: Color) {
         self.type = type
