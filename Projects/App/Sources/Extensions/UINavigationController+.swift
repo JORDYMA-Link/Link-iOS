@@ -1,9 +1,9 @@
 //
 //  UINavigationController+.swift
-//  CommonFeature
+//  Blink
 //
-//  Created by kyuchul on 4/29/24.
-//  Copyright © 2024 jordyma. All rights reserved.
+//  Created by kyuchul on 7/10/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
 import UIKit
