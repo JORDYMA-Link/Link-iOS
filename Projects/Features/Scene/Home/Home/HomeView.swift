@@ -226,10 +226,8 @@ extension HomeView {
         } header: {
           VStack(spacing: 0) {
             makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
-              .background(GeometryReader { proxy in
-                Color.clear.preference(key: SectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
-              })
-              .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
+              .background(ViewHeightGeometry())
+              .onPreferenceChange(ViewPreferenceKey.self) { maxY in
                 // 섹션 헤더의 최대 Y 위치 업데이트
                 let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
                 let headerMaxY = maxY + navigationBarMaxY

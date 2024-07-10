@@ -31,7 +31,7 @@ struct LinkContentView: View {
             print("share")
           })
         .background(ViewHeightGeometry())
-        .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
+        .onPreferenceChange(ViewPreferenceKey.self) { maxY in
           let headerMaxY = maxY + UIApplication.topSafeAreaInset
           
           DispatchQueue.main.async {

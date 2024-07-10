@@ -1,5 +1,5 @@
 //
-//  SectionHeaderPreferenceKey.swift
+//  ViewPreferenceKey.swift
 //  CommonFeature
 //
 //  Created by kyuchul on 6/22/24.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct SectionHeaderPreferenceKey: PreferenceKey {
+public struct ViewPreferenceKey: PreferenceKey {
   public static var defaultValue: CGFloat = .zero
   
   public static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
@@ -23,7 +23,7 @@ public struct ViewHeightGeometry: View {
     GeometryReader { proxy in
       Color.clear
         .preference(
-          key: SectionHeaderPreferenceKey.self,
+          key: ViewPreferenceKey.self,
           value: proxy.frame(in: .global).maxY
         )
     }
