@@ -9,39 +9,40 @@
 import SwiftUI
 
 public struct BKChipView: View {
-    @State private var keyword: [String]
-    public var textColor: Color
-    public var strokeColor: Color
-    public var font: Font
-    
-    public init(keyword: [String], textColor: Color, strokeColor: Color, font: Font) {
-        self.keyword = keyword
-        self.textColor = textColor
-        self.strokeColor = strokeColor
-        self.font = font
-    }
-    
-    public var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 4) {
-                ForEach(keyword, id: \.self) { text in
-                    chipTextItem(text)
-                }
-            }
+  @State private var keyword: [String]
+  public var textColor: Color
+  public var strokeColor: Color
+  public var font: Font
+  
+  public init(keyword: [String], textColor: Color, strokeColor: Color, font: Font) {
+    self.keyword = keyword
+    self.textColor = textColor
+    self.strokeColor = strokeColor
+    self.font = font
+  }
+  
+  public var body: some View {
+    ScrollView(.horizontal, showsIndicators: false) {
+      LazyHStack(spacing: 4) {
+        ForEach(keyword, id: \.self) { text in
+          chipTextItem(text)
         }
+      }
     }
-    
-    private func chipTextItem(_ text: String)  -> some View {
-        Text(text)
-            .font(font)
-            .foregroundColor(textColor)
-            .padding(.vertical, 5)
-            .padding(.horizontal, 9)
-            .overlay(
-                RoundedRectangle(cornerRadius: 100)
-                    .stroke(strokeColor, lineWidth: 1)
-                    .padding(1)
-            )
-    }
+  }
+  
+  private func chipTextItem(_ text: String)  -> some View {
+    Text(text)
+      .font(font)
+      .foregroundColor(textColor)
+      .padding(.vertical, 5)
+      .padding(.horizontal, 9)
+      .clipShape(Capsule())
+      .overlay(
+        Capsule()
+          .stroke(strokeColor, lineWidth: 1)
+          .padding(1)
+      )
+  }
 }
 
