@@ -16,7 +16,7 @@ public struct ViewPreferenceKey: PreferenceKey {
   }
 }
 
-public struct ViewHeightGeometry: View {
+public struct ViewMaxYGeometry: View {
   public init() {}
   
   public var body: some View {
@@ -25,6 +25,20 @@ public struct ViewHeightGeometry: View {
         .preference(
           key: ViewPreferenceKey.self,
           value: proxy.frame(in: .global).maxY
+        )
+    }
+  }
+}
+
+public struct ViewHeightGeometry: View {
+  public init() {}
+  
+  public var body: some View {
+    GeometryReader { proxy in
+      Color.clear
+        .preference(
+          key: ViewPreferenceKey.self,
+          value: proxy.size.height
         )
     }
   }
