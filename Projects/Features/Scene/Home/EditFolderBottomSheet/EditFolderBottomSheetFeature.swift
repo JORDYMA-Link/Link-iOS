@@ -16,7 +16,7 @@ import ComposableArchitecture
 public struct EditFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
-    public var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init(addFolderNavigationType: .homeEditFolder)
+    public var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     
     public var isEditFolderBottomSheetPresented: Bool = false
     
