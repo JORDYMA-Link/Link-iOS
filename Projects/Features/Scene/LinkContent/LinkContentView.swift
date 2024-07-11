@@ -62,20 +62,36 @@ struct LinkContentView: View {
           LinkContentTitleButton(
             title: "폴더",
             buttonTitle: "수정",
-            action: {}
+            action: { store.send(.editFolderButtonTapped) }
           )
           .padding(.top, 16)
           
-          Spacer()
+          BKText(
+            text: LinkDetail.mock().folderName,
+            font: .regular,
+            size: ._14,
+            lineHeight: 20,
+            color: .bkColor(.gray900)
+          )
+          .padding(EdgeInsets(top: 9, leading: 13, bottom: 9, trailing: 13))
+          .background(
+            RoundedRectangle(cornerRadius: 8)
+              .fill(Color.white)
+              .stroke(Color.bkColor(.gray500), lineWidth: 1)
+              .padding(1)
+          )
+          .padding(.top, 8)
           
           LinkContentTitleButton(
             title: "메모",
             buttonTitle: "수정",
-            action: {}
+            action: {
+              store.send(.editMemoButtonTapeed)
+            }
           )
           .padding(.top, 16)
           
-          LinkContentTextView(content: "지난 22일 러시아 모스크바 시내 공연장에서 발생한 총기 난사 사건 사망자가 최소 115명으로 늘었으며 당국에 의해 11명이 체포됐다고 23일 AP통신이 보도했다. AP는 러시아 수사 위원회를 인용해 115명을 숨지게한 이번 총격 테러와 관련돼 11명이 체지난 22일 러시아 모스크바 시내 공연장에서 발생한 총기 난사 사건 사망자가 최소 115명으로 늘었으며 당국에 의해 11명이 체포됐다고 23일 AP통신이 보도했다. AP는 러시아 수사 위원회를 인용해 115명을 숨지게한 이번 총격 테러와 관련돼 11명이 체지난 22일 러시아 모스크바 시내 공연장에서 발생한 총기 난사 사건 사망자가 최소 115명으로 늘었으며 당국에 의해 11명이 체포됐다고 23일 AP통신이 보도했다. AP는 러시아 수사 위원회를 인용해 115명을 숨지게한 이번 총격 테러와 관련돼 11명이 체지난 22일 러시아 모스크바 시내 공연장에서 발생한 총기 난사 사건 사망자가 최소 115명으로 늘었으며 당국에 의해 11명이 체포됐다고 23일 AP통신이 보도했다. AP는 러시아 수사 위원회를 인용해 115명을 숨지게한 이번 총격 테러와 관련돼 11명이 체지난 22일 러시아 모스크바 시내 공연장에서 발생한 총기 난사 사건 사망자가 최소 115명으로 늘었으며 당국에 의해 11명이 체포됐다고 23일 AP통신이 보도했다. AP는 러시아 수사 위원회를 인용해 115명을 숨지게한 이번 총격 테러와 관련돼 11명이 체")
+          LinkContentTextView(content: store.memo)
             .padding(.top, 13)
         }
         .padding(.top, 24)
@@ -88,7 +104,7 @@ struct LinkContentView: View {
             isScrolled: $isScrolled,
             title: LinkDetail.mock().title,
             leftAction: { store.send(.closeButtonTapped) },
-            rightAction: {}
+            rightAction: { store.send(.editButtonTapped) }
           )
           .offset(y: -minY)
         }
@@ -102,6 +118,24 @@ struct LinkContentView: View {
     .animation(.easeInOut, value: isScrolled)
     .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
       self.isScrolled = $0
+    }
+    .bottomSheet(
+      isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+      detents: [.height(132)],
+      leadingTitle: "폴더 수정",
+      closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+    ) {
+      EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
+        .interactiveDismissDisabled()
+    }
+    .bottomSheet(
+      isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
+      detents: [.height(258 - UIApplication.bottomSafeAreaInset)],
+      leadingTitle: "메모",
+      closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
+    ) {
+      EditMemoBottomSheet(store: store.scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet))
+        .interactiveDismissDisabled()
     }
     
     BKRoundedButton(title: "원문 보기", confirmAction: {})
