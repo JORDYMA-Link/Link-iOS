@@ -24,7 +24,7 @@ public struct HomeFeature: Reducer {
     
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     
     // MARK: User Action
