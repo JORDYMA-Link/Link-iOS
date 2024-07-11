@@ -23,10 +23,18 @@ struct AddFolderBottomSheet: View {
       Color.clear.ignoresSafeArea()
       
       VStack(spacing: 0) {
-        BKTextField(text: $store.folderInput.title, isHighlight: $store.isHighlight, textIsFocused: _textIsFocused, textFieldType: .addFolder, height: 36, textCount: 10)
+        BKTextField(
+          text: $store.folderInput.title,
+          isHighlight: $store.isHighlight,
+          textIsFocused: _textIsFocused,
+          textFieldType: .addFolder,
+          textCount: 10,
+          isMultiLine: false
+        )
           .introspect(.textField, on: .iOS(.v17)) { textField in
               textField.delegate = textFieldDelegate
           }
+          .frame(height: 36)
           .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
         
         Spacer()
