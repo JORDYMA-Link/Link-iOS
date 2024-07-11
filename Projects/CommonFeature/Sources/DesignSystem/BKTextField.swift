@@ -13,6 +13,7 @@ public enum BKTextFieldType {
   case editFolderName
   case addKeyword
   case searchKeyword
+  case addMemo
   
   var placeholder: String {
     switch self {
@@ -33,6 +34,8 @@ public enum BKTextFieldType {
       return "폴더 이름은 10글자 이내로 입력해주세요"
     case .addKeyword:
       return "키워드는 최대 3개까지 지정할 수 있습니다."
+    case .addMemo:
+      return "메모는 1000자까지 입력 가능해요."
     default:
       return ""
     }
@@ -52,14 +55,11 @@ public struct BKTextField: View {
   @Binding var text: String
   @Binding var isHighlight: Bool
   private var textFieldType: BKTextFieldType
-  private var height: CGFloat
   private var textCount: Int
+  private let isMultiLine: Bool
   
   @FocusState private var textIsFocused: Bool
   @State private var validationError: ValidationError?
-  private enum Constants: CGFloat {
-    case vertical = 26
-  }
   
   private enum ValidationError {
     case textcount
@@ -70,14 +70,14 @@ public struct BKTextField: View {
     text: Binding<String>,
     isHighlight: Binding<Bool>,
     textFieldType: BKTextFieldType,
-    height: CGFloat,
-    textCount: Int
+    textCount: Int,
+    isMultiLine: Bool
   ) {
     _text = text
     _isHighlight = isHighlight
     self.textFieldType = textFieldType
-    self.height = height
     self.textCount = textCount
+    self.isMultiLine = isMultiLine
   }
   
   // 외부 FocusState 사용
@@ -86,23 +86,22 @@ public struct BKTextField: View {
     isHighlight: Binding<Bool>,
     textIsFocused: FocusState<Bool>,
     textFieldType: BKTextFieldType,
-    height: CGFloat,
-    textCount: Int
+    textCount: Int,
+    isMultiLine: Bool
   ) {
     _text = text
     _isHighlight = isHighlight
     _textIsFocused = textIsFocused
     self.textFieldType = textFieldType
-    self.height = height
     self.textCount = textCount
+    self.isMultiLine = isMultiLine
   }
   
   public var body: some View {
     VStack(spacing: 0) {
-      makeTextField()
-        .frame(height: height - Constants.vertical.rawValue)
-        .padding(.vertical, 13)
-        .padding(.horizontal, 16)
+      makeTextField
+        .padding(.vertical, 8)
+        .padding(.horizontal, 15)
         .background(Color.bkColor(.gray300))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
@@ -111,8 +110,14 @@ public struct BKTextField: View {
         )
       
       HStack(spacing: 8) {
-        makeValidationLabel()
-        makeTextCountLabel(textCount: textCount)
+        makeValidLabel
+        BKText(
+          text: "\(text.count)/\(textCount)",
+          font: .regular,
+          size: ._12,
+          lineHeight: 18,
+          color: .bkColor(.gray600)
+        )
       }
     }
   }
@@ -120,7 +125,16 @@ public struct BKTextField: View {
 
 extension BKTextField {
   @ViewBuilder
-  private func makeTextField() -> some View {
+  private var makeTextField: some View {
+    if isMultiLine {
+      multiLineTextField
+    } else {
+      singleTextField
+    }
+  }
+  
+  @ViewBuilder
+  private var singleTextField: some View {
     let textField = TextField(text: $text) {
       Text(textFieldType.placeholder)
         .font(.regular(size: ._14))
@@ -133,7 +147,6 @@ extension BKTextField {
         textIsFocused = false
       }
     
-    // textField 정규식 체크가 필요할 시
     if #available(iOS 17.0, *) {
       textField
         .onChange(of: text) { updateIsHighlight() }
@@ -144,11 +157,31 @@ extension BKTextField {
   }
   
   @ViewBuilder
-  private func makeValidationLabel() -> some View {
+  private var multiLineTextField: some View {
+    let textField = TextField("", text: $text, axis: .vertical)
+      .tint(.bkColor(.gray900))
+      .font(.regular(size: ._14))
+      .focused($textIsFocused)
+      .onSubmit {
+        textIsFocused = false
+      }
+    
+    if #available(iOS 17.0, *) {
+      textField
+        .onChange(of: text) { updateIsHighlight() }
+    } else {
+      textField
+        .onChange(of: text, perform: { _ in updateIsHighlight()})
+    }
+  }
+  
+  @ViewBuilder
+  private var makeValidLabel: some View {
     let errorMessage: String = {
-      if textFieldType == .addFolder || textFieldType == .editFolderName  {
+      switch textFieldType {
+      case .addFolder, .editFolderName:
         return validationError == .haspifx ? textFieldType.leadingTrailingWhitespaceErrorTitle : textFieldType.errorTitle
-      } else {
+      default:
         return textFieldType.errorTitle
       }
     }()
@@ -160,35 +193,30 @@ extension BKTextField {
       .frame(maxWidth: .infinity, alignment: .leading)
       .opacity(!isHighlight ? 0 : 1)
   }
-  
-  @ViewBuilder
-  private func makeTextCountLabel(textCount: Int) -> some View {
-    let fontHeight = UIFont.regular(size: ._12).lineHeight
-    
-    Text("\(text.count)/\(textCount)")
-      .font(.regular(size: ._12))
-      .padding(.vertical, (18 - fontHeight) / 2)
-      .foregroundStyle(Color.bkColor(.gray600))
-  }
 }
+
+// MARK: - 정규식 체크
 
 extension BKTextField {
   private func updateIsHighlight() {
     switch textFieldType {
     case .addFolder, .editFolderName:
-      if !isValidationFolderName(text: text) {
-        isHighlight = true
-      } else {
-        isHighlight = false
-      }
+      isHighlight = !isValidFolderName(text: text)
+      
+    case .addMemo:
+      isHighlight = !isValidMemo(text: text)
       
     default:
       break
     }
   }
-  
-  // 폴더 이름 체크 정규식
-  private func isValidationFolderName(text: String) -> Bool {
+}
+
+// MARK: - 정규식
+
+extension BKTextField {
+  /// 폴더 이름 체크 정규식
+  private func isValidFolderName(text: String) -> Bool {
     let pattern = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{1,10}$"
     
     if text.isEmpty {
@@ -215,5 +243,10 @@ extension BKTextField {
     }
     
     return false
+  }
+  
+  /// 메모 체크 정규식
+  private func isValidMemo(text: String) -> Bool {
+    return text.count <= 1000
   }
 }
