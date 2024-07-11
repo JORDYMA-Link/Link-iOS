@@ -15,11 +15,17 @@ struct CalendarFeature {
   struct State {
     var selectedDate = Date()
     var currentPage = Date()
+    var currentSheetDate = Date()
+    var changeCurrentPageSheet = false
   }
   
   enum Action {
     case tappedDate(selectedDate: Date)
     case swipeCurrentPage(currentPage: Date)
+    case changeCurrentPage(currentPage: Date)
+    case tappedCurrentSheetButton
+    case changeCurrentYear(dif: Int)
+    case tappedCurrentSheetMonth(selectedMonth: Int)
   }
   
   //MARK: - Helper
@@ -35,6 +41,42 @@ struct CalendarFeature {
         
       case let .swipeCurrentPage(currentPage):
         state.currentPage = currentPage
+        state.currentSheetDate = currentPage
+        debugPrint(state.currentPage, state.currentSheetDate)
+        return .none
+        
+      case .tappedCurrentSheetButton:
+        state.changeCurrentPageSheet.toggle()
+        return .none
+        
+      case let .changeCurrentPage(currentPage):
+        state.currentSheetDate = currentPage
+        debugPrint(state.currentPage, state.currentSheetDate)
+        return .none
+        
+      case let .changeCurrentYear(dif):
+        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif) else { return .none }
+        state.currentSheetDate = targetDate
+        debugPrint(state.currentPage, state.currentSheetDate)
+
+        return .none
+        
+      case let .tappedCurrentSheetMonth(selectedMonth):
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year], from: state.currentSheetDate)
+        let year = components.year
+        
+        var newComponent = DateComponents()
+        newComponent.year = year
+        newComponent.month = selectedMonth
+        
+        if let date = calendar.date(from: newComponent) {
+          state.currentPage = date
+          state.changeCurrentPageSheet.toggle()
+          state.currentSheetDate = date
+        }
+        debugPrint(state.currentPage, state.currentSheetDate)
+        
         return .none
       }
     }
