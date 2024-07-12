@@ -16,7 +16,7 @@ import ComposableArchitecture
 public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
-    public var linkPostMenuBottomSheet: LinkPostMenuBottomSheetFeature.State = .init()
+    public var linkMenuBottomSheet: LinkMenuBottomSheetFeature.State = .init()
     public var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
@@ -33,7 +33,7 @@ public struct HomeFeature: Reducer {
     case cellTapped
     
     // MARK: Child Action
-    case linkPostMenuBottomSheet(LinkPostMenuBottomSheetFeature.Action)
+    case linkMenuBottomSheet(LinkMenuBottomSheetFeature.Action)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case linkContent(PresentationAction<LinkContentFeature.Action>)
@@ -44,8 +44,8 @@ public struct HomeFeature: Reducer {
   }
   
   public var body: some ReducerOf<Self> {
-    Scope(state: \.linkPostMenuBottomSheet, action: \.linkPostMenuBottomSheet) {
-      LinkPostMenuBottomSheetFeature()
+    Scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet) {
+      LinkMenuBottomSheetFeature()
     }
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
