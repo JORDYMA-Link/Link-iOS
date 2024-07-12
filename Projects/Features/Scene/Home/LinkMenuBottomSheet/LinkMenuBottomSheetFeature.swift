@@ -1,5 +1,5 @@
 //
-//  LinkPostMenuBottomSheetFeature.swift
+//  LinkMenuBottomSheetFeature.swift
 //  Features
 //
 //  Created by kyuchul on 6/23/24.
@@ -18,7 +18,7 @@ public enum LinkPostMenuType {
 }
 
 @Reducer
-public struct LinkPostMenuBottomSheetFeature {
+public struct LinkMenuBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
     public var isMenuBottomSheetPresented: Bool = false
@@ -28,7 +28,7 @@ public struct LinkPostMenuBottomSheetFeature {
   
   public enum Action: Equatable {
     // MARK: User Action
-    case linkPostMenuTapped(LinkCard)
+    case linkMenuTapped(LinkCard)
     case menuTapped(LinkPostMenuType)
     case closeButtonTapped
   }
@@ -36,7 +36,7 @@ public struct LinkPostMenuBottomSheetFeature {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .linkPostMenuTapped(linkPost):
+      case let .linkMenuTapped(linkPost):
         state.seletedLinkPost = linkPost
         state.isMenuBottomSheetPresented = true
         return .none
