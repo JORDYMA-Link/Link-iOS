@@ -13,7 +13,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
   private let monthButton = {
     let button = UIButton(frame: .zero)
     var config = UIButton.Configuration.plain()
-    config.title = "아나 시발 왜 안돼"
+    config.title = "아나 왜 안돼"
     config.image = UIImage(systemName: "chevron.down")
     config.imagePlacement = .trailing
     config.baseForegroundColor = .bkColor(.gray900)
