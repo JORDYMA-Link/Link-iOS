@@ -64,7 +64,7 @@ public struct BKModal: View {
             
             
             switch modalType {
-            case .linkLoading(let checkAction, let cancelAction), .cancelConfirm(checkAction: let checkAction, cancelAction: let cancelAction), .deleteFolder(let checkAction, let cancelAction), .deleteContent(let checkAction, let cancelAction):
+            case .linkLoading(let checkAction, let cancelAction), .cancelConfirm(checkAction: let checkAction, cancelAction: let cancelAction), .deleteFolder(let checkAction, let cancelAction), .deleteContent(let checkAction, let cancelAction), .photoTypeError(checkAction: let checkAction, cancelAction: let cancelAction), .photoSizeError(checkAction: let checkAction, cancelAction: let cancelAction):
                 
                 configureButton(checkAction: checkAction, cancelAction: cancelAction)
                 
