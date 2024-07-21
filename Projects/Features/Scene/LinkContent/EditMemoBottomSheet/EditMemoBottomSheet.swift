@@ -29,12 +29,12 @@ struct EditMemoBottomSheet: View {
           textIsFocused: _textIsFocused,
           textFieldType: .addMemo,
           textCount: 1000,
-          isMultiLine: true
+          isMultiLine: true,
+          height: 90
         )
         .introspect(.textField, on: .iOS(.v17)) { textField in
           textField.delegate = textFieldDelegate
         }
-        .frame(height: 90)
         .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
         
         Spacer(minLength: 0)

@@ -14,6 +14,8 @@ public enum BKTextFieldType {
   case addKeyword
   case searchKeyword
   case addMemo
+  case editLinkTitle
+  case editLinkContent
   
   var placeholder: String {
     switch self {
@@ -36,6 +38,10 @@ public enum BKTextFieldType {
       return "키워드는 최대 3개까지 지정할 수 있습니다."
     case .addMemo:
       return "메모는 1000자까지 입력 가능해요."
+    case .editLinkTitle:
+      return "제목은 최소 2자, 최대 50자까지 입력 가능해요."
+    case .editLinkContent:
+      return "요약 내용은 최소 2자, 최대 200자까지 입력 가능해요."
     default:
       return ""
     }
@@ -56,6 +62,7 @@ public struct BKTextField: View {
   @Binding var isHighlight: Bool
   private var textFieldType: BKTextFieldType
   private var textCount: Int
+  private let height: CGFloat
   private let isMultiLine: Bool
   
   @FocusState private var textIsFocused: Bool
@@ -71,13 +78,15 @@ public struct BKTextField: View {
     isHighlight: Binding<Bool>,
     textFieldType: BKTextFieldType,
     textCount: Int,
-    isMultiLine: Bool
+    isMultiLine: Bool,
+    height: CGFloat = 36
   ) {
     _text = text
     _isHighlight = isHighlight
     self.textFieldType = textFieldType
     self.textCount = textCount
     self.isMultiLine = isMultiLine
+    self.height = height
   }
   
   // 외부 FocusState 사용
@@ -87,7 +96,8 @@ public struct BKTextField: View {
     textIsFocused: FocusState<Bool>,
     textFieldType: BKTextFieldType,
     textCount: Int,
-    isMultiLine: Bool
+    isMultiLine: Bool,
+    height: CGFloat = 36
   ) {
     _text = text
     _isHighlight = isHighlight
@@ -95,11 +105,13 @@ public struct BKTextField: View {
     self.textFieldType = textFieldType
     self.textCount = textCount
     self.isMultiLine = isMultiLine
+    self.height = height
   }
   
   public var body: some View {
     VStack(spacing: 0) {
       makeTextField
+        .frame(height: height - 16)
         .padding(.vertical, 8)
         .padding(.horizontal, 15)
         .background(Color.bkColor(.gray300))
@@ -127,7 +139,7 @@ extension BKTextField {
   @ViewBuilder
   private var makeTextField: some View {
     if isMultiLine {
-      multiLineTextField
+      multiLineTextView
     } else {
       singleTextField
     }
@@ -156,6 +168,27 @@ extension BKTextField {
     }
   }
   
+  @ViewBuilder
+  private var multiLineTextView: some View {
+    let textEditer = TextEditor(text: $text)
+      .tint(.bkColor(.gray900))
+      .font(.regular(size: ._14))
+      .scrollContentBackground(.hidden)
+      .focused($textIsFocused)
+      .onSubmit {
+        textIsFocused = false
+      }
+    
+    if #available(iOS 17.0, *) {
+      textEditer
+        .onChange(of: text) { updateIsHighlight() }
+    } else {
+      textEditer
+        .onChange(of: text, perform: { _ in updateIsHighlight()})
+    }
+  }
+  
+  /// 멀티라인 + 플레이스 홀더
   @ViewBuilder
   private var multiLineTextField: some View {
     let textField = TextField("", text: $text, axis: .vertical)
@@ -206,6 +239,12 @@ extension BKTextField {
     case .addMemo:
       isHighlight = !isValidMemo(text: text)
       
+    case .editLinkTitle:
+      isHighlight = !isValidLinkTitle(text: text)
+      
+    case .editLinkContent:
+      isHighlight = !isValidLinkContent(text: text)
+      
     default:
       break
     }
@@ -245,8 +284,18 @@ extension BKTextField {
     return false
   }
   
-  /// 메모 체크 정규식
+  /// 콘텐츠 상세 > 메모 수정 정규식
   private func isValidMemo(text: String) -> Bool {
     return text.count <= 1000
+  }
+  
+  /// 콘텐츠 상세 > 내용 수정 > 제목 정규식
+  private func isValidLinkTitle(text: String) -> Bool {
+    return 2 <= text.count && text.count <= 50
+  }
+  
+  /// 콘텐츠 상세 > 내용 수정 > 요약 내용 정규식
+  private func isValidLinkContent(text: String) -> Bool {
+    return 2 <= text.count && text.count <= 200
   }
 }
