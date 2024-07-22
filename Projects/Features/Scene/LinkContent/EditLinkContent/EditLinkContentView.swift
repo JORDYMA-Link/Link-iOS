@@ -17,124 +17,129 @@ struct EditLinkContentView: View {
   @Bindable var store: StoreOf<EditLinkContentFeature>
   
   var body: some View {
-    VStack(spacing: 0) {
-      makeBKNavigationView(
-        leadingType: .pop("내용수정"),
-        trailingType: .pop(action: { store.send(.closeButtonTapped) })
-      )
-      
-      VStack(alignment: .leading, spacing: 0) {
-        BKText(
-          text: "제목",
-          font: .semiBold,
-          size: ._18,
-          lineHeight: 26,
-          color: .bkColor(.gray900)
+    GeometryReader { _ in
+      VStack(spacing: 0) {
+        makeBKNavigationView(
+          leadingType: .pop("내용수정"),
+          trailingType: .pop(action: { store.send(.closeButtonTapped) })
         )
-        .padding(.top, 8)
         
-        BKTextField(
-          text: $store.link.title,
-          isHighlight: $store.isTitleVaild,
-          textFieldType: .editLinkTitle,
-          textCount: 50,
-          isMultiLine: true,
-          height: 67
-        )
-        .padding(.top, 4)
-        
-        BKText(
-          text: "요약 내용",
-          font: .semiBold,
-          size: ._18,
-          lineHeight: 26,
-          color: .bkColor(.gray900)
-        )
-        .padding(.top, 12)
-        
-        BKTextField(
-          text: $store.link.description,
-          isHighlight: $store.isContentVaild,
-          textFieldType: .editLinkContent,
-          textCount: 200,
-          isMultiLine: true,
-          height: 160
-        )
-        .padding(.top, 4)
-        
-        HStack {
+        VStack(alignment: .leading, spacing: 0) {
           BKText(
-            text: "키워드",
+            text: "제목",
             font: .semiBold,
             size: ._18,
             lineHeight: 26,
             color: .bkColor(.gray900)
           )
+          .padding(.top, 8)
           
-          Spacer(minLength: 0)
-          
-          BKText(
-            text: "키워드는 최대 3개까지 지정할 수 있어요",
-            font: .regular,
-            size: ._11,
-            lineHeight: 26,
-            color: .bkColor(.gray800)
+          BKTextField(
+            text: $store.link.title,
+            isHighlight: $store.isTitleVaild,
+            textFieldType: .editLinkTitle,
+            textCount: 50,
+            isMultiLine: true,
+            isClearButton: true,
+            height: 67
           )
-        }
-        .padding(.top, 12)
-        
-        BKChipView(
-          keyword: LinkCard.mock().first!.keyword,
-          textColor: .bkColor(.gray700),
-          strokeColor: .bkColor(.gray500),
-          font: .semiBold(size: ._11)
-        )
-        .frame(height: 26)
-        .padding(.top, 12)
-        
-        HStack {
+          .padding(.top, 4)
+          
           BKText(
-            text: "이미지",
+            text: "요약 내용",
             font: .semiBold,
             size: ._18,
             lineHeight: 26,
             color: .bkColor(.gray900)
           )
+          .padding(.top, 12)
           
-          Spacer(minLength: 0)
+          BKTextField(
+            text: $store.link.description,
+            isHighlight: $store.isContentVaild,
+            textFieldType: .editLinkContent,
+            textCount: 200,
+            isMultiLine: true,
+            height: 160
+          )
+          .padding(.top, 4)
           
-          BKText(
-            text: "5MB 이하의 이미지만 첨부 가능해요",
-            font: .regular,
-            size: ._11,
-            lineHeight: 26,
-            color: .bkColor(.gray800)
+          HStack {
+            BKText(
+              text: "키워드",
+              font: .semiBold,
+              size: ._18,
+              lineHeight: 26,
+              color: .bkColor(.gray900)
+            )
+            
+            Spacer(minLength: 0)
+            
+            BKText(
+              text: "키워드는 최대 3개까지 지정할 수 있어요",
+              font: .regular,
+              size: ._11,
+              lineHeight: 26,
+              color: .bkColor(.gray800)
+            )
+          }
+          .padding(.top, 12)
+          
+          BKChipView(
+            keyword: LinkCard.mock().first!.keyword,
+            textColor: .bkColor(.gray700),
+            strokeColor: .bkColor(.gray500),
+            font: .semiBold(size: ._11)
           )
-        }
-        .padding(.top, 12)
-        
-        BKPhotoPicker(
-          selectedImages: $store.selectedImage,
-          isPhotoError: $store.isPhotoError
-        ) {
-          EditPhotoItem(
-            currentImage: store.currentImage,
-            selectedImages: store.selectedImage
+          .frame(height: 26)
+          .padding(.top, 12)
+          
+          HStack {
+            BKText(
+              text: "이미지",
+              font: .semiBold,
+              size: ._18,
+              lineHeight: 26,
+              color: .bkColor(.gray900)
+            )
+            
+            Spacer(minLength: 0)
+            
+            BKText(
+              text: "5MB 이하의 이미지만 첨부 가능해요",
+              font: .regular,
+              size: ._11,
+              lineHeight: 26,
+              color: .bkColor(.gray800)
+            )
+          }
+          .padding(.top, 12)
+          
+          BKPhotoPicker(
+            selectedImages: $store.selectedImage,
+            isPhotoError: $store.isPhotoError
+          ) {
+            EditPhotoItem(
+              currentImage: store.currentImage,
+              selectedImages: store.selectedImage
+            )
+          }
+          .padding(.top, 12)
+          
+          Spacer()
+          
+          BKRoundedButton(
+            title: "수정 완료",
+            isDisabled: store.isTitleVaild && store.isContentVaild,
+            confirmAction: { store.send(.editConfirmButtonTapped) }
           )
+          .padding(.bottom, 14)
         }
-        .padding(.top, 12)
-        
-        Spacer()
-        
-        BKRoundedButton(
-          title: "수정 완료",
-          isDisabled: store.isTitleVaild && store.isContentVaild,
-          confirmAction: { store.send(.editConfirmButtonTapped) }
-        )
-        .padding(.bottom, 14)
+        .padding(.horizontal, 16)
       }
-      .padding(.horizontal, 16)
     }
+    .tapToHideKeyboard()
+    .ignoresSafeArea(.keyboard, edges: .bottom)
     .modal(
       isPresented: $store.isPresentedModal,
       type: store.isPhotoError == .type ? .photoTypeError(checkAction: {}, cancelAction: { store.isPresentedModal = false }) : .photoSizeError(checkAction: {}, cancelAction: { store.isPresentedModal = false })
