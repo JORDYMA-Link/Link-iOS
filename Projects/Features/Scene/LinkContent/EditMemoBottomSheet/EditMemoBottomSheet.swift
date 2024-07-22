@@ -38,7 +38,7 @@ struct EditMemoBottomSheet: View {
         }
       }
     }
-    .safeAreaInset(edge: .top, spacing: 0) {
+    .safeAreaInset(edge: .bottom, spacing: 0) {
       BKRoundedButton(
         title: "완료",
         isDisabled: store.isHighlight,
