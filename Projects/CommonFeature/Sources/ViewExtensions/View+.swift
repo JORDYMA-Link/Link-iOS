@@ -58,8 +58,6 @@ public extension View {
       if isPresented.wrappedValue {
         transaction.disablesAnimations = true
         transaction.animation = .linear(duration: 0.1)
-      } else {
-        transaction.disablesAnimations = true
       }
     }
   }
