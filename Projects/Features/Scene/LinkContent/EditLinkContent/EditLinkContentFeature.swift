@@ -38,7 +38,6 @@ public struct EditLinkContentFeature {
     
     // MARK: User Action
     case closeButtonTapped
-    case selectedImagesChanged([UIImage])
     case editConfirmButtonTapped
     
     // MARK: Inner Business Action
@@ -64,10 +63,6 @@ public struct EditLinkContentFeature {
         
       case .closeButtonTapped:
          return .run { _ in await self.dismiss() }
-        
-      case let .selectedImagesChanged(images):
-        state.selectedImage = images
-        return .none
       
       case .editConfirmButtonTapped:
         return .send(.closeButtonTapped)
