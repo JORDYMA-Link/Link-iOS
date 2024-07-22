@@ -19,7 +19,6 @@ public struct BKPhotoPicker<Content: View>: View {
   @Binding private var selectedImages: [UIImage]
   @Binding private var isPresentedError: Bool
   @Binding private var isPhotoError: PhotoPickerError?
-  private let matching: PHPickerFilter
   private let photoLibrary: PHPhotoLibrary
   private let content: () -> Content
   private let maximumByteSize: Int = 5000000
@@ -32,14 +31,12 @@ public struct BKPhotoPicker<Content: View>: View {
     selectedImages: Binding<[UIImage]>,
     isPresentedError: Binding<Bool> = .constant(false),
     isPhotoError: Binding<PhotoPickerError?> = .constant(nil),
-    matching: PHPickerFilter = .images,
     photoLibrary: PHPhotoLibrary = .shared(),
     content: @escaping () -> Content) {
       self._selectedImages = selectedImages
       self._isPresentedError = isPresentedError
       self._isPhotoError = isPhotoError
       self.content = content
-      self.matching = matching
       self.photoLibrary = photoLibrary
     }
     
@@ -47,7 +44,7 @@ public struct BKPhotoPicker<Content: View>: View {
     PhotosPicker(
       selection: $selectedPhotos,
       maxSelectionCount: 1,
-      matching: matching,
+      matching: .images,
       photoLibrary: photoLibrary
     ) {
       content()
