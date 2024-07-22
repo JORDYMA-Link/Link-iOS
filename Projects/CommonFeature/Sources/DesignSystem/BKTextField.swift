@@ -64,6 +64,7 @@ public struct BKTextField: View {
   private var textCount: Int
   private let height: CGFloat
   private let isMultiLine: Bool
+  private let isClearButton: Bool
   
   @FocusState private var textIsFocused: Bool
   @State private var validationError: ValidationError?
@@ -79,6 +80,7 @@ public struct BKTextField: View {
     textFieldType: BKTextFieldType,
     textCount: Int,
     isMultiLine: Bool,
+    isClearButton: Bool = false,
     height: CGFloat = 36
   ) {
     _text = text
@@ -86,6 +88,7 @@ public struct BKTextField: View {
     self.textFieldType = textFieldType
     self.textCount = textCount
     self.isMultiLine = isMultiLine
+    self.isClearButton = isClearButton
     self.height = height
   }
   
@@ -97,6 +100,7 @@ public struct BKTextField: View {
     textFieldType: BKTextFieldType,
     textCount: Int,
     isMultiLine: Bool,
+    isClearButton: Bool = false,
     height: CGFloat = 36
   ) {
     _text = text
@@ -105,12 +109,19 @@ public struct BKTextField: View {
     self.textFieldType = textFieldType
     self.textCount = textCount
     self.isMultiLine = isMultiLine
+    self.isClearButton = isClearButton
     self.height = height
   }
   
   public var body: some View {
     VStack(spacing: 0) {
-      makeTextField
+      HStack(spacing: 6) {
+        makeTextField
+        
+        if isClearButton {
+          makeClearButton
+        }
+      }
         .frame(height: height - 16)
         .padding(.vertical, 8)
         .padding(.horizontal, 15)
@@ -225,6 +236,19 @@ extension BKTextField {
       .padding(.top, 8)
       .frame(maxWidth: .infinity, alignment: .leading)
       .opacity(!isHighlight ? 0 : 1)
+  }
+  
+  @ViewBuilder
+  private var makeClearButton: some View {
+    Button {
+      text = ""
+    } label: {
+      BKIcon(
+        image: CommonFeature.Images.icoCircleCloseFill,
+        color: .bkColor(.gray600),
+        size: CGSize(width: 18, height: 18))
+    }
+    .opacity(!text.isEmpty ? 1 : 0)
   }
 }
 
