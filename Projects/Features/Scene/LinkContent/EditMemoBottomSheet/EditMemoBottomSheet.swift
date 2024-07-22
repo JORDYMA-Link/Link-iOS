@@ -20,34 +20,33 @@ struct EditMemoBottomSheet: View {
   
   var body: some View {
     GeometryReader { _ in
-      ScrollView {
-        VStack(spacing: 0) {
-          BKTextField(
-            text: $store.memo,
-            isHighlight: $store.isHighlight,
-            textIsFocused: _textIsFocused,
-            textFieldType: .addMemo,
-            textCount: 1000,
-            isMultiLine: true,
-            height: 540
-          )
-          .introspect(.textField, on: .iOS(.v17)) { textField in
-            textField.delegate = textFieldDelegate
-          }
-          .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
+      VStack(spacing: 0) {
+        BKTextField(
+          text: $store.memo,
+          isHighlight: $store.isHighlight,
+          textIsFocused: _textIsFocused,
+          textFieldType: .addMemo,
+          textCount: 1000,
+          isMultiLine: true,
+          height: 126
+        )
+        .introspect(.textField, on: .iOS(.v17)) { textField in
+          textField.delegate = textFieldDelegate
         }
+        
+        .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
+        
+        Spacer()
+        
+        BKRoundedButton(
+          title: "완료",
+          isDisabled: store.isHighlight,
+          isCornerRadius: false,
+          confirmAction: { store.send(.confirmButtonTapped) }
+        )
       }
     }
-    .safeAreaInset(edge: .bottom, spacing: 0) {
-      BKRoundedButton(
-        title: "완료",
-        isDisabled: store.isHighlight,
-        isCornerRadius: false,
-        confirmAction: { store.send(.confirmButtonTapped) }
-      )
-    }
-    .tapToHideKeyboard()
-    .ignoresSafeArea(.keyboard, edges: .bottom)
+    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
     .animation(.spring, value: textIsFocused)
     .onAppear {
       textIsFocused = true
