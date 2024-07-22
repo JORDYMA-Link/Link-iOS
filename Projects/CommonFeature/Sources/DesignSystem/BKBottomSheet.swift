@@ -36,16 +36,16 @@ public extension View {
   }
 }
 
-struct BKBottomSheetModifier<SheetContent: View>: ViewModifier {
+fileprivate struct BKBottomSheetModifier<SheetContent: View>: ViewModifier {
   @Binding var isPresented: Bool
-  var currentDetent: Binding<PresentationDetent>?
-  let detents: Set<PresentationDetent>
-  let isDismissible: Bool
-  let isBackgroundBlack: Bool
-  let leadingTitle: String
-  let closeButtonAction: (() -> Void)?
+  fileprivate var currentDetent: Binding<PresentationDetent>?
+  fileprivate let detents: Set<PresentationDetent>
+  fileprivate let isDismissible: Bool
+  fileprivate let isBackgroundBlack: Bool
+  fileprivate let leadingTitle: String
+  fileprivate let closeButtonAction: (() -> Void)?
   
-  let sheetContent: () -> SheetContent
+  fileprivate let sheetContent: () -> SheetContent
   
   func body(content: Content) -> some View {
     ZStack {

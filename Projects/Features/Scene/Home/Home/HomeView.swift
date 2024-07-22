@@ -70,13 +70,21 @@ public struct HomeView: View {
     ) { store in
       SearchKeywordView(store: store)
     }
+    .navigationDestination(
+      item: $store.scope(
+        state: \.linkContent,
+        action: \.linkContent
+      )
+    ) { store in
+      LinkContentView(store: store)
+    }
     .bottomSheet(
-      isPresented: $store.linkPostMenuBottomSheet.isMenuBottomSheetPresented,
-      detents: [.height(178)],
+      isPresented: $store.linkMenuBottomSheet.isMenuBottomSheetPresented,
+      detents: [.height(144)],
       leadingTitle: "설정",
-      closeButtonAction: { store.send(.linkPostMenuBottomSheet(.closeButtonTapped)) }
+      closeButtonAction: { store.send(.linkMenuBottomSheet(.closeButtonTapped)) }
     ) {
-      LinkPostMenuBottomSheet(store: store.scope(state: \.linkPostMenuBottomSheet, action: \.linkPostMenuBottomSheet))
+      LinkMenuBottomSheet(store: store.scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet))
         .padding(.horizontal, 16)
     }
     .bottomSheet(
@@ -185,7 +193,7 @@ extension HomeView {
           ForEach(LinkCard.mock(), id: \.id) { item in
             SwipeView {
               BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
-                store.send(.linkPostMenuBottomSheet(.linkPostMenuTapped(item)))
+                store.send(.linkMenuBottomSheet(.linkMenuTapped(item)))
               }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
             } leadingActions: { _ in
               SwipeAction {
@@ -211,14 +219,15 @@ extension HomeView {
             }
             .swipeActionCornerRadius(10)
             .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+            .onTapGesture {
+              store.send(.cellTapped)
+            }
           }
         } header: {
           VStack(spacing: 0) {
             makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
-              .background(GeometryReader { proxy in
-                Color.clear.preference(key: SectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
-              })
-              .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
+              .background(ViewMaxYGeometry())
+              .onPreferenceChange(ViewPreferenceKey.self) { maxY in
                 // 섹션 헤더의 최대 Y 위치 업데이트
                 let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
                 let headerMaxY = maxY + navigationBarMaxY

@@ -1,5 +1,5 @@
 //
-//  LinkPostMenuBottomSheet.swift
+//  LinkMenuBottomSheet.swift
 //  Features
 //
 //  Created by kyuchul on 6/23/24.
@@ -12,15 +12,18 @@ import CommonFeature
 
 import ComposableArchitecture
 
-struct LinkPostMenuBottomSheet: View {
-  @Bindable var store: StoreOf<LinkPostMenuBottomSheetFeature>
+struct LinkMenuBottomSheet: View {
+  @Bindable var store: StoreOf<LinkMenuBottomSheetFeature>
   
     var body: some View {
       HStack(spacing:0) {
         VStack(alignment: .leading, spacing: 8) {
           makeMenuButton(title: "수정하기", action: { store.send(.menuTapped(.editLinkPost)) })
           makeMenuButton(title: "삭제하기", isEdit: false, action: { store.send(.menuTapped(.deleteLinkPost)) })
+          
+          Spacer()
         }
+        
         Spacer(minLength: 0)
       }
     }

@@ -9,22 +9,26 @@
 import SwiftUI
 
 public struct BKIcon: View {
-    public var image: Image
-    public var color: Color
-    public var size: CGSize
-    
-    public init(image: Image, color: Color, size: CGSize) {
-        self.image = image
-        self.color = color
-        self.size = size
-    }
-    
-    public var body: some View {
-       image
-            .renderingMode(.template)
-            .resizable()
-            .scaledToFit()
-            .frame(width: size.width, height: size.height)
-            .foregroundStyle(color)
-    }
+  private var image: Image
+  private var color: Color
+  private var size: CGSize
+  
+  public init(
+    image: Image,
+    color: Color,
+    size: CGSize
+  ) {
+    self.image = image
+    self.color = color
+    self.size = size
+  }
+  
+  public var body: some View {
+    image
+      .renderingMode(.template)
+      .resizable()
+      .scaledToFit()
+      .frame(width: size.width, height: size.height)
+      .foregroundStyle(color)
+  }
 }

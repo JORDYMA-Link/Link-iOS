@@ -1,8 +1,8 @@
 //
-//  AddFolderBottomSheetFeature.swift
+//  EditMemoBottomSheetFeature.swift
 //  Features
 //
-//  Created by kyuchul on 6/20/24.
+//  Created by kyuchul on 7/11/24.
 //  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
@@ -13,27 +13,26 @@ import Models
 import ComposableArchitecture
 
 @Reducer
-public struct AddFolderBottomSheetFeature: Reducer {
+public struct EditMemoBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
-    public var isAddFolderBottomSheetPresented: Bool = false
-    public var isHighlight: Bool = true
-    public var folderInput: Folder = .init(title: "", count: 0)
-    public var savedFolder: Folder?
+    var isEditMemoBottomSheetPresented: Bool = false
+    var isHighlight: Bool = false
+    var memo = ""
     
     public init() {}
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
-    case addFolderTapped
+    case editMemoTapped(String)
     case confirmButtonTapped
     case closeButtonTapped
     
     // MARK: Delegate Action
     public enum Delegate {
-      case didUpdateFolderList
+      case didUpdateMemo(String)
     }
     case delegate(Delegate)
   }
@@ -43,21 +42,21 @@ public struct AddFolderBottomSheetFeature: Reducer {
     
     Reduce { state, action in
       switch action {
-      case .binding(\.folderInput):
+      case .binding(\.memo):
         return .none
         
-      case .addFolderTapped:
-        state.isAddFolderBottomSheetPresented = true
+      case let .editMemoTapped(memo):
+        state.memo = memo
+        state.isEditMemoBottomSheetPresented = true
         return .none
         
       case .confirmButtonTapped:
-        state.savedFolder = state.folderInput
-        state.isAddFolderBottomSheetPresented = false
-        return .send(.delegate(.didUpdateFolderList))
+        state.isEditMemoBottomSheetPresented = false
+        return .send(.delegate(.didUpdateMemo(state.memo)))
         
       case .closeButtonTapped:
-        state.folderInput = .init(title: "", count: 0)
-        state.isAddFolderBottomSheetPresented = false
+        state.memo = .init()
+        state.isEditMemoBottomSheetPresented = false
         return .none
                 
       default:
