@@ -62,10 +62,10 @@ public struct BKSearchTextField: View {
     Button {
       text = ""
     } label: {
-      BKIcon(
-        image: CommonFeature.Images.icoCircleCloseFill,
-        color: .bkColor(.gray600),
-        size: CGSize(width: 18, height: 18))
+      CommonFeature.Images.icoCircleCloseFill
+        .resizable()
+        .scaledToFit()
+        .frame(width: 18, height: 18)
     }
     .opacity(!text.isEmpty ? 1 : 0)
   }
