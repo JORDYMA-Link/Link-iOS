@@ -19,40 +19,38 @@ struct EditMemoBottomSheet: View {
   var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
-    ZStack {
-      Color.clear.ignoresSafeArea()
-      
-      VStack(spacing: 0) {
-        BKTextField(
-          text: $store.memo,
-          isHighlight: $store.isHighlight,
-          textIsFocused: _textIsFocused,
-          textFieldType: .addMemo,
-          textCount: 1000,
-          isMultiLine: true,
-          height: 90
-        )
-        .introspect(.textField, on: .iOS(.v17)) { textField in
-          textField.delegate = textFieldDelegate
+    GeometryReader { _ in
+      ScrollView {
+        VStack(spacing: 0) {
+          BKTextField(
+            text: $store.memo,
+            isHighlight: $store.isHighlight,
+            textIsFocused: _textIsFocused,
+            textFieldType: .addMemo,
+            textCount: 1000,
+            isMultiLine: true,
+            height: 540
+          )
+          .introspect(.textField, on: .iOS(.v17)) { textField in
+            textField.delegate = textFieldDelegate
+          }
+          .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
         }
-        .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
-        
-        Spacer(minLength: 0)
-        
-        BKRoundedButton(
-          title: "완료",
-          isDisabled: store.isHighlight,
-          isCornerRadius: false,
-          confirmAction: { store.send(.confirmButtonTapped) }
-        )
       }
     }
-    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
+    .safeAreaInset(edge: .top, spacing: 0) {
+      BKRoundedButton(
+        title: "완료",
+        isDisabled: store.isHighlight,
+        isCornerRadius: false,
+        confirmAction: { store.send(.confirmButtonTapped) }
+      )
+    }
+    .tapToHideKeyboard()
+    .ignoresSafeArea(.keyboard, edges: .bottom)
     .animation(.spring, value: textIsFocused)
     .onAppear {
-      DispatchQueue.main.async {
-        textIsFocused = true
-      }
+      textIsFocused = true
     }
   }
 }
