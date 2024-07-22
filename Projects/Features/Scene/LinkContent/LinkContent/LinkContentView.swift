@@ -84,15 +84,17 @@ struct LinkContentView: View {
           
           LinkContentTitleButton(
             title: "메모",
-            buttonTitle: "수정",
+            buttonTitle: store.memoButtonTitle,
             action: {
               store.send(.editMemoButtonTapeed)
             }
           )
           .padding(.top, 16)
           
-          LinkContentTextView(content: store.memo)
-            .padding(.top, 13)
+          if !store.memo.isEmpty {
+            LinkContentTextView(content: store.memo)
+              .padding(.top, 13)
+          }
         }
         .padding(.top, 24)
         .padding(.horizontal, 16)
@@ -141,7 +143,7 @@ struct LinkContentView: View {
     }
     .bottomSheet(
       isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
-      detents: [.height(258 - UIApplication.bottomSafeAreaInset)],
+      detents: [.height(256)],
       leadingTitle: "메모",
       closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
     ) {
