@@ -122,15 +122,15 @@ public struct BKTextField: View {
           makeClearButton
         }
       }
-        .frame(height: height - 16)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 15)
-        .background(Color.bkColor(.gray300))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
-          RoundedRectangle(cornerRadius: 10)
-            .stroke(!isHighlight ? Color.bkColor(.gray500) : Color.bkColor(.red), lineWidth: 1)
-        )
+      .frame(height: height - 16)
+      .padding(.vertical, 8)
+      .padding(.horizontal, 15)
+      .background(Color.bkColor(.gray300))
+      .clipShape(RoundedRectangle(cornerRadius: 10))
+      .overlay(
+        RoundedRectangle(cornerRadius: 10)
+          .stroke(!isHighlight ? Color.bkColor(.gray500) : Color.bkColor(.red), lineWidth: 1)
+      )
       
       HStack(spacing: 8) {
         makeValidLabel
@@ -243,10 +243,10 @@ extension BKTextField {
     Button {
       text = ""
     } label: {
-      BKIcon(
-        image: CommonFeature.Images.icoCircleCloseFill,
-        color: .bkColor(.gray600),
-        size: CGSize(width: 18, height: 18))
+      CommonFeature.Images.icoCircleCloseFill
+        .resizable()
+        .scaledToFit()
+        .frame(width: 18, height: 18)
     }
     .opacity(!text.isEmpty ? 1 : 0)
   }
