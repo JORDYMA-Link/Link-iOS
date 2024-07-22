@@ -18,6 +18,7 @@ public enum UserDefaultsErrorType: Error {
 public struct UserDefaultsClient {
     public enum UserDefaultsKey: String {
         case isFirstLanch
+        case isFirstLogin
     }
     
     public var string: @Sendable (_ forKey: UserDefaultsKey) throws -> String
