@@ -26,7 +26,7 @@ public struct BKTabFeature: Reducer {
     public init() {}
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
     case centerCircleIconTapped

@@ -53,10 +53,8 @@ struct StorageBoxContentListView: View {
             makeContentListHeaderView(title: store.folderInput.title)
               .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 16))
               .background(Color.bkColor(.gray300))
-              .background(GeometryReader { proxy in
-                Color.clear.preference(key: SectionHeaderPreferenceKey.self, value: proxy.frame(in: .global).maxY)
-              })
-              .onPreferenceChange(SectionHeaderPreferenceKey.self) { maxY in
+              .background(ViewMaxYGeometry())
+              .onPreferenceChange(ViewPreferenceKey.self) { maxY in
                 // 섹션 헤더의 최대 Y 위치 업데이트
                 let navigationBarMaxY = (geometry.safeAreaInsets.top)
                 let headerMaxY = maxY + navigationBarMaxY

@@ -16,24 +16,27 @@ import ComposableArchitecture
 public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
-    public var linkPostMenuBottomSheet: LinkPostMenuBottomSheetFeature.State = .init()
+    public var linkMenuBottomSheet: LinkMenuBottomSheetFeature.State = .init()
     public var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
+    @Presents var linkContent: LinkContentFeature.State?
     
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     
     // MARK: User Action
     case leadingSwipeAction(LinkCard)
     case searchBarTapped
+    case cellTapped
     
     // MARK: Child Action
-    case linkPostMenuBottomSheet(LinkPostMenuBottomSheetFeature.Action)
+    case linkMenuBottomSheet(LinkMenuBottomSheetFeature.Action)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
+    case linkContent(PresentationAction<LinkContentFeature.Action>)
     
     // MARK: Inner Business Action
     
@@ -41,8 +44,8 @@ public struct HomeFeature: Reducer {
   }
   
   public var body: some ReducerOf<Self> {
-    Scope(state: \.linkPostMenuBottomSheet, action: \.linkPostMenuBottomSheet) {
-      LinkPostMenuBottomSheetFeature()
+    Scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet) {
+      LinkMenuBottomSheetFeature()
     }
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
@@ -62,12 +65,19 @@ public struct HomeFeature: Reducer {
         state.searchKeyword = .init()
         return .none
         
+      case .cellTapped:
+        state.linkContent = .init()
+        return .none
+        
       default:
         return .none
       }
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
       SearchKeywordFeature()
+    }
+    .ifLet(\.$linkContent, action: \.linkContent) {
+      LinkContentFeature()
     }
   }
 }

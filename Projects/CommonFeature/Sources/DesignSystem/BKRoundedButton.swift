@@ -1,5 +1,5 @@
 //
-//  BKConfirmButton.swift
+//  BKRoundedButton.swift
 //  CommonFeature
 //
 //  Created by kyuchul on 6/18/24.
@@ -8,13 +8,18 @@
 
 import SwiftUI
 
-public struct BKConfirmButton: View {
-  public var title: String
-  public var isDisabled: Bool
-  public var confirmAction: () -> Void
-  public var isCornerRadius = false
+public struct BKRoundedButton: View {
+  private var title: String
+  private var isDisabled: Bool
+  private var confirmAction: () -> Void
+  private var isCornerRadius = false
   
-  public init(title: String, isDisabled: Bool = false, isCornerRadius: Bool = true, confirmAction: @escaping () -> Void) {
+  public init(
+    title: String,
+    isDisabled: Bool = false,
+    isCornerRadius: Bool = true,
+    confirmAction: @escaping () -> Void
+  ) {
     self.title = title
     self.isDisabled = isDisabled
     self.confirmAction = confirmAction

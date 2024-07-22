@@ -60,6 +60,3 @@ extension BlinkApp {
     UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
   }
 }
-
-
-
