@@ -112,45 +112,58 @@ struct EditLinkContentView: View {
           )
         }
         .padding(.top, 12)
-      
+        
         BKPhotoPicker(
-          selectedImages: $store.selectedImage.sending(\.selectedImagesChanged),
+          selectedImages: $store.selectedImage,
           isPhotoError: $store.isPhotoError
         ) {
-          makePhoto(
+          EditPhotoItem(
             currentImage: store.currentImage,
             selectedImages: store.selectedImage
           )
         }
         .padding(.top, 12)
+        
+        Spacer()
+        
+        BKRoundedButton(
+          title: "수정 완료",
+          isDisabled: store.isTitleVaild && store.isContentVaild,
+          confirmAction: { store.send(.editConfirmButtonTapped) }
+        )
+        .padding(.bottom, 14)
       }
       .padding(.horizontal, 16)
-      
-      BKRoundedButton(
-        title: "수정 완료",
-        isDisabled: store.isTitleVaild && store.isContentVaild,
-        confirmAction: { store.send(.editConfirmButtonTapped) }
-      )
-      .padding(.horizontal, 16)
-      .padding(.bottom, 14)
     }
     .modal(
       isPresented: $store.isPresentedModal,
       type: store.isPhotoError == .type ? .photoTypeError(checkAction: {}, cancelAction: { store.isPresentedModal = false }) : .photoSizeError(checkAction: {}, cancelAction: { store.isPresentedModal = false })
     )
   }
+}
+
+private struct EditPhotoItem: View {
+  private let currentImage: UIImage
+  private let selectedImages: [UIImage]
   
-  @MainActor
-  @ViewBuilder
-  private func makePhoto(currentImage: UIImage, selectedImages: [UIImage]) -> some View {
+  init(
+    currentImage: UIImage,
+    selectedImages: [UIImage]
+  ) {
+    self.currentImage = currentImage
+    self.selectedImages = selectedImages
+  }
+  
+  var body: some View {
     if !selectedImages.isEmpty {
-      makeImageView(Image(uiImage: selectedImages[0]))
+      imageView(Image(uiImage: selectedImages[0]))
     } else {
-      makeImageView(Image(uiImage: currentImage))
+      imageView(Image(uiImage: currentImage))
     }
   }
   
-  private func makeImageView(_ image: Image) -> some View {
+  @MainActor
+  private func imageView(_ image: Image) -> some View {
     image
       .resizable()
       .scaledToFill()
