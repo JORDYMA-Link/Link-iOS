@@ -22,7 +22,8 @@ public struct RootFeature: Reducer {
   public enum State: Equatable {
     case splash(SplashFeature.State = .init())
     case login(LoginFeature.State = .init())
-    case onBoarding(OnboardingSubjectFeature.State = .init())
+    case onBoardingSubject(OnboardingSubjectFeature.State = .init())
+    case onBoardingFlow(OnboardingFlowFeature.State = .init())
     case mainTab(BKTabFeature.State = .init())
     
     public init() { self = .splash() }
@@ -35,7 +36,8 @@ public struct RootFeature: Reducer {
     
     case splash(SplashFeature.Action)
     case login(LoginFeature.Action)
-    case onBoarding(OnboardingSubjectFeature.Action)
+    case onBoardingSubject(OnboardingSubjectFeature.Action)
+    case onBoardingFlow(OnboardingFlowFeature.Action)
     case mainTab(BKTabFeature.Action)
   }
   
@@ -60,6 +62,15 @@ public struct RootFeature: Reducer {
           }
         }
         
+      case .login(.delegate(.moveToOnboarding)):
+        return .send(.changeScreen(.onBoardingSubject()), animation: .spring)
+      
+      case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
+        return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
+      
+      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)):
+        return .send(.changeScreen(.mainTab()), animation: .spring)
+        
       case let .onOpenURL(url):
         socialLogin.handleKakaoUrl(url)
         return .none
@@ -74,7 +85,8 @@ public struct RootFeature: Reducer {
     }
     .ifCaseLet(\.splash, action: \.splash) { SplashFeature() }
     .ifCaseLet(\.login, action: \.login) { LoginFeature() }
-    .ifCaseLet(\.onBoarding, action: \.onBoarding) { OnboardingSubjectFeature() }
+    .ifCaseLet(\.onBoardingSubject, action: \.onBoardingSubject) { OnboardingSubjectFeature() }
+    .ifCaseLet(\.onBoardingFlow, action: \.onBoardingFlow) { OnboardingFlowFeature() }
     .ifCaseLet(\.mainTab, action: \.mainTab) { BKTabFeature() }
   }
 }
