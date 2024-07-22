@@ -143,7 +143,7 @@ struct LinkContentView: View {
     }
     .bottomSheet(
       isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
-      detents: [.large],
+      detents: [.height(292)],
       leadingTitle: "메모",
       closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
     ) {
