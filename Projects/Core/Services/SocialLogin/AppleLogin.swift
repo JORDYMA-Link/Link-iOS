@@ -41,9 +41,9 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
     switch authorization.credential {
     case let appleIDCredential as ASAuthorizationAppleIDCredential:
       let email = appleIDCredential.email
-      print("appleLogin email \(email ?? "")")
+      debugPrint("appleLogin email \(email ?? "")")
       let fullName = appleIDCredential.fullName
-      print("appleLogin fullName \(fullName?.description ?? "")")
+      debugPrint("appleLogin fullName \(fullName?.description ?? "")")
       
       guard let tokenData = appleIDCredential.identityToken,
             let token = String(data: tokenData, encoding: .utf8) else {
@@ -52,7 +52,7 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
         return
       }
       
-      print("appleLogin token \(token)")
+      debugPrint("appleLogin token \(token)")
       
       guard let authorizationCode = appleIDCredential.authorizationCode,
             let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) else {
@@ -61,12 +61,12 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
           return
       }
       
-      print("appleLogin authorizationCode \(authorizationCodeString)")
+      debugPrint("appleLogin authorizationCode \(authorizationCodeString)")
       
       let userIdentifier = appleIDCredential.user
-      print("appleLogin authenticated user: \(userIdentifier)")
+      debugPrint("appleLogin authenticated user: \(userIdentifier)")
       
-      let info = SocialLogin(id: userIdentifier, authorization: authorizationCodeString, identityToken: token, provider: .apple)
+      let info = SocialLogin(idToken: token, provider: .apple)
         
       continuation?.resume(returning: info)
       continuation = nil

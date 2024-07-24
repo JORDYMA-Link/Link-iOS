@@ -37,18 +37,19 @@ final class KakaoLogin {
   func kakaoLogin() async throws -> SocialLogin {
     return try await withCheckedThrowingContinuation { continuation in
       self.continuation = continuation
+      let nonce = UUID().uuidString
       
       if UserApi.isKakaoTalkLoginAvailable() {
-        loginWithKakaoTalk()
+        loginWithKakaoTalk(nonce: nonce)
       } else {
-        loginWithKakaoWeb()
+        loginWithKakaoWeb(nonce: nonce)
       }
     }
   }
   
   /// 카카오톡(앱)으로 로그인
-  private func loginWithKakaoTalk() {
-    UserApi.shared.loginWithKakaoTalk { [weak self] OAuthToken, error in
+  private func loginWithKakaoTalk(nonce: String) {
+    UserApi.shared.loginWithKakaoTalk(nonce: nonce) { [weak self] OAuthToken, error in
       guard let self else { return }
       
       if let error {
@@ -56,8 +57,8 @@ final class KakaoLogin {
         self.continuation = nil
         debugPrint("\(error)")
         return
-      } else if let token = OAuthToken {
-        self.setSocialLoginData(token: token.accessToken)
+      } else if let token = OAuthToken?.idToken {
+        self.setSocialLoginData(idToken: token, nonce: nonce)
         debugPrint("loginWithKakaoTalk() success., \(#function), \(#line)")
       } else {
         self.continuation?.resume(throwing: KakaoErrorType.invalidToken)
@@ -68,8 +69,8 @@ final class KakaoLogin {
   }
   
   /// 웹에서 카카오 계정 Access
-  private func loginWithKakaoWeb() {
-    UserApi.shared.loginWithKakaoAccount { [weak self] OAuthToken, error in
+  private func loginWithKakaoWeb(nonce: String) {
+    UserApi.shared.loginWithKakaoAccount(nonce: nonce) { [weak self] OAuthToken, error in
       guard let self else { return }
       
       if let error {
@@ -77,8 +78,8 @@ final class KakaoLogin {
         self.continuation = nil
         debugPrint("\(error)")
         return
-      } else if let token = OAuthToken {
-        self.setSocialLoginData(token: token.accessToken)
+      } else if let token = OAuthToken?.idToken {
+        self.setSocialLoginData(idToken: token, nonce: nonce)
         debugPrint("loginWithWeb() success., \(#function), \(#line)")
       } else {
         self.continuation?.resume(throwing: KakaoErrorType.invalidToken)
@@ -88,8 +89,8 @@ final class KakaoLogin {
     }
   }
   
-  private func setSocialLoginData(token: String) {
-    let info = SocialLogin(authorization: token, provider: .kakao)
+  private func setSocialLoginData(idToken: String, nonce: String) {
+    let info = SocialLogin(idToken: idToken, nonce: nonce, provider: .kakao)
     continuation?.resume(returning: info)
     continuation = nil
   }
