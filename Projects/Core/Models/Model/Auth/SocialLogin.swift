@@ -9,15 +9,17 @@
 import Foundation
 
 public struct SocialLogin: Equatable {
-  public let id: String?
-  public let authorization: String
-  public var identityToken: String?
+  public let idToken: String
+  public let nonce: String?
   public let provider: Socialtype
   
-  public init(id: String? = nil, authorization: String, identityToken: String? = nil, provider: Socialtype) {
-    self.id = id
-    self.authorization = authorization
-    self.identityToken = identityToken
+  public init(
+    idToken: String,
+    nonce: String? = nil,
+    provider: Socialtype
+  ) {
+    self.idToken = idToken
+    self.nonce = nonce
     self.provider = provider
   }
 }

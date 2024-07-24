@@ -90,7 +90,7 @@ extension LoginFeature {
       
       switch info.provider {
       case .kakao:
-        let login = try await authClient.requestKakaoLogin(.init(idToken: info.authorization, nonce: UUID().uuidString))
+        let login = try await authClient.requestKakaoLogin(.init(idToken: info.idToken, nonce: info.nonce ?? ""))
         
         print(login)
       case .apple:
