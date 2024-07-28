@@ -14,15 +14,18 @@ struct RecentSearchView: View {
   private let resentSearches: [String]
   private let removeAllAction: () -> Void
   private let removeAction: (String) -> Void
+  private let recentSearchAction: (String) -> Void
   
   init(
     resentSearches: [String],
     removeAllAction: @escaping () -> Void,
-    removeAction: @escaping (String) -> Void
+    removeAction: @escaping (String) -> Void,
+    recentSearchAction: @escaping (String) -> Void
   ) {
     self.resentSearches = resentSearches
     self.removeAllAction = removeAllAction
     self.removeAction = removeAction
+    self.recentSearchAction = recentSearchAction
   }
   
   var body: some View {
@@ -48,13 +51,14 @@ struct RecentSearchView: View {
                 color: .bkColor(.gray700),
                 size: .init(width: 16, height: 16)
               )
+              .onTapGesture { removeAction(searches) }
             }
             .padding(16)
             
             Divider()
               .foregroundStyle(Color.bkColor(.gray400))
           }
-          .onTapGesture { removeAction(searches) }
+          .onTapGesture { recentSearchAction(searches) }
         }
       }
     }
