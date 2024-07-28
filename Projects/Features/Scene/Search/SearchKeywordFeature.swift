@@ -81,6 +81,7 @@ public struct SearchKeywordFeature {
       case let .searchButtonTapped(keyword):
         guard !keyword.isEmpty else { return .none }
         
+        state.text = keyword
         state.section = []
         state.keyword = keyword
         saveRecentSearches(keyword: keyword)

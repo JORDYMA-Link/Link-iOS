@@ -25,7 +25,7 @@ struct SearchKeywordView: View {
         SearchKeywordNavigationBar(
           text: $store.text,
           textIsFocused: _textIsFocused,
-          searchAction: { store.send(.searchButtonTapped(store.text)) },
+          searchAction: { store.send(.searchButtonTapped(store.text), animation: .spring) },
           dismiss: { store.send(.closeButtonTapped) }
         )
         
@@ -36,7 +36,8 @@ struct SearchKeywordView: View {
           RecentSearchView(
             resentSearches: store.recentSearches,
             removeAllAction: { store.send(.removeAllRecentSearchesButtonTapeed, animation: .spring) },
-            removeAction: { keyword in store.send(.removeRecentSearchesCellTapeed(keyword), animation: .spring) }
+            removeAction: { keyword in store.send(.removeRecentSearchesCellTapeed(keyword), animation: .spring) }, 
+            recentSearchAction: {keyword in store.send(.searchButtonTapped(keyword), animation: .spring) }
           )
         } else if store.section.isEmpty {
           EmptySearchView(keyword: store.keyword)
