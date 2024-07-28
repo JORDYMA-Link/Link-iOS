@@ -1,0 +1,42 @@
+//
+//  EmptySearchView.swift
+//  Features
+//
+//  Created by kyuchul on 7/28/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
+//
+
+import SwiftUI
+
+import CommonFeature
+
+struct EmptySearchView: View {
+  private let keyword: String
+  
+  init(keyword: String) {
+    self.keyword = keyword
+  }
+  
+  var body: some View {
+    VStack(alignment: .center, spacing: 0) {
+      Spacer()
+      
+      CommonFeature.Images.icoEmptySearch
+      
+      SearchResultTitle(keyword: keyword, title: "에 대한 검색 결과가 없습니다.", isEmpty: true)
+        .padding(.bottom, 4)
+      
+      BKText(
+        text: "검색어를 다시 입력해주세요",
+        font: .regular,
+        size: ._12,
+        lineHeight: 18,
+        color: .bkColor(.gray700)
+      )
+      .lineLimit(1)
+      
+      Spacer()
+    }
+    .padding(.horizontal, 56)
+  }
+}
