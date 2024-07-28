@@ -97,7 +97,7 @@ extension LoginFeature {
         // 온보딩 플로우 테스트
         userDefault.set(true, .isFirstLogin)
         
-        if try userDefault.bool(.isFirstLogin) {
+        if userDefault.bool(.isFirstLogin, false) {
           await send(.delegate(.moveToOnboarding))
         } else {
           print(info)
