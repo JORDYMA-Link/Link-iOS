@@ -14,9 +14,11 @@ struct CalendarFeature {
   @ObservableState
   struct State {
     var selectedDate = Date()
+    var existEventSelectedDate = false
     var currentPage = Date()
     var currentSheetDate = Date()
     var changeCurrentPageSheet = false
+    var eventDate: [Date] = [Calendar.current.getDateFromComponents(year: 2024,month: 7,day: 29)!, Calendar.current.getDateFromComponents(year: 2024, month: 7,day: 20)!]
   }
   
   enum Action {
@@ -36,6 +38,10 @@ struct CalendarFeature {
       switch action {
       case let .tappedDate(selectedDate):
         state.selectedDate = selectedDate + dayToSecond
+        
+        state.existEventSelectedDate = (state.eventDate.contains(state.selectedDate))
+        debugPrint(state.eventDate)
+        
         print("connection Success\(state.selectedDate)")
         return .none
         

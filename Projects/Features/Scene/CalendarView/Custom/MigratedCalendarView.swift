@@ -67,11 +67,19 @@ struct MigratedCalendarView: UIViewRepresentable {
     }
     //MARK: - DataSource
     func minimumDate(for calendar: FSCalendar) -> Date {
-      let dateFormatter = DateFormatter()
-      dateFormatter.dateFormat = "yyyy MM dd"
-      guard let date = dateFormatter.date(from: "2024 01 01") else { return calendar.minimumDate }
+      guard let date = Calendar.current.getDateFromComponents(year: 2024, month: 1, day: 1) else { return calendar.minimumDate }
       return date
     }
+    
+    func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
+      if calendarStore.state.eventDate.contains(date + 86400) {
+        return 1
+      } else {
+        return 0
+      }
+    }
+    
+    
   }
   
   //MARK: - Helper
@@ -87,6 +95,7 @@ struct MigratedCalendarView: UIViewRepresentable {
     calendar.appearance.selectionColor = .bkColor(.main300)
     calendar.appearance.titleSelectionColor = .bkColor(.white)
     calendar.appearance.titleFont = .regular(size: ._18)
+    calendar.appearance.eventDefaultColor = .bkColor(.main300)
     
     
     calendar.locale = Locale(identifier: "ko_KR")
