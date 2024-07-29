@@ -16,7 +16,6 @@ struct CalendarView: View {
   let store: StoreOf<IntegratedCalendarFeature>
   
   @StateObject private var scrollViewDelegate = HomeScrollViewDelegate()
-  @State private var topToCategory: Bool = false
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
@@ -53,17 +52,10 @@ struct CalendarView: View {
         Color.bkColor(.gray300)
           .ignoresSafeArea()
         
-        if !true { // contents에 대한 조건식
-          noneContentsView
-        } else {
+        if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
           GeometryReader { geometry in
             VStack{
-//              makeCategorySectionHeader(selectedIndex: store.article.categorySelectedIndex)
               makeCategorySectionHeader
-
-              Divider()
-                .foregroundStyle(Color.bkColor(.gray400))
-                .opacity(topToCategory ? 1 : 0)
               
               ScrollView(.horizontal) {
                 LazyHStack(spacing: 4) {
@@ -75,11 +67,13 @@ struct CalendarView: View {
                   .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
                 }
               }
+              .scrollIndicators(.hidden)
               
             }
             
           }
-          
+        } else {
+          noneContentsView
         }
       }
       
