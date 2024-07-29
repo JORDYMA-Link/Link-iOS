@@ -92,6 +92,7 @@ extension SearchKeywordView {
           textFieldType: .searchKeyword,
           height: 43
         )
+        .focused($textIsFocused)
         .onSubmit {
           textIsFocused = false
           searchAction()
