@@ -55,7 +55,7 @@ public struct UserDefaultsClient {
 }
 
 extension UserDefaultsClient: DependencyKey {
-    static func getUserDefaultsObject<T>(_ type: T.Type, forKey key: String, defaultValue: T) -> T {
+    static func userDefaultsObject<T>(_ type: T.Type, forKey key: String, defaultValue: T) -> T {
         guard let value = UserDefaults.standard.object(forKey: key) as? T else {
             return defaultValue
         }
@@ -74,23 +74,23 @@ extension UserDefaultsClient: DependencyKey {
     public static var liveValue: UserDefaultsClient {
         return Self(
             string: { key, defaultValue in
-                return getUserDefaultsObject(String.self, forKey: key.rawValue, defaultValue: defaultValue)
+                return userDefaultsObject(String.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
             integer: { key, defaultValue in
-                return getUserDefaultsObject(Int.self, forKey: key.rawValue, defaultValue: defaultValue)
+                return userDefaultsObject(Int.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
             bool: { key, defaultValue in
-                return getUserDefaultsObject(Bool.self, forKey: key.rawValue, defaultValue: defaultValue)
+                return userDefaultsObject(Bool.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
             float: { key, defaultValue in
-                return getUserDefaultsObject(Float.self, forKey: key.rawValue, defaultValue: defaultValue)
+                return userDefaultsObject(Float.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
             double: { key, defaultValue in
-                return getUserDefaultsObject(Double.self, forKey: key.rawValue, defaultValue: defaultValue)
+                return userDefaultsObject(Double.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
             data: { key, defaultValue in
-                return getUserDefaultsObject(Data.self, forKey: key.rawValue, defaultValue: defaultValue)
-            }, 
+                return userDefaultsObject(Data.self, forKey: key.rawValue, defaultValue: defaultValue)
+            },
             stringArray: { key, defaultValue in
               return userDefaultsArray([String].self, forKey: key.rawValue, defaultValue: defaultValue)
             },
