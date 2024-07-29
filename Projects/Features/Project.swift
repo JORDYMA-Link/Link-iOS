@@ -15,9 +15,8 @@ let project = Project.make(
 				.external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .introspect),
                 .external(externalDependency: .kingFisher),
-                .external(externalDependency: .swipeActions),
 				.external(externalDependency: .lottie),
-                .external(externalDependency: .FSCalendar)
+        .external(externalDependency: .FSCalendar)
       ],
       settings: .settings(base: DefaultSetting.baseProductSetting)
     )

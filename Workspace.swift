@@ -4,7 +4,9 @@ let workspace = Workspace(
   name: "Blink",
   projects: [
     "Projects/App",
-    "Projects/Core"
+    "Projects/Core",
+    "Projects/CommonFeature",
+    "Projects/Features"
   ],
   schemes: [
     .scheme(

@@ -7,26 +7,30 @@
 //
 
 import Foundation
+
 import ComposableArchitecture
 
 public struct UserDefaultsClient {
     public enum UserDefaultsKey: String {
         case isFirstLanch
+        case isFirstLogin
+        case recentSearches
     }
     
-    public var string: @Sendable (_ forKey: UserDefaultsKey) -> String?
-    public var integer: @Sendable (_ forKey: UserDefaultsKey) -> Int?
-    public var bool: @Sendable (_ forKey: UserDefaultsKey) -> Bool?
-    public var float: @Sendable (_ forKey: UserDefaultsKey) -> Float?
-    public var double: @Sendable (_ forKey: UserDefaultsKey) -> Double?
-    public var data: @Sendable (_ forKey: UserDefaultsKey) -> Data?
-    public var object: @Sendable (_ forKey: UserDefaultsKey) -> Any?
+    public var string: @Sendable (_ forKey: UserDefaultsKey, _ default: String) -> String
+    public var integer: @Sendable (_ forKey: UserDefaultsKey, _ default: Int) -> Int
+    public var bool: @Sendable (_ forKey: UserDefaultsKey, _ default: Bool) -> Bool
+    public var float: @Sendable (_ forKey: UserDefaultsKey, _ default: Float) -> Float
+    public var double: @Sendable (_ forKey: UserDefaultsKey, _ default: Double) -> Double
+    public var data: @Sendable (_ forKey: UserDefaultsKey, _ default: Data) -> Data
+    public var stringArray: @Sendable (_ forKey: UserDefaultsKey, _ default: [String]) -> [String]
+    public var object: @Sendable (_ forKey: UserDefaultsKey, _ default: Any) -> Any
     public var set: @Sendable (_ value: Any, _ forKey: UserDefaultsKey) -> Void
     public var removeObject: @Sendable (_ forKey: UserDefaultsKey) -> Void
     
-    public func codableObject<T: Codable>(_ type: T.Type, forKey key: String) -> T? {
+    public func codableObject<T: Codable>(_ type: T.Type, forKey key: String, defaultValue: T) -> T {
         guard let data = UserDefaults.standard.data(forKey: key) else {
-            return nil
+            return defaultValue
         }
         
         let decoder = JSONDecoder()
@@ -35,7 +39,7 @@ public struct UserDefaultsClient {
             return object
         } catch {
             print("Failed to decode \(type) from UserDefaults with key \(key): \(error)")
-            return nil
+            return defaultValue
         }
     }
     
@@ -51,36 +55,50 @@ public struct UserDefaultsClient {
 }
 
 extension UserDefaultsClient: DependencyKey {
-    static func getUserDefaultsObject<T>(_ type: T.Type, forKey key: String) -> T? {
-        let value = UserDefaults.standard.object(forKey: key) as? T
+    static func userDefaultsObject<T>(_ type: T.Type, forKey key: String, defaultValue: T) -> T {
+        guard let value = UserDefaults.standard.object(forKey: key) as? T else {
+            return defaultValue
+        }
+        
         return value
     }
+  
+  static func userDefaultsArray<T>(_ type: T.Type, forKey key: String, defaultValue: T) -> T {
+      guard let value = UserDefaults.standard.array(forKey: key) as? T else {
+          return defaultValue
+      }
+      
+      return value
+  }
     
     public static var liveValue: UserDefaultsClient {
         return Self(
-            string: { key in
-                return getUserDefaultsObject(String.self, forKey: key.rawValue)
+            string: { key, defaultValue in
+                return userDefaultsObject(String.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
-            integer: { key in
-                return getUserDefaultsObject(Int.self, forKey: key.rawValue)
+            integer: { key, defaultValue in
+                return userDefaultsObject(Int.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
-            bool: { key in
-                return getUserDefaultsObject(Bool.self, forKey: key.rawValue)
+            bool: { key, defaultValue in
+                return userDefaultsObject(Bool.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
-            float: { key in
-                return getUserDefaultsObject(Float.self, forKey: key.rawValue)
+            float: { key, defaultValue in
+                return userDefaultsObject(Float.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
-            double: { key in
-                return getUserDefaultsObject(Double.self, forKey: key.rawValue)
+            double: { key, defaultValue in
+                return userDefaultsObject(Double.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
-            data: { key in
-                return getUserDefaultsObject(Data.self, forKey: key.rawValue)
+            data: { key, defaultValue in
+                return userDefaultsObject(Data.self, forKey: key.rawValue, defaultValue: defaultValue)
             },
-            object: { key in
-                return UserDefaults.standard.object(forKey: key.rawValue)
+            stringArray: { key, defaultValue in
+              return userDefaultsArray([String].self, forKey: key.rawValue, defaultValue: defaultValue)
+            },
+            object: { key, defaultValue in
+                return UserDefaults.standard.object(forKey: key.rawValue) ?? defaultValue
             },
             set: { value, key in
-                return UserDefaults.standard.set(value, forKey: key.rawValue)
+                UserDefaults.standard.set(value, forKey: key.rawValue)
             },
             removeObject: { key in
                 UserDefaults.standard.removeObject(forKey: key.rawValue)

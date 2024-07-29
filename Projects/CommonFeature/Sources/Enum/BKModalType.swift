@@ -16,6 +16,8 @@ public enum BKModalType {
     case deleteContent(checkAction: (()->Void), cancelAction: (()->Void))
     case withdrawNotice
     case logout(checkAction: (()->Void), cancelAction: (()->Void))
+    case photoSizeError(checkAction: (()->Void), cancelAction: (()->Void))
+    case photoTypeError(checkAction: (()->Void), cancelAction: (()->Void))
 }
 
 extension BKModalType {
@@ -44,6 +46,10 @@ extension BKModalType {
             return "로그아웃"
         case .custom(let titleText, _, _, _):
             return titleText
+        case .photoSizeError:
+          return "용량 초과"
+        case .photoTypeError:
+          return "지원 불가"
         }
     }
     
@@ -63,6 +69,10 @@ extension BKModalType {
             return "정말 로그아웃 하시겠어요?"
         case .custom(_, let description, _, _):
             return description
+        case .photoSizeError:
+          return "선택한 이미지 크기가 5MB를 초과합니다 다시 선택해주세요 "
+        case .photoTypeError:
+          return "JPG, PNG 형식을 제외한 파일 형식은 업로드할 수 없습니다"
         }
     }
     

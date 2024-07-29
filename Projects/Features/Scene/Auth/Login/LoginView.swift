@@ -49,11 +49,6 @@ public struct LoginView: View {
           }
         }
       }
-      .navigationDestination(isPresented: $pushToOnboarding) {
-        OnboardingSubjectView(store: .init(initialState: OnboardingSubjectFeature.State()) {
-          OnboardingSubjectFeature()
-        })
-      }
     }
   }
   
