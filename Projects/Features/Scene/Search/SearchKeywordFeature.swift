@@ -63,8 +63,9 @@ public struct SearchKeywordFeature {
       case .removeAllRecentSearchesButtonTapeed:
         guard !userDefault.stringArray(.recentSearches, []).isEmpty else { return .none }
         
-        userDefault.set([], .recentSearches)
-        state.recentSearches = userDefault.stringArray(.recentSearches, [])
+        let emptyValue: [String] = []
+        userDefault.set(emptyValue, .recentSearches)
+        state.recentSearches = emptyValue
         return .none
         
       case let .removeRecentSearchesCellTapeed(keyword):
@@ -75,7 +76,7 @@ public struct SearchKeywordFeature {
         }
         
         userDefault.set(recentSearches, .recentSearches)
-        state.recentSearches = userDefault.stringArray(.recentSearches, [])
+        state.recentSearches = recentSearches
         return .none
         
       case let .searchButtonTapped(keyword):
