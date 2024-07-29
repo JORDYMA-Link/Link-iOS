@@ -62,7 +62,6 @@ public struct StorageBoxView: View {
       }
     }
     .background(Color.bkColor(.white))
-    .toolbar(.hidden, for: .navigationBar)
     .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
       isScroll = $0
     }
@@ -81,43 +80,6 @@ public struct StorageBoxView: View {
       )
     ) { store in
       StorageBoxContentListView(store: store)
-    }
-    .bottomSheet(
-      isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
-      detents: [.height(202)],
-      leadingTitle: "폴더 추가",
-      closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
-    ) {
-      AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
-        .interactiveDismissDisabled()
-    }
-    .bottomSheet(
-      isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented,
-      detents: [.height(154)],
-      leadingTitle: "폴더 설정",
-      closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) }
-    ) {
-      StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBottomSheet, action: \.menuBottomSheet))
-        .padding(.horizontal, 16)
-    }
-    .bottomSheet(
-      isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented,
-      detents: [.height(202)],
-      leadingTitle: "폴더 수정",
-      closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }
-    ) {
-      EditFolderNameBottomSheet(store: store.scope(state: \.editFolderNameBottomSheet, action: \.editFolderNameBottomSheet))
-        .interactiveDismissDisabled()
-    }
-    .fullScreenCover(
-      isPresented: $store.isDeleteFolderPresented
-    ) {
-      BKModal(modalType: .deleteFolder(checkAction: {
-        store.send(.deleteFolderModalConfirmTapped)
-      }, cancelAction: {
-        store.send(.deleteFolderModalCancelTapped)
-      })
-      )
     }
   }
 }

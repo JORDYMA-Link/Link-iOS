@@ -1,0 +1,77 @@
+//
+//  StorageBoxOverlayView+.swift
+//  Features
+//
+//  Created by kyuchul on 7/29/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
+//
+
+import SwiftUI
+
+import CommonFeature
+
+import ComposableArchitecture
+
+extension View {
+  @ViewBuilder
+  func addFolderBottomSheet(store: StoreOf<StorageBoxFeature>) -> some View {
+    @Bindable var store = store
+    
+    self
+      .bottomSheet(
+        isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
+        detents: [.height(202)],
+        leadingTitle: "폴더 추가",
+        closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+  }
+  
+  @ViewBuilder
+  func settingStorageBoxBottomSheet(store: StoreOf<StorageBoxFeature>) -> some View {
+    @Bindable var store = store
+    
+    self
+      .bottomSheet(
+        isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented,
+        detents: [.height(154)],
+        leadingTitle: "폴더 설정",
+        closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) }
+      ) {
+        StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBottomSheet, action: \.menuBottomSheet))
+          .padding(.horizontal, 16)
+      }
+  }
+  
+  @ViewBuilder
+  func editFolderNameBottomSheet(store: StoreOf<StorageBoxFeature>) -> some View {
+    @Bindable var store = store
+    
+    self
+      .bottomSheet(
+        isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented,
+        detents: [.height(202)],
+        leadingTitle: "폴더 수정",
+        closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }
+      ) {
+        EditFolderNameBottomSheet(store: store.scope(state: \.editFolderNameBottomSheet, action: \.editFolderNameBottomSheet))
+          .interactiveDismissDisabled()
+      }
+  }
+  
+  @ViewBuilder
+  func deleteFolderModal(store: StoreOf<StorageBoxFeature>) -> some View {
+    @Bindable var store = store
+    
+    self
+    .modal(
+      isPresented: $store.isDeleteFolderPresented,
+      type: .deleteFolder(
+        checkAction: { store.send(.deleteFolderModalConfirmTapped) },
+        cancelAction: { store.send(.deleteFolderModalCancelTapped) }
+      )
+    )
+  }
+}
