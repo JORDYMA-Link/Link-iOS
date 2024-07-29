@@ -66,15 +66,28 @@ struct MigratedCalendarView: UIViewRepresentable {
       calendarStore.send(.swipeCurrentPage(currentPage: calendar.currentPage))
     }
     //MARK: - DataSource
-    
+    func minimumDate(for calendar: FSCalendar) -> Date {
+      let dateFormatter = DateFormatter()
+      dateFormatter.dateFormat = "yyyy MM dd"
+      guard let date = dateFormatter.date(from: "2024 01 01") else { return calendar.minimumDate }
+      return date
+    }
   }
   
   //MARK: - Helper
   private func configureAppearance() {
+    //configure Header
     calendar.calendarHeaderView.isHidden = true
     calendar.headerHeight = 0
   
-    calendar.appearance.weekdayTextColor = UIColor.bkColor(.gray600)
+    // Calendar Appearance
+    calendar.appearance.weekdayTextColor = .bkColor(.gray600)
+    calendar.appearance.todayColor = .bkColor(.main100)
+    calendar.appearance.titleTodayColor = .bkColor(.gray900)
+    calendar.appearance.selectionColor = .bkColor(.main300)
+    calendar.appearance.titleSelectionColor = .bkColor(.white)
+    calendar.appearance.titleFont = .regular(size: ._18)
+    
     
     calendar.locale = Locale(identifier: "ko_KR")
     calendar.scope = .month
