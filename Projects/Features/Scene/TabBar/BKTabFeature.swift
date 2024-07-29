@@ -11,14 +11,14 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-public struct BKTabFeature: Reducer {
+public struct BKTabFeature {
   public init() {}
   
   @ObservableState
   public struct State: Equatable {
     var currentItem: BKTabViewType = .home
-    var showMenu = false
-    var pushSaveLink = false
+    var isSaveContentPresented = false
+    var isSaveLinkPresented = false
     
     var home: HomeFeature.State = .init()
     var storageBox: StorageBoxFeature.State = .init()
@@ -29,8 +29,7 @@ public struct BKTabFeature: Reducer {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
-    case centerCircleIconTapped
-    case dimmViewTapped
+    case roundedTabIconTapped
     case saveLinkButtonTapped
     
     case storageBox(StorageBoxFeature.Action)
@@ -45,20 +44,19 @@ public struct BKTabFeature: Reducer {
     
     Reduce { state, action in
       switch action {
-      case .centerCircleIconTapped:
-        state.showMenu.toggle()
-        return .none
-      case .dimmViewTapped:
-        state.showMenu = false
-        return .none
-      case .saveLinkButtonTapped:
-        state.pushSaveLink = true
-        return . none
-      case .storageBox:
-        return .none
-      case .home:
-        return .none
       case .binding:
+        return .none
+        
+      case .roundedTabIconTapped:
+        state.isSaveContentPresented.toggle()
+        return .none
+
+      case .saveLinkButtonTapped:
+        state.isSaveContentPresented.toggle()
+        state.isSaveLinkPresented = true
+        return . none
+        
+      default:
         return .none
       }
     }

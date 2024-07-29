@@ -181,15 +181,6 @@
       }
     },
     {
-      "identity" : "swipeactions",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/aheze/SwipeActions",
-      "state" : {
-        "branch" : "main",
-        "revision" : "2880393b349491100146c73831325f955bbf54c5"
-      }
-    },
-    {
       "identity" : "xctest-dynamic-overlay",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",

@@ -21,7 +21,7 @@ public struct HomeFeature: Reducer {
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var linkContent: LinkContentFeature.State?
-    
+    var pushSetting: Bool = false
   }
   
   public enum Action: BindableAction {
