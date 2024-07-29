@@ -13,7 +13,7 @@ let project = Project.make(
     targets: [
         .make(
             name: "CoreKit",
-            product: .framework,
+            product: .staticLibrary,
             bundleId: DefaultSetting.bundleId(moduleName: "coreKit"),
             sources: ["CoreKit/**"],
             dependencies: [
@@ -25,18 +25,17 @@ let project = Project.make(
         ),
         .make(
             name: "Models",
-            product: .framework,
+            product: .staticLibrary,
             bundleId: DefaultSetting.bundleId(moduleName: "models"),
             sources: ["Models/**"],
             dependencies: []
         ),
         .make(
             name: "Services",
-            product: .framework,
+            product: .staticLibrary,
             bundleId: DefaultSetting.bundleId(moduleName: "services"),
             sources: ["Services/**"],
             dependencies: [
-                .target(name: .models),
                 .external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .kakaoSDK),
                 .external(externalDependency: .moya)
@@ -44,7 +43,7 @@ let project = Project.make(
         ),
         .make(
             name: "Common",
-            product: .framework,
+            product: .staticLibrary,
             bundleId: DefaultSetting.bundleId(moduleName: "common"),
             sources: ["Common/**"],
             dependencies: []

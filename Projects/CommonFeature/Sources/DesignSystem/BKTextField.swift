@@ -10,8 +10,12 @@ import SwiftUI
 
 public enum BKTextFieldType {
   case addFolder
+  case editFolderName
   case addKeyword
   case searchKeyword
+  case addMemo
+  case editLinkTitle
+  case editLinkContent
   
   var placeholder: String {
     switch self {
@@ -21,15 +25,23 @@ public enum BKTextFieldType {
       return "추가할 키워드를 입력해주세요"
     case .searchKeyword:
       return "검색어를 입력해 주세요"
+    default:
+      return ""
     }
   }
   
   var errorTitle: String {
     switch self {
-    case .addFolder:
+    case .addFolder, .editFolderName:
       return "폴더 이름은 10글자 이내로 입력해주세요"
     case .addKeyword:
       return "키워드는 최대 3개까지 지정할 수 있습니다."
+    case .addMemo:
+      return "메모는 1000자까지 입력 가능해요."
+    case .editLinkTitle:
+      return "제목은 최소 2자, 최대 50자까지 입력 가능해요."
+    case .editLinkContent:
+      return "요약 내용은 최소 2자, 최대 200자까지 입력 가능해요."
     default:
       return ""
     }
@@ -37,7 +49,7 @@ public enum BKTextFieldType {
   
   var leadingTrailingWhitespaceErrorTitle: String {
     switch self {
-    case .addFolder:
+    case .addFolder, .editFolderName:
       "폴더 이름 시작과 끝에는 공백을 입력할 수 없어요"
     default:
       ""
@@ -48,55 +60,87 @@ public enum BKTextFieldType {
 public struct BKTextField: View {
   @Binding var text: String
   @Binding var isHighlight: Bool
-  public var textFieldType: BKTextFieldType
-  public var height: CGFloat
-  public var textCount: Int
+  private var textFieldType: BKTextFieldType
+  private var textCount: Int
+  private let height: CGFloat
+  private let isMultiLine: Bool
+  private let isClearButton: Bool
   
   @FocusState private var textIsFocused: Bool
   @State private var validationError: ValidationError?
-  private enum Constants: CGFloat {
-    case vertical = 26
-  }
   
   private enum ValidationError {
     case textcount
     case haspifx
   }
   
-  public init(text: Binding<String>, isHighlight: Binding<Bool>, textFieldType: BKTextFieldType, height: CGFloat, textCount: Int) {
+  public init(
+    text: Binding<String>,
+    isHighlight: Binding<Bool>,
+    textFieldType: BKTextFieldType,
+    textCount: Int,
+    isMultiLine: Bool,
+    isClearButton: Bool = false,
+    height: CGFloat = 36
+  ) {
     _text = text
     _isHighlight = isHighlight
     self.textFieldType = textFieldType
-    self.height = height
     self.textCount = textCount
+    self.isMultiLine = isMultiLine
+    self.isClearButton = isClearButton
+    self.height = height
   }
   
   // 외부 FocusState 사용
-  public init(text: Binding<String>, isHighlight: Binding<Bool>, textIsFocused: FocusState<Bool>, textFieldType: BKTextFieldType, height: CGFloat, textCount: Int) {
+  public init(
+    text: Binding<String>,
+    isHighlight: Binding<Bool>,
+    textIsFocused: FocusState<Bool>,
+    textFieldType: BKTextFieldType,
+    textCount: Int,
+    isMultiLine: Bool,
+    isClearButton: Bool = false,
+    height: CGFloat = 36
+  ) {
     _text = text
     _isHighlight = isHighlight
     _textIsFocused = textIsFocused
     self.textFieldType = textFieldType
-    self.height = height
     self.textCount = textCount
+    self.isMultiLine = isMultiLine
+    self.isClearButton = isClearButton
+    self.height = height
   }
   
   public var body: some View {
     VStack(spacing: 0) {
-      makeTextField()
-        .frame(height: height - Constants.vertical.rawValue)
-        .padding(.vertical, 13)
-        .padding(.horizontal, 16)
-        .background(Color.bkColor(.gray300))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
-          RoundedRectangle(cornerRadius: 10)
-            .stroke(!isHighlight ? Color.bkColor(.gray500) : Color.bkColor(.red), lineWidth: 1)
-        )
+      HStack(spacing: 6) {
+        makeTextField
+        
+        if isClearButton {
+          makeClearButton
+        }
+      }
+      .frame(height: height - 16)
+      .padding(.vertical, 8)
+      .padding(.horizontal, 15)
+      .background(Color.bkColor(.gray300))
+      .clipShape(RoundedRectangle(cornerRadius: 10))
+      .overlay(
+        RoundedRectangle(cornerRadius: 10)
+          .stroke(!isHighlight ? Color.bkColor(.gray500) : Color.bkColor(.red), lineWidth: 1)
+      )
       
       HStack(spacing: 8) {
-        makeValidationLabel()
-        makeTextCountLabel(textCount: textCount)
+        makeValidLabel
+        BKText(
+          text: "\(text.count)/\(textCount)",
+          font: .regular,
+          size: ._12,
+          lineHeight: 18,
+          color: .bkColor(.gray600)
+        )
       }
     }
   }
@@ -104,7 +148,16 @@ public struct BKTextField: View {
 
 extension BKTextField {
   @ViewBuilder
-  private func makeTextField() -> some View {
+  private var makeTextField: some View {
+    if isMultiLine {
+      multiLineTextView
+    } else {
+      singleTextField
+    }
+  }
+  
+  @ViewBuilder
+  private var singleTextField: some View {
     let textField = TextField(text: $text) {
       Text(textFieldType.placeholder)
         .font(.regular(size: ._14))
@@ -113,12 +166,10 @@ extension BKTextField {
       .tint(.bkColor(.gray900))
       .font(.regular(size: ._14))
       .focused($textIsFocused)
-      .submitLabel(.done)
       .onSubmit {
         textIsFocused = false
       }
     
-    // textField 정규식 체크가 필요할 시
     if #available(iOS 17.0, *) {
       textField
         .onChange(of: text) { updateIsHighlight() }
@@ -129,11 +180,52 @@ extension BKTextField {
   }
   
   @ViewBuilder
-  private func makeValidationLabel() -> some View {
+  private var multiLineTextView: some View {
+    let textEditer = TextEditor(text: $text)
+      .tint(.bkColor(.gray900))
+      .font(.regular(size: ._14))
+      .scrollContentBackground(.hidden)
+      .focused($textIsFocused)
+      .onSubmit {
+        textIsFocused = false
+      }
+    
+    if #available(iOS 17.0, *) {
+      textEditer
+        .onChange(of: text) { updateIsHighlight() }
+    } else {
+      textEditer
+        .onChange(of: text, perform: { _ in updateIsHighlight()})
+    }
+  }
+  
+  /// 멀티라인 + 플레이스 홀더
+  @ViewBuilder
+  private var multiLineTextField: some View {
+    let textField = TextField("", text: $text, axis: .vertical)
+      .tint(.bkColor(.gray900))
+      .font(.regular(size: ._14))
+      .focused($textIsFocused)
+      .onSubmit {
+        textIsFocused = false
+      }
+    
+    if #available(iOS 17.0, *) {
+      textField
+        .onChange(of: text) { updateIsHighlight() }
+    } else {
+      textField
+        .onChange(of: text, perform: { _ in updateIsHighlight()})
+    }
+  }
+  
+  @ViewBuilder
+  private var makeValidLabel: some View {
     let errorMessage: String = {
-      if textFieldType == .addFolder {
+      switch textFieldType {
+      case .addFolder, .editFolderName:
         return validationError == .haspifx ? textFieldType.leadingTrailingWhitespaceErrorTitle : textFieldType.errorTitle
-      } else {
+      default:
         return textFieldType.errorTitle
       }
     }()
@@ -147,31 +239,53 @@ extension BKTextField {
   }
   
   @ViewBuilder
-  private func makeTextCountLabel(textCount: Int) -> some View {
-    Text("\(text.count)/\(textCount)")
-      .font(.regular(size: ._12))
-      .foregroundStyle(Color.bkColor(.gray600))
+  private var makeClearButton: some View {
+    Button {
+      text = ""
+    } label: {
+      CommonFeature.Images.icoCircleCloseFill
+        .resizable()
+        .scaledToFit()
+        .frame(width: 18, height: 18)
+    }
+    .opacity(!text.isEmpty ? 1 : 0)
   }
 }
+
+// MARK: - 정규식 체크
 
 extension BKTextField {
   private func updateIsHighlight() {
     switch textFieldType {
-    case .addFolder:
-      if !isValidationFolderName(text: text) {
-        isHighlight = true
-      } else {
-        isHighlight = false
-      }
+    case .addFolder, .editFolderName:
+      isHighlight = !isValidFolderName(text: text)
+      
+    case .addMemo:
+      isHighlight = !isValidMemo(text: text)
+      
+    case .editLinkTitle:
+      isHighlight = !isValidLinkTitle(text: text)
+      
+    case .editLinkContent:
+      isHighlight = !isValidLinkContent(text: text)
       
     default:
       break
     }
   }
-  
-  // 폴더 이름 체크 정규식
-  private func isValidationFolderName(text: String) -> Bool {
+}
+
+// MARK: - 정규식
+
+extension BKTextField {
+  /// 폴더 이름 체크 정규식
+  private func isValidFolderName(text: String) -> Bool {
     let pattern = "^[가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z0-9]{1,10}$"
+    
+    if text.isEmpty {
+      self.validationError = .textcount
+      return false
+    }
     
     if text.hasPrefix(" ") || text.hasSuffix(" ") {
       self.validationError = .haspifx
@@ -192,5 +306,20 @@ extension BKTextField {
     }
     
     return false
+  }
+  
+  /// 콘텐츠 상세 > 메모 수정 정규식
+  private func isValidMemo(text: String) -> Bool {
+    return text.count <= 1000
+  }
+  
+  /// 콘텐츠 상세 > 내용 수정 > 제목 정규식
+  private func isValidLinkTitle(text: String) -> Bool {
+    return 2 <= text.count && text.count <= 50
+  }
+  
+  /// 콘텐츠 상세 > 내용 수정 > 요약 내용 정규식
+  private func isValidLinkContent(text: String) -> Bool {
+    return 2 <= text.count && text.count <= 200
   }
 }

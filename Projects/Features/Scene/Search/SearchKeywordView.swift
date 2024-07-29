@@ -9,76 +9,98 @@
 import SwiftUI
 
 import CommonFeature
+import Models
 
 import ComposableArchitecture
 
 struct SearchKeywordView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Bindable var store: StoreOf<SearchKeywordFeature>
-    
-    var body: some View {
-            GeometryReader { geometry in
-                ZStack {
-                    Color.bkColor(.gray300).ignoresSafeArea(edges: .bottom)
-                    
-                    VStack(spacing: 0) {
-                        HStack(spacing: 8) {
-                            makeBackButton()
-                            makeSearchTextField()
-                        }
-                        .padding(EdgeInsets(top: 12, leading: 16, bottom: 24, trailing: 16))
-                        .background(Color.white)
-                        
-                        Divider()
-                            .foregroundStyle(Color.bkColor(.gray400))
-                        
-                        ScrollView(showsIndicators: false) {
-                            VStack(alignment: .leading, spacing: 0) {
-                                makeSearchResultTitle("UI/UX")
-                                    .padding(.bottom, 24)
-                                
-                                LazyVStack(spacing: 20) {
-                                    ForEach(1...10, id: \.self) { count in
-                                        BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: false)
-                                    }
-                                }
-                            }
-                            .padding(EdgeInsets(top: 20, leading: 16, bottom: 90, trailing: 16))
-                        }
-                    }
-                }
-            }
-            .toolbar(.hidden, for: .navigationBar)
+  @Bindable var store: StoreOf<SearchKeywordFeature>
+  @FocusState private var textIsFocused: Bool
+  
+  var body: some View {
+    ZStack(alignment: .top) {
+      Color.bkColor(.gray300).ignoresSafeArea(edges: .bottom)
+      
+      VStack(spacing: 0) {
+        SearchKeywordNavigationBar(
+          text: $store.text,
+          textIsFocused: _textIsFocused,
+          searchAction: { store.send(.searchButtonTapped(store.text), animation: .spring) },
+          dismiss: { store.send(.closeButtonTapped) }
+        )
+        
+        Divider()
+          .foregroundStyle(Color.bkColor(.gray400))
+        
+        if store.keyword.isEmpty {
+          RecentSearchView(
+            resentSearches: store.recentSearches,
+            removeAllAction: { store.send(.removeAllRecentSearchesButtonTapeed, animation: .spring) },
+            removeAction: { keyword in store.send(.removeRecentSearchesCellTapeed(keyword), animation: .spring) }, 
+            recentSearchAction: {keyword in store.send(.searchButtonTapped(keyword), animation: .spring) }
+          )
+        } else if store.section.isEmpty {
+          EmptySearchView(keyword: store.keyword)
+        } else {
+          KeywordSearchListView(
+            keyword: store.keyword,
+            searches: store.section,
+            saveAction: {},
+            menuAction: {},
+            moreAction: { section in store.send(.seeMoreButtonTapped(section), animation: .spring) }
+          )
         }
+      }
+    }
+    .toolbar(.hidden, for: .navigationBar)
+    .task { await store.send(.onTask).finish() }
+    .onAppear { textIsFocused = true }
+  }
 }
 
 extension SearchKeywordView {
-    @ViewBuilder
-    private func makeBackButton() -> some View {
-        Button {
-            dismiss()
-        } label: {
-            BKIcon(image: CommonFeature.Images.icoChevronLeft, color: .bkColor(.gray900), size: CGSize(width: 24, height: 24))
-        }
+  private struct SearchKeywordNavigationBar: View {
+    @Binding var text: String
+    @FocusState var textIsFocused
+    private let searchAction: () -> Void
+    private let dismiss: () -> Void
+    
+    init(
+      text: Binding<String>,
+      textIsFocused: FocusState<Bool>,
+      searchAction: @escaping () -> Void,
+      dismiss: @escaping () -> Void
+    ) {
+      self._text = text
+      self._textIsFocused = textIsFocused
+      self.searchAction = searchAction
+      self.dismiss = dismiss
     }
     
-    @ViewBuilder
-    private func makeSearchTextField() -> some View {
+    
+    var body: some View {
+      HStack(spacing: 8) {
+        BKIcon(
+          image: CommonFeature.Images.icoChevronLeft,
+          color: .bkColor(.gray900),
+          size: CGSize(width: 24, height: 24)
+        )
+        .onTapGesture { dismiss() }
+        
         BKSearchTextField(
-            text: $store.text,
-            textFieldType: .searchKeyword,
-            height: 43)
-    }
-    
-    @ViewBuilder
-    private func makeSearchResultTitle(_ title: String) -> some View {
-        HStack(spacing: 4) {
-            Text("\"\(title)\"")
-                .font(.semiBold(size: ._16))
-                .foregroundStyle(Color.bkColor(.main300))
-            Text("검색 결과")
-                .font(.semiBold(size: ._16))
-                .foregroundStyle(Color.bkColor(.gray900))
+          text: $text,
+          textFieldType: .searchKeyword,
+          height: 43
+        )
+        .focused($textIsFocused)
+        .onSubmit {
+          textIsFocused = false
+          searchAction()
         }
+      }
+      .padding(EdgeInsets(top: 12, leading: 16, bottom: 24, trailing: 16))
+      .background(Color.white)
     }
+  }
 }
+
