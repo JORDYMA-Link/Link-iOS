@@ -53,9 +53,9 @@ public struct RootFeature: Reducer {
         return .run {  send in
           try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
           
-          userDefault.set(true, .isFirstLanch)
+          userDefault.set(false, .isFirstLanch)
           
-          if try userDefault.bool(.isFirstLanch) {
+          if userDefault.bool(.isFirstLanch, true) {
             await send(.changeScreen(.login()), animation: .spring)
           } else {
             await send(.changeScreen(.mainTab()), animation: .spring)

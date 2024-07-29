@@ -9,6 +9,7 @@
 import Foundation
 
 import Models
+import Services
 
 import ComposableArchitecture
 
@@ -19,6 +20,7 @@ public struct SearchKeywordFeature {
     var text = ""
     var keyword = ""
     var section: [SearchKeywordSection] = []
+    var recentSearches: [String] = []
     
     public init() { }
   }
@@ -27,7 +29,10 @@ public struct SearchKeywordFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case onTask
     case closeButtonTapped
+    case removeAllRecentSearchesButtonTapeed
+    case removeRecentSearchesCellTapeed(String)
     case searchButtonTapped(String)
     case seeMoreButtonTapped(SearchKeywordSection)
     
@@ -38,6 +43,7 @@ public struct SearchKeywordFeature {
   }
   
   @Dependency(\.dismiss) var dismiss
+  @Dependency(\.userDefaultsClient) private var userDefault
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -47,11 +53,38 @@ public struct SearchKeywordFeature {
       case .binding:
         return .none
         
+      case .onTask:
+        state.recentSearches = userDefault.stringArray(.recentSearches, [])
+        return .none
+        
       case .closeButtonTapped:
          return .run { _ in await self.dismiss() }
         
+      case .removeAllRecentSearchesButtonTapeed:
+        guard !userDefault.stringArray(.recentSearches, []).isEmpty else { return .none }
+        
+        userDefault.set([], .recentSearches)
+        state.recentSearches = userDefault.stringArray(.recentSearches, [])
+        return .none
+        
+      case let .removeRecentSearchesCellTapeed(keyword):
+        var recentSearches = userDefault.stringArray(.recentSearches, [])
+        
+        if let index = recentSearches.firstIndex(where: { $0 == keyword }) {
+          recentSearches.remove(at: index)
+        }
+        
+        userDefault.set(recentSearches, .recentSearches)
+        state.recentSearches = userDefault.stringArray(.recentSearches, [])
+        return .none
+        
       case let .searchButtonTapped(keyword):
+        guard !keyword.isEmpty else { return .none }
+        
+        state.text = keyword
+        state.section = []
         state.keyword = keyword
+        saveRecentSearches(keyword: keyword)
         return requestSearchKeyword(keyword: keyword)
         
       case let .seeMoreButtonTapped(section):
@@ -87,5 +120,17 @@ extension SearchKeywordFeature {
         print(error)
       }
     }
+  }
+  
+  private func saveRecentSearches(keyword: String) {
+    var recentSearches = userDefault.stringArray(.recentSearches, [])
+
+    if let index = recentSearches.firstIndex(where: { $0 == keyword }) {
+      recentSearches.remove(at: index)
+    }
+    
+    recentSearches.insert(keyword, at: 0)
+    let prefixRecentSearches = recentSearches.prefix(6).map { $0 }
+    userDefault.set(prefixRecentSearches, .recentSearches)
   }
 }
