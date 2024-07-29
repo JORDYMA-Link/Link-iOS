@@ -28,6 +28,8 @@ struct StorageBoxContainerView<Content: View>: View {
     NavigationStack {
       ZStack(alignment: .bottom) {
         StorageBoxView(store: store)
+          .padding(.bottom, 52)
+        
         tabbar()
       }
       .addFolderBottomSheet(store: store)
