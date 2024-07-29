@@ -13,7 +13,6 @@ import Models
 
 import ComposableArchitecture
 import SwiftUIIntrospect
-import SwipeActions
 
 public struct HomeView: View {
   @Bindable var store: StoreOf<HomeFeature>
@@ -21,10 +20,8 @@ public struct HomeView: View {
   
   @State private var categorySelectedIndex: Int? = 0
   @State private var topToCategory: Bool = false
-  @State private var pushToSetting = false
   
   public var body: some View {
-    GeometryReader { geometry in
       VStack(spacing: 0) {
         makeNavigationView()
         
@@ -39,15 +36,14 @@ public struct HomeView: View {
             Divider()
               .foregroundStyle(Color.bkColor(.gray400))
             
-            makeArticleListView(geometry)
+            makeArticleListView()
+
           }
         }
         .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
         }
-      }
     }
-    .toolbar(.hidden, for: .navigationBar)
     .background(Color.bkColor(.white))
     .animation(.easeIn(duration: 0.2), value: topToCategory)
     .onAppear {
@@ -55,10 +51,10 @@ public struct HomeView: View {
       print("homeView")
     }
     .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-        self.topToCategory = $0
+      self.topToCategory = $0
     }
     .navigationDestination(
-      isPresented: $pushToSetting
+      isPresented: $store.pushSetting
     ) {
       SettingView()
     }
@@ -78,24 +74,6 @@ public struct HomeView: View {
     ) { store in
       LinkContentView(store: store)
     }
-    .bottomSheet(
-      isPresented: $store.linkMenuBottomSheet.isMenuBottomSheetPresented,
-      detents: [.height(144)],
-      leadingTitle: "설정",
-      closeButtonAction: { store.send(.linkMenuBottomSheet(.closeButtonTapped)) }
-    ) {
-      LinkMenuBottomSheet(store: store.scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet))
-        .padding(.horizontal, 16)
-    }
-    .bottomSheet(
-      isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
-      detents: [.height(132)],
-      leadingTitle: "폴더 수정",
-      closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
-    ) {
-      EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
-        .interactiveDismissDisabled()
-    }
   }
 }
 
@@ -103,7 +81,7 @@ extension HomeView {
   @ViewBuilder
   private func makeNavigationView() -> some View {
     makeBKNavigationView(leadingType: .home, trailingType: .oneIcon(action: {
-      pushToSetting.toggle()
+      store.pushSetting.toggle()
     }, icon: CommonFeature.Images.icoSettings), tintColor: .bkColor(.gray900))
     .padding(.horizontal, 16)
   }
@@ -187,66 +165,42 @@ extension HomeView {
   }
   
   @ViewBuilder
-  private func makeArticleListView(_ geometry: GeometryProxy) -> some View {
-      LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
-        Section {
-          ForEach(LinkCard.mock(), id: \.id) { item in
-            SwipeView {
-              BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
-                store.send(.linkMenuBottomSheet(.linkMenuTapped(item)))
-              }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
-            } leadingActions: { _ in
-              SwipeAction {
-                store.send(.leadingSwipeAction(item), animation: .default)
-              } label: {_ in
-                Text("이동")
-                  .font(.semiBold(size: ._16))
-                  .foregroundStyle(Color.bkColor(.white))
-              } background: { _ in
-                Color.bkColor(.main300)
-              }
-            } trailingActions: { SwipeContext in
-              SwipeAction {
-                print("스와이프 삭제 액션")
-              } label: {_ in
-                Text("삭제")
-                  .font(.semiBold(size: ._16))
-                  .foregroundStyle(Color.bkColor(.white))
-              } background: { _ in
-                Color.bkColor(.red)
-                  .opacity(0.7)
-              }
-            }
-            .swipeActionCornerRadius(10)
-            .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
-            .onTapGesture {
-              store.send(.cellTapped)
-            }
-          }
-        } header: {
-          VStack(spacing: 0) {
-            makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
-              .background(ViewMaxYGeometry())
-              .onPreferenceChange(ViewPreferenceKey.self) { maxY in
-                // 섹션 헤더의 최대 Y 위치 업데이트
-                let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
-                let headerMaxY = maxY + navigationBarMaxY
-                
-                DispatchQueue.main.async {
-                  scrollViewDelegate.headerMaxY = headerMaxY
-                }
-              }
-              .background(topToCategory ? Color.white : Color.bkColor(.gray300))
-            
-            Divider()
-              .foregroundStyle(Color.bkColor(.gray400))
-              .opacity(topToCategory ? 1 : 0)
-            
+  private func makeArticleListView() -> some View {
+    LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
+      Section {
+        ForEach(LinkCard.mock(), id: \.id) { item in
+          BKCardCell(width: 0, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
+            store.send(.linkMenuBottomSheet(.linkMenuTapped(item)))
+          }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
+          .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+          .onTapGesture {
+            store.send(.cellTapped)
           }
         }
+      } header: {
+        VStack(spacing: 0) {
+          makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
+            .background(ViewMaxYGeometry())
+            .onPreferenceChange(ViewPreferenceKey.self) { maxY in
+              // 섹션 헤더의 최대 Y 위치 업데이트
+              let navigationBarMaxY = (UIApplication.topSafeAreaInset - 20)
+              let headerMaxY = maxY + navigationBarMaxY
+              
+              DispatchQueue.main.async {
+                scrollViewDelegate.headerMaxY = headerMaxY
+              }
+            }
+            .background(topToCategory ? Color.white : Color.bkColor(.gray300))
+          
+          Divider()
+            .foregroundStyle(Color.bkColor(.gray400))
+            .opacity(topToCategory ? 1 : 0)
+          
+        }
       }
-      .padding(.top, 8)
-      .background(Color.bkColor(.gray300))
+    }
+    .padding(.top, 8)
+    .background(Color.bkColor(.gray300))
   }
   
   @ViewBuilder

@@ -35,20 +35,6 @@ enum BKTabViewType: Int, CaseIterable {
       return CommonFeature.Images.icoFolderClick
     }
   }
-  
-  @ViewBuilder
-  var view: some View {
-    switch self {
-    case .home:
-      HomeView(store: .init(initialState: HomeFeature.State()) {
-        HomeFeature()
-      })
-    case .folder:
-      StorageBoxView(store: .init(initialState: StorageBoxFeature.State()) {
-        StorageBoxFeature()
-      })
-    }
-  }
 }
 
 // MARK: - BKTabbar
@@ -62,72 +48,57 @@ public struct BKTabView: View {
   
   public var body: some View {
     NavigationStack {
-      ZStack(alignment: .bottom) {
-        VStack(spacing: 0) {
-          Spacer(minLength: 0)
-          
-          ZStack {
-            store.currentItem.view
-            
-            if store.showMenu {
-              Color.bkColor(.black).opacity(0.6)
-                .edgesIgnoringSafeArea(.all)
-                .onTapGesture {
-                  store.send(.dimmViewTapped, animation: .default)
-                }
-            }
-          }
-          
-          Spacer(minLength: 0)
-          
-          Color.bkColor(.gray300)
-            .frame(height: 1)
-            .frame(maxWidth: .infinity)
-          
-          HStack {
-            Spacer()
-            Spacer()
-            Spacer()
-            
-            VStack {
-              TabIcon(store: store, showMenu: $store.showMenu, tabViewType: .home)
-                .padding(.top, 15)
-              
-              Spacer()
-            }
-            
-            TabCircleIcon(showMenu: $store.showMenu)
-              .onTapGesture {
-                store.send(.centerCircleIconTapped, animation: .default)
-              }
-            
-            VStack {
-              TabIcon(store: store, showMenu: $store.showMenu, tabViewType: .folder)
-                .padding(.top, 15)
-              
-              Spacer()
-            }
-            
-            Spacer()
-            Spacer()
-            Spacer()
-          }
-          .frame(height: 82)
-          .frame(maxWidth: .infinity)
-          .background(Color.bkColor(.white))
-        }
-        
-        if store.showMenu {
-          PopUpMenu(saveLinkAction: { store.send(.saveLinkButtonTapped)
-          })
-          .padding(.bottom, 144)
+      TabView(selection: $store.currentItem) {
+        switch store.currentItem {
+        case .home:
+          HomeContainerView(store: store.scope(state: \.home, action: \.home), tabbar: tabbar)
+        case .folder:
+          StorageBoxContainerView(store: store.scope(state: \.storageBox, action: \.storageBox), tabbar: tabbar)
         }
       }
-      .ignoresSafeArea(edges: .bottom)
-      .toolbar(.hidden, for: .tabBar)
-      .navigationDestination(isPresented: $store.pushSaveLink) {
+      .toolbar(.hidden, for: .navigationBar)
+      .onAppear {
+        UITabBar.appearance().isHidden = true
+      }
+      .navigationDestination(isPresented: $store.isSaveLinkPresented) {
         SaveLinkView()
       }
     }
+  }
+}
+
+extension BKTabView {
+  private var tabbar: some View {
+    VStack(spacing: 0) {
+      Divider()
+        .foregroundStyle(Color.bkColor(.gray400))
+      
+      HStack(spacing: 0) {
+        ForEach(BKTabViewType.allCases, id: \.self) { tab in
+          let isSelected: Bool = store.currentItem == tab
+          
+          Group {
+            (isSelected ? tab.selectedImage : tab.image)
+              .resizable()
+              .aspectRatio(contentMode: .fit)
+              .frame(width: 24, height: 24)
+          }
+          .frame(maxWidth: .infinity)
+          .onTapGesture {
+            store.send(.binding(.set(\.currentItem, tab)))
+          }
+        }
+      }
+      .padding(.vertical, 13)
+    }
+    .frame(height: 52, alignment: .top)
+    .background(Color.white)
+    .overlay {
+      BKRoundedTabIcon(isPresented: $store.isSaveContentPresented)
+        .onTapGesture {
+          store.send(.roundedTabIconTapped, animation: .default)
+        }
+    }
+    .presentSaveContent($store.isSaveContentPresented, action: { store.send(.saveLinkButtonTapped) })
   }
 }

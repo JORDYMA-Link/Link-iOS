@@ -15,7 +15,6 @@ let project = Project.make(
 				.external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .introspect),
                 .external(externalDependency: .kingFisher),
-                .external(externalDependency: .swipeActions),
 				.external(externalDependency: .lottie)
       ],
       settings: .settings(base: DefaultSetting.baseProductSetting)
