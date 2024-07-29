@@ -29,7 +29,7 @@ struct CalendarFeature {
   }
   
   //MARK: - Helper
-  private let dayToSecond : TimeInterval = 86400 //FSCalendar의 Time이 하루 시차가 발생함. 수정을 위한 변수
+  private let dayToSecond: TimeInterval = 86400 //FSCalendar의 Time이 하루 시차가 발생함. 수정을 위한 변수
   
   var body: some ReducerOf<Self> {
     Reduce { state, action in
@@ -55,7 +55,7 @@ struct CalendarFeature {
         return .none
         
       case let .changeCurrentYear(dif):
-        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif) else { return .none }
+        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif), !targetDate.lessThan2024 else { return .none }
         state.currentSheetDate = targetDate
         debugPrint(state.currentPage, state.currentSheetDate)
 
