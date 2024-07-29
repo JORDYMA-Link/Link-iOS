@@ -13,7 +13,6 @@ import Models
 
 import ComposableArchitecture
 import SwiftUIIntrospect
-import SwipeActions
 
 public struct HomeView: View {
   @Bindable var store: StoreOf<HomeFeature>
@@ -23,7 +22,6 @@ public struct HomeView: View {
   @State private var topToCategory: Bool = false
   
   public var body: some View {
-    GeometryReader { geometry in
       VStack(spacing: 0) {
         makeNavigationView()
         
@@ -38,13 +36,13 @@ public struct HomeView: View {
             Divider()
               .foregroundStyle(Color.bkColor(.gray400))
             
-            makeArticleListView(geometry)
+            makeArticleListView()
+
           }
         }
         .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
         }
-      }
     }
     .background(Color.bkColor(.white))
     .animation(.easeIn(duration: 0.2), value: topToCategory)
@@ -167,37 +165,13 @@ extension HomeView {
   }
   
   @ViewBuilder
-  private func makeArticleListView(_ geometry: GeometryProxy) -> some View {
+  private func makeArticleListView() -> some View {
     LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
       Section {
         ForEach(LinkCard.mock(), id: \.id) { item in
-          SwipeView {
-            BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
-              store.send(.linkMenuBottomSheet(.linkMenuTapped(item)))
-            }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
-          } leadingActions: { _ in
-            SwipeAction {
-              store.send(.leadingSwipeAction(item), animation: .default)
-            } label: {_ in
-              Text("이동")
-                .font(.semiBold(size: ._16))
-                .foregroundStyle(Color.bkColor(.white))
-            } background: { _ in
-              Color.bkColor(.main300)
-            }
-          } trailingActions: { SwipeContext in
-            SwipeAction {
-              print("스와이프 삭제 액션")
-            } label: {_ in
-              Text("삭제")
-                .font(.semiBold(size: ._16))
-                .foregroundStyle(Color.bkColor(.white))
-            } background: { _ in
-              Color.bkColor(.red)
-                .opacity(0.7)
-            }
-          }
-          .swipeActionCornerRadius(10)
+          BKCardCell(width: 0, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {
+            store.send(.linkMenuBottomSheet(.linkMenuTapped(item)))
+          }, title: item.title, description: item.description, keyword: item.keyword, isUncategorized: true, recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"], recommendedFolderAction: {}, addFolderAction: {})
           .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
           .onTapGesture {
             store.send(.cellTapped)
@@ -209,7 +183,7 @@ extension HomeView {
             .background(ViewMaxYGeometry())
             .onPreferenceChange(ViewPreferenceKey.self) { maxY in
               // 섹션 헤더의 최대 Y 위치 업데이트
-              let navigationBarMaxY = (geometry.safeAreaInsets.top - 20)
+              let navigationBarMaxY = (UIApplication.topSafeAreaInset - 20)
               let headerMaxY = maxY + navigationBarMaxY
               
               DispatchQueue.main.async {
