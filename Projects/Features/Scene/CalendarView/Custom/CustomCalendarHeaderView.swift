@@ -36,7 +36,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
   override func configureAppearance() {
     self.addSubview(monthButton)
     setCurrentPageTitle(currentPage: calendar.currentPage.toStringYearMonth)
-    
+
     monthButton.translatesAutoresizingMaskIntoConstraints = true
     
     NSLayoutConstraint.activate([
@@ -46,7 +46,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
   }
   
   override func reloadData() {
-    print("reloadData")
+    debugPrint(String(describing: self), #function)
     super.reloadData()
     
     guard let currentPage = calendar?.currentPage else { return }
