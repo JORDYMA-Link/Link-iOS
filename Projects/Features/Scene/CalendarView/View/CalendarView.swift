@@ -126,6 +126,7 @@ struct CalendarView: View {
             .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
             .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
             .onTapGesture {
+              guard !isPast(targetMonth: month.rawValue) else {return}
               store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
             }
         }
@@ -310,6 +311,20 @@ extension CalendarView {
       static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
           value = max(value, nextValue())
       }
+  }
+  
+  private func isPast(targetMonth: Int) -> Bool {
+    let currentDate = Date()
+    
+    let targetDate = calculatingCurrentSheetPageDate(month: targetMonth)
+    
+    let targetMonthTimeInterval = targetDate.timeIntervalSince1970
+    
+    if targetMonthTimeInterval >= currentDate.timeIntervalSince1970 {
+      return true
+    } else {
+      return false
+    }
   }
   
 }
