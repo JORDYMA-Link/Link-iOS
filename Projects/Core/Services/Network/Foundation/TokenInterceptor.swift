@@ -16,7 +16,7 @@ protocol Interceptorable {
 
 public final class TokenInterceptor: RequestInterceptor, Interceptorable {
   
-  static let shard = TokenInterceptor()
+  static let shared = TokenInterceptor()
   private init() { }
   
 }
