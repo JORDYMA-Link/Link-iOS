@@ -8,9 +8,16 @@
 
 import Foundation
 
-struct ErrorResponse: Decodable, Error {
+public struct ErrorResponse: Decodable, Error {
   let timestamp: String
   let status: Int
   let error: String
   let path: String
+  
+  public init(timestamp: String, status: Int, error: String, path: String) {
+    self.timestamp = timestamp
+    self.status = status
+    self.error = error
+    self.path = path
+  }
 }
