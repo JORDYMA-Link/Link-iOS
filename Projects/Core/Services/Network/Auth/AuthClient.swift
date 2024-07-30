@@ -17,7 +17,7 @@ public struct AuthClient {
 
 extension AuthClient: DependencyKey {
   public static var liveValue: AuthClient {
-    let authProvider = CommonMoyaProvider<AuthEndpoint>(isInterceptor: false)
+    let authProvider = Provider<AuthEndpoint>(isRetry: false)
     
     return Self(
       requestKakaoLogin: {
