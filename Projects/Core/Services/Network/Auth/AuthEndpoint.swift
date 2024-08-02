@@ -12,7 +12,7 @@ import Moya
 
 enum AuthEndpoint {
   case kakaoLogin(request: KakaoLoginRequest)
-  
+  case regenerateToken(refreshToken: String)
 }
 
 extension AuthEndpoint: BaseTargetType {
@@ -20,12 +20,14 @@ extension AuthEndpoint: BaseTargetType {
     switch self {
     case .kakaoLogin:
       return "/auth/kakao-login"
+    case .regenerateToken:
+      return "/auth/regenerate-token"
     }
   }
   
   var method: Moya.Method {
     switch self {
-    case .kakaoLogin:
+    case .kakaoLogin, .regenerateToken:
       return .post
     }
   }
@@ -34,6 +36,21 @@ extension AuthEndpoint: BaseTargetType {
     switch self {
     case let .kakaoLogin(request):
       return .requestJSONEncodable(request)
+    case .regenerateToken:
+      return .requestPlain
+    }
+  }
+  
+  var headers: [String : String]? {
+    switch self {
+    case let .regenerateToken(refreshToken):
+      return [
+        "Content-type":"application/json",
+        "Authorization": refreshToken
+      ]
+      
+    default:
+      return ["Content-type":"application/json"]
     }
   }
 }
