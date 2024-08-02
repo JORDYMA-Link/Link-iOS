@@ -13,7 +13,8 @@ let packageSettings = PackageSettings(
         "Lottie": .framework,
         "Kingfisher": .framework,
         "SwiftUIIntrospect": .framework,
-        "KakaoSDK": .framework
+        "KakaoSDK": .framework,
+        "FSCalendar": .framework
     ]
 )
 #endif
@@ -27,6 +28,7 @@ let package = Package(
         .package(url: "https://github.com/siteline/swiftui-introspect", branch: "main"),
         .package(url: "https://github.com/Moya/Moya", from: "15.0.0"),
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", exact: "1.8.0"),
-        .package(url: "https://github.com/kakao/kakao-ios-sdk", exact: "2.22.0")
+        .package(url: "https://github.com/kakao/kakao-ios-sdk", exact: "2.22.0"),
+        .package(url: "https://github.com/WenchaoD/FSCalendar.git", from: "2.8.4")
     ]
 )

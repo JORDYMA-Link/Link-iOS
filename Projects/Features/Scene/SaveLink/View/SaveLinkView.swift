@@ -9,13 +9,13 @@
 import SwiftUI
 import CommonFeature
 
-struct SaveLinkView: View {
+public struct SaveLinkView: View {
 //    @Environment(\.dismiss) private var dismiss
     
     @StateObject private var viewModel = SaveLinkViewModel()
   @State private var test: String = ""
     
-    var body: some View {
+    public var body: some View {
       VStack(alignment: .leading) {
         HStack { 
           Text("링크")

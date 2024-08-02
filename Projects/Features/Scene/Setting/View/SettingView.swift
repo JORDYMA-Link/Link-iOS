@@ -11,12 +11,12 @@ import SwiftUI
 import CommonFeature
 import Common
 
-struct SettingView: View {
+public struct SettingView: View {
   @Environment(\.dismiss) private var dismiss
   
   @StateObject var viewmodel = SettingViewModel(state: .none, nickname: "블링크", userEmail: "blink@naver.com")
   
-  var body: some View {
+  public var body: some View {
     ZStack(content: {
       
       settingView

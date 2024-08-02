@@ -42,4 +42,5 @@ public enum ExternalDependency: String {
     case introspect = "SwiftUIIntrospect"
     case composableArchitecture = "ComposableArchitecture"
     case kakaoSDK = "KakaoSDK"
+    case FSCalendar = "FSCalendar"
 }
