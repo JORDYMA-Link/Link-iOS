@@ -11,7 +11,7 @@ import ComposableArchitecture
 
 @Reducer
 struct CalendarArticleFeature {
-//  @ObservableState
+  @ObservableState
   struct State {
     var categorySelectedIndex: Int = 0
   }
@@ -25,12 +25,10 @@ struct CalendarArticleFeature {
       switch action {
       case let .changeCategorySelectedIndex(targetIndex):
         state.categorySelectedIndex = targetIndex
-        debugPrint("changeCategorySelectedIndex")
         return .none
       }
     }
   }
-  
 }
 
 

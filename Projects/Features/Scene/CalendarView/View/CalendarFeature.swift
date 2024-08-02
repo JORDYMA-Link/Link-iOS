@@ -57,13 +57,11 @@ struct CalendarFeature {
         
       case let .changeCurrentPage(currentPage):
         state.currentSheetDate = currentPage
-        debugPrint(state.currentPage, state.currentSheetDate)
         return .none
         
       case let .changeCurrentYear(dif):
         guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif), !targetDate.lessThan2024 else { return .none }
         state.currentSheetDate = targetDate
-        debugPrint(state.currentPage, state.currentSheetDate)
 
         return .none
         
@@ -81,7 +79,6 @@ struct CalendarFeature {
           state.changeCurrentPageSheet.toggle()
           state.currentSheetDate = date
         }
-        debugPrint(state.currentPage, state.currentSheetDate)
         
         return .none
       }
