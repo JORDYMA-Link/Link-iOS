@@ -19,7 +19,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
     config.baseForegroundColor = .bkColor(.gray900)
     button.configuration = config
     return button
-  }()
+  } ()
   
   
   //MARK: - initialization
@@ -35,7 +35,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
   //MARK: - FScalendar Method
   override func configureAppearance() {
     self.addSubview(monthButton)
-    setCurrentPageTitle(currentPage: calendar.currentPage.toStringYearMonth)
+    setCurrentPageTitle(currentPage: calendar.currentPage.toStringOnlyYearAndMonth)
 
     monthButton.translatesAutoresizingMaskIntoConstraints = true
     
@@ -51,7 +51,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
     
     guard let currentPage = calendar?.currentPage else { return }
     
-    self.monthButton.setTitle(currentPage.toStringYearMonth, for: .normal)
+    self.monthButton.setTitle(currentPage.toStringOnlyYearAndMonth, for: .normal)
   }
   
   //MARK: - Helpe

@@ -10,7 +10,7 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct IntegratedCalendarFeature {
+struct CalendarViewFeature {
   @ObservableState
   struct State {
     var calendar = CalendarFeature.State()

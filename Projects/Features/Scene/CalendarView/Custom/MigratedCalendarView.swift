@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+
 import FSCalendar
 import ComposableArchitecture
 
@@ -78,8 +79,6 @@ struct MigratedCalendarView: UIViewRepresentable {
         return 0
       }
     }
-    
-    
   }
   
   //MARK: - Helper
@@ -102,6 +101,3 @@ struct MigratedCalendarView: UIViewRepresentable {
     calendar.scope = .month
   }
 }
-
-
-

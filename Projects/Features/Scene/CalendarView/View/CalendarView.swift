@@ -12,14 +12,11 @@ import SwipeActions
 import CommonFeature
 
 struct CalendarView: View {
-//  let store: StoreOf<CalendarFeature>
-  let store: StoreOf<IntegratedCalendarFeature>
-  
-  @StateObject private var scrollViewDelegate = HomeScrollViewDelegate()
+  let store: StoreOf<CalendarViewFeature>
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
-  let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
+  private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
   
   var body: some View {
     VStack(alignment: .leading) {
@@ -28,7 +25,7 @@ struct CalendarView: View {
         store.send(.calendarAction(.tappedCurrentSheetButton))
       } label: {
         HStack {
-          Text(store.state.calendar.currentPage.toStringYearMonth)
+          Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
             .font(.semiBold(size: ._20))
           Image(systemName: "chevron.down")
         }
@@ -68,16 +65,12 @@ struct CalendarView: View {
                 }
               }
               .scrollIndicators(.hidden)
-              
             }
-            
           }
         } else {
           noneContentsView
         }
       }
-      
-        
     }
       
       .toolbar {
@@ -136,7 +129,6 @@ struct CalendarView: View {
     .background(Color.bkColor(.gray300))
     .clipShape(.rect(cornerRadius: 10))
     .shadow(radius: 10, x: 0, y: 8)
-    
   }
   
   @ViewBuilder
@@ -166,43 +158,6 @@ struct CalendarView: View {
       
     }
   }
-  
-//  @ViewBuilder
-//  private func makeCategorySectionHeader(selectedIndex: Int) -> some View {
-//      let categories = ["중요", "미분류"]
-//  
-//      ScrollView(.horizontal) {
-//          HStack(spacing: 8) {
-//              ForEach(categories.indices, id: \.self) { index in
-//                
-//                let isSelectedIndex = (selectedIndex == index)
-//                
-//                  Text(categories[index])
-//                      .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
-//                      .foregroundColor(isSelectedIndex ? Color.white : Color.black)
-//                      .padding(.vertical, 10)
-//                      .padding(.horizontal, 14)
-//                      .background(
-//                          RoundedRectangle(cornerRadius: 100)
-//                              .fill(isSelectedIndex ? Color.black : Color.white)
-//                              .overlay(
-//                                  RoundedRectangle(cornerRadius: 100)
-//                                      .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
-//                              )
-//                          
-//                      )
-//                      .onTapGesture {
-//                        debugPrint("selected")
-//                        store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: index)))
-//                        debugPrint(store.state.article.categorySelectedIndex)
-//                      }
-//              }
-//          }
-//          .padding(.leading, 16)
-//      }
-//      .scrollDisabled(true)
-//      .padding(EdgeInsets(top: 20, leading: 0, bottom: 36, trailing: 0))
-//  }
 
   var makeCategorySectionHeader: some View {
       let categories = ["중요", "미분류"]
@@ -251,7 +206,6 @@ extension CalendarView {
     
     var toString: String {
       return "\(self.rawValue)월"
-      
     }
   }
   
@@ -326,11 +280,10 @@ extension CalendarView {
       return false
     }
   }
-  
 }
 
 #Preview {
-  CalendarView(store: Store(initialState: IntegratedCalendarFeature.State(), reducer: {
-    IntegratedCalendarFeature()
+  CalendarView(store: Store(initialState: CalendarViewFeature.State(), reducer: {
+    CalendarViewFeature()
   }))
 }

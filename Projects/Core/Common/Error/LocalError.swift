@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum LocalError: Error {
+enum LocalError: Error {
   case dateError
   
   var description: String {

@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 extension Calendar {
   //원하는 날짜 Int값을 넘기면 Date 계산을 시도하는 함수입니다.
   public func getDateFromComponents(year: Int, month: Int = 1, day: Int = 1) -> Date? {
