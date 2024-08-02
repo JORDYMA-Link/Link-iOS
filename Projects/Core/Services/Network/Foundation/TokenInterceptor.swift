@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Common
+
 import Dependencies
 import Alamofire
 import Moya
@@ -53,9 +55,4 @@ public final class TokenInterceptor: RequestInterceptor {
       }
     }
   }
-}
-
-
-public extension Notification.Name {
-  static let tokenExpired = Notification.Name("tokenExpired")
 }
