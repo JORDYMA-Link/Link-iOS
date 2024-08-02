@@ -13,6 +13,7 @@ import Moya
 
 public struct AuthClient {
   public var requestKakaoLogin: @Sendable (_ request: KakaoLoginRequest) async throws -> TokenResponse
+  public var requestRegenerateToken: @Sendable (_ refreshToken: String) async throws -> TokenResponse
 }
 
 extension AuthClient: DependencyKey {
@@ -22,6 +23,9 @@ extension AuthClient: DependencyKey {
     return Self(
       requestKakaoLogin: {
         try await authProvider.request(.kakaoLogin(request: $0), modelType: TokenResponse.self)
+      },
+      requestRegenerateToken: { refreshToken in
+        try await authProvider.request(.regenerateToken(refreshToken: refreshToken), modelType: TokenResponse.self)
       }
     )
   }
