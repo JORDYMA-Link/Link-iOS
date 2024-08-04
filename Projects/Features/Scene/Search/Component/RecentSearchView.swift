@@ -58,6 +58,7 @@ struct RecentSearchView: View {
             Divider()
               .foregroundStyle(Color.bkColor(.gray400))
           }
+          .contentShape(Rectangle())
           .onTapGesture { recentSearchAction(searches) }
         }
       }
