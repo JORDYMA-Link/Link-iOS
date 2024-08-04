@@ -19,8 +19,7 @@ public final class TokenInterceptor: RequestInterceptor {
   @Dependency(\.authClient) var authClient
   
   static let shared = TokenInterceptor()
-  private init() { }
-  
+  private init() {}
   
   public func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
     var request = urlRequest
@@ -46,12 +45,12 @@ public final class TokenInterceptor: RequestInterceptor {
       } catch {
         try await keychainClient.delete(.accessToken)
         try await keychainClient.delete(.refreshToken)
+                
+        completion(.doNotRetryWithError(error))
         
         DispatchQueue.main.async {
           NotificationCenter.default.post(name: .tokenExpired, object: nil)
         }
-        
-        completion(.doNotRetryWithError(error))
       }
     }
   }
