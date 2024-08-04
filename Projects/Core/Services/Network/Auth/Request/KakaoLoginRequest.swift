@@ -9,8 +9,8 @@
 import Foundation
 
 public struct KakaoLoginRequest: Encodable {
-  let idToken: String
-  let nonce: String
+  private let idToken: String
+  private let nonce: String
   
   public init(idToken: String, nonce: String) {
     self.idToken = idToken
