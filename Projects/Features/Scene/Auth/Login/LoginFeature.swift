@@ -19,7 +19,7 @@ public struct LoginFeature {
   
   @ObservableState
   public struct State: Equatable {
-    var loginInfo: SocialLogin?
+    var loginInfo: SocialLoginInfo?
     
     public init() {}
   }
@@ -30,11 +30,13 @@ public struct LoginFeature {
     case kakaoLoginButtonTapped
     case appleLoginButtonTapped
     
-    case _setSocialLoginInfo(SocialLogin)
+    case _setSocialLoginInfo(SocialLoginInfo)
+    case _setDestination
     
     // MARK: Delegate Action
     public enum Delegate {
       case moveToOnboarding
+      case moveToMainTap
     }
     
     case delegate(Delegate)
@@ -44,6 +46,7 @@ public struct LoginFeature {
   }
   
   @Dependency(\.userDefaultsClient) var userDefault
+  @Dependency(\.keychainClient) var keychainClient
   @Dependency(\.socialLogin) var socialLogin
   @Dependency(\.authClient) var authClient
   
@@ -62,6 +65,8 @@ public struct LoginFeature {
         return .run { send in
           let info = try await socialLogin.kakaoLogin()
           try await requestLogin(info, send: send)
+        } catch: { error, send in
+          print(error)
         }
         .throttle(id: ThrottleId.loginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
@@ -69,13 +74,22 @@ public struct LoginFeature {
         return .run { send in
           let info = try await socialLogin.appleLogin()
           try await requestLogin(info, send: send)
+        } catch: { error, send in
+          print(error)
         }
         .throttle(id: ThrottleId.loginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case let ._setSocialLoginInfo(info):
         state.loginInfo = info
         return .none
-                
+        
+      case ._setDestination:
+        if userDefault.bool(.isFirstLogin, false) {
+          return .send(.delegate(.moveToOnboarding))
+        } else {
+          return .send(.delegate(.moveToMainTap))
+        }
+        
       default:
         return .none
       }
@@ -84,25 +98,25 @@ public struct LoginFeature {
 }
 
 extension LoginFeature {
-  private func requestLogin(_ info: SocialLogin, send: Send<LoginFeature.Action>) async throws {
+  private func requestLogin(_ info: SocialLoginInfo, send: Send<LoginFeature.Action>) async throws {
     do {
       await send(._setSocialLoginInfo(info))
       
+      var tokenInfo: TokenInfo?
+      
       switch info.provider {
       case .kakao:
-        let login = try await authClient.requestKakaoLogin(.init(idToken: info.idToken, nonce: info.nonce ?? ""))
+        tokenInfo = try await authClient.requestKakaoLogin(.init(idToken: info.idToken, nonce: info.nonce ?? ""))
         
-        print(login)
       case .apple:
-        // 온보딩 플로우 테스트
-        userDefault.set(true, .isFirstLogin)
-        
-        if userDefault.bool(.isFirstLogin, false) {
-          await send(.delegate(.moveToOnboarding))
-        } else {
-          print(info)
-        }
+        tokenInfo = try await authClient.requestAppleLogin(info.idToken)
       }
+      
+      guard let tokenInfo else { return }
+      try await keychainClient.save(.accessToken, tokenInfo.accessToken)
+      try await keychainClient.save(.refreshToken, tokenInfo.refreshToken)
+      
+      await send(._setDestination)
     } catch {
       print(error)
     }
