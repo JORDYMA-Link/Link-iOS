@@ -17,11 +17,11 @@ enum AppleErrorType: Error {
 }
 
 final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
-  private var continuation: CheckedContinuation<SocialLogin, Error>? = nil
+  private var continuation: CheckedContinuation<SocialLoginInfo, Error>? = nil
   
   /// 애플 로그인
   @MainActor
-  func appleLogin() async throws -> SocialLogin {
+  func appleLogin() async throws -> SocialLoginInfo {
     return try await withCheckedThrowingContinuation { continuation in
       let appleIDProvider = ASAuthorizationAppleIDProvider()
       let request = appleIDProvider.createRequest()
@@ -41,9 +41,9 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
     switch authorization.credential {
     case let appleIDCredential as ASAuthorizationAppleIDCredential:
       let email = appleIDCredential.email
-      debugPrint("appleLogin email \(email ?? "")")
+      debugPrint("appleLogin email: \(email ?? "")")
       let fullName = appleIDCredential.fullName
-      debugPrint("appleLogin fullName \(fullName?.description ?? "")")
+      debugPrint("appleLogin fullName: \(fullName?.description ?? "")")
       
       guard let tokenData = appleIDCredential.identityToken,
             let token = String(data: tokenData, encoding: .utf8) else {
@@ -52,7 +52,7 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
         return
       }
       
-      debugPrint("appleLogin token \(token)")
+      debugPrint("appleLogin token: \(token)")
       
       guard let authorizationCode = appleIDCredential.authorizationCode,
             let authorizationCodeString = String(data: authorizationCode, encoding: .utf8) else {
@@ -61,12 +61,12 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
           return
       }
       
-      debugPrint("appleLogin authorizationCode \(authorizationCodeString)")
+      debugPrint("appleLogin authorizationCode: \(authorizationCodeString)")
       
       let userIdentifier = appleIDCredential.user
       debugPrint("appleLogin authenticated user: \(userIdentifier)")
       
-      let info = SocialLogin(idToken: token, provider: .apple)
+      let info = SocialLoginInfo(idToken: token, provider: .apple)
         
       continuation?.resume(returning: info)
       continuation = nil
