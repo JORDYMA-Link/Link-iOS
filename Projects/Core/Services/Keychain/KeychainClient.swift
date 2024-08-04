@@ -28,6 +28,7 @@ public struct KeychainClient {
   public var read: @Sendable (_ type: TokenType) -> String
   public var update: @Sendable (_ type: TokenType, _ value: String) async throws -> Void
   public var delete: @Sendable (_ type: TokenType) async throws -> Void
+  public var checkToTokenIsExist: @Sendable () -> Bool
 }
 
 extension KeychainClient: DependencyKey {
@@ -54,26 +55,8 @@ extension KeychainClient: DependencyKey {
         }
       },
       read: { type in
-        let query: NSDictionary = .init(
-          dictionary: [
-            kSecClass: kSecClassGenericPassword,
-            kSecAttrAccount: type.rawValue,
-            kSecReturnData: true,
-            kSecMatchLimit: kSecMatchLimitOne
-          ]
-        )
-        
-        var dataTypeReference: AnyObject?
-        let status = withUnsafeMutablePointer(to: &dataTypeReference) {
-          SecItemCopyMatching(query, UnsafeMutablePointer($0))
-        }
-        
-        guard status == errSecSuccess,
-              let data = dataTypeReference as? Data
-        else { return .init() }
-        
-        return String(decoding: data, as: UTF8.self)
-      }, 
+        readKey(type)
+      },
       update: { type, value in
         try updateKey(type, value: value)
       },
@@ -95,12 +78,37 @@ extension KeychainClient: DependencyKey {
         default:
           throw KeychainClientError.failToDelete
         }
+      }, 
+      checkToTokenIsExist: {
+        return readKey(.accessToken).isEmpty
       }
     )
   }
 }
 
 extension KeychainClient {
+  private static func readKey(_ type: TokenType) -> String {
+    let query: NSDictionary = .init(
+      dictionary: [
+        kSecClass: kSecClassGenericPassword,
+        kSecAttrAccount: type.rawValue,
+        kSecReturnData: true,
+        kSecMatchLimit: kSecMatchLimitOne
+      ]
+    )
+    
+    var dataTypeReference: AnyObject?
+    let status = withUnsafeMutablePointer(to: &dataTypeReference) {
+      SecItemCopyMatching(query, UnsafeMutablePointer($0))
+    }
+    
+    guard status == errSecSuccess,
+          let data = dataTypeReference as? Data
+    else { return .init() }
+    
+    return String(decoding: data, as: UTF8.self)
+  }
+  
   private static func updateKey(_ type: TokenType, value: String) throws {
     guard let data = value.data(using: .utf8) else { throw KeychainClientError.failToGetData }
     
