@@ -116,7 +116,7 @@ extension LoginFeature {
       try await keychainClient.save(.accessToken, tokenInfo.accessToken)
       try await keychainClient.save(.refreshToken, tokenInfo.refreshToken)
       
-      await send(._setDestination)
+      await send(._setDestination, animation: .spring)
     } catch {
       print(error)
     }
