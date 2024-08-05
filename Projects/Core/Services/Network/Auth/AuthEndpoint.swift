@@ -55,7 +55,7 @@ extension AuthEndpoint: BaseTargetType {
     case let .regenerateToken(refreshToken):
       return [
         "Content-type":"application/json",
-        "Authorization": refreshToken
+        "Authorization": "Bearer \(refreshToken)"
       ]
       
     default:
