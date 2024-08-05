@@ -15,8 +15,8 @@ import ComposableArchitecture
 public struct SocialLoginClient {
   public var initKakaoSDK: @Sendable () -> Void
   public var handleKakaoUrl: @Sendable (URL) -> Void
-  public var kakaoLogin: @Sendable () async throws -> SocialLogin
-  public var appleLogin: @Sendable () async throws -> SocialLogin
+  public var kakaoLogin: @Sendable () async throws -> SocialLoginInfo
+  public var appleLogin: @Sendable () async throws -> SocialLoginInfo
 }
 
 extension SocialLoginClient: DependencyKey {

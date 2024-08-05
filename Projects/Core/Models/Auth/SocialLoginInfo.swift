@@ -1,5 +1,5 @@
 //
-//  SocialLogin.swift
+//  SocialLoginInfo.swift
 //  CoreKit
 //
 //  Created by kyuchul on 6/17/24.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct SocialLogin: Equatable {
+public struct SocialLoginInfo: Equatable {
   public let idToken: String
   public let nonce: String?
   public let provider: Socialtype
@@ -24,7 +24,7 @@ public struct SocialLogin: Equatable {
   }
 }
 
-extension SocialLogin {
+extension SocialLoginInfo {
   public enum Socialtype: String {
     case kakao = "Kakao"
     case apple = "Apple"

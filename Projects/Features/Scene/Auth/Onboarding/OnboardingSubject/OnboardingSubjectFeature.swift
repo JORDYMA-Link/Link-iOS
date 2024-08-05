@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Services
+
 import ComposableArchitecture
 
 @Reducer
@@ -37,6 +39,8 @@ public struct OnboardingSubjectFeature {
     case delegate(Delegate)
   }
   
+  @Dependency(\.userDefaultsClient) var userDefault
+  
   public var body: some ReducerOf<Self> {
     BindingReducer()
     
@@ -53,6 +57,8 @@ public struct OnboardingSubjectFeature {
         return .none
         
       case .skipButtonTapped:
+        userDefault.set(true, .isFirstLogin)
+        
         return .send(.delegate(.moveToMainTab))
         
       case .confirmButtonTapped:
