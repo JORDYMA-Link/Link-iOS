@@ -12,7 +12,6 @@ import ComposableArchitecture
 
 public struct UserDefaultsClient {
     public enum UserDefaultsKey: String {
-        case isFirstLanch
         case isFirstLogin
         case recentSearches
     }

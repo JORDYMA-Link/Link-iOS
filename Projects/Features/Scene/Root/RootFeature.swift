@@ -9,13 +9,13 @@
 import Foundation
 
 import Common
+import Models
 import Services
 
 import ComposableArchitecture
 
 @Reducer
 public struct RootFeature: Reducer {
-  
   public init() {}
   
   @ObservableState
@@ -34,6 +34,8 @@ public struct RootFeature: Reducer {
     case onOpenURL(URL)
     case changeScreen(State)
     
+    case refreshToken(Result<TokenInfo, Error>)
+    
     case splash(SplashFeature.Action)
     case login(LoginFeature.Action)
     case onBoardingSubject(OnboardingSubjectFeature.Action)
@@ -42,7 +44,9 @@ public struct RootFeature: Reducer {
   }
   
   @Dependency(\.userDefaultsClient) var userDefault
+  @Dependency(\.keychainClient) var keychainClient
   @Dependency(\.socialLogin) var socialLogin
+  @Dependency(\.authClient) var authClient
   
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
@@ -53,22 +57,47 @@ public struct RootFeature: Reducer {
         return .run {  send in
           try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
           
-          userDefault.set(false, .isFirstLanch)
-          
-          if userDefault.bool(.isFirstLanch, true) {
+          if keychainClient.checkToTokenIsExist() {
             await send(.changeScreen(.login()), animation: .spring)
+          } else {
+            await send(.refreshToken(Result { try await authClient.requestRegenerateToken(keychainClient.read(.refreshToken)) }))
+          }
+          
+          #warning("테스트 시  keychainClient 코드 주석 후 밑 해당 코드 사용")
+          // userDefault.set(true, .isFirstLogin)
+          //
+          // if userDefault.bool(.isFirstLogin, false) {
+          //  await send(.changeScreen(.login()), animation: .spring)
+          // } else {
+          //  await send(.changeScreen(.mainTab()), animation: .spring)
+          // }
+        }
+        
+      case let .refreshToken(.success(token)):
+        return .run { send in
+          try await keychainClient.update(.accessToken, token.accessToken)
+          try await keychainClient.update(.refreshToken, token.refreshToken)
+          
+          if userDefault.bool(.isFirstLogin, false) {
+            await send(.changeScreen(.onBoardingSubject()), animation: .spring)
           } else {
             await send(.changeScreen(.mainTab()), animation: .spring)
           }
+        } catch: { error, send in
+          debugPrint(error)
+          await send(.changeScreen(.login()), animation: .spring)
         }
+        
+      case .refreshToken(.failure):
+        return .send(.changeScreen(.login()), animation: .spring)
         
       case .login(.delegate(.moveToOnboarding)):
         return .send(.changeScreen(.onBoardingSubject()), animation: .spring)
-      
+        
       case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
         return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
-      
-      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)):
+        
+      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)), .login(.delegate(.moveToMainTap)):
         return .send(.changeScreen(.mainTab()), animation: .spring)
         
       case let .onOpenURL(url):

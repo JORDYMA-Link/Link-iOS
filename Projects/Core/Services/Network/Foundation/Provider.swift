@@ -2,26 +2,50 @@
 //  Provider.swift
 //  Services
 //
-//  Created by kyuchul on 6/30/24.
+//  Created by kyuchul on 7/30/24.
 //  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
 import Foundation
-import Combine
 import OSLog
+import Combine
 
 import Moya
 
-extension MoyaProvider {
-  func request<D: Decodable> (_ target: Target, modelType: D.Type) async throws -> D {
+protocol Providable<APIType> {
+  associatedtype APIType: BaseTargetType
+  
+  /// async throws request
+  func request<D: Decodable> (_ target: APIType, modelType: D.Type) async throws -> D
+  /// async throws null request
+  func requestPlain<D: Decodable> (_ api: APIType, modelType: D.Type) async throws
+  /// combine request
+  func requestPublisher<D: Decodable> (_ api: APIType, modelType: D.Type) -> AnyPublisher<D, Error>
+}
+
+struct Provider<APIType: BaseTargetType>: Providable {
+  private let moyaProvider: MoyaProvider<APIType>
+  private let isRetry: Bool
+  
+  init(isRetry: Bool = true) {
+    self.isRetry = isRetry
+    
+    let session = isRetry ? HTTPSession.shared.sessionWithInterceptor : HTTPSession.shared.session
+    let plugIn = NetworkLoggerPlugin()
+    moyaProvider = .init(session: session, plugins: [plugIn])
+  }
+}
+
+extension Provider {
+  func request<D: Decodable> (_ api: APIType, modelType: D.Type) async throws -> D {
     return try await withCheckedThrowingContinuation { continuation in
-      self.request(target) { result in
+      moyaProvider.request(api) { result in
         switch result {
         case let .success(response):
           guard 200..<300 ~= response.statusCode else {
             let errorResponse = try? JSONDecoder.default.decode(ErrorResponse.self, from: response.data)
             os_log("errorResponse: \(errorResponse)")
-            continuation.resume(throwing: errorResponse ?? NetworkError.errorResponseCanNotParse)
+            continuation.resume(throwing: errorResponse ?? MoyaError.statusCode(response))
             return
           }
           
@@ -40,15 +64,15 @@ extension MoyaProvider {
     }
   }
   
-  func requestPlain<D: Decodable> (_ target: Target, modelType: D.Type) async throws {
+  func requestPlain<D: Decodable> (_ api: APIType, modelType: D.Type) async throws {
     return try await withCheckedThrowingContinuation { continuation in
-      self.request(target) { result in
+      moyaProvider.request(api) { result in
         switch result {
         case let .success(response):
           guard 200..<300 ~= response.statusCode else {
             let errorResponse = try? JSONDecoder.default.decode(ErrorResponse.self, from: response.data)
             os_log("errorResponse: \(errorResponse)")
-            continuation.resume(throwing: errorResponse ?? NetworkError.errorResponseCanNotParse)
+            continuation.resume(throwing: errorResponse ?? MoyaError.statusCode(response))
             return
           }
           
@@ -62,15 +86,15 @@ extension MoyaProvider {
     }
   }
   
-  func requestPublisher<D: Decodable> (_ target: Target, modelType: D.Type) -> AnyPublisher<D, Error> {
+  func requestPublisher<D: Decodable> (_ api: APIType, modelType: D.Type) -> AnyPublisher<D, Error> {
     Future<D, Error> { promise in
-      self.request(target) { result in
+      moyaProvider.request(api) { result in
         switch result {
         case let .success(response):
           guard 200..<300 ~= response.statusCode else {
             let errorResponse = try? JSONDecoder.default.decode(ErrorResponse.self, from: response.data)
             os_log("errorResponse: \(errorResponse)")
-            promise(.failure(errorResponse ?? NetworkError.errorResponseCanNotParse))
+            promise(.failure(errorResponse ?? MoyaError.statusCode(response)))
             return
           }
           
@@ -87,17 +111,4 @@ extension MoyaProvider {
       }
     }.eraseToAnyPublisher()
   }
-  
-}
-
-extension JSONDecoder {
-  static var `default`: JSONDecoder {
-    let decoder = JSONDecoder()
-    decoder.keyDecodingStrategy = .convertFromSnakeCase
-    return decoder
-  }
-}
-
-enum NetworkError: Error {
-  case errorResponseCanNotParse
 }

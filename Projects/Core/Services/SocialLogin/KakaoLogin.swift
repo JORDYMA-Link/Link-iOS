@@ -19,7 +19,7 @@ enum KakaoErrorType: Error {
 }
 
 final class KakaoLogin {
-  private var continuation: CheckedContinuation<SocialLogin, Error>? = nil
+  private var continuation: CheckedContinuation<SocialLoginInfo, Error>? = nil
   
   /// Kakao initSDK
   func initSDK() {
@@ -34,7 +34,7 @@ final class KakaoLogin {
   
   /// 카카오톡 로그인
   @MainActor
-  func kakaoLogin() async throws -> SocialLogin {
+  func kakaoLogin() async throws -> SocialLoginInfo {
     return try await withCheckedThrowingContinuation { continuation in
       self.continuation = continuation
       let nonce = UUID().uuidString
@@ -90,7 +90,7 @@ final class KakaoLogin {
   }
   
   private func setSocialLoginData(idToken: String, nonce: String) {
-    let info = SocialLogin(idToken: idToken, nonce: nonce, provider: .kakao)
+    let info = SocialLoginInfo(idToken: idToken, nonce: nonce, provider: .kakao)
     continuation?.resume(returning: info)
     continuation = nil
   }

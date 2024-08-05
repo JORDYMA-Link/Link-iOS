@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import Services
+import CoreKit
 
 import ComposableArchitecture
 
@@ -46,6 +46,9 @@ public struct RootView: View {
     }
     .onOpenURL { url in
       store.send(.onOpenURL(url))
+    }
+    .onReceive(NotificationCenter.default.publisher(for: .tokenExpired)) { _ in
+      #warning("재로그인 구현")
     }
     .animation(.spring, value: store.state)
     .task {
