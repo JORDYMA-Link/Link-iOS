@@ -19,9 +19,7 @@ struct EditFolderNameBottomSheet: View {
   var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
-    ZStack {
-      Color.clear.ignoresSafeArea()
-      
+    GeometryReader { _ in
       VStack(spacing: 0) {
         BKTextField(
           text: $store.folderInput.title,
@@ -36,7 +34,7 @@ struct EditFolderNameBottomSheet: View {
           }
           .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
         
-        Spacer()
+        Spacer(minLength: 0)
         
         BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
       }
