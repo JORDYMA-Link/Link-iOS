@@ -8,6 +8,7 @@
 
 import Foundation
 
+import CommonFeature
 import Models
 
 import ComposableArchitecture
@@ -16,11 +17,14 @@ import ComposableArchitecture
 public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
-    public var linkMenuBottomSheet: LinkMenuBottomSheetFeature.State = .init()
-    public var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
+    var selectedcellMenuItem: LinkCard?
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var linkContent: LinkContentFeature.State?
+    @Presents var editLinkContent: EditLinkContentFeature.State?
+    var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
+  
+    var isMenuBottomSheetPresented: Bool = false
     var pushSetting: Bool = false
   }
   
@@ -28,25 +32,24 @@ public struct HomeFeature: Reducer {
     case binding(BindingAction<State>)
     
     // MARK: User Action
-    case leadingSwipeAction(LinkCard)
     case searchBarTapped
     case cellTapped
+    case cellMenuButtonTapped(LinkCard)
     
     // MARK: Child Action
-    case linkMenuBottomSheet(LinkMenuBottomSheetFeature.Action)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case linkContent(PresentationAction<LinkContentFeature.Action>)
+    case editLinkContent(PresentationAction<EditLinkContentFeature.Action>)
+    case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Inner Business Action
+    case menuBottomSheetPresented(Bool)
     
     // MARK: Inner SetState Action
   }
   
   public var body: some ReducerOf<Self> {
-    Scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet) {
-      LinkMenuBottomSheetFeature()
-    }
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
     }
@@ -57,16 +60,38 @@ public struct HomeFeature: Reducer {
       switch action {
       case .binding:
         return .none
-        
-      case let .leadingSwipeAction(linkPost):
-        return .send(.editFolderBottomSheet(.editFolderTapped(linkPost.id)))
-        
+
       case .searchBarTapped:
         state.searchKeyword = .init()
         return .none
         
       case .cellTapped:
         state.linkContent = .init()
+        return .none
+        
+      case let .cellMenuButtonTapped(selectedItem):
+        state.selectedcellMenuItem = selectedItem
+        return .run { send in await send(.menuBottomSheetPresented(true)) }
+        
+      case let .menuBottomSheetPresented(isPresented):
+        state.isMenuBottomSheetPresented = isPresented
+        return .none
+        
+      case .menuBottomSheet(.editLinkContentCellTapped):
+        guard let selectedItem = state.selectedcellMenuItem else { return .none }
+        
+        state.isMenuBottomSheetPresented = false
+        state.editLinkContent = .init(link: selectedItem)
+        return .none
+        
+      case .menuBottomSheet(.editFolderCellTapped):
+        guard let selectedItem = state.selectedcellMenuItem else { return .none }
+        
+        state.isMenuBottomSheetPresented = false
+        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(selectedItem.id))) }
+        
+      case .menuBottomSheet(.deleteLinkContentCellTapped):
+        print("deleteModal")
         return .none
         
       default:
@@ -78,6 +103,9 @@ public struct HomeFeature: Reducer {
     }
     .ifLet(\.$linkContent, action: \.linkContent) {
       LinkContentFeature()
+    }
+    .ifLet(\.$editLinkContent, action: \.editLinkContent) {
+      EditLinkContentFeature()
     }
   }
 }

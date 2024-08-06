@@ -150,21 +150,14 @@ struct LinkContentView: View {
       EditMemoBottomSheet(store: store.scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet))
     }
     .bottomSheet(
-      isPresented: $store.linkMenuBottomSheet.isMenuBottomSheetPresented,
+      isPresented: $store.isMenuBottomSheetPresented,
       detents: [.height(144)],
-      leadingTitle: "설정",
-      closeButtonAction: { store.send(.linkMenuBottomSheet(.closeButtonTapped)) }
+      leadingTitle: "설정"
     ) {
-      LinkMenuBottomSheet(store: store.scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet))
-        .padding(.horizontal, 16)
+      BKMenuBottomSheet(
+        menuItems: [.editLinkContent, .deleteLinkContent],
+        action: { store.send(.menuBottomSheet($0)) }
+      )
     }
-  }
-}
-
-#Preview {
-  NavigationStack {
-    LinkContentView(store: .init(initialState: LinkContentFeature.State()) {
-      LinkContentFeature()
-    })
   }
 }
