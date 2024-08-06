@@ -61,8 +61,4 @@ public extension View {
       }
     }
   }
-  
-  func presentationClearBackground() -> some View {
-    modifier(ClearBackground())
-  }
 }
