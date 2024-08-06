@@ -8,7 +8,6 @@
 
 import SwiftUI
 import ComposableArchitecture
-import SwipeActions
 import CommonFeature
 
 struct CalendarView: View {
@@ -58,7 +57,7 @@ struct CalendarView: View {
                 LazyHStack(spacing: 4) {
                   Section {
                     ForEach(1...10, id: \.self) { count in
-                      BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeature.Images.graphicBell, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: false, recommendedFolders: nil, recommendedFolderAction: {}, addFolderAction: {})
+                      BKCardCell(width: geometry.size.width - 32, sourceTitle: "브런치", sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: false, recommendedFolders: nil, recommendedFolderAction: {}, addFolderAction: {})
                     }
                   }
                   .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
