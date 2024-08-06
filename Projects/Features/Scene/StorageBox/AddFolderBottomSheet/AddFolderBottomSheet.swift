@@ -34,7 +34,7 @@ struct AddFolderBottomSheet: View {
           }
           .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           
-          Spacer()
+          Spacer(minLength: 0)
           
           BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
         }

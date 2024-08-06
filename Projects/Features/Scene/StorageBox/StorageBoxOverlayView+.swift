@@ -20,7 +20,7 @@ extension View {
     self
       .bottomSheet(
         isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
-        detents: [.height(202)],
+        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
         leadingTitle: "폴더 추가",
         closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
       ) {
@@ -52,7 +52,7 @@ extension View {
     self
       .bottomSheet(
         isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented,
-        detents: [.height(202)],
+        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
         leadingTitle: "폴더 수정",
         closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }
       ) {
