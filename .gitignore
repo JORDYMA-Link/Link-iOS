@@ -149,6 +149,9 @@ Derived/
 Tuist/Dependencies
 Tuist/.build
 
+### Package.resolved ###
+*.resolved
+
 # Node.js
 node_modules
 .grunt-env
