@@ -28,7 +28,6 @@ struct HomeContainerView<Content: View>: View {
     NavigationStack {
       ZStack(alignment: .bottom) {
         HomeView(store: store)
-          .padding(.bottom, 52)
         
         tabbar()
       }
