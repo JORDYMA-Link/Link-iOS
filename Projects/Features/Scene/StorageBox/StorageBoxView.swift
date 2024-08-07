@@ -44,7 +44,7 @@ public struct StorageBoxView: View {
                 count: item.count,
                 name: item.title,
                 menuAction: {
-                  store.send(.menuBottomSheet(.storageBoxMenuTapped(item)))
+                  store.send(.cellMenuButtonTapped(item))
                 }
               )
               .onTapGesture {

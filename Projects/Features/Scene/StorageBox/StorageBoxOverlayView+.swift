@@ -35,13 +35,14 @@ extension View {
     
     self
       .bottomSheet(
-        isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented,
+        isPresented: $store.isMenuBottomSheetPresented,
         detents: [.height(154)],
-        leadingTitle: "폴더 설정",
-        closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) }
+        leadingTitle: "폴더 설정"
       ) {
-        StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBottomSheet, action: \.menuBottomSheet))
-          .padding(.horizontal, 16)
+        BKMenuBottomSheet(
+          menuItems: [.editFolderName, .deleteFolder],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
       }
   }
   
