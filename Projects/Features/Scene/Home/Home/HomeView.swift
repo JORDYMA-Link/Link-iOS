@@ -44,11 +44,11 @@ public struct HomeView: View {
           scrollView.delegate = scrollViewDelegate
         }
     }
+    .padding(.bottom, 52)
     .background(Color.bkColor(.white))
     .animation(.easeIn(duration: 0.2), value: topToCategory)
     .onAppear {
       UIScrollView.appearance().bounces = true
-      print("homeView")
     }
     .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
       self.topToCategory = $0
