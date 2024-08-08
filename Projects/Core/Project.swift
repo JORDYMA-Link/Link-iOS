@@ -8,34 +8,25 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
+// 출시 이전 framework로 사용
+// 1.0.0 배포 전 staticLibrary로 변경하기
 let project = Project.make(
     name: "Core",
     targets: [
         .make(
-            name: "CoreKit",
-            product: .staticLibrary,
-            bundleId: DefaultSetting.bundleId(moduleName: "coreKit"),
-            sources: ["CoreKit/**"],
-            dependencies: [
-                .target(name: .models),
-                .target(name: .services),
-                .target(name: .common)
-            ],
-            settings: .settings(base: DefaultSetting.baseProductSetting)
-        ),
-        .make(
             name: "Models",
-            product: .staticLibrary,
+            product: .framework,
             bundleId: DefaultSetting.bundleId(moduleName: "models"),
             sources: ["Models/**"],
             dependencies: []
         ),
         .make(
             name: "Services",
-            product: .staticLibrary,
+            product: .framework,
             bundleId: DefaultSetting.bundleId(moduleName: "services"),
             sources: ["Services/**"],
             dependencies: [
+                .target(name: .models),
                 .external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .kakaoSDK),
                 .external(externalDependency: .moya)
@@ -43,7 +34,7 @@ let project = Project.make(
         ),
         .make(
             name: "Common",
-            product: .staticLibrary,
+            product: .framework,
             bundleId: DefaultSetting.bundleId(moduleName: "common"),
             sources: ["Common/**"],
             dependencies: []

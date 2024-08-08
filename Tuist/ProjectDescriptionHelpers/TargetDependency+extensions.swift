@@ -28,7 +28,6 @@ public enum TargetName: String {
   case models = "Models"
   case services = "Services"
   case common = "Common"
-  case coreKit = "CoreKit"
   case commonFeature = "CommonFeature"
   case features = "Features"
 }
