@@ -18,7 +18,7 @@ protocol Providable<APIType> {
   /// async throws request
   func request<D: Decodable> (_ target: APIType, modelType: D.Type) async throws -> D
   /// async throws null request
-  func requestPlain<D: Decodable> (_ api: APIType, modelType: D.Type) async throws
+  func requestPlain(_ api: APIType) async throws
   /// combine request
   func requestPublisher<D: Decodable> (_ api: APIType, modelType: D.Type) -> AnyPublisher<D, Error>
 }
@@ -64,7 +64,7 @@ extension Provider {
     }
   }
   
-  func requestPlain<D: Decodable> (_ api: APIType, modelType: D.Type) async throws {
+  func requestPlain(_ api: APIType) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       moyaProvider.request(api) { result in
         switch result {
