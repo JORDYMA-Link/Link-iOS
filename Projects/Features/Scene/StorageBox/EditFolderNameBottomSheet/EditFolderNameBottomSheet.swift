@@ -14,36 +14,38 @@ import ComposableArchitecture
 import SwiftUIIntrospect
 
 struct EditFolderNameBottomSheet: View {
-  @Bindable var store: StoreOf<EditFolderNameBottomSheetFeature>
+  @Perception.Bindable var store: StoreOf<EditFolderNameBottomSheetFeature>
   @FocusState private var textIsFocused: Bool
   var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
-    GeometryReader { _ in
-      VStack(spacing: 0) {
-        BKTextField(
-          text: $store.folderInput.title,
-          isHighlight: $store.isHighlight,
-          textIsFocused: _textIsFocused,
-          textFieldType: .editFolderName,
-          textCount: 10,
-          isMultiLine: false
-        )
+    WithPerceptionTracking {
+      GeometryReader { _ in
+        VStack(spacing: 0) {
+          BKTextField(
+            text: $store.folderInput.name,
+            isHighlight: $store.isHighlight,
+            textIsFocused: _textIsFocused,
+            textFieldType: .editFolderName,
+            textCount: 10,
+            isMultiLine: false
+          )
           .introspect(.textField, on: .iOS(.v17)) { textField in
-              textField.delegate = textFieldDelegate
+            textField.delegate = textFieldDelegate
           }
           .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
-        
-        Spacer(minLength: 0)
-        
-        BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+          
+          Spacer(minLength: 0)
+          
+          BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+        }
       }
-    }
-    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
-    .animation(.spring, value: textIsFocused)
-    .onAppear {
-      DispatchQueue.main.async {
-        textIsFocused = true
+      .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
+      .animation(.spring, value: textIsFocused)
+      .onAppear {
+        DispatchQueue.main.async {
+          textIsFocused = true
+        }
       }
     }
   }

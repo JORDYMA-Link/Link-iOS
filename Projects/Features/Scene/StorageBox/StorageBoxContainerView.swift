@@ -26,16 +26,18 @@ struct StorageBoxContainerView<Content: View>: View {
   
   var body: some View {
     NavigationStack {
-      ZStack(alignment: .bottom) {
-        StorageBoxView(store: store)
-        
-        tabbar()
+      WithPerceptionTracking {
+        ZStack(alignment: .bottom) {
+          StorageBoxView(store: store)
+          
+          tabbar()
+        }
+        .addFolderBottomSheet(store: store)
+        .settingStorageBoxBottomSheet(store: store)
+        .editFolderNameBottomSheet(store: store)
+        .deleteFolderModal(store: store)
+        .toolbar(.hidden, for: .navigationBar)
       }
-      .addFolderBottomSheet(store: store)
-      .settingStorageBoxBottomSheet(store: store)
-      .editFolderNameBottomSheet(store: store)
-      .deleteFolderModal(store: store)
-      .toolbar(.hidden, for: .navigationBar)
     }
   }
 }

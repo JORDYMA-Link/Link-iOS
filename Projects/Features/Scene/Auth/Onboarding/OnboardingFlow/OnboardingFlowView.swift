@@ -31,57 +31,59 @@ public struct OnboardingFlowView: View {
     }
   }
   
-  @Bindable var store: StoreOf<OnboardingFlowFeature>
+  @Perception.Bindable var store: StoreOf<OnboardingFlowFeature>
   
   public init(store: StoreOf<OnboardingFlowFeature>) {
     self.store = store
   }
   
   public var body: some View {
-    ZStack {
-      TabView(selection: $store.selectedPage) {
-        ForEach(Array(OnboardingType.allCases.enumerated()), id: \.element) { index, type in
-          onBoardingPageView(type: type)
-            .tag(index)
-        }
-      }
-      .tabViewStyle(.page(indexDisplayMode: .never))
-      
-      VStack(spacing: 0) {
-        HStack {
-          Spacer()
-          
-          SkipButton {
-            store.send(.skipButtonTapped)
+    WithPerceptionTracking {
+      ZStack {
+        TabView(selection: $store.selectedPage) {
+          ForEach(Array(OnboardingType.allCases.enumerated()), id: \.element) { index, type in
+            onBoardingPageView(type: type)
+              .tag(index)
           }
         }
-        .padding(.trailing, 16)
-        .padding(.top, UIApplication.topSafeAreaInset + 41)
+        .tabViewStyle(.page(indexDisplayMode: .never))
         
-        Spacer()
-        
-        HStack {
-          Spacer()
-          
-          if !store.isStart {
-            NextButton {
-              store.send(.nextButtonTapped)
-            }
-          } else {
-            StartButton {
-              store.send(.startButtonTapped)
+        VStack(spacing: 0) {
+          HStack {
+            Spacer()
+            
+            SkipButton {
+              store.send(.skipButtonTapped)
             }
           }
+          .padding(.trailing, 16)
+          .padding(.top, UIApplication.topSafeAreaInset + 41)
+          
+          Spacer()
+          
+          HStack {
+            Spacer()
+            
+            if !store.isStart {
+              NextButton {
+                store.send(.nextButtonTapped)
+              }
+            } else {
+              StartButton {
+                store.send(.startButtonTapped)
+              }
+            }
+          }
+          .padding(.trailing, 16)
+          .padding(.bottom, 61)
         }
-        .padding(.trailing, 16)
-        .padding(.bottom, 61)
       }
-    }
-    .animation(.spring, value: store.selectedPage)
-    .toolbar(.hidden, for: .navigationBar)
-    .ignoresSafeArea(edges: .all)
-    .onAppear {
-      UIScrollView.appearance().bounces = false
+      .animation(.spring, value: store.selectedPage)
+      .toolbar(.hidden, for: .navigationBar)
+      .ignoresSafeArea(edges: .all)
+      .onAppear {
+        UIScrollView.appearance().bounces = false
+      }
     }
   }
   
