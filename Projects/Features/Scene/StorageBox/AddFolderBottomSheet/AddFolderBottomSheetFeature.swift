@@ -18,7 +18,7 @@ public struct AddFolderBottomSheetFeature: Reducer {
   public struct State: Equatable {
     public var isAddFolderBottomSheetPresented: Bool = false
     public var isHighlight: Bool = true
-    public var folderInput: Folder = .init(title: "", count: 0)
+    public var folderInput: Folder = .init(id: 0, name: "", feedCount: 0)
     public var savedFolder: Folder?
     
     public init() {}
@@ -56,7 +56,7 @@ public struct AddFolderBottomSheetFeature: Reducer {
         return .send(.delegate(.didUpdateFolderList))
         
       case .closeButtonTapped:
-        state.folderInput = .init(title: "", count: 0)
+        state.folderInput = .init(id: 0, name: "", feedCount: 0)
         state.isAddFolderBottomSheetPresented = false
         return .none
                 
