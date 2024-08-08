@@ -11,12 +11,14 @@ let project = Project.make(
       sources: ["Scene/**"],
       dependencies: [
                 .project(target: .commonFeature, projectPath: .commonFeature),
-                .project(target: .coreKit, projectPath: .core),
+                .project(target: .common, projectPath: .core),
+                .project(target: .models, projectPath: .core),
+                .project(target: .services, projectPath: .core),
 				.external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .introspect),
                 .external(externalDependency: .kingFisher),
 				.external(externalDependency: .lottie),
-        .external(externalDependency: .FSCalendar)
+                .external(externalDependency: .FSCalendar)
       ],
       settings: .settings(base: DefaultSetting.baseProductSetting)
     )
