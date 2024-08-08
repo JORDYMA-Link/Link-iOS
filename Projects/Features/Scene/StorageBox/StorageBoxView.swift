@@ -44,7 +44,7 @@ public struct StorageBoxView: View {
                 count: item.count,
                 name: item.title,
                 menuAction: {
-                  store.send(.menuBottomSheet(.storageBoxMenuTapped(item)))
+                  store.send(.cellMenuButtonTapped(item))
                 }
               )
               .onTapGesture {
@@ -54,13 +54,13 @@ public struct StorageBoxView: View {
           }
           .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
           .background(Color.bkColor(.gray300))
-          .animation(nil, value: UUID())
         }
       }
       .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
         scrollView.delegate = scrollViewDelegate
       }
     }
+    .padding(.bottom, 52)
     .background(Color.bkColor(.white))
     .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
       isScroll = $0

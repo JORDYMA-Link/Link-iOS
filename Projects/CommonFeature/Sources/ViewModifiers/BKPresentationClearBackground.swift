@@ -1,5 +1,5 @@
 //
-//  PresentationClearBackground.swift
+//  BKPresentationClearBackground.swift
 //  CommonFeature
 //
 //  Created by kyuchul on 7/21/24.
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal struct ClearBackground: ViewModifier {
+struct BKPresentationClearBackground: ViewModifier {
   func body(content: Content) -> some View {
     if #available(iOS 16.4, *) {
       content
@@ -34,6 +34,11 @@ fileprivate struct ClearBackgroundView: UIViewRepresentable {
       
       superview?.superview?.backgroundColor = .clear
     }
-    
+  }
+}
+
+public extension View {
+  func presentationClearBackground() -> some View {
+    modifier(BKPresentationClearBackground())
   }
 }

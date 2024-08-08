@@ -18,13 +18,14 @@ extension View {
     @Bindable var store = store
     self
       .bottomSheet(
-        isPresented: $store.linkMenuBottomSheet.isMenuBottomSheetPresented,
-        detents: [.height(144)],
-        leadingTitle: "설정",
-        closeButtonAction: { store.send(.linkMenuBottomSheet(.closeButtonTapped)) }
+        isPresented: $store.isMenuBottomSheetPresented,
+        detents: [.height(192)],
+        leadingTitle: "설정"
       ) {
-        LinkMenuBottomSheet(store: store.scope(state: \.linkMenuBottomSheet, action: \.linkMenuBottomSheet))
-          .padding(.horizontal, 16)
+        BKMenuBottomSheet(
+          menuItems: [.editLinkContent, .editFolder, .deleteLinkContent],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
       }
   }
   

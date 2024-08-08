@@ -20,7 +20,7 @@ extension View {
     self
       .bottomSheet(
         isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
-        detents: [.height(202)],
+        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
         leadingTitle: "폴더 추가",
         closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
       ) {
@@ -35,13 +35,14 @@ extension View {
     
     self
       .bottomSheet(
-        isPresented: $store.menuBottomSheet.isMenuBottomSheetPresented,
+        isPresented: $store.isMenuBottomSheetPresented,
         detents: [.height(154)],
-        leadingTitle: "폴더 설정",
-        closeButtonAction: { store.send(.menuBottomSheet(.closeButtonTapped)) }
+        leadingTitle: "폴더 설정"
       ) {
-        StorageBoxMenuBottomSheet(store: store.scope(state: \.menuBottomSheet, action: \.menuBottomSheet))
-          .padding(.horizontal, 16)
+        BKMenuBottomSheet(
+          menuItems: [.editFolderName, .deleteFolder],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
       }
   }
   
@@ -52,7 +53,7 @@ extension View {
     self
       .bottomSheet(
         isPresented: $store.editFolderNameBottomSheet.isEditFolderBottomSheetPresented,
-        detents: [.height(202)],
+        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
         leadingTitle: "폴더 수정",
         closeButtonAction: { store.send(.editFolderNameBottomSheet(.closeButtonTapped)) }
       ) {
