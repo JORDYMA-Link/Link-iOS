@@ -19,28 +19,26 @@ struct AddFolderBottomSheet: View {
   var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
-    ZStack {
-      Color.clear.ignoresSafeArea()
-      
-      VStack(spacing: 0) {
-        BKTextField(
-          text: $store.folderInput.title,
-          isHighlight: $store.isHighlight,
-          textIsFocused: _textIsFocused,
-          textFieldType: .addFolder,
-          textCount: 10,
-          isMultiLine: false
-        )
+    GeometryReader { _ in
+        VStack(spacing: 0) {
+          BKTextField(
+            text: $store.folderInput.title,
+            isHighlight: $store.isHighlight,
+            textIsFocused: _textIsFocused,
+            textFieldType: .addFolder,
+            textCount: 10,
+            isMultiLine: false
+          )
           .introspect(.textField, on: .iOS(.v17)) { textField in
-              textField.delegate = textFieldDelegate
+            textField.delegate = textFieldDelegate
           }
           .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
-        
-        Spacer()
-        
-        BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+          
+          Spacer(minLength: 0)
+          
+          BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+        }
       }
-    }
     .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
     .animation(.spring, value: textIsFocused)
     .onAppear {

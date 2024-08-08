@@ -8,7 +8,6 @@
 import SwiftUI
 import UserNotifications
 
-import Services
 import Features
 
 import ComposableArchitecture
@@ -20,12 +19,9 @@ struct BlinkApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
   
   init() {
-    socialLogin.initKakaoSDK()
     setupNavigationBarAppearance()
   }
-  
-  @Dependency(\.socialLogin) var socialLogin
-  
+    
   var body: some Scene {
     WindowGroup {
       RootView(store: Store(initialState: RootFeature.State()) { RootFeature() })
@@ -33,18 +29,6 @@ struct BlinkApp: App {
   }
 }
 
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-  func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-  }
-  
-  func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    
-    return true
-  }
-}
 
 extension BlinkApp {
   private func setupNavigationBarAppearance() {
