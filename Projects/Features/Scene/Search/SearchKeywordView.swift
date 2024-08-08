@@ -14,47 +14,49 @@ import Models
 import ComposableArchitecture
 
 struct SearchKeywordView: View {
-  @Bindable var store: StoreOf<SearchKeywordFeature>
+  @Perception.Bindable var store: StoreOf<SearchKeywordFeature>
   @FocusState private var textIsFocused: Bool
   
   var body: some View {
-    ZStack(alignment: .top) {
-      Color.bkColor(.gray300).ignoresSafeArea(edges: .bottom)
-      
-      VStack(spacing: 0) {
-        SearchKeywordNavigationBar(
-          text: $store.text,
-          textIsFocused: _textIsFocused,
-          searchAction: { store.send(.searchButtonTapped(store.text), animation: .spring) },
-          dismiss: { store.send(.closeButtonTapped) }
-        )
+    WithPerceptionTracking {
+      ZStack(alignment: .top) {
+        Color.bkColor(.gray300).ignoresSafeArea(edges: .bottom)
         
-        Divider()
-          .foregroundStyle(Color.bkColor(.gray400))
-        
-        if store.keyword.isEmpty {
-          RecentSearchView(
-            resentSearches: store.recentSearches,
-            removeAllAction: { store.send(.removeAllRecentSearchesButtonTapeed, animation: .spring) },
-            removeAction: { keyword in store.send(.removeRecentSearchesCellTapeed(keyword), animation: .spring) }, 
-            recentSearchAction: {keyword in store.send(.searchButtonTapped(keyword), animation: .spring) }
+        VStack(spacing: 0) {
+          SearchKeywordNavigationBar(
+            text: $store.text,
+            textIsFocused: _textIsFocused,
+            searchAction: { store.send(.searchButtonTapped(store.text), animation: .spring) },
+            dismiss: { store.send(.closeButtonTapped) }
           )
-        } else if store.section.isEmpty {
-          EmptySearchView(keyword: store.keyword)
-        } else {
-          KeywordSearchListView(
-            keyword: store.keyword,
-            searches: store.section,
-            saveAction: {},
-            menuAction: {},
-            moreAction: { section in store.send(.seeMoreButtonTapped(section), animation: .spring) }
-          )
+          
+          Divider()
+            .foregroundStyle(Color.bkColor(.gray400))
+          
+          if store.keyword.isEmpty {
+            RecentSearchView(
+              resentSearches: store.recentSearches,
+              removeAllAction: { store.send(.removeAllRecentSearchesButtonTapeed, animation: .spring) },
+              removeAction: { keyword in store.send(.removeRecentSearchesCellTapeed(keyword), animation: .spring) },
+              recentSearchAction: {keyword in store.send(.searchButtonTapped(keyword), animation: .spring) }
+            )
+          } else if store.section.isEmpty {
+            EmptySearchView(keyword: store.keyword)
+          } else {
+            KeywordSearchListView(
+              keyword: store.keyword,
+              searches: store.section,
+              saveAction: {},
+              menuAction: {},
+              moreAction: { section in store.send(.seeMoreButtonTapped(section), animation: .spring) }
+            )
+          }
         }
       }
+      .toolbar(.hidden, for: .navigationBar)
+      .task { await store.send(.onTask).finish() }
+      .onAppear { textIsFocused = true }
     }
-    .toolbar(.hidden, for: .navigationBar)
-    .task { await store.send(.onTask).finish() }
-    .onAppear { textIsFocused = true }
   }
 }
 

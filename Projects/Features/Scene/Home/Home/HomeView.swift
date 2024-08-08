@@ -15,13 +15,14 @@ import ComposableArchitecture
 import SwiftUIIntrospect
 
 public struct HomeView: View {
-  @Bindable var store: StoreOf<HomeFeature>
+  @Perception.Bindable var store: StoreOf<HomeFeature>
   @StateObject private var scrollViewDelegate = ScrollViewDelegate()
   
   @State private var categorySelectedIndex: Int? = 0
   @State private var topToCategory: Bool = false
   
   public var body: some View {
+    WithPerceptionTracking {
       VStack(spacing: 0) {
         makeNavigationView()
         
@@ -37,49 +38,50 @@ public struct HomeView: View {
               .foregroundStyle(Color.bkColor(.gray400))
             
             makeArticleListView()
-
+            
           }
         }
         .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
         }
-    }
-    .padding(.bottom, 52)
-    .background(Color.bkColor(.white))
-    .animation(.easeIn(duration: 0.2), value: topToCategory)
-    .onAppear {
-      UIScrollView.appearance().bounces = true
-    }
-    .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-      self.topToCategory = $0
-    }
-    .navigationDestination(
-      isPresented: $store.pushSetting
-    ) {
-      SettingView()
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.searchKeyword,
-        action: \.searchKeyword
-      )
-    ) { store in
-      SearchKeywordView(store: store)
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.linkContent,
-        action: \.linkContent
-      )
-    ) { store in
-      LinkContentView(store: store)
-    }
-    .fullScreenCover(
-      item: $store.scope(
-        state: \.editLinkContent,
-        action: \.editLinkContent)
-    ) { store in
-      EditLinkContentView(store: store)
+      }
+      .padding(.bottom, 52)
+      .background(Color.bkColor(.white))
+      .animation(.easeIn(duration: 0.2), value: topToCategory)
+      .onAppear {
+        UIScrollView.appearance().bounces = true
+      }
+      .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
+        self.topToCategory = $0
+      }
+      .navigationDestination(
+        isPresented: $store.pushSetting
+      ) {
+        SettingView()
+      }
+      .navigationDestination(
+        item: $store.scope(
+          state: \.searchKeyword,
+          action: \.searchKeyword
+        )
+      ) { store in
+        SearchKeywordView(store: store)
+      }
+      .navigationDestination(
+        item: $store.scope(
+          state: \.linkContent,
+          action: \.linkContent
+        )
+      ) { store in
+        LinkContentView(store: store)
+      }
+      .fullScreenCover(
+        item: $store.scope(
+          state: \.editLinkContent,
+          action: \.editLinkContent)
+      ) { store in
+        EditLinkContentView(store: store)
+      }
     }
   }
 }
@@ -176,25 +178,27 @@ extension HomeView {
     LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
       Section {
         ForEach(LinkCard.mock(), id: \.id) { item in
-          BKCardCell(
-            width: 0,
-            sourceTitle:
-              item.sourceTitle,
-            sourceImage: CommonFeature.Images.graphicBell,
-            isMarked: true,
-            saveAction: {},
-            menuAction: { store.send(.cellMenuButtonTapped(item)) },
-            title: item.title,
-            description: item.description,
-            keyword: item.keyword,
-            isUncategorized: true,
-            recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"],
-            recommendedFolderAction: {},
-            addFolderAction: {}
-          )
-          .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
-          .onTapGesture {
-            store.send(.cellTapped)
+          WithPerceptionTracking {
+            BKCardCell(
+              width: 0,
+              sourceTitle:
+                item.sourceTitle,
+              sourceImage: CommonFeature.Images.graphicBell,
+              isMarked: true,
+              saveAction: {},
+              menuAction: { store.send(.cellMenuButtonTapped(item)) },
+              title: item.title,
+              description: item.description,
+              keyword: item.keyword,
+              isUncategorized: true,
+              recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"],
+              recommendedFolderAction: {},
+              addFolderAction: {}
+            )
+            .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+            .onTapGesture {
+              store.send(.cellTapped)
+            }
           }
         }
       } header: {

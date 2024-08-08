@@ -15,71 +15,73 @@ import ComposableArchitecture
 import SwiftUIIntrospect
 
 public struct StorageBoxView: View {
-  @Bindable var store: StoreOf<StorageBoxFeature>
+  @Perception.Bindable var store: StoreOf<StorageBoxFeature>
   
   @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
   @State private var isScroll = false
   
   public var body: some View {
-    VStack(spacing: 0) {
-      makeNavigationView()
-      
-      ScrollView(showsIndicators: false) {
-        VStack(spacing: 0) {
-          ZStack {
-            Color.bkColor(.white)
+    WithPerceptionTracking {
+      VStack(spacing: 0) {
+        makeNavigationView()
+        
+        ScrollView(showsIndicators: false) {
+          VStack(spacing: 0) {
+            ZStack {
+              Color.bkColor(.white)
+              
+              makeSearchBarBanner()
+                .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
+            }
             
-            makeSearchBarBanner()
-              .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
-          }
-          
-          LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
-            makeAddStorageBoxCell()
-              .onTapGesture {
-                store.send(.addFolderBottomSheet(.addFolderTapped))
-              }
-            
-            ForEach(Folder.makeFolderMock()) { item in
-              makeStorageBoxCell(
-                count: item.count,
-                name: item.title,
-                menuAction: {
-                  store.send(.cellMenuButtonTapped(item))
+            LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())], spacing: 16) {
+              makeAddStorageBoxCell()
+                .onTapGesture {
+                  store.send(.addFolderBottomSheet(.addFolderTapped))
                 }
-              )
-              .onTapGesture {
-                store.send(.folderCellTapped(item))
+              
+              ForEach(Folder.makeFolderMock(), id: \.id) { item in
+                makeStorageBoxCell(
+                  count: item.feedCount,
+                  name: item.name,
+                  menuAction: {
+                    store.send(.cellMenuButtonTapped(item))
+                  }
+                )
+                .onTapGesture {
+                  store.send(.folderCellTapped(item))
+                }
               }
             }
+            .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
+            .background(Color.bkColor(.gray300))
           }
-          .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
-          .background(Color.bkColor(.gray300))
+        }
+        .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
+          scrollView.delegate = scrollViewDelegate
         }
       }
-      .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
-        scrollView.delegate = scrollViewDelegate
+      .padding(.bottom, 52)
+      .background(Color.bkColor(.white))
+      .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
+        isScroll = $0
       }
-    }
-    .padding(.bottom, 52)
-    .background(Color.bkColor(.white))
-    .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
-      isScroll = $0
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.searchKeyword,
-        action: \.searchKeyword
-      )
-    ) { store in
-      SearchKeywordView(store: store)
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.storageBoxContentList,
-        action: \.storageBoxContentList
-      )
-    ) { store in
-      StorageBoxContentListView(store: store)
+      .navigationDestination(
+        item: $store.scope(
+          state: \.searchKeyword,
+          action: \.searchKeyword
+        )
+      ) { store in
+        SearchKeywordView(store: store)
+      }
+      .navigationDestination(
+        item: $store.scope(
+          state: \.storageBoxContentList,
+          action: \.storageBoxContentList
+        )
+      ) { store in
+        StorageBoxContentListView(store: store)
+      }
     }
   }
 }

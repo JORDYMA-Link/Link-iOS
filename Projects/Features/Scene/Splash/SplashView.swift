@@ -13,23 +13,25 @@ import CommonFeature
 import ComposableArchitecture
 
 public struct SplashView: View {
-  @Bindable var store: StoreOf<SplashFeature>
+  @Perception.Bindable var store: StoreOf<SplashFeature>
   
   public init(store: StoreOf<SplashFeature>) {
     self.store = store
   }
   
   public var body: some View {
-    ZStack {
-      Color.bkColor(.white).ignoresSafeArea()
-      
-      VStack(spacing: 0) {
-        Spacer()
+    WithPerceptionTracking {
+      ZStack {
+        Color.bkColor(.white).ignoresSafeArea()
         
-        makeLogo()
-        makeTitle()
-        
-        Spacer()
+        VStack(spacing: 0) {
+          Spacer()
+          
+          makeLogo()
+          makeTitle()
+          
+          Spacer()
+        }
       }
     }
   }

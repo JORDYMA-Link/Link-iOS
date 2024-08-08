@@ -13,7 +13,7 @@ import CommonFeature
 import ComposableArchitecture
 
 public struct LoginView: View {
-  @Bindable var store: StoreOf<LoginFeature>
+  @Perception.Bindable var store: StoreOf<LoginFeature>
   @State private var pushToOnboarding = false
   
   public init(store: StoreOf<LoginFeature>) {
@@ -22,30 +22,32 @@ public struct LoginView: View {
   
   public var body: some View {
     NavigationStack {
-      ZStack {
-        Color.white
-        
-        VStack(alignment: .center, spacing: 0) {
-          Spacer()
+      WithPerceptionTracking {
+        ZStack {
+          Color.white
           
-          makeLogo()
-          makeTitle()
-          
-          Spacer()
-          
-          VStack(spacing: 12) {
-            makeLoginButton(action: {
-              store.send(.kakaoLoginButtonTapped)
-            }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
+          VStack(alignment: .center, spacing: 0) {
+            Spacer()
             
-            makeLoginButton(action: {
-              store.send(.appleLoginButtonTapped)
-            }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
+            makeLogo()
+            makeTitle()
             
-            makeTerms(
-              serviceTerms:makeTermsText("서비스 약관", url: "https://upbit.com/home"),
-              privacyPolicy: makeTermsText("개인정보 처리방침", url: "https://www.bithumb.com/react")
-            )
+            Spacer()
+            
+            VStack(spacing: 12) {
+              makeLoginButton(action: {
+                store.send(.kakaoLoginButtonTapped)
+              }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
+              
+              makeLoginButton(action: {
+                store.send(.appleLoginButtonTapped)
+              }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
+              
+              makeTerms(
+                serviceTerms:makeTermsText("서비스 약관", url: "https://upbit.com/home"),
+                privacyPolicy: makeTermsText("개인정보 처리방침", url: "https://www.bithumb.com/react")
+              )
+            }
           }
         }
       }

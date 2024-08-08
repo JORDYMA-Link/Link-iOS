@@ -40,7 +40,7 @@ enum BKTabViewType: Int, CaseIterable {
 // MARK: - BKTabbar
 
 public struct BKTabView: View {
-  @Bindable var store: StoreOf<BKTabFeature>
+  @Perception.Bindable var store: StoreOf<BKTabFeature>
   
   public init(store: StoreOf<BKTabFeature>) {
     self.store = store
@@ -48,20 +48,22 @@ public struct BKTabView: View {
   
   public var body: some View {
     NavigationStack {
-      TabView(selection: $store.currentItem) {
-        switch store.currentItem {
-        case .home:
-          HomeContainerView(store: store.scope(state: \.home, action: \.home), tabbar: tabbar)
-        case .folder:
-          StorageBoxContainerView(store: store.scope(state: \.storageBox, action: \.storageBox), tabbar: tabbar)
+      WithPerceptionTracking {
+        TabView(selection: $store.currentItem) {
+          switch store.currentItem {
+          case .home:
+            HomeContainerView(store: store.scope(state: \.home, action: \.home), tabbar: tabbar)
+          case .folder:
+            StorageBoxContainerView(store: store.scope(state: \.storageBox, action: \.storageBox), tabbar: tabbar)
+          }
         }
-      }
-      .toolbar(.hidden, for: .navigationBar)
-      .onAppear {
-        UITabBar.appearance().isHidden = true
-      }
-      .navigationDestination(isPresented: $store.isSaveLinkPresented) {
-        SaveLinkView()
+        .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+          UITabBar.appearance().isHidden = true
+        }
+        .navigationDestination(isPresented: $store.isSaveLinkPresented) {
+          SaveLinkView()
+        }
       }
     }
   }
