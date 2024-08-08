@@ -31,9 +31,11 @@ public struct BKAddFolderItem: View {
     .background(
       RoundedRectangle(cornerRadius: isBottomSheet ? 10 : 8)
         .fill(Color.bkColor(.gray300))
-        .stroke(Color.bkColor(.gray500), lineWidth: 1)
-        .padding(1)
     )
+    .overlay {
+      RoundedRectangle(cornerRadius: isBottomSheet ? 10 : 8)
+        .stroke(Color.bkColor(.gray500), lineWidth: 1)
+    }
     .onTapGesture { action() }
   }
 }
