@@ -1,7 +1,7 @@
 import ProjectDescription
 
 public struct DefaultSetting {
-    public static let DeploymentTargets: DeploymentTargets = .iOS("17.0")
+    public static let DeploymentTargets: DeploymentTargets = .iOS("16.0")
     public static let organizationName = "kyuchul"
     public static let appIdentifier = "blink"
     public static let baseProductSetting: SettingsDictionary = SettingsDictionary()

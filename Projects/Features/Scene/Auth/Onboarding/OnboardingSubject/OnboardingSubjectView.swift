@@ -13,7 +13,7 @@ import CommonFeature
 import ComposableArchitecture
 
 public struct OnboardingSubjectView: View {
-  @Bindable var store: StoreOf<OnboardingSubjectFeature>
+  @Perception.Bindable var store: StoreOf<OnboardingSubjectFeature>
   
   public init(store: StoreOf<OnboardingSubjectFeature>) {
     self.store = store
@@ -35,21 +35,23 @@ public struct OnboardingSubjectView: View {
   ]
   
   public var body: some View {
-    VStack(spacing: 0) {
-      makeNavigationBar()
-      
-      makeTitle()
-        .padding(.top, 28)
-      
-      makeSubjectGrid()
-        .padding(EdgeInsets(top: 24, leading: 12, bottom: 0, trailing: 12))
-      
-      Spacer()
-      
-      makeConfirmButton()
+    WithPerceptionTracking {
+      VStack(spacing: 0) {
+        makeNavigationBar()
+        
+        makeTitle()
+          .padding(.top, 28)
+        
+        makeSubjectGrid()
+          .padding(EdgeInsets(top: 24, leading: 12, bottom: 0, trailing: 12))
+        
+        Spacer()
+        
+        makeConfirmButton()
+      }
+      .toolbar(.hidden, for: .navigationBar)
+      .padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
     }
-    .toolbar(.hidden, for: .navigationBar)
-    .padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
   }
   
   @ViewBuilder

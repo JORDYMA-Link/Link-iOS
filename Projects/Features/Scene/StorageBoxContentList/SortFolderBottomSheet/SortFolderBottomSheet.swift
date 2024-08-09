@@ -13,18 +13,20 @@ import CommonFeature
 import ComposableArchitecture
 
 struct SortFolderBottomSheet: View {
-  @Bindable var store: StoreOf<SortFolderBottomSheetFeature>
+  @Perception.Bindable var store: StoreOf<SortFolderBottomSheetFeature>
   
   var body: some View {
-    HStack(spacing:0) {
-      VStack(alignment: .leading, spacing: 8) {
-        ForEach(FolderSortType.allCases, id: \.self) { type in
-          makeSortButton(title: type.rawValue, isSelected: type == store.inputSortType) {
-            store.send(.sortCellTapped(type))
+    WithPerceptionTracking {
+      HStack(spacing:0) {
+        VStack(alignment: .leading, spacing: 8) {
+          ForEach(FolderSortType.allCases, id: \.self) { type in
+            makeSortButton(title: type.rawValue, isSelected: type == store.inputSortType) {
+              store.send(.sortCellTapped(type))
+            }
           }
         }
+        Spacer(minLength: 0)
       }
-      Spacer(minLength: 0)
     }
   }
   

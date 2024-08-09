@@ -39,9 +39,9 @@ public struct BKPhotoPicker<Content: View>: View {
       self.content = content
       self.photoLibrary = photoLibrary
     }
-    
+  
   public var body: some View {
-    PhotosPicker(
+    let photoPicker = PhotosPicker(
       selection: $selectedPhotos,
       maxSelectionCount: 1,
       matching: .images,
@@ -49,8 +49,17 @@ public struct BKPhotoPicker<Content: View>: View {
     ) {
       content()
     }
-    .onChange(of: selectedPhotos) { _, newValue in
-      loadTransferable(from: newValue)
+    
+    if #available(iOS 17.0, *) {
+      photoPicker
+        .onChange(of: selectedPhotos) { _, newValue in
+          loadTransferable(from: newValue)
+        }
+    } else {
+      photoPicker
+        .onChange(of: selectedPhotos, perform: { newValue in
+          loadTransferable(from: newValue)
+        })
     }
   }
 }
@@ -90,7 +99,7 @@ extension BKPhotoPicker {
             }
           }
         case .failure:
-            isPresentedError = true
+          isPresentedError = true
         }
       }
     }

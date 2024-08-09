@@ -27,22 +27,24 @@ public struct BKFolderItem: View {
   }
   
   public var body: some View {
-      BKText(
-        text: title,
-        font: isBottomSheet ? .semiBold : .regular,
-        size: isBottomSheet ? ._16 : ._14,
-        lineHeight: 24,
-        color: isSeleted ? .white : .bkColor(.gray600)
-      )
-      .padding(.vertical, isBottomSheet ? 13 : 9)
-      .padding(.horizontal, isBottomSheet ? 15 : 13)
-      .background(
-        RoundedRectangle(cornerRadius: isBottomSheet ? 10 : 8)
-          .fill(Color.bkColor(isSeleted ? .main300 : .gray300))
-          .stroke(Color.bkColor(isSeleted ? .main300 : .gray500), lineWidth: 1)
-          .padding(1)
-      )
-      .onTapGesture { action() }
+    BKText(
+      text: title,
+      font: isBottomSheet ? .semiBold : .regular,
+      size: isBottomSheet ? ._16 : ._14,
+      lineHeight: 24,
+      color: isSeleted ? .white : .bkColor(.gray600)
+    )
+    .padding(.vertical, isBottomSheet ? 13 : 9)
+    .padding(.horizontal, isBottomSheet ? 15 : 13)
+    .background(
+      RoundedRectangle(cornerRadius: isBottomSheet ? 10 : 8)
+        .fill(Color.bkColor(isSeleted ? .main300 : .gray300))
+    )
+    .overlay {
+      RoundedRectangle(cornerRadius: isBottomSheet ? 10 : 8)
+        .stroke(Color.bkColor(isSeleted ? .main300 : .gray500), lineWidth: 1)
+    }
+    .onTapGesture { action() }
   }
 }
 

@@ -26,14 +26,16 @@ struct HomeContainerView<Content: View>: View {
   
   var body: some View {
     NavigationStack {
-      ZStack(alignment: .bottom) {
-        HomeView(store: store)
-        
-        tabbar()
+      WithPerceptionTracking {
+        ZStack(alignment: .bottom) {
+          HomeView(store: store)
+          
+          tabbar()
+        }
+        .cardSettingBottomSheet(store: store)
+        .editFolderBottomSheet(store: store)
+        .toolbar(.hidden, for: .navigationBar)
       }
-      .cardSettingBottomSheet(store: store)
-      .editFolderBottomSheet(store: store)
-      .toolbar(.hidden, for: .navigationBar)
     }
   }
 }
