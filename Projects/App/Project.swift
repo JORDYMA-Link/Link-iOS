@@ -18,15 +18,14 @@ let project = Project.make(
             resources: ["Resources/**"],
             entitlements: .file(path: .relativeToRoot("Projects/App/Blink.entitlements")),
             dependencies: [
-                .project(target: .coreKit, projectPath: .core),
                 .project(target: .features, projectPath: .features),
-                .project(target: .commonFeature, projectPath: .commonFeature),
+                .project(target: .services, projectPath: .core),
                 .external(externalDependency: .composableArchitecture),
                 .package(product: "FirebaseMessaging")
             ],
             settings: .settings(
                 base: [
-                    "DEVELOPMENT_TEAM": "8LJ2P85FNV",
+                    "DEVELOPMENT_TEAM": "LQ5JVAULLP",
                     "CODE_SIGN_STYLE": "Manual",
                     "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",

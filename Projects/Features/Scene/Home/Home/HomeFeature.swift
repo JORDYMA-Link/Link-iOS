@@ -88,7 +88,7 @@ public struct HomeFeature: Reducer {
         guard let selectedItem = state.selectedcellMenuItem else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(selectedItem.id))) }
+        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(String(selectedItem.id)))) }
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
         print("deleteModal")

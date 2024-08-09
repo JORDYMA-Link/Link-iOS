@@ -15,7 +15,7 @@ import ComposableArchitecture
 extension View {
   @ViewBuilder
   func addFolderBottomSheet(store: StoreOf<StorageBoxFeature>) -> some View {
-    @Bindable var store = store
+    @Perception.Bindable var store = store
     
     self
       .bottomSheet(
@@ -31,7 +31,7 @@ extension View {
   
   @ViewBuilder
   func settingStorageBoxBottomSheet(store: StoreOf<StorageBoxFeature>) -> some View {
-    @Bindable var store = store
+    @Perception.Bindable var store = store
     
     self
       .bottomSheet(
@@ -48,7 +48,7 @@ extension View {
   
   @ViewBuilder
   func editFolderNameBottomSheet(store: StoreOf<StorageBoxFeature>) -> some View {
-    @Bindable var store = store
+    @Perception.Bindable var store = store
     
     self
       .bottomSheet(
@@ -64,7 +64,7 @@ extension View {
   
   @ViewBuilder
   func deleteFolderModal(store: StoreOf<StorageBoxFeature>) -> some View {
-    @Bindable var store = store
+    @Perception.Bindable var store = store
     
     self
     .modal(

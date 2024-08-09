@@ -15,86 +15,88 @@ import ComposableArchitecture
 import SwiftUIIntrospect
 
 struct StorageBoxContentListView: View {
-  @Bindable var store: StoreOf<StorageBoxContentListFeature>
+  @Perception.Bindable var store: StoreOf<StorageBoxContentListFeature>
   
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
   @State private var topToHeader: Bool = false
   
   var body: some View {
-    GeometryReader { geometry in
-      VStack(spacing: 0) {
-        
+    WithPerceptionTracking {
+      GeometryReader { geometry in
         VStack(spacing: 0) {
-          if !topToHeader {
-            makeNavigationView()
-          } else {
-            makeScrollHeaderView(title: store.folderInput.title)
-          }
           
-          Divider()
-            .foregroundStyle(Color.bkColor(.gray400))
-            .opacity(!topToHeader ? 0 : 1)
-        }
-
-        ScrollView(showsIndicators: false) {
           VStack(spacing: 0) {
-            
-            ZStack {
-              Color.bkColor(.white)
-              
-              makeCalendarBanner()
-                .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
+            if !topToHeader {
+              makeNavigationView()
+            } else {
+              makeScrollHeaderView(title: store.folderInput.name)
             }
-            .frame(height: 78)
             
             Divider()
               .foregroundStyle(Color.bkColor(.gray400))
-            
-            makeContentListHeaderView(title: store.folderInput.title)
-              .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 16))
-              .background(Color.bkColor(.gray300))
-              .background(ViewMaxYGeometry())
-              .onPreferenceChange(ViewPreferenceKey.self) { maxY in
-                // 섹션 헤더의 최대 Y 위치 업데이트
-                let navigationBarMaxY = (geometry.safeAreaInsets.top)
-                let headerMaxY = maxY + navigationBarMaxY
+              .opacity(!topToHeader ? 0 : 1)
+          }
+          
+          ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+              
+              ZStack {
+                Color.bkColor(.white)
                 
-                DispatchQueue.main.async {
-                  scrollViewDelegate.headerMaxY = headerMaxY
+                makeCalendarBanner()
+                  .padding(EdgeInsets(top: 8, leading: 16, bottom: 24, trailing: 16))
+              }
+              .frame(height: 78)
+              
+              Divider()
+                .foregroundStyle(Color.bkColor(.gray400))
+              
+              makeContentListHeaderView(title: store.folderInput.name)
+                .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 16))
+                .background(Color.bkColor(.gray300))
+                .background(ViewMaxYGeometry())
+                .onPreferenceChange(ViewPreferenceKey.self) { maxY in
+                  // 섹션 헤더의 최대 Y 위치 업데이트
+                  let navigationBarMaxY = (geometry.safeAreaInsets.top)
+                  let headerMaxY = maxY + navigationBarMaxY
+                  
+                  DispatchQueue.main.async {
+                    scrollViewDelegate.headerMaxY = headerMaxY
+                  }
+                }
+              
+              LazyVStack(spacing: 20) {
+                Section {
+                  ForEach(LinkCard.mock(), id: \.id) { item in
+                    BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {}, title: item.title, description: item.description, keyword: item.keyword)
+                      .padding(.horizontal, 16)
+                  }
                 }
               }
-            
-            LazyVStack(spacing: 20) {
-              Section {
-                ForEach(LinkCard.mock(), id: \.id) { item in
-                  BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {}, title: item.title, description: item.description, keyword: item.keyword)
-                    .padding(.horizontal, 16)
-                }
-              }
+              .background(Color.bkColor(.gray300))
             }
-            .background(Color.bkColor(.gray300))
+          }
+          .padding(.bottom, 20)
+          .background(Color.bkColor(.white))
+          .introspect(.scrollView, on: .iOS(.v17)) { scrollView in
+            scrollView.delegate = scrollViewDelegate
           }
         }
-        .padding(.bottom, 20)
-        .background(Color.bkColor(.white))
-        .introspect(.scrollView, on: .iOS(.v17)) { scrollView in
-          scrollView.delegate = scrollViewDelegate
+      }
+      .ignoresSafeArea(edges: .bottom)
+      .toolbar(.hidden, for: .navigationBar)
+      .animation(.easeIn(duration: 0.2), value: topToHeader)
+      .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
+        self.topToHeader = $0
+      }
+      .bottomSheet(
+        isPresented: $store.sortFolderBottomSheet.isSortFolderBottomSheetPresented,
+        detents: [.height(193)],
+        leadingTitle: "정렬") {
+          SortFolderBottomSheet(store: store.scope(state: \.sortFolderBottomSheet, action: \.sortFolderBottomSheet))
+            .padding(.horizontal, 16)
         }
-      }
     }
-    .ignoresSafeArea(edges: .bottom)
-    .toolbar(.hidden, for: .navigationBar)
-    .animation(.easeIn(duration: 0.2), value: topToHeader)
-    .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-      self.topToHeader = $0
-    }
-    .bottomSheet(
-      isPresented: $store.sortFolderBottomSheet.isSortFolderBottomSheetPresented,
-      detents: [.height(193)],
-      leadingTitle: "정렬") {
-        SortFolderBottomSheet(store: store.scope(state: \.sortFolderBottomSheet, action: \.sortFolderBottomSheet))
-          .padding(.horizontal, 16)
-      }
   }
 }
 

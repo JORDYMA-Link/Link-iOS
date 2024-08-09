@@ -100,13 +100,8 @@ extension EditFolderBottomSheetFeature {
       do {
         // API 연결 이전 테스트 -> postLinkId로 API 콜하는 상상 로직..
         let dummyFolderList = [
-          Folder(title: "건강", count: 89),
-          Folder(title: "기획", count: 89),
-          Folder(title: "비트코인", count: 89),
-          Folder(title: "업비트", count: 89),
-          Folder(title: "빗썸", count: 89),
-          Folder(title: "코인원", count: 89)
-        ]
+          Folder(id: 14125, name: "코코", feedCount: 214)
+          ]
         await send(._setFolderList(dummyFolderList))
         
         if let firstFolder = dummyFolderList.first {

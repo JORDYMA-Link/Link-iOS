@@ -15,7 +15,7 @@ import ComposableArchitecture
 extension View {
   @ViewBuilder
   func cardSettingBottomSheet(store: StoreOf<HomeFeature>) -> some View {
-    @Bindable var store = store
+    @Perception.Bindable var store = store
     self
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
@@ -31,7 +31,7 @@ extension View {
   
   @ViewBuilder
   func editFolderBottomSheet(store: StoreOf<HomeFeature>) -> some View {
-    @Bindable var store = store
+    @Perception.Bindable var store = store
     self
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,

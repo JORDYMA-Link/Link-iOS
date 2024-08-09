@@ -18,7 +18,7 @@ public struct EditFolderNameBottomSheetFeature: Reducer {
   public struct State: Equatable {
     public var isEditFolderBottomSheetPresented: Bool = false
     public var isHighlight: Bool = false
-    public var folderInput: Folder = .init(title: "", count: 0)
+    public var folderInput: Folder = .init(id: 0, name: "", feedCount: 0)
     public var savedFolder: Folder?
     
     public init() {}
