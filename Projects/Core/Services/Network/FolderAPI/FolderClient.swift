@@ -48,3 +48,10 @@ extension FolderClient: DependencyKey {
     )
   }
 }
+
+public extension DependencyValues {
+    var folderClient: FolderClient {
+        get { self[FolderClient.self] }
+        set { self[FolderClient.self] = newValue }
+    }
+}
