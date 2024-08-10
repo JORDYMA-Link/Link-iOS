@@ -15,8 +15,8 @@ enum FolderEndpoint {
   case getFolderFeeds(folderId: String)
   case postFolder(name: String)
   case postOnboardingFolder(topics: [String])
-  case deleteFolder(folderId: String)
-  case fetchFolder(folderId: String, name: String)
+  case deleteFolder(folderId: Int)
+  case fetchFolder(folderId: Int, name: String)
 }
 
 extension FolderEndpoint: BaseTargetType {
