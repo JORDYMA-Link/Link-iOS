@@ -1,5 +1,5 @@
 //
-//  BkModalManager.swift
+//  BkAlertManager.swift
 //  CommonFeature
 //
 //  Created by kyuchul on 8/12/24.
@@ -9,20 +9,20 @@
 import SwiftUI
 
 @MainActor
-public final class BkModalManager: ObservableObject {
-  public static let shared = BkModalManager()
+public final class BkAlertManager: ObservableObject {
+  public static let shared = BkAlertManager()
   private init() {}
   
   @Published var isPresented: Bool = false
-  private(set) var property: BKAlertProperty = .init(title: "", description: "", buttonType: .singleButton(), rightButtonAction: {})
+  private(set) var property: [BKAlertProperty] = []
   private var continuation: CheckedContinuation<Void, Never>?
   
+  
   public func present(_ property: BKAlertProperty) async {
+    self.property.append(property)
     self.isPresented = true
-    self.property = property
     return await withCheckedContinuation { continuation in
       self.continuation = continuation
-//      self.continuation?.resume(returning: ())
     }
   }
   

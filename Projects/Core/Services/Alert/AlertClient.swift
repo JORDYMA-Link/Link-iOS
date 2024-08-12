@@ -12,15 +12,19 @@ import CommonFeature
 
 import Dependencies
 
-public struct AlertClient {
+public struct AlertClient {  
   public var present: @Sendable (_ property: BKAlertProperty) async -> Void
+  public var dismiss: @Sendable () async -> Void
 }
 
 extension AlertClient: DependencyKey {
   public static var liveValue: AlertClient {
     return Self(
       present: { property in
-          await BkModalManager.shared.present(property)
+        await BkAlertManager.shared.present(property)
+      },
+      dismiss: {
+        await BkAlertManager.shared.dismiss()
       }
     )
   }

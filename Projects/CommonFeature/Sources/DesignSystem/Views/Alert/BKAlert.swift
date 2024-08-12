@@ -13,7 +13,7 @@ struct BKAlert: View {
   private let imageType: BKAlertProperty.ImageType?
   private let description: String
   private let buttonType: BKAlertProperty.ButtonType
-  private let leftAction: (() -> Void)
+  private let leftAction: (() async -> Void)
   private let rightAction: (() async -> Void)
   
   init(
@@ -21,7 +21,7 @@ struct BKAlert: View {
     imageType: BKAlertProperty.ImageType? = nil,
     description: String,
     buttonType: BKAlertProperty.ButtonType,
-    leftAction: @escaping () -> Void,
+    leftAction: @escaping () async -> Void,
     rightAction: @escaping () async -> Void
   ) {
     self.title = title
@@ -72,12 +72,12 @@ struct BKAlert: View {
 
 private struct BKAlertButton: View {
   private let buttonType: BKAlertProperty.ButtonType
-  private let leftAction: () -> Void
+  private let leftAction: () async -> Void
   private let rightAction: () async -> Void
   
   init(
     buttonType: BKAlertProperty.ButtonType,
-    leftAction: @escaping () -> Void,
+    leftAction: @escaping () async -> Void,
     rightAction: @escaping () async -> Void
   ) {
     self.buttonType = buttonType
@@ -129,11 +129,11 @@ private struct BKAlertButton: View {
   private func doubleButton(
     leftTitle: String,
     rightTtitle: String,
-    leftAction: @escaping () -> Void,
+    leftAction: @escaping () async -> Void,
     rightAction: @escaping () async -> Void
   ) -> some View {
     HStack(spacing: 7) {
-      singleButton(title: leftTitle, isCancel: true, action: { leftAction() })
+      singleButton(title: leftTitle, isCancel: true, action: { await leftAction() })
       singleButton(title: rightTtitle, isCancel: false, action: { await rightAction() })
     }
   }
