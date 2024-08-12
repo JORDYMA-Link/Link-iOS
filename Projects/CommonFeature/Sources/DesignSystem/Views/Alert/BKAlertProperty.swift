@@ -10,6 +10,7 @@ import SwiftUI
 
 public struct BKAlertProperty: Identifiable {
   public let id: UUID = .init()
+  public let isLoadingType: Bool
   public let title: String
   public let imageType: ImageType?
   public let description: String
@@ -18,6 +19,7 @@ public struct BKAlertProperty: Identifiable {
   public let rightButtonAction: () async -> Void
     
   public init(
+    isLoadingType: Bool = false,
     title: String,
     imageType: ImageType? = nil,
     description: String,
@@ -25,6 +27,7 @@ public struct BKAlertProperty: Identifiable {
     leftButtonAction: (() async -> Void)? = nil,
     rightButtonAction: @escaping () async -> Void
   ) {
+    self.isLoadingType = isLoadingType
     self.title = title
     self.imageType = imageType
     self.description = description
