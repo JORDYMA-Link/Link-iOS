@@ -42,8 +42,6 @@ public struct StorageBoxFeature: Reducer {
     case addStorageBoxTapped
     case storageBoxTapped(Folder)
     case storageBoxMenuTapped(Folder)
-    case deleteFolderModalConfirmTapped
-    case deleteFolderModalCancelTapped
     
     // MARK: Inner Business Action
     case fetchFolderList
@@ -61,7 +59,7 @@ public struct StorageBoxFeature: Reducer {
     
     // MARK: Route Action
     case menuBottomSheetPresented(Bool)
-    case deleteFolderModalPresented(Bool)
+    case deleteFolderAlertPresented
   }
   
   @Dependency(\.folderClient) private var folderClient
@@ -100,14 +98,6 @@ public struct StorageBoxFeature: Reducer {
         state.selectedStorageBoxMenuItem = folder
         return .run { send in await send(.menuBottomSheetPresented(true)) }
         
-      case .deleteFolderModalConfirmTapped:
-        guard let folder = state.selectedStorageBoxMenuItem else { return .none }
-        return deleteFolder(folder: folder)
-        
-      case .deleteFolderModalCancelTapped:
-        state.isDeleteFolderPresented = false
-        return .none
-        
       case .fetchFolderList:
         return .run(
           operation: { send in
@@ -121,8 +111,17 @@ public struct StorageBoxFeature: Reducer {
         )
         
       case .deleteFolder:
-        print("deleteFolder")
-        return .none
+        guard let folder = state.selectedStorageBoxMenuItem else { return .none }
+        return .run(
+          operation: { send in
+            _ = try await folderClient.deleteFolder(folder.id)
+            
+            await send(.fetchFolderList)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       case let .setFolderList(folderList):
         state.folderList = folderList
@@ -130,7 +129,7 @@ public struct StorageBoxFeature: Reducer {
         
       case .addFolderBottomSheet(.delegate(.fetchFolderList)), .editFolderNameBottomSheet(.delegate(.fetchFolderList)):
         return .send(.fetchFolderList)
-                        
+        
       case .menuBottomSheet(.editFolderNameCellTapped):
         guard let folder = state.selectedStorageBoxMenuItem else { return .none }
         state.isMenuBottomSheetPresented = false
@@ -138,23 +137,22 @@ public struct StorageBoxFeature: Reducer {
         
       case .menuBottomSheet(.deleteFolderCellTapped):
         state.isMenuBottomSheetPresented = false
+        return .run { send in await send(.deleteFolderAlertPresented) }
+        
+      case let .menuBottomSheetPresented(isPresented):
+        state.isMenuBottomSheetPresented = isPresented
+        return .none
+        
+      case .deleteFolderAlertPresented:
         return .run { send in
           await alertClient.present(.init(
             title: "폴더 삭제",
             description: "폴더를 삭제하면 안에 있는 글이 모두 삭제 됩니다. 그래도 삭제하시겠습니까?",
             buttonType: .doubleButton(left: "취소", right: "확인"),
-            rightButtonAction: { await send(.deleteFolder) })
-          )
+            rightButtonAction: { await send(.deleteFolder) }
+          ))
         }
         
-      case let .menuBottomSheetPresented(isPresented):
-        state.isMenuBottomSheetPresented = isPresented
-        return .none
-                
-      case let .deleteFolderModalPresented(isPresented):
-        state.isDeleteFolderPresented = isPresented
-        return .none
-                
       default:
         return .none
       }
@@ -164,14 +162,6 @@ public struct StorageBoxFeature: Reducer {
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
       SearchKeywordFeature()
-    }
-  }
-}
-
-extension StorageBoxFeature {
-  private func deleteFolder(folder: Folder) -> Effect<Action> {
-    .run { send in
-      print(folder)
     }
   }
 }

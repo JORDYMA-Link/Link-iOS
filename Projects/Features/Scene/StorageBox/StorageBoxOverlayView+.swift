@@ -61,18 +61,4 @@ extension View {
           .interactiveDismissDisabled()
       }
   }
-  
-  @ViewBuilder
-  func deleteFolderModal(store: StoreOf<StorageBoxFeature>) -> some View {
-    @Perception.Bindable var store = store
-    
-    self
-    .modal(
-      isPresented: $store.isDeleteFolderPresented,
-      type: .deleteFolder(
-        checkAction: { store.send(.deleteFolderModalConfirmTapped) },
-        cancelAction: { store.send(.deleteFolderModalCancelTapped) }
-      )
-    )
-  }
 }
