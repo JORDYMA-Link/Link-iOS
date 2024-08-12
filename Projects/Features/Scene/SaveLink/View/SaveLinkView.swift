@@ -9,13 +9,14 @@
 import SwiftUI
 import CommonFeature
 
+import ComposableArchitecture
+ 
 public struct SaveLinkView: View {
-//    @Environment(\.dismiss) private var dismiss
-    
-    @StateObject private var viewModel = SaveLinkViewModel()
-  @State private var test: String = ""
+  @Environment(\.dismiss) private var dismiss
+  @Perception.Bindable var store: StoreOf<SaveLinkFeature>
     
     public var body: some View {
+
       VStack(alignment: .leading) {
         HStack { 
           Text("링크")
@@ -34,42 +35,48 @@ public struct SaveLinkView: View {
             
             HStack(alignment: .top) {
                  
-              switch viewModel.state {
-              case .notValidationURL:
+              if store.state.isValidationURL {
+                ClearableTextField(
+                  text: $store.urlText,
+                  placeholder: "링크를 붙여주세요")
+              } else {
                 VStack(alignment: .leading) {
-                  ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
+                  ClearableTextField(
+                    text: $store.urlText,
+                    placeholder: "링크를 붙여주세요")
                   .background(Color.bkColor(.white))
                   .overlay(
                     RoundedRectangle(cornerRadius: 10)
                       .stroke(Color.bkColor(.red), lineWidth: 1)
                   )
-
                   
-                  
-                  Text("URL 형식이 올바르지 않아요. 다시 입력해주세요.")
+                  Text(store.validationReasonText)
                     .font(.regular(size: ._12))
                     .foregroundStyle(Color.bkColor(.red))
-                
                 }
-              default:
-                ClearableTextField(text: $viewModel.urlText, placeholder: "링크를 붙여주세요")
               }
-                
-                
-                if case let .buttonActivate(value) = viewModel.state, value {
-                    abledButton
-                } else {
-                    unabledButton
-                }
+              
+              Button {
+                self.store.send(.onTapNextButton)
+              } label: {
+                CommonFeature.Images.icoChevronRight
+                      .renderingMode(.template)
+                      .foregroundStyle(store.saveButtonActive ?
+                                       Color.bkColor(.white) : Color.bkColor(.gray800))
+              }
+              .frame(width: 46, height: 46)
+              .background(store.saveButtonActive ?
+                          Color.bkColor(.main300) : Color.bkColor(.gray300))
+              .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-            
         }
         .padding(EdgeInsets(top: 28, leading: 16, bottom: 0, trailing: 16))
         .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: {
-                    viewModel.action(.onTapBackButton)
+                  dismiss.callAsFunction()
+//                  store.send(.onTapBackButton)
                 }, label: {
                     HStack{
                       CommonFeature.Images.icoChevronLeft
@@ -82,10 +89,10 @@ public struct SaveLinkView: View {
             }
         }
         .fullScreenCover(
-            isPresented: $viewModel.presentLoading,
+          isPresented: $store.presentLoading,
             content: {
                     BKModal(modalType: .linkLoading(checkAction: {}, cancelAction: {
-                        self.viewModel.presentLoading.toggle()
+                      store.presentLoading.toggle()
                     }))
                     .transition(.opacity)
         })
@@ -96,35 +103,14 @@ public struct SaveLinkView: View {
         Spacer()
     }
     
-    @ViewBuilder
-    private var unabledButton: some View {
-        Button {
-            viewModel.action(.onTapNextButton)
-        } label: {
-          CommonFeature.Images.icoChevronRight
-                .renderingMode(.template)
-                .foregroundStyle(Color.bkColor(.gray800))
-        }
-        .frame(width: 46, height: 46)
-        .background(Color.bkColor(.gray300))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
-    
-    @ViewBuilder
-    private var abledButton: some View {
-        Button {
-            viewModel.action(.onTapNextButton)
-        } label: {
-          CommonFeature.Images.icoChevronRight
-                .renderingMode(.template)
-                .foregroundStyle(Color.bkColor(.white))
-        }
-        .frame(width: 46, height: 46)
-        .background(Color.bkColor(.main300))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-    }
 }
 
 #Preview {
-    NavigationStack(root: {SaveLinkView()})
+    NavigationStack(root: {
+      SaveLinkView(store: Store(initialState: {
+        SaveLinkFeature.State()
+      }(), reducer: {
+        SaveLinkFeature()
+      }))
+    })
 }
