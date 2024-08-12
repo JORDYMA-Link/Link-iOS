@@ -34,7 +34,7 @@ public struct StorageBoxFeature: Reducer {
     @Presents var searchKeyword: SearchKeywordFeature.State?
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
     case onAppear
@@ -47,6 +47,7 @@ public struct StorageBoxFeature: Reducer {
     
     // MARK: Inner Business Action
     case fetchFolderList
+    case deleteFolder
     
     // MARK: Inner SetState Action
     case setFolderList([Folder])
@@ -64,6 +65,7 @@ public struct StorageBoxFeature: Reducer {
   }
   
   @Dependency(\.folderClient) private var folderClient
+  @Dependency(\.alertClient) private var alertClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
@@ -118,6 +120,10 @@ public struct StorageBoxFeature: Reducer {
           }
         )
         
+      case .deleteFolder:
+        print("deleteFolder")
+        return .none
+        
       case let .setFolderList(folderList):
         state.folderList = folderList
         return .none
@@ -132,7 +138,14 @@ public struct StorageBoxFeature: Reducer {
         
       case .menuBottomSheet(.deleteFolderCellTapped):
         state.isMenuBottomSheetPresented = false
-        return .run { send in await send(.deleteFolderModalPresented(true)) }
+        return .run { send in
+          await alertClient.present(.init(
+            title: "폴더 삭제",
+            description: "폴더를 삭제하면 안에 있는 글이 모두 삭제 됩니다. 그래도 삭제하시겠습니까?",
+            buttonType: .doubleButton(left: "취소", right: "확인"),
+            rightButtonAction: { await send(.deleteFolder) })
+          )
+        }
         
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
