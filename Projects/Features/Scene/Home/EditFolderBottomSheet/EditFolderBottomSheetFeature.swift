@@ -28,7 +28,7 @@ public struct EditFolderBottomSheetFeature {
     public init() {}
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
     case editFolderTapped(String)
@@ -82,7 +82,7 @@ public struct EditFolderBottomSheetFeature {
         state.seletedFolder = folder
         return .none
         
-      case .addFolderBottomSheet(.delegate(.didUpdateFolderList)):
+      case .addFolderBottomSheet(.delegate(.fetchFolderList)):
         print("폴더 추가 완료하여 Get 폴더 리스트 API 콜")
         return .none
         
