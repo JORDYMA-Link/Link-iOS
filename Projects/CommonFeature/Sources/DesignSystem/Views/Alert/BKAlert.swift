@@ -11,6 +11,7 @@ import SwiftUI
 import Lottie
 
 struct BKAlert: View {
+  private let isLoadingType: Bool
   private let title: String
   private let imageType: BKAlertProperty.ImageType?
   private let description: String
@@ -19,6 +20,7 @@ struct BKAlert: View {
   private let rightAction: (() async -> Void)
   
   init(
+    isLoadingType: Bool = false,
     title: String,
     imageType: BKAlertProperty.ImageType? = nil,
     description: String,
@@ -26,6 +28,7 @@ struct BKAlert: View {
     leftAction: @escaping () async -> Void,
     rightAction: @escaping () async -> Void
   ) {
+    self.isLoadingType = isLoadingType
     self.title = title
     self.imageType = imageType
     self.description = description
@@ -36,14 +39,16 @@ struct BKAlert: View {
   
   var body: some View {
     VStack(alignment: .center, spacing: 8) {
-      LottieView(
-        animation: .named(
-          "lodingAnimation",
-          bundle: CommonFeatureResources.bundle
+      if isLoadingType {
+        LottieView(
+          animation: .named(
+            "lodingAnimation",
+            bundle: CommonFeatureResources.bundle
+          )
         )
-      )
-      .playing(loopMode: .loop)
-      .frame(width: 90, height: 59, alignment: .center)
+        .playing(loopMode: .loop)
+        .frame(width: 90, height: 59, alignment: .center)
+      }
       
       BKText(
         text: title,

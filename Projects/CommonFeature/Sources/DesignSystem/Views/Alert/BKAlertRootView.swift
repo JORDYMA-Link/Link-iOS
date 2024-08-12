@@ -20,6 +20,7 @@ struct BKAlertRootView: View {
       
       ForEach(manager.property) { property in
         BKAlert(
+          isLoadingType: property.isLoadingType,
           title: property.title,
           description: property.description,
           buttonType: property.buttonType,
