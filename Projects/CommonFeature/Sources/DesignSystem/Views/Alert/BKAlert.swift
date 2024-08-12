@@ -8,6 +8,8 @@
 
 import SwiftUI
 
+import Lottie
+
 struct BKAlert: View {
   private let title: String
   private let imageType: BKAlertProperty.ImageType?
@@ -34,6 +36,15 @@ struct BKAlert: View {
   
   var body: some View {
     VStack(alignment: .center, spacing: 8) {
+      LottieView(
+        animation: .named(
+          "lodingAnimation",
+          bundle: CommonFeatureResources.bundle
+        )
+      )
+      .playing(loopMode: .loop)
+      .frame(width: 90, height: 59, alignment: .center)
+      
       BKText(
         text: title,
         font: .semiBold,
