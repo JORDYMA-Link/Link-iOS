@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Models
+
 struct OnboardingFolderResponse: Decodable {
   let ids: [Int]
 }
