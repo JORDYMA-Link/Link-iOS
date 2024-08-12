@@ -18,6 +18,7 @@ import ComposableArchitecture
 public struct StorageBoxFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
+    var viewDidLoad: Bool = false
     var folderList: [Folder] = []
     var selectedStorageBoxMenuItem: Folder?
     var isAddFolder: Bool {
@@ -81,6 +82,8 @@ public struct StorageBoxFeature: Reducer {
         return .none
         
       case .onAppear:
+        guard state.viewDidLoad == false else { return .none }
+        state.viewDidLoad = true
         return .send(.fetchFolderList)
         
       case .searchBannerTapped:
