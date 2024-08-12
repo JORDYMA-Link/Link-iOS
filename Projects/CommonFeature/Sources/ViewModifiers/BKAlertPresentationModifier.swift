@@ -31,7 +31,7 @@ private struct BKAlertPresentationModifier: ViewModifier {
 }
 
 public extension View {
-  func BKAlertPresentationWindow() -> some View {
+  func alertPresentationWindow() -> some View {
     modifier(BKAlertPresentationModifier())
   }
 }

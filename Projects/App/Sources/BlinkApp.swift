@@ -26,7 +26,7 @@ struct BlinkApp: App {
   var body: some Scene {
     WindowGroup {
       RootView(store: Store(initialState: RootFeature.State()) { RootFeature() })
-        .BKAlertPresentationWindow()
+        .alertPresentationWindow()
     }
   }
 }
