@@ -24,7 +24,7 @@ public struct AddFolderBottomSheetFeature {
     public init() {}
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
     case addFolderTapped
@@ -80,6 +80,7 @@ public struct AddFolderBottomSheetFeature {
         .throttle(id: ThrottleId.confirmButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case .successAddFolder:
+        state.folderName = ""
         state.isAddFolderBottomSheetPresented = false
         return .send(.delegate(.fetchFolderList))
                         
