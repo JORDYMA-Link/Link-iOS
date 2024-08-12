@@ -8,20 +8,21 @@
 
 import SwiftUI
 
-public struct BKAlertProperty {
-  let title: String
-  let imageType: ImageType?
-  let description: String
-  let buttonType: ButtonType
-  let leftButtonAction: (() -> Void)?
-  let rightButtonAction: () async -> Void
+public struct BKAlertProperty: Identifiable {
+  public let id: UUID = .init()
+  public let title: String
+  public let imageType: ImageType?
+  public let description: String
+  public let buttonType: ButtonType
+  public let leftButtonAction: (() async -> Void)?
+  public let rightButtonAction: () async -> Void
     
   public init(
     title: String,
     imageType: ImageType? = nil,
     description: String,
     buttonType: ButtonType,
-    leftButtonAction: (() -> Void)? = nil,
+    leftButtonAction: (() async -> Void)? = nil,
     rightButtonAction: @escaping () async -> Void
   ) {
     self.title = title

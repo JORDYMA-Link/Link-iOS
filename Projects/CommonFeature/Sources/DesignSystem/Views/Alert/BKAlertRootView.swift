@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct BKAlertRootView: View {
-  @ObservedObject var manager = BkModalManager.shared
+  @ObservedObject var manager = BkAlertManager.shared
   
   var body: some View {
     ZStack {
@@ -18,22 +18,24 @@ struct BKAlertRootView: View {
         .opacity(manager.isPresented ? 0.6 : 0.0)
         .zIndex(0)
       
-      BKAlert(
-        title: manager.property.title,
-        description: manager.property.description,
-        buttonType: manager.property.buttonType,
-        leftAction: {
-          manager.dismiss()
-          manager.property.leftButtonAction?()
-        },
-        rightAction: {
-          manager.dismiss()
-          await manager.property.rightButtonAction()
-        }
-      )
-      .padding(.horizontal, 24)
-      .opacity(manager.isPresented ? 1.0 : 0.0)
-      .zIndex(1)
+      ForEach(manager.property) { property in
+        BKAlert(
+          title: property.title,
+          description: property.description,
+          buttonType: property.buttonType,
+          leftAction: {
+            await property.leftButtonAction?()
+            manager.dismiss()
+          },
+          rightAction: {
+            await property.rightButtonAction()
+            manager.dismiss()
+          }
+        )
+        .padding(.horizontal, 24)
+        .opacity(manager.isPresented ? 1.0 : 0.0)
+        .zIndex(1)
+      }
     }
     .animation(.default, value: manager.isPresented)
   }
