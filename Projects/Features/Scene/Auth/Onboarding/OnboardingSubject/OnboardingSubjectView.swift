@@ -47,7 +47,11 @@ public struct OnboardingSubjectView: View {
         
         Spacer()
         
-        makeConfirmButton()
+        BKRoundedButton(
+          title: "확인 (\(store.subjects.count)/5)",
+          isDisabled: store.subjects.isEmpty,
+          confirmAction: { store.send(.confirmButtonTapped) }
+        )
       }
       .toolbar(.hidden, for: .navigationBar)
       .padding(EdgeInsets(top: 0, leading: 16, bottom: 16, trailing: 16))
