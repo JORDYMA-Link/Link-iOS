@@ -39,7 +39,8 @@ public struct OnboardingSubjectFeature {
     case delegate(Delegate)
   }
   
-  @Dependency(\.userDefaultsClient) var userDefault
+  @Dependency(\.userDefaultsClient) private var userDefault
+  @Dependency(\.folderClient) private var folderClient
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -51,7 +52,7 @@ public struct OnboardingSubjectFeature {
       case let .selectSubject(subject):
         if state.subjects.contains(subject) {
           state.subjects.remove(subject)
-        } else if state.subjects.count < 3 {
+        } else if state.subjects.count < 5 {
           state.subjects.insert(subject)
         }
         return .none
@@ -62,7 +63,19 @@ public struct OnboardingSubjectFeature {
         return .send(.delegate(.moveToMainTab))
         
       case .confirmButtonTapped:
-        return .send(.delegate(.moveToOnboardingFlow))
+        return .run(
+          operation: { [state] send in
+            let topics = state.subjects.map { $0 }
+            let onboardingFolder = try await folderClient.postOnboardingFolder(topics)
+            
+            print(onboardingFolder)
+            
+            return await send(.delegate(.moveToOnboardingFlow))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       default:
         return .none
