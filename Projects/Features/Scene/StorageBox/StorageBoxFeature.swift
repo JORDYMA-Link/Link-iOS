@@ -106,7 +106,7 @@ public struct StorageBoxFeature: Reducer {
           operation: { send in
             let folderList = try await folderClient.getFolders()
             
-            await send(.setFolderList(folderList))
+            await send(.setFolderList(folderList), animation: .default)
           },
           catch: { error, send in
             print(error)
