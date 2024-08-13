@@ -63,7 +63,7 @@ public struct HomeFeature: Reducer {
       case .binding:
         return .none
         
-      case .onAppear
+      case .onAppear:
         guard state.viewDidLoad == false else { return .none }
         state.viewDidLoad = true
         return .none
