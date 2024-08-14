@@ -42,6 +42,10 @@ public struct OnboardingSubjectFeature {
   @Dependency(\.userDefaultsClient) private var userDefault
   @Dependency(\.folderClient) private var folderClient
   
+  private enum ThrottleId {
+    case confirmButton
+  }
+  
   public var body: some ReducerOf<Self> {
     BindingReducer()
     
@@ -58,24 +62,21 @@ public struct OnboardingSubjectFeature {
         return .none
         
       case .skipButtonTapped:
-        userDefault.set(true, .isFirstLogin)
-        
         return .send(.delegate(.moveToMainTab))
         
       case .confirmButtonTapped:
         return .run(
           operation: { [state] send in
             let topics = state.subjects.map { $0 }
-            let onboardingFolder = try await folderClient.postOnboardingFolder(topics)
-            
-            print(onboardingFolder)
-            
+            _ = try await folderClient.postOnboardingFolder(topics)
+
             return await send(.delegate(.moveToOnboardingFlow))
           },
           catch: { error, send in
             print(error)
           }
         )
+        .throttle(id: ThrottleId.confirmButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       default:
         return .none

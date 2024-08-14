@@ -133,24 +133,4 @@ public struct OnboardingSubjectView: View {
     .frame(height: 84)
     .clipShape(RoundedRectangle(cornerRadius: 10))
   }
-  
-  @ViewBuilder
-  private func makeConfirmButton() -> some View {
-    Button {
-      store.send(.confirmButtonTapped)
-    } label: {
-      ZStack {
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
-          .fill(Color.bkColor(store.subjects.isEmpty ? .gray500 : .main300))
-          .frame(maxWidth: .infinity)
-        
-        Text("확인")
-          .font(.semiBold(size: ._16))
-          .foregroundStyle(Color.bkColor(store.subjects.isEmpty ? .gray600 : .white))
-          .padding(EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
-      }
-      .frame(height: 52)
-    }
-    .disabled(store.subjects.isEmpty)
-  }
 }
