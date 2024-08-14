@@ -17,6 +17,7 @@ import ComposableArchitecture
 public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
+    var viewDidLoad: Bool = false
     var selectedcellMenuItem: LinkCard?
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
@@ -32,6 +33,7 @@ public struct HomeFeature: Reducer {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case onAppear
     case searchBarTapped
     case cellTapped
     case cellMenuButtonTapped(LinkCard)
@@ -59,6 +61,11 @@ public struct HomeFeature: Reducer {
     Reduce { state, action in
       switch action {
       case .binding:
+        return .none
+        
+      case .onAppear:
+        guard state.viewDidLoad == false else { return .none }
+        state.viewDidLoad = true
         return .none
 
       case .searchBarTapped:

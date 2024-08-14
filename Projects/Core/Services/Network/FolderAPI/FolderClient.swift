@@ -17,8 +17,8 @@ public struct FolderClient {
   public var getFolders: @Sendable () async throws -> [Folder]
   public var postFolder: @Sendable (_ name: String) async throws -> Folder
   public var postOnboardingFolder: @Sendable (_ topics: [String]) async throws -> OnboardingFolder
-  public var deleteFolder: @Sendable (_ folderId: String) async throws -> Void
-  public var fetchFolder: @Sendable (_ folderId: String, _ name: String) async throws -> Folder
+  public var deleteFolder: @Sendable (_ folderId: Int) async throws -> Void
+  public var fetchFolder: @Sendable (_ folderId: Int, _ name: String) async throws -> Folder
 }
 
 extension FolderClient: DependencyKey {
@@ -47,4 +47,11 @@ extension FolderClient: DependencyKey {
       }
     )
   }
+}
+
+public extension DependencyValues {
+    var folderClient: FolderClient {
+        get { self[FolderClient.self] }
+        set { self[FolderClient.self] = newValue }
+    }
 }

@@ -49,6 +49,7 @@ public struct HomeView: View {
       .background(Color.bkColor(.white))
       .animation(.easeIn(duration: 0.2), value: topToCategory)
       .onAppear {
+        store.send(.onAppear)
         UIScrollView.appearance().bounces = true
       }
       .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
