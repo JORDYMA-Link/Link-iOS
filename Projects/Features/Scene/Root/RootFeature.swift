@@ -97,7 +97,7 @@ public struct RootFeature: Reducer {
       case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
         return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
         
-      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)), .login(.delegate(.moveToMainTap)):
+      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)), .login(.delegate(.moveToMainTab)):
         return .send(.changeScreen(.mainTab()), animation: .spring)
         
       case let .onOpenURL(url):
