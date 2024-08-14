@@ -9,6 +9,7 @@ import SwiftUI
 import UserNotifications
 
 import Features
+import CommonFeature
 
 import ComposableArchitecture
 import Firebase
@@ -25,6 +26,7 @@ struct BlinkApp: App {
   var body: some Scene {
     WindowGroup {
       RootView(store: Store(initialState: RootFeature.State()) { RootFeature() })
+        .alertPresentationWindow()
     }
   }
 }

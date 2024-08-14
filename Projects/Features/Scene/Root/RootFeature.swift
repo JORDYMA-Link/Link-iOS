@@ -78,11 +78,7 @@ public struct RootFeature: Reducer {
           try await keychainClient.update(.accessToken, token.accessToken)
           try await keychainClient.update(.refreshToken, token.refreshToken)
           
-          if userDefault.bool(.isFirstLogin, false) {
-            await send(.changeScreen(.onBoardingSubject()), animation: .spring)
-          } else {
-            await send(.changeScreen(.mainTab()), animation: .spring)
-          }
+          await send(.changeScreen(.mainTab()), animation: .spring)
         } catch: { error, send in
           debugPrint(error)
           await send(.changeScreen(.login()), animation: .spring)
@@ -97,7 +93,7 @@ public struct RootFeature: Reducer {
       case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
         return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
         
-      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)), .login(.delegate(.moveToMainTap)):
+      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)), .login(.delegate(.moveToMainTab)):
         return .send(.changeScreen(.mainTab()), animation: .spring)
         
       case let .onOpenURL(url):

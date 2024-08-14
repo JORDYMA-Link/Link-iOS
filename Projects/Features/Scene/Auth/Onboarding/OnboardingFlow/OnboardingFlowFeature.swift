@@ -59,8 +59,6 @@ public struct OnboardingFlowFeature {
           return .none
         
       case .skipButtonTapped, .startButtonTapped:
-        userDefault.set(true, .isFirstLogin)
-        
         return .send(.delegate(.moveToMainTab))
           .throttle(id: ThrottleId.startButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         

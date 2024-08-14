@@ -16,15 +16,15 @@ import SwiftUIIntrospect
 struct AddFolderBottomSheet: View {
   @Perception.Bindable var store: StoreOf<AddFolderBottomSheetFeature>
   @FocusState private var textIsFocused: Bool
-  var textFieldDelegate = TextFieldDelegate()
+  @State private var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
     WithPerceptionTracking {
       GeometryReader { _ in
         VStack(spacing: 0) {
           BKTextField(
-            text: $store.folderInput.name,
-            isHighlight: $store.isHighlight,
+            text: $store.folderName,
+            isHighlight: $store.isValidation,
             textIsFocused: _textIsFocused,
             textFieldType: .addFolder,
             textCount: 10,
@@ -37,16 +37,17 @@ struct AddFolderBottomSheet: View {
           
           Spacer(minLength: 0)
           
-          BKRoundedButton(title: "완료", isDisabled: store.isHighlight, isCornerRadius: false, confirmAction: { store.send(.confirmButtonTapped) })
+          BKRoundedButton(
+            title: "완료",
+            isDisabled: store.isValidation,
+            isCornerRadius: false,
+            confirmAction: { store.send(.confirmButtonTapped) }
+          )
         }
       }
       .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
       .animation(.spring, value: textIsFocused)
-      .onAppear {
-        DispatchQueue.main.async {
-          textIsFocused = true
-        }
-      }
+      .onAppear { textIsFocused = true }
     }
   }
 }

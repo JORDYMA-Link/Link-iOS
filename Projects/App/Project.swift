@@ -19,6 +19,7 @@ let project = Project.make(
             entitlements: .file(path: .relativeToRoot("Projects/App/Blink.entitlements")),
             dependencies: [
                 .project(target: .features, projectPath: .features),
+                .project(target: .commonFeature, projectPath: .commonFeature),
                 .project(target: .services, projectPath: .core),
                 .external(externalDependency: .composableArchitecture),
                 .package(product: "FirebaseMessaging")

@@ -35,7 +35,6 @@ struct StorageBoxContainerView<Content: View>: View {
         .addFolderBottomSheet(store: store)
         .settingStorageBoxBottomSheet(store: store)
         .editFolderNameBottomSheet(store: store)
-        .deleteFolderModal(store: store)
         .toolbar(.hidden, for: .navigationBar)
       }
     }

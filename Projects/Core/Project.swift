@@ -26,6 +26,7 @@ let project = Project.make(
             bundleId: DefaultSetting.bundleId(moduleName: "services"),
             sources: ["Services/**"],
             dependencies: [
+                .project(target: .commonFeature, projectPath: .commonFeature),
                 .target(name: .models),
                 .external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .kakaoSDK),
