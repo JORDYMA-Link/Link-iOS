@@ -18,7 +18,7 @@ import SwiftUIIntrospect
 struct LinkContentView: View {
   @Perception.Bindable var store: StoreOf<LinkContentFeature>
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
-  @State private var isScrolled: Bool = false
+  @State private var isScrollDetected: Bool = false
   
   var body: some View {
     WithPerceptionTracking {
@@ -104,7 +104,7 @@ struct LinkContentView: View {
           GeometryReader { proxy in
             let minY = proxy.frame(in: .global).minY
             LinkContentNavigationBar(
-              isScrolled: $isScrolled,
+              isScrollDetected: $isScrollDetected,
               title: LinkDetail.mock().title,
               leftAction: { store.send(.closeButtonTapped) },
               rightAction: { store.send(.menuButtonTapped) }
@@ -123,9 +123,9 @@ struct LinkContentView: View {
       }
       .ignoresSafeArea(edges: .top)
       .toolbar(.hidden, for: .navigationBar)
-      .animation(.easeInOut, value: isScrolled)
-      .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-        self.isScrolled = $0
+      .animation(.easeInOut, value: isScrollDetected)
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
       }
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,

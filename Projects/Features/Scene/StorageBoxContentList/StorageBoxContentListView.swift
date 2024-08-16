@@ -18,7 +18,7 @@ struct StorageBoxContentListView: View {
   @Perception.Bindable var store: StoreOf<StorageBoxContentListFeature>
   
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
-  @State private var topToHeader: Bool = false
+  @State private var isScrollDetected: Bool = false
   
   var body: some View {
     WithPerceptionTracking {
@@ -26,7 +26,7 @@ struct StorageBoxContentListView: View {
         VStack(spacing: 0) {
           
           VStack(spacing: 0) {
-            if !topToHeader {
+            if !isScrollDetected {
               makeNavigationView()
             } else {
               makeScrollHeaderView(title: store.folderInput.name)
@@ -34,7 +34,7 @@ struct StorageBoxContentListView: View {
             
             Divider()
               .foregroundStyle(Color.bkColor(.gray400))
-              .opacity(!topToHeader ? 0 : 1)
+              .opacity(!isScrollDetected ? 0 : 1)
           }
           
           ScrollView(showsIndicators: false) {
@@ -85,9 +85,9 @@ struct StorageBoxContentListView: View {
       }
       .ignoresSafeArea(edges: .bottom)
       .toolbar(.hidden, for: .navigationBar)
-      .animation(.easeIn(duration: 0.2), value: topToHeader)
-      .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-        self.topToHeader = $0
+      .animation(.easeIn(duration: 0.2), value: isScrollDetected)
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
       }
       .bottomSheet(
         isPresented: $store.sortFolderBottomSheet.isSortFolderBottomSheetPresented,
