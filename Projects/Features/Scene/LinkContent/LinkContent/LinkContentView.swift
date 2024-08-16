@@ -26,11 +26,9 @@ struct LinkContentView: View {
         VStack(spacing: 0) {
           LinkContentHeaderView(
             link: LinkDetail.mock(),
-            saveAction: {
-              print("save")
-            }, shareAction: {
-              print("share")
-            })
+            saveAction: {},
+            shareAction: { store.send(.shareButtonTapped) }
+          )
           .background(ViewMaxYGeometry())
           .onPreferenceChange(ViewPreferenceKey.self) { maxY in
             let headerMaxY = maxY + UIApplication.topSafeAreaInset
@@ -129,6 +127,12 @@ struct LinkContentView: View {
       .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
         self.isScrolled = $0
       }
+      .clipboardPopup(
+        isPresented: $store.isClipboardPopupPresented,
+        urlString: "https://www.naver.com",
+        saveAction: { store.send(.clipboardPopupSaveButtonTapped) }
+      )
+      .clipboardToast(isPresented: $store.isClipboardToastPresented)
       .fullScreenCover(
         item: $store.scope(
           state: \.editLinkContent,

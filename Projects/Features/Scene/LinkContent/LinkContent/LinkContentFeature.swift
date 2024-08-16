@@ -29,6 +29,9 @@ public struct LinkContentFeature {
     }
     
     var isMenuBottomSheetPresented: Bool = false
+    var isClipboardPopupPresented: Bool = false
+    var isClipboardToastPresented: Bool = false
+    
     public init() {}
   }
   
@@ -38,11 +41,15 @@ public struct LinkContentFeature {
     // MARK: User Action
     case closeButtonTapped
     case menuButtonTapped
+    case shareButtonTapped
+    case clipboardPopupSaveButtonTapped
     case editFolderButtonTapped
     case editMemoButtonTapeed
     
     // MARK: Inner Business Action
     case menuBottomSheetPresented(Bool)
+    case clipboardPopupPresented(Bool)
+    case clipboardToastPresented(Bool)
     
     // MARK: Inner SetState Action
     
@@ -76,6 +83,12 @@ public struct LinkContentFeature {
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
+        
+      case .shareButtonTapped:
+        return .run { send in await send(.clipboardPopupPresented(true)) }
+        
+      case .clipboardPopupSaveButtonTapped:
+        return .run { send in await send(.clipboardToastPresented(true)) }
                         
       case .editFolderButtonTapped:
         return .send(.editFolderBottomSheet(.editFolderTapped("test")))
@@ -98,6 +111,14 @@ public struct LinkContentFeature {
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
         print("deleteModal")
+        return .none
+        
+      case let .clipboardPopupPresented(isPresented):
+        state.isClipboardPopupPresented = isPresented
+        return .none
+        
+      case let .clipboardToastPresented(isPresented):
+        state.isClipboardToastPresented = isPresented
         return .none
         
       default:
