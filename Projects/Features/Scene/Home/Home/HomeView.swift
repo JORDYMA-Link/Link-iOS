@@ -17,9 +17,7 @@ import SwiftUIIntrospect
 public struct HomeView: View {
   @Perception.Bindable var store: StoreOf<HomeFeature>
   @StateObject private var scrollViewDelegate = ScrollViewDelegate()
-  
-  @State private var categorySelectedIndex: Int? = 0
-  @State private var topToCategory: Bool = false
+  @State private var isScrollDetected: Bool = false
   
   public var body: some View {
     WithPerceptionTracking {
@@ -47,13 +45,13 @@ public struct HomeView: View {
       }
       .padding(.bottom, 52)
       .background(Color.bkColor(.white))
-      .animation(.easeIn(duration: 0.2), value: topToCategory)
+      .animation(.easeIn(duration: 0.2), value: isScrollDetected)
       .onAppear {
         store.send(.onAppear)
         UIScrollView.appearance().bounces = true
       }
-      .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-        self.topToCategory = $0
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
       }
       .navigationDestination(
         isPresented: $store.pushSetting
@@ -204,7 +202,7 @@ extension HomeView {
         }
       } header: {
         VStack(spacing: 0) {
-          makeCategorySectionHeader(selectedIndex: $categorySelectedIndex)
+          CategoryHeaderView(store: store)
             .background(ViewMaxYGeometry())
             .onPreferenceChange(ViewPreferenceKey.self) { maxY in
               // 섹션 헤더의 최대 Y 위치 업데이트
@@ -215,65 +213,49 @@ extension HomeView {
                 scrollViewDelegate.headerMaxY = headerMaxY
               }
             }
-            .background(topToCategory ? Color.white : Color.bkColor(.gray300))
+            .background(isScrollDetected ? Color.white : Color.bkColor(.gray300))
           
           Divider()
             .foregroundStyle(Color.bkColor(.gray400))
-            .opacity(topToCategory ? 1 : 0)
-          
+            .opacity(isScrollDetected ? 1 : 0)
         }
       }
     }
     .padding(.top, 8)
     .background(Color.bkColor(.gray300))
   }
+}
+
+private struct CategoryHeaderView: View {
+  @Perception.Bindable var store: StoreOf<HomeFeature>
   
-  @ViewBuilder
-  private func makeCategorySectionHeader(selectedIndex: Binding<Int?>) -> some View {
-    let categories = ["중요", "미분류"]
-    
-    ScrollView(.horizontal) {
+  var body: some View {
+    WithPerceptionTracking {
       HStack(spacing: 8) {
-        ForEach(categories.indices, id: \.self) { index in
-          Text(categories[index])
-            .font(selectedIndex.wrappedValue == index ? .semiBold(size: ._14) : .regular(size: ._14))
-            .foregroundColor(selectedIndex.wrappedValue == index ? Color.white : Color.black)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 14)
-            .background(
-              RoundedRectangle(cornerRadius: 100)
-                .fill(selectedIndex.wrappedValue == index ? Color.black : Color.white)
-                .overlay(
-                  RoundedRectangle(cornerRadius: 100)
-                    .stroke(selectedIndex.wrappedValue == index ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
-                )
-              
-            )
-            .onTapGesture {
-              if selectedIndex.wrappedValue == index {
-                selectedIndex.wrappedValue = nil
-              } else {
-                selectedIndex.wrappedValue = index
-              }
-            }
+        ForEach(CategoryType.allCases, id: \.self) { type in
+          BKCategoryButton(
+            title: type.rawValue,
+            isSelected: store.category == type,
+            action: { store.send(.categoryButtonTapped(type), animation: .spring) }
+          )
         }
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.top, 8)
       .padding(.leading, 16)
+      .padding(.bottom, 12)
     }
-    .scrollDisabled(true)
-    .padding(.top, 8)
-    .padding(.bottom, 12)
   }
 }
 
 @MainActor
 final class ScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
   @Published var headerMaxY: CGFloat = .zero
-  @Published var topToHeader: Bool = false
+  @Published var isScrollDetected: Bool = false
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     DispatchQueue.main.async {
-      self.topToHeader = scrollView.contentOffset.y >  self.headerMaxY
+      self.isScrollDetected = scrollView.contentOffset.y >  self.headerMaxY
     }
   }
 }
