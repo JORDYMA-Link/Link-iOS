@@ -58,30 +58,11 @@ struct LinkContentView: View {
             )
             .padding(.top, 8)
             
-            LinkContentTitleButton(
-              title: "폴더",
-              buttonTitle: "수정",
-              action: { store.send(.editFolderButtonTapped) }
-            )
-            .padding(.top, 16)
+            folderTitle
+              .padding(.top, 16)
             
-            BKText(
-              text: LinkDetail.mock().folderName,
-              font: .regular,
-              size: ._14,
-              lineHeight: 20,
-              color: .bkColor(.gray900)
-            )
-            .padding(EdgeInsets(top: 9, leading: 13, bottom: 9, trailing: 13))
-            .background(
-              RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white)
-            )
-            .overlay {
-              RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.bkColor(.gray500), lineWidth: 1)
-            }
-            .padding(.top, 8)
+            folderSection
+              .padding(.top, 8)
             
             LinkContentTitleButton(
               title: "메모",
@@ -117,7 +98,7 @@ struct LinkContentView: View {
         scrollView.delegate = scrollViewDelegate
       }
       .safeAreaInset(edge: .bottom, spacing: 0) {
-        BKRoundedButton(title: "원문 보기", confirmAction: {})
+        bottomSafeAreaButton
           .padding([.top, .horizontal], 10)
           .background(.white)
       }
@@ -127,6 +108,7 @@ struct LinkContentView: View {
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         self.isScrollDetected = $0
       }
+      .task { await store.send(.onTask).finish() }
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
         urlString: "https://www.naver.com",
@@ -165,6 +147,75 @@ struct LinkContentView: View {
           menuItems: [.editLinkContent, .deleteLinkContent],
           action: { store.send(.menuBottomSheet($0)) }
         )
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var folderTitle: some View {
+    switch store.linkCotentType {
+    case .contentDetail:
+      LinkContentTitleButton(
+        title: "폴더",
+        buttonTitle: "수정",
+        action: { store.send(.editFolderButtonTapped) }
+      )
+    case .summaryCompleted:
+      HStack(spacing: 0) {
+        CommonFeature.Images.icoConceptStar
+          .resizable()
+          .scaledToFill()
+          .frame(width: 20, height: 20)
+        
+        LinkContentTitleButton(
+          title: "추천 폴더",
+          buttonTitle: "선택사항",
+          action: {}
+        )
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var folderSection: some View {
+    switch store.linkCotentType {
+    case .contentDetail:
+      BKFolderItem(
+        folderItemType: .summaryCompleted,
+        title: LinkDetail.mock().folderName,
+        isSeleted: false,
+        action: {}
+      )
+    case .summaryCompleted:
+      VStack(alignment: .leading, spacing: 10) {
+        BKFolderItem(
+          folderItemType: .summaryCompleted,
+          title: store.summary.recommend,
+          isSeleted: store.summary.recommend == store.selectedFolder,
+          action: { store.send(.recommendFolderItemTapped) }
+        )
+        
+        BKAddFolderList(
+          folderItemType: .summaryCompleted,
+          folderList: store.summary.folders,
+          selectedFolder: store.selectedFolder,
+          itemAction: { store.send(.folderItemTapped($0)) },
+          addAction: { store.send(.addFolderItemTapped) }
+        )
+        .padding(.horizontal, -16)
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var bottomSafeAreaButton: some View {
+    switch store.linkCotentType {
+    case .contentDetail:
+      BKRoundedButton(title: "원문 보기", confirmAction: {})
+    case .summaryCompleted:
+      HStack(spacing: 8) {
+        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {})
+        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: {})
       }
     }
   }
