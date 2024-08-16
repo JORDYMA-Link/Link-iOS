@@ -23,7 +23,7 @@ public struct EditFolderBottomSheetFeature {
     public var postLinkId: String?
     
     public var folderList: [Folder] = []
-    public var seletedFolder: Folder?
+    public var seletedFolder: Folder = .init(id: 0, name: "", feedCount: 0)
     
     public init() {}
   }
