@@ -75,8 +75,7 @@ public struct SaveLinkView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: {
-                  dismiss.callAsFunction()
-//                  store.send(.onTapBackButton)
+                  dismiss() //FIXME: store로 넘기는 방법이 있을지 고민해봐야하는 요소
                 }, label: {
                     HStack{
                       CommonFeature.Images.icoChevronLeft
