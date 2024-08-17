@@ -29,6 +29,7 @@ struct EditMemoBottomSheet: View {
             textFieldType: .addMemo,
             textCount: 1000,
             isMultiLine: true,
+            isClearButton: true,
             height: 126
           )
           .introspect(.textField, on: .iOS(.v17)) { textField in
