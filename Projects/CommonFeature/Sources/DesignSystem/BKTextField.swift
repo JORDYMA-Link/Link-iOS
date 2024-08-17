@@ -243,7 +243,7 @@ extension BKTextField {
     Button {
       text = ""
     } label: {
-      CommonFeature.Images.icoCircleCloseFill
+      CommonFeature.Images.icoCircleCloseGray
         .resizable()
         .scaledToFit()
         .frame(width: 18, height: 18)
