@@ -9,12 +9,12 @@
 import SwiftUI
 
 public enum FolderItemType {
-  case summaryCompleted
+  case `default`
   case addFolderBottomSheet
   
   var font: BKFont {
     switch self {
-    case .summaryCompleted:
+    case .default:
       return .regular
     case .addFolderBottomSheet:
       return .semiBold
@@ -23,7 +23,7 @@ public enum FolderItemType {
   
   var size: CGFloat.Size {
     switch self {
-    case .summaryCompleted:
+    case .default:
       return ._14
     case .addFolderBottomSheet:
       return ._16
@@ -32,7 +32,7 @@ public enum FolderItemType {
   
   var lineHeight: CGFloat {
     switch self {
-    case .summaryCompleted:
+    case .default:
       return 20
     case .addFolderBottomSheet:
       return 24
@@ -41,7 +41,7 @@ public enum FolderItemType {
   
   var verticalPadding: CGFloat {
     switch self {
-    case .summaryCompleted:
+    case .default:
       return 9
     case .addFolderBottomSheet:
       return 13
@@ -50,7 +50,7 @@ public enum FolderItemType {
     
   var horizontalPadding: CGFloat {
     switch self {
-    case .summaryCompleted:
+    case .default:
       return 13
     case .addFolderBottomSheet:
       return 15
@@ -59,7 +59,7 @@ public enum FolderItemType {
   
   var cornerRadius: CGFloat {
     switch self {
-    case .summaryCompleted:
+    case .default:
       return 8
     case .addFolderBottomSheet:
       return 10
