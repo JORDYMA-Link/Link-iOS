@@ -10,6 +10,7 @@ import SwiftUI
 
 import Models
 
+/// 콘텐츠 디테일에서는 [String], 폴더 수정 바텀시트에서는 [Folder]로 사용되기 때문에 구현
 public protocol FolderItem: Equatable {
   var folderName: String { get }
 }
