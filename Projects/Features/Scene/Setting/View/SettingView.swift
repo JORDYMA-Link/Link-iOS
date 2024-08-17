@@ -11,10 +11,12 @@ import SwiftUI
 import CommonFeature
 import Common
 
+import ComposableArchitecture
+
 public struct SettingView: View {
   @Environment(\.dismiss) private var dismiss
   
-  @StateObject var viewmodel = SettingViewModel(state: .none, nickname: "블링크", userEmail: "blink@naver.com")
+  @Perception.Bindable var store: StoreOf<SettingFeature>
   
   public var body: some View {
     ZStack(content: {
@@ -32,14 +34,14 @@ public struct SettingView: View {
           }
         }
       
-      if viewmodel.showWithdrawModal {
+      if store.showWithdrawModal {
         withdrawModal
       }
     })
     
-    .bottomSheet(isPresented: $viewmodel.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
+    .bottomSheet(isPresented: $store.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
       VStack(alignment: .center, content: {
-        if viewmodel.targetNickname.containsOnlyKorean {
+        if store.targetNickname.containsOnlyKorean {
           nicknameTextField
         } else {
           nicknameNoticeTextField
@@ -48,7 +50,7 @@ public struct SettingView: View {
         Spacer()
         
         Button(action: {
-          viewmodel.action(.tappedCompletedEditingNickname)
+          store.send(.tappedCompletedEditingNickname)
         }, label: {
           Text("완료")
             .foregroundStyle(Color.bkColor(.white))
@@ -58,11 +60,11 @@ public struct SettingView: View {
       })
     }
     
-    .fullScreenCover(isPresented: $viewmodel.showLogoutConfirmModal, content: {
+    .fullScreenCover(isPresented: $store.showLogoutConfirmModal, content: {
       BKModal(modalType: .logout(checkAction: {
         
       }, cancelAction: {
-        viewmodel.showLogoutConfirmModal = false
+        store.send(.toggleLogOut)
       }))
     })
   }
@@ -73,27 +75,22 @@ extension SettingView {
   @ViewBuilder
   private var settingView: some View {
     VStack(alignment: .leading) {
-      VStack(alignment: .leading) {
+      HStack {
         HStack {
-          HStack {
-            Text(viewmodel.nickname)
-              .font(.semiBold(size: ._18))
-              .padding(.trailing, -10)
-            Text("님")
-              .font(.regular(size: ._18))
-          }
-          Spacer()
-          Button(action: {
-            viewmodel.action(.tappedNicknameEdit)
-          }, label: {
-            BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
-          })
+          Text(store.nickname)
+            .font(.semiBold(size: ._18))
+            .padding(.trailing, -10)
+          Text("님")
+            .font(.regular(size: ._18))
         }
-        Text(viewmodel.userEmail)
-          .font(.light(size: ._12))
-          .tint(Color.bkColor(.gray900)) //E-mail은 tint로 색 변경
+        Spacer()
+        Button(action: {
+          store.send(.tappedNicknameEdit)
+        }, label: {
+          BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
+        })
       }
-      .padding(EdgeInsets(top: 24, leading: 16, bottom: 25, trailing: 16))
+      .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
       
       Color.bkColor(.gray400)
         .frame(height: 8)
@@ -171,7 +168,7 @@ extension SettingView {
         .padding(.top, 16)
         
         Button(action: {
-          viewmodel.action(.tappedLogout)
+          store.send(.toggleLogOut)
         }, label: {
           Text("로그아웃")
             .font(.regular(size: ._15))
@@ -180,7 +177,7 @@ extension SettingView {
         .padding(.top, 32)
         
         Button(action: {
-          viewmodel.action(.tappedWithdrawCell)
+          store.send(.tappedWithdrawCell)
         }, label: {
           Text("회원탈퇴")
             .font(.regular(size: ._12))
@@ -196,7 +193,7 @@ extension SettingView {
   
   @ViewBuilder
   private var nicknameTextField: some View {
-    TextField(text: $viewmodel.targetNickname) {
+    TextField(text: $store.targetNickname) {
       Text("변경할 닉네임을 입력해주세요.")
         .font(.regular(size: ._14))
         .foregroundStyle(Color.bkColor(.gray800))
@@ -211,7 +208,7 @@ extension SettingView {
   @ViewBuilder
   private var nicknameNoticeTextField: some View {
     VStack(alignment: .leading, content: {
-      TextField(text: $viewmodel.targetNickname) {
+      TextField(text: $store.targetNickname) {
         Text("변경할 닉네임을 입력해주세요.")
           .font(.regular(size: ._14))
           .foregroundStyle(Color.bkColor(.gray800))
@@ -228,6 +225,7 @@ extension SettingView {
       Text("특수문자는 허용되지 않습니다.")
         .foregroundStyle(Color.bkColor(.red))
         .font(.regular(size: ._12))
+      
     })
     .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
     
@@ -256,7 +254,7 @@ extension SettingView {
         Spacer()
         
         Button {
-          viewmodel.showWithdrawModal.toggle()
+          store.send(.toggleConfirmWithdrawNotice)
         } label: {
           BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
         }
@@ -273,10 +271,10 @@ extension SettingView {
         .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
       
       Button {
-        viewmodel.action(.tappedConfirmWithdrawNotice)
+        store.send(.toggleConfirmWithdrawNotice)
       } label: {
         HStack {
-          if viewmodel.state != .confirmedWithdrawNotice {
+          if store.confirmWithdrawState {
             Image(systemName: "square" )
               .foregroundStyle(Color.bkColor(.gray700))
           } else {
@@ -294,12 +292,12 @@ extension SettingView {
         
       } label: {
         Text(BKModalType.withdrawNotice.okText)
-          .foregroundStyle(viewmodel.state != .confirmedWithdrawNotice ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
+          .foregroundStyle(store.confirmWithdrawState ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
           .frame(maxWidth: 140, maxHeight: 48)
       }
-      .disabled(viewmodel.state != .confirmedWithdrawNotice)
+      .disabled(store.confirmWithdrawState)
       .frame(maxWidth: .infinity, maxHeight: 48)
-      .background(viewmodel.state != .confirmedWithdrawNotice ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
+      .background(store.confirmWithdrawState ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
       .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
@@ -313,7 +311,9 @@ extension SettingView {
   NavigationStack {
     VStack {
       Text("Home Page")
-      NavigationLink("Go to Detail View", destination: SettingView())
+      NavigationLink("Go to Detail View", destination: SettingView(store: StoreOf<SettingFeature>(initialState: SettingFeature.State(), reducer: {
+        SettingFeature()
+      })))
     }
   }
 }

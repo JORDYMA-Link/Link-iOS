@@ -55,9 +55,12 @@ public struct HomeView: View {
         self.topToCategory = $0
       }
       .navigationDestination(
-        isPresented: $store.pushSetting
-      ) {
-        SettingView()
+        item: $store.scope(
+          state: \.settingContent,
+          action: \.settingContent
+        )
+      ) { store in
+        SettingView(store: store)
       }
       .navigationDestination(
         item: $store.scope(

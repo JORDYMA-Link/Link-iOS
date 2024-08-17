@@ -22,6 +22,7 @@ public struct HomeFeature: Reducer {
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var linkContent: LinkContentFeature.State?
     @Presents var editLinkContent: EditLinkContentFeature.State?
+    @Presents var settingContent: SettingFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
   
     var isMenuBottomSheetPresented: Bool = false
@@ -41,6 +42,7 @@ public struct HomeFeature: Reducer {
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case linkContent(PresentationAction<LinkContentFeature.Action>)
     case editLinkContent(PresentationAction<EditLinkContentFeature.Action>)
+    case settingContent(PresentationAction<SettingFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Inner Business Action
@@ -106,6 +108,9 @@ public struct HomeFeature: Reducer {
     }
     .ifLet(\.$editLinkContent, action: \.editLinkContent) {
       EditLinkContentFeature()
+    }
+    .ifLet(\.$settingContent, action: \.settingContent) {
+      SettingFeature()
     }
   }
 }
