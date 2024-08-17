@@ -9,6 +9,9 @@
 import SwiftUI
 
 public struct BKClipboardToast: View {
+  
+  public init() {}
+  
   public var body: some View {
     HStack(spacing: 16) {
       BKIcon(
