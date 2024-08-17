@@ -181,7 +181,7 @@ struct LinkContentView: View {
     switch store.linkCotentType {
     case .contentDetail:
       BKFolderItem(
-        folderItemType: .summaryCompleted,
+        folderItemType: .default,
         title: LinkDetail.mock().folderName,
         isSeleted: false,
         action: {}
@@ -189,14 +189,14 @@ struct LinkContentView: View {
     case .summaryCompleted:
       VStack(alignment: .leading, spacing: 10) {
         BKFolderItem(
-          folderItemType: .summaryCompleted,
+          folderItemType: .default,
           title: store.summary.recommend,
           isSeleted: store.summary.recommend == store.selectedFolder,
           action: { store.send(.recommendFolderItemTapped) }
         )
         
         BKAddFolderList(
-          folderItemType: .summaryCompleted,
+          folderItemType: .default,
           folderList: store.summary.folders,
           selectedFolder: store.selectedFolder,
           itemAction: { store.send(.folderItemTapped($0)) },
