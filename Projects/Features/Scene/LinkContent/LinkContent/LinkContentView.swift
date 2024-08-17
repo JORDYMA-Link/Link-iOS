@@ -114,7 +114,11 @@ struct LinkContentView: View {
         urlString: "https://www.naver.com",
         saveAction: { store.send(.clipboardPopupSaveButtonTapped) }
       )
-      .clipboardToast(isPresented: $store.isClipboardToastPresented)
+      .toast(
+        isPresented: $store.isClipboardToastPresented,
+        toastType: .clipboard,
+        toastContent: { BKClipboardToast() }
+      )
       .fullScreenCover(
         item: $store.scope(
           state: \.editLinkContent,
