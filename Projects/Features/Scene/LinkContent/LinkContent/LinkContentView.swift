@@ -51,10 +51,8 @@ struct LinkContentView: View {
               .padding(.top, 6)
             
             BKChipView(
-              keyword: LinkDetail.mock().keywords,
-              textColor: .bkColor(.gray700),
-              strokeColor: .bkColor(.gray500),
-              font: .semiBold(size: ._11)
+              keywords: .constant(store.linkContent.keywords),
+              chipType: .default
             )
             .padding(.top, 8)
             
