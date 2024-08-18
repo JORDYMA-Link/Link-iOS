@@ -10,17 +10,17 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct CalendarArticleFeature {
+public struct CalendarArticleFeature {
   @ObservableState
-  struct State {
+  public struct State: Equatable {
     var categorySelectedIndex: Int = 0
   }
   
-  enum Action {
+  public enum Action {
     case changeCategorySelectedIndex(targetIndex: Int)
   }
   
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case let .changeCategorySelectedIndex(targetIndex):
