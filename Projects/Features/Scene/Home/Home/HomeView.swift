@@ -78,6 +78,14 @@ public struct HomeView: View {
       ) { store in
         LinkContentView(store: store)
       }
+      .navigationDestination(
+        item: $store.scope(
+          state: \.calendarContent,
+          action: \.calendarContent
+        )
+      ) { store in
+        CalendarView(store: store)
+      }
       .fullScreenCover(
         item: $store.scope(
           state: \.editLinkContent,
@@ -93,7 +101,7 @@ extension HomeView {
   @ViewBuilder
   private func makeNavigationView() -> some View {
     makeBKNavigationView(leadingType: .home, trailingType: .oneIcon(action: {
-      store.pushSetting.toggle()
+      store.send(.settingTapped)
     }, icon: CommonFeature.Images.icoSettings), tintColor: .bkColor(.gray900))
     .padding(.horizontal, 16)
   }
@@ -162,7 +170,7 @@ extension HomeView {
             .padding(.leading, 6)
         }
         .onTapGesture {
-          store.send(.searchBarTapped)
+          store.send(.calendarSearchTapped)
         }
         
         CommonFeature.Images.icoCalendar
