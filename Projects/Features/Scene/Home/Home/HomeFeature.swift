@@ -23,10 +23,12 @@ public struct HomeFeature: Reducer {
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var linkContent: LinkContentFeature.State?
     @Presents var editLinkContent: EditLinkContentFeature.State?
+    @Presents var settingContent: SettingFeature.State?
+    @Presents var calendarContent: CalendarViewFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
   
     var isMenuBottomSheetPresented: Bool = false
-    var pushSetting: Bool = false
+//    var pushSetting: Bool = false
   }
   
   public enum Action: BindableAction {
@@ -35,6 +37,8 @@ public struct HomeFeature: Reducer {
     // MARK: User Action
     case onAppear
     case searchBarTapped
+    case calendarSearchTapped
+    case settingTapped
     case cellTapped
     case cellMenuButtonTapped(LinkCard)
     
@@ -43,6 +47,8 @@ public struct HomeFeature: Reducer {
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case linkContent(PresentationAction<LinkContentFeature.Action>)
     case editLinkContent(PresentationAction<EditLinkContentFeature.Action>)
+    case settingContent(PresentationAction<SettingFeature.Action>)
+    case calendarContent(PresentationAction<CalendarViewFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Inner Business Action
@@ -70,6 +76,14 @@ public struct HomeFeature: Reducer {
 
       case .searchBarTapped:
         state.searchKeyword = .init()
+        return .none
+        
+      case .calendarSearchTapped:
+        state.calendarContent = .init()
+        return .none
+        
+      case .settingTapped:
+        state.settingContent = .init()
         return .none
         
       case .cellTapped:
@@ -113,6 +127,12 @@ public struct HomeFeature: Reducer {
     }
     .ifLet(\.$editLinkContent, action: \.editLinkContent) {
       EditLinkContentFeature()
+    }
+    .ifLet(\.$settingContent, action: \.settingContent) {
+      SettingFeature()
+    }
+    .ifLet(\.$calendarContent, action: \.calendarContent) {
+      CalendarViewFeature()
     }
   }
 }

@@ -10,19 +10,19 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct CalendarViewFeature {
+public struct CalendarViewFeature {
   @ObservableState
-  struct State {
+  public struct State: Equatable {
     var calendar = CalendarFeature.State()
     var article = CalendarArticleFeature.State()
   }
   
-  enum Action {
+  public enum Action {
     case calendarAction(CalendarFeature.Action)
     case articleAction(CalendarArticleFeature.Action)
   }
 
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     Scope(state: \.calendar, action: \.calendarAction) {
       CalendarFeature()
     }

@@ -10,9 +10,9 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct CalendarFeature {
+public struct CalendarFeature {
   @ObservableState
-  struct State {
+  public struct State: Equatable {
     var selectedDate = Date()
     var existEventSelectedDate = false
     var currentPage = Date()
@@ -21,7 +21,7 @@ struct CalendarFeature {
     var eventDate: [Date] = [Calendar.current.getDateFromComponents(year: 2024,month: 7,day: 29)!, Calendar.current.getDateFromComponents(year: 2024, month: 7,day: 20)!]
   }
   
-  enum Action {
+  public enum Action {
     case tappedDate(selectedDate: Date)
     case swipeCurrentPage(currentPage: Date)
     case changeCurrentPage(currentPage: Date)
@@ -33,7 +33,7 @@ struct CalendarFeature {
   //MARK: - Helper
   private let dayToSecond: TimeInterval = 86400 //FSCalendar의 Time이 하루 시차가 발생함. 수정을 위한 변수
   
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case let .tappedDate(selectedDate):
