@@ -8,41 +8,80 @@
 
 import SwiftUI
 
+public enum ChipType {
+  case `default`
+  case edit
+}
+
 public struct BKChipView: View {
-  @State private var keyword: [String]
-  private var textColor: Color
-  private var strokeColor: Color
-  private var font: Font
+  @Binding var keywords: [String]
+  private let chipType: ChipType
   
-  public init(keyword: [String], textColor: Color, strokeColor: Color, font: Font) {
-    self.keyword = keyword
-    self.textColor = textColor
-    self.strokeColor = strokeColor
-    self.font = font
+  public init(
+    keywords: Binding<[String]>,
+    chipType: ChipType
+  ) {
+    self._keywords = keywords
+    self.chipType = chipType
   }
   
   public var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
       LazyHStack(spacing: 4) {
-        ForEach(keyword, id: \.self) { text in
-          chipTextItem(text)
+        ForEach(keywords, id: \.self) { keyword in
+          ChipItem(title: keyword, type: chipType)
+        }
+        
+        if chipType == .edit {
+          ChipItem(title: "추가하기", type: chipType, isAdd: true)
         }
       }
     }
-  }
-  
-  private func chipTextItem(_ text: String)  -> some View {
-    Text(text)
-      .font(font)
-      .foregroundColor(textColor)
-      .padding(.vertical, 5)
-      .padding(.horizontal, 9)
-      .clipShape(Capsule())
-      .overlay(
-        Capsule()
-          .stroke(strokeColor, lineWidth: 1)
-          .padding(1)
-      )
+    .frame(minHeight: 26, maxHeight: 26)
   }
 }
 
+private struct ChipItem: View {
+  private let title: String
+  private let type: ChipType
+  private var isAdd: Bool
+  
+  init(
+    title: String,
+    type: ChipType,
+    isAdd: Bool = false
+  ) {
+    self.title = title
+    self.type = type
+    self.isAdd = isAdd
+  }
+  
+  var body: some View {
+    HStack(spacing: 2) {
+      BKText(
+        text: title,
+        font: .semiBold,
+        size: ._11,
+        lineHeight: 16,
+        color: .bkColor(.gray700)
+      )
+      .lineLimit(1)
+      
+      if type == .edit {
+        BKIcon(
+          image: isAdd ? CommonFeature.Images.icoPlus : CommonFeature.Images.icoClose,
+          color: .bkColor(.gray700),
+          size: .init(width: 12, height: 12)
+        )
+      }
+    }
+    .padding(.vertical, 4)
+    .padding(.horizontal, 8)
+    .background(Capsule().fill(.white))
+    .overlay {
+      Capsule()
+        .stroke(Color.bkColor(.gray500), lineWidth: 1)
+        .padding(1)
+    }
+  }
+}

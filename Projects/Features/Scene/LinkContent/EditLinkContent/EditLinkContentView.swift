@@ -90,14 +90,13 @@ struct EditLinkContentView: View {
             }
             .padding(.top, 12)
             
-            BKChipView(
-              keyword: LinkCard.mock().first!.keyword,
-              textColor: .bkColor(.gray700),
-              strokeColor: .bkColor(.gray500),
-              font: .semiBold(size: ._11)
-            )
-            .frame(height: 26)
-            .padding(.top, 12)
+            WithPerceptionTracking {
+              BKChipView(
+                keywords: $store.link.keyword,
+                chipType: .edit
+              )
+              .padding(.top, 12)
+            }
             
             HStack {
               BKText(
