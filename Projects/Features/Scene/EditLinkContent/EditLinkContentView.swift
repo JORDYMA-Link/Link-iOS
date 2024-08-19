@@ -160,10 +160,6 @@ struct EditLinkContentView: View {
       ) {
         AddKewordBottomSheet(store: store.scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet))
       }
-      .modal(
-        isPresented: $store.isPresentedModal,
-        type: store.isPhotoError == .type ? .photoTypeError(checkAction: {}, cancelAction: { store.isPresentedModal = false }) : .photoSizeError(checkAction: {}, cancelAction: { store.isPresentedModal = false })
-      )
     }
   }
 }

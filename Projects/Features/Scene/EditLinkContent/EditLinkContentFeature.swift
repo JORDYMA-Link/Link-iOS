@@ -26,7 +26,7 @@ public struct EditLinkContentFeature {
     var selectedImage: [UIImage] = []
     var isPhotoError: PhotoPickerError?
     
-    var isPresentedModal: Bool = false
+    var isPhotoErrorPresented: Bool = false
     
     var addKeywordBottomSheet: AddKewordBottomSheetFeature.State = .init()
     
@@ -57,9 +57,11 @@ public struct EditLinkContentFeature {
     
     // MARK: Present Action
     case addKeywordBottomSheetPresented([String])
+    case photoErrorAlertPresented
   }
   
-  @Dependency(\.dismiss) var dismiss
+  @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.alertClient) private var alertClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet) {
@@ -71,8 +73,8 @@ public struct EditLinkContentFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.isPhotoError):
-        state.isPresentedModal = true
-        return .none
+        state.isPhotoErrorPresented = true
+        return .run { send in await send(.photoErrorAlertPresented) }
         
       case .closeButtonTapped:
          return .run { _ in await self.dismiss() }
@@ -121,7 +123,19 @@ public struct EditLinkContentFeature {
         
       case let .addKeywordBottomSheetPresented(keywords):
         return .send(.addKeywordBottomSheet(.addKeywordTapped(keywords)))
-                        
+        
+      case .photoErrorAlertPresented:
+        return .run { [state] send in
+          guard let error = state.isPhotoError else { return }
+          
+            await alertClient.present(.init(
+              title: error.title,
+              description: error.message,
+              buttonType: .singleButton(),
+              rightButtonAction: {}
+            ))
+        }
+        
       default:
         return .none
       }
