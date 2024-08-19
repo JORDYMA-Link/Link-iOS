@@ -58,11 +58,21 @@ public struct BKTabView: View {
           }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onAppear {
-          UITabBar.appearance().isHidden = true
-        }
+        .toast(
+          isPresented: .constant(false),
+          toastType: .summary,
+          toastContent: {
+            BKSummaryToast(
+              summaryType: .summaryComplete,
+              action: {}
+            )
+          }
+        )
         .navigationDestination(isPresented: $store.isSaveLinkPresented) {
           SaveLinkView(store: Store(initialState: SaveLinkFeature.State(), reducer: { SaveLinkFeature() } ))
+        }
+        .onAppear {
+          UITabBar.appearance().isHidden = true
         }
       }
     }

@@ -58,7 +58,7 @@ public struct StorageBoxFeature: Reducer {
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
-    // MARK: Route Action
+    // MARK: Present Action
     case menuBottomSheetPresented(Bool)
     case deleteFolderAlertPresented
   }

@@ -16,9 +16,10 @@ import ComposableArchitecture
 public struct EditMemoBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
-    var isEditMemoBottomSheetPresented: Bool = false
-    var isHighlight: Bool = false
     var memo = ""
+    var isValidation: Bool = true
+    
+    var isEditMemoBottomSheetPresented: Bool = false
     
     public init() {}
   }
@@ -29,6 +30,9 @@ public struct EditMemoBottomSheetFeature {
     case editMemoTapped(String)
     case confirmButtonTapped
     case closeButtonTapped
+    
+    // MARK: Inner SetState Action
+    case setValidation(Bool)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -43,7 +47,8 @@ public struct EditMemoBottomSheetFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.memo):
-        return .none
+        guard state.memo.count <= 1000 else { return .send(.setValidation(false)) }
+        return .send(.setValidation(true))
         
       case let .editMemoTapped(memo):
         state.memo = memo
@@ -57,6 +62,10 @@ public struct EditMemoBottomSheetFeature {
       case .closeButtonTapped:
         state.memo = .init()
         state.isEditMemoBottomSheetPresented = false
+        return .none
+        
+      case let .setValidation(isValidation):
+        state.isValidation = isValidation
         return .none
                 
       default:

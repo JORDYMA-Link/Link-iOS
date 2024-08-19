@@ -37,12 +37,13 @@ struct EditLinkContentView: View {
             
             WithPerceptionTracking {
               BKTextField(
-                text: $store.link.title,
-                isHighlight: $store.isTitleVaild,
+                text: $store.link.title.sending(\.titleTextChanged),
+                isValidation: store.isTitleValidation,
                 textFieldType: .editLinkTitle,
                 textCount: 50,
                 isMultiLine: true,
-                isClearButton: true,
+                isClearButton: true, 
+                errorMessage: "제목은 최소 2자, 최대 50자까지 입력 가능해요.",
                 height: 67
               )
               .padding(.top, 4)
@@ -59,11 +60,12 @@ struct EditLinkContentView: View {
             
             WithPerceptionTracking {
               BKTextField(
-                text: $store.link.description,
-                isHighlight: $store.isContentVaild,
+                text: $store.link.description.sending(\.descriptionChanged),
+                isValidation: store.isDescriptionValidation,
                 textFieldType: .editLinkContent,
                 textCount: 200,
                 isMultiLine: true,
+                errorMessage: "요약 내용은 최소 2자, 최대 200자까지 입력 가능해요.", 
                 height: 160
               )
               .padding(.top, 4)
@@ -90,14 +92,15 @@ struct EditLinkContentView: View {
             }
             .padding(.top, 12)
             
-            BKChipView(
-              keyword: LinkCard.mock().first!.keyword,
-              textColor: .bkColor(.gray700),
-              strokeColor: .bkColor(.gray500),
-              font: .semiBold(size: ._11)
-            )
-            .frame(height: 26)
-            .padding(.top, 12)
+            WithPerceptionTracking {
+              BKChipView(
+                keywords: $store.link.keyword,
+                chipType: .addWithDelete,
+                deleteAction: { store.send(.chipItemDeleteButtonTapped($0)) },
+                addAction: { store.send(.chipItemAddButtonTapped) }
+              )
+              .padding(.top, 12)
+            }
             
             HStack {
               BKText(
@@ -138,7 +141,7 @@ struct EditLinkContentView: View {
             WithPerceptionTracking {
               BKRoundedButton(
                 title: "수정 완료",
-                isDisabled: store.isTitleVaild && store.isContentVaild,
+                isDisabled: !store.isTitleValidation || !store.isDescriptionValidation,
                 confirmAction: { store.send(.editConfirmButtonTapped) }
               )
               .padding(.bottom, 14)
@@ -149,10 +152,14 @@ struct EditLinkContentView: View {
       }
       .tapToHideKeyboard()
       .ignoresSafeArea(.keyboard, edges: .bottom)
-      .modal(
-        isPresented: $store.isPresentedModal,
-        type: store.isPhotoError == .type ? .photoTypeError(checkAction: {}, cancelAction: { store.isPresentedModal = false }) : .photoSizeError(checkAction: {}, cancelAction: { store.isPresentedModal = false })
-      )
+      .bottomSheet(
+        isPresented: $store.addKeywordBottomSheet.isAddKewordBottomSheetPresented,
+        detents: [.height(240 - UIApplication.bottomSafeAreaInset)],
+        leadingTitle: "키워드 추가",
+        closeButtonAction: { store.send(.addKeywordBottomSheet(.closeButtonTapped)) }
+      ) {
+        AddKewordBottomSheet(store: store.scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet))
+      }
     }
   }
 }

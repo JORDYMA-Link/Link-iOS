@@ -19,6 +19,7 @@ public struct HomeFeature: Reducer {
   public struct State: Equatable {
     var viewDidLoad: Bool = false
     var selectedcellMenuItem: LinkCard?
+    var category: CategoryType = .bookmarked
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var linkContent: LinkContentFeature.State?
@@ -37,6 +38,7 @@ public struct HomeFeature: Reducer {
     // MARK: User Action
     case onAppear
     case searchBarTapped
+    case categoryButtonTapped(CategoryType)
     case calendarSearchTapped
     case settingTapped
     case cellTapped
@@ -78,6 +80,14 @@ public struct HomeFeature: Reducer {
         state.searchKeyword = .init()
         return .none
         
+      case let .categoryButtonTapped(categoryType):
+        if state.category == categoryType {
+          return .none
+        } else {
+          state.category = categoryType
+          return .none
+        }
+
       case .calendarSearchTapped:
         state.calendarContent = .init()
         return .none
