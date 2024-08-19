@@ -17,12 +17,12 @@ import SwiftUIIntrospect
 public struct StorageBoxView: View {
   @Perception.Bindable var store: StoreOf<StorageBoxFeature>
   @StateObject var scrollViewDelegate = StorageBoxScrollViewDelegate()
-  @State private var isScroll = false
+  @State private var isScrollDetected = false
   
   public var body: some View {
     WithPerceptionTracking {
       VStack(spacing: 0) {
-        StorageBoxNavigationView(isScroll: $isScroll)
+        StorageBoxNavigationView(isScrollDetected: $isScrollDetected)
         
         ScrollView(showsIndicators: false) {
           VStack(spacing: 0) {
@@ -75,8 +75,8 @@ public struct StorageBoxView: View {
       ) { store in
         StorageBoxContentListView(store: store)
       }
-      .onReceive(scrollViewDelegate.$isScroll.receive(on: DispatchQueue.main)) {
-        isScroll = $0
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        isScrollDetected = $0
       }
       .onAppear { store.send(.onAppear) }
     }
@@ -84,7 +84,7 @@ public struct StorageBoxView: View {
 }
 
 private struct StorageBoxNavigationView: View {
-  @Binding var isScroll: Bool
+  @Binding var isScrollDetected: Bool
   
   var body: some View {
     VStack(spacing: 0) {
@@ -93,7 +93,7 @@ private struct StorageBoxNavigationView: View {
       
       Divider()
         .foregroundStyle(Color.bkColor(.gray400))
-        .opacity(isScroll ? 1 : 0)
+        .opacity(isScrollDetected ? 1 : 0)
     }
   }
 }
@@ -110,11 +110,11 @@ private extension View {
 
 @MainActor
 final class StorageBoxScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject {
-  @Published var isScroll = false
+  @Published var isScrollDetected = false
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     DispatchQueue.main.async {
-      self.isScroll = scrollView.contentOffset.y > 80
+      self.isScrollDetected = scrollView.contentOffset.y > 80
     }
   }
 }

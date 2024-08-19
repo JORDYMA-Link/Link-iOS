@@ -18,7 +18,7 @@ import SwiftUIIntrospect
 struct LinkContentView: View {
   @Perception.Bindable var store: StoreOf<LinkContentFeature>
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
-  @State private var isScrolled: Bool = false
+  @State private var isScrollDetected: Bool = false
   
   var body: some View {
     WithPerceptionTracking {
@@ -26,11 +26,9 @@ struct LinkContentView: View {
         VStack(spacing: 0) {
           LinkContentHeaderView(
             link: LinkDetail.mock(),
-            saveAction: {
-              print("save")
-            }, shareAction: {
-              print("share")
-            })
+            saveAction: {},
+            shareAction: { store.send(.shareButtonTapped) }
+          )
           .background(ViewMaxYGeometry())
           .onPreferenceChange(ViewPreferenceKey.self) { maxY in
             let headerMaxY = maxY + UIApplication.topSafeAreaInset
@@ -53,37 +51,16 @@ struct LinkContentView: View {
               .padding(.top, 6)
             
             BKChipView(
-              keyword: LinkDetail.mock().keywords,
-              textColor: .bkColor(.gray700),
-              strokeColor: .bkColor(.gray500),
-              font: .semiBold(size: ._11)
+              keywords: .constant(store.linkContent.keywords),
+              chipType: .default
             )
             .padding(.top, 8)
             
-            LinkContentTitleButton(
-              title: "폴더",
-              buttonTitle: "수정",
-              action: { store.send(.editFolderButtonTapped) }
-            )
-            .padding(.top, 16)
+            folderTitle
+              .padding(.top, 16)
             
-            BKText(
-              text: LinkDetail.mock().folderName,
-              font: .regular,
-              size: ._14,
-              lineHeight: 20,
-              color: .bkColor(.gray900)
-            )
-            .padding(EdgeInsets(top: 9, leading: 13, bottom: 9, trailing: 13))
-            .background(
-              RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white)
-            )
-            .overlay {
-              RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.bkColor(.gray500), lineWidth: 1)
-            }
-            .padding(.top, 8)
+            folderSection
+              .padding(.top, 8)
             
             LinkContentTitleButton(
               title: "메모",
@@ -106,7 +83,7 @@ struct LinkContentView: View {
           GeometryReader { proxy in
             let minY = proxy.frame(in: .global).minY
             LinkContentNavigationBar(
-              isScrolled: $isScrolled,
+              isScrollDetected: $isScrollDetected,
               title: LinkDetail.mock().title,
               leftAction: { store.send(.closeButtonTapped) },
               rightAction: { store.send(.menuButtonTapped) }
@@ -119,16 +96,27 @@ struct LinkContentView: View {
         scrollView.delegate = scrollViewDelegate
       }
       .safeAreaInset(edge: .bottom, spacing: 0) {
-        BKRoundedButton(title: "원문 보기", confirmAction: {})
+        bottomSafeAreaButton
           .padding([.top, .horizontal], 10)
           .background(.white)
       }
       .ignoresSafeArea(edges: .top)
       .toolbar(.hidden, for: .navigationBar)
-      .animation(.easeInOut, value: isScrolled)
-      .onReceive(scrollViewDelegate.$topToHeader.receive(on: DispatchQueue.main)) {
-        self.isScrolled = $0
+      .animation(.easeInOut, value: isScrollDetected)
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
       }
+      .task { await store.send(.onTask).finish() }
+      .clipboardPopup(
+        isPresented: $store.isClipboardPopupPresented,
+        urlString: "https://www.naver.com",
+        saveAction: { store.send(.clipboardPopupSaveButtonTapped) }
+      )
+      .toast(
+        isPresented: $store.isClipboardToastPresented,
+        toastType: .clipboard,
+        toastContent: { BKClipboardToast() }
+      )
       .fullScreenCover(
         item: $store.scope(
           state: \.editLinkContent,
@@ -161,6 +149,75 @@ struct LinkContentView: View {
           menuItems: [.editLinkContent, .deleteLinkContent],
           action: { store.send(.menuBottomSheet($0)) }
         )
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var folderTitle: some View {
+    switch store.linkCotentType {
+    case .contentDetail:
+      LinkContentTitleButton(
+        title: "폴더",
+        buttonTitle: "수정",
+        action: { store.send(.editFolderButtonTapped) }
+      )
+    case .summaryCompleted:
+      HStack(spacing: 0) {
+        CommonFeature.Images.icoConceptStar
+          .resizable()
+          .scaledToFill()
+          .frame(width: 20, height: 20)
+        
+        LinkContentTitleButton(
+          title: "추천 폴더",
+          buttonTitle: "선택사항",
+          action: {}
+        )
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var folderSection: some View {
+    switch store.linkCotentType {
+    case .contentDetail:
+      BKFolderItem(
+        folderItemType: .default,
+        title: LinkDetail.mock().folderName,
+        isSeleted: false,
+        action: {}
+      )
+    case .summaryCompleted:
+      VStack(alignment: .leading, spacing: 10) {
+        BKFolderItem(
+          folderItemType: .default,
+          title: store.summary.recommend,
+          isSeleted: store.summary.recommend == store.selectedFolder,
+          action: { store.send(.recommendFolderItemTapped) }
+        )
+        
+        BKAddFolderList(
+          folderItemType: .default,
+          folderList: store.summary.folders,
+          selectedFolder: store.selectedFolder,
+          itemAction: { store.send(.folderItemTapped($0)) },
+          addAction: { store.send(.addFolderItemTapped) }
+        )
+        .padding(.horizontal, -16)
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var bottomSafeAreaButton: some View {
+    switch store.linkCotentType {
+    case .contentDetail:
+      BKRoundedButton(title: "원문 보기", confirmAction: {})
+    case .summaryCompleted:
+      HStack(spacing: 8) {
+        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {})
+        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: {})
       }
     }
   }

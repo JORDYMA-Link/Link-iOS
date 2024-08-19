@@ -12,6 +12,24 @@ import PhotosUI
 public enum PhotoPickerError {
   case type
   case size
+  
+  public var title: String {
+    switch self {
+    case .type:
+      return "지원 불가"
+    case .size:
+      return "용량 초과"
+    }
+  }
+  
+  public var message: String {
+    switch self {
+    case .type:
+      return "JPG, PNG 형식을 제외한 파일 형식은 업로드할 수 없습니다"
+    case .size:
+      return "선택한 이미지 크기가 5MB를 초과합니다 다시 선택해주세요"
+    }
+  }
 }
 
 public struct BKPhotoPicker<Content: View>: View {

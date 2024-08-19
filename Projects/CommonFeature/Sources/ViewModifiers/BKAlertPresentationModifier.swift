@@ -11,7 +11,7 @@ import SwiftUI
 private struct BKAlertPresentationModifier: ViewModifier {
   @State private var alertWindow: UIWindow?
   
-  public func body(content: Content) -> some View {
+  func body(content: Content) -> some View {
     content
       .onAppear {
         guard alertWindow == nil else { return }

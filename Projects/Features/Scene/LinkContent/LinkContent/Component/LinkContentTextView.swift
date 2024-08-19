@@ -27,6 +27,7 @@ struct LinkContentTextView: View {
       lineHeight: 20,
       color: .bkColor(.gray800)
     )
+    .frame(maxWidth: .infinity, alignment: .leading)
     .multilineTextAlignment(.leading)
     .padding(EdgeInsets(top: 13, leading: 16, bottom: 13, trailing: 16))
     .background(Color.bkColor(.gray300))
