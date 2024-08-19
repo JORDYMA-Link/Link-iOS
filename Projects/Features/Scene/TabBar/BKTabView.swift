@@ -69,7 +69,7 @@ public struct BKTabView: View {
           }
         )
         .navigationDestination(isPresented: $store.isSaveLinkPresented) {
-          SaveLinkView()
+          SaveLinkView(store: Store(initialState: SaveLinkFeature.State(), reducer: { SaveLinkFeature() } ))
         }
         .onAppear {
           UITabBar.appearance().isHidden = true

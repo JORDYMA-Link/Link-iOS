@@ -10,14 +10,15 @@ import SwiftUI
 import ComposableArchitecture
 import CommonFeature
 
-struct CalendarView: View {
+public struct CalendarView: View {
+  @Environment(\.dismiss) private var dismiss
   let store: StoreOf<CalendarViewFeature>
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
   private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
   
-  var body: some View {
+  public var body: some View {
     VStack(alignment: .leading) {
       
       Button{
@@ -71,15 +72,20 @@ struct CalendarView: View {
         }
       }
     }
-      
-      .toolbar {
-        
+    
+    .navigationBarBackButtonHidden(true)
+    .toolbar {
+      ToolbarItem(placement: .topBarLeading) {
+        LeadingItem(type: .dismiss("저장 기록", {
+          dismiss()
+        }))
       }
     }
+  }
   
   //MARK: - ViewBuilder
   @ViewBuilder
-  var selectionCurrentPageView: some View {
+  private var selectionCurrentPageView: some View {
     VStack {
       HStack {
         Spacer()
@@ -158,7 +164,7 @@ struct CalendarView: View {
     }
   }
 
-  var makeCategorySectionHeader: some View {
+  private var makeCategorySectionHeader: some View {
       let categories = ["중요", "미분류"]
   
       return ScrollView(.horizontal) {
