@@ -24,12 +24,13 @@ struct EditMemoBottomSheet: View {
         VStack(spacing: 0) {
           BKTextField(
             text: $store.memo,
-            isHighlight: $store.isHighlight,
+            isValidation: store.isValidation,
             textIsFocused: _textIsFocused,
             textFieldType: .addMemo,
             textCount: 1000,
             isMultiLine: true,
             isClearButton: true,
+            errorMessage: "메모는 1000자까지 입력 가능해요.",
             height: 126
           )
           .introspect(.textField, on: .iOS(.v17)) { textField in
@@ -41,7 +42,7 @@ struct EditMemoBottomSheet: View {
           
           BKRoundedButton(
             title: "완료",
-            isDisabled: store.isHighlight,
+            isDisabled: !store.isValidation,
             isCornerRadius: false,
             confirmAction: { store.send(.confirmButtonTapped) }
           )

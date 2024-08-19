@@ -23,12 +23,13 @@ struct EditFolderNameBottomSheet: View {
       GeometryReader { _ in
         VStack(spacing: 0) {
           BKTextField(
-            text: $store.folder.name,
-            isHighlight: $store.isValidation,
+            text: $store.folder.name.sending(\.textChanged),
+            isValidation: store.isValidation,
             textIsFocused: _textIsFocused,
             textFieldType: .editFolderName,
             textCount: 10,
-            isMultiLine: false
+            isMultiLine: false, 
+            errorMessage: store.errorMessage
           )
           .introspect(.textField, on: .iOS(.v17)) { textField in
             textField.delegate = textFieldDelegate
@@ -39,7 +40,7 @@ struct EditFolderNameBottomSheet: View {
           
           BKRoundedButton(
             title: "완료",
-            isDisabled: store.isValidation,
+            isDisabled: !store.isValidation,
             isCornerRadius: false,
             confirmAction: { store.send(.confirmButtonTapped) }
           )
