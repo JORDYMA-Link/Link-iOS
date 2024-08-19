@@ -14,8 +14,8 @@ extension String {
   }
   
   public var containsOnlyKorean: Bool {
-      let regex = "^[가-힣]+$"
-      return self.range(of: regex, options: .regularExpression) != nil
+    let regex = "^[가-힣]+$"
+    return self.range(of: regex, options: .regularExpression) != nil
   }
   
   public func calculateHeight(font: UIFont, width: CGFloat) -> CGFloat {
@@ -26,5 +26,12 @@ extension String {
     let boundingRect = attributedText.boundingRect(with: maxSize, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
     
     return ceil(boundingRect.height)
+  }
+}
+
+public extension String {
+  /// String 시작과 끝 공백 체크
+  func isValidLeadingTrailingWhitespace() -> Bool {
+    return self.hasPrefix(" ") || self.hasSuffix(" ")
   }
 }
