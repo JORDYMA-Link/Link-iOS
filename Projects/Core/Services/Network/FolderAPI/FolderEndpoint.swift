@@ -16,7 +16,7 @@ enum FolderEndpoint {
   case postFolder(name: String)
   case postOnboardingFolder(topics: [String])
   case deleteFolder(folderId: Int)
-  case fetchFolder(folderId: Int, name: String)
+  case patchFolder(folderId: Int, name: String)
 }
 
 extension FolderEndpoint: BaseTargetType {
@@ -28,7 +28,7 @@ extension FolderEndpoint: BaseTargetType {
       return "/api/folders/\(folderId)/feeds"
     case .postOnboardingFolder:
       return "/api/folders/onboarding"
-    case let .deleteFolder(folderId), let .fetchFolder(folderId, _):
+    case let .deleteFolder(folderId), let .patchFolder(folderId, _):
       return "/api/folders/\(folderId)"
     }
   }
@@ -41,7 +41,7 @@ extension FolderEndpoint: BaseTargetType {
       return .post
     case .deleteFolder:
       return .delete
-    case .fetchFolder:
+    case .patchFolder:
       return .patch
     }
   }
@@ -61,7 +61,7 @@ extension FolderEndpoint: BaseTargetType {
         "topics" : topics
       ], encoding: JSONEncoding.default)
       
-    case let .fetchFolder(_, name):
+    case let .patchFolder(_, name):
       return .requestParameters(parameters: [
         "name" : name
       ], encoding: JSONEncoding.default)
