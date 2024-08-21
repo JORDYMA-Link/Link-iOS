@@ -12,10 +12,10 @@ import Moya
 
 enum LinkEndpoint {
   case postLinkSummary(link: String, content: String)
-  case postLinkImage(feedId: String)
-  case patchLink(feedId: String, folderName: String, title: String, summary: String, keywords: [String], memo: String)
+  case postLinkImage(feedId: Int)
+  case patchLink(feedId: Int, folderName: String, title: String, summary: String, keywords: [String], memo: String)
   case getLinkProcessing
-  case deleteLinkDenySummary(feedId: String)
+  case deleteLinkDenySummary(feedId: Int)
 }
 
 extension LinkEndpoint: BaseTargetType {
