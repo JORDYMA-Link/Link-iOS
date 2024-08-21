@@ -17,10 +17,10 @@ public struct LinkClient {
   /// 링크 요약
   public var postLinkSummary: @Sendable (_ link: String, _ content: String) async throws -> LinkSummary
   /// 링크 썸네일 이미지 업로드
-  public var postLinkImage: @Sendable (_ feedId: String) async throws -> Void
+  public var postLinkImage: @Sendable (_ feedId: Int) async throws -> Void
   /// 링크 저장(수정)
   public var patchLink: @Sendable (
-    _ feedId: String,
+    _ feedId: Int,
     _ folderName: String,
     _ title: String,
     _ summary: String,
@@ -30,7 +30,7 @@ public struct LinkClient {
   /// 요약 중인 링크 조회
   public var getLinkProcessing: @Sendable () async throws -> LinkProcessing
   /// 요약 불가 링크 삭제
-  public var deleteLinkDenySummary: @Sendable (_ feedId: String) async throws -> Void
+  public var deleteLinkDenySummary: @Sendable (_ feedId: Int) async throws -> Void
 }
 
 extension LinkClient: DependencyKey {
