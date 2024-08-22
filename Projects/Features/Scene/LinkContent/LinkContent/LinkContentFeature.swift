@@ -82,7 +82,8 @@ public struct LinkContentFeature {
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
   }
   
-  @Dependency(\.dismiss) var dismiss
+  @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.linkClient) private var linkClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
@@ -146,7 +147,7 @@ public struct LinkContentFeature {
         
       case .menuBottomSheet(.editLinkContentCellTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLinkContent = .init(link: LinkCard.mock().first!)
+        state.editLinkContent = .init(feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
