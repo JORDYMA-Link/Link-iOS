@@ -9,6 +9,7 @@
 import Foundation
 
 import CommonFeature
+import Services
 import Models
 
 import ComposableArchitecture
@@ -112,7 +113,7 @@ public struct HomeFeature: Reducer {
         guard let selectedItem = state.selectedcellMenuItem else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        state.editLinkContent = .init(link: selectedItem)
+        state.editLinkContent = .init(feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.editFolderCellTapped):
