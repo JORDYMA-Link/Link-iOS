@@ -17,7 +17,7 @@ public struct LinkClient {
   /// 링크 요약
   public var postLinkSummary: @Sendable (_ link: String, _ content: String) async throws -> LinkSummary
   /// 링크 썸네일 이미지 업로드
-  public var postLinkImage: @Sendable (_ feedId: Int) async throws -> Void
+  public var postLinkImage: @Sendable (_ feedId: Int, _ thumbnailImage: Data) async throws -> String
   /// 링크 저장(수정)
   public var patchLink: @Sendable (
     _ feedId: Int,
@@ -42,8 +42,8 @@ extension LinkClient: DependencyKey {
         let responseDTO: LinkSummaryResponse = try await linkProvider.request(.postLinkSummary(link: link, content: content), modelType: LinkSummaryResponse.self)
         return responseDTO.toDomain()
       },
-      postLinkImage: { feedId in
-        return try await linkProvider.requestPlain(.postLinkImage(feedId: feedId))
+      postLinkImage: { feedId, thumbnailImage in
+        return try await linkProvider.request(.postLinkImage(feedId: feedId, thumbnailImage: thumbnailImage), modelType: String.self)
       },
       patchLink: { feedId, folderName, title, summary, keywords, memo in
         return try await linkProvider.requestPlain(.patchLink(feedId: feedId, folderName: folderName, title: title, summary: summary, keywords: keywords, memo: memo))

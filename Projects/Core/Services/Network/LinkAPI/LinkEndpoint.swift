@@ -12,7 +12,7 @@ import Moya
 
 enum LinkEndpoint {
   case postLinkSummary(link: String, content: String)
-  case postLinkImage(feedId: Int)
+  case postLinkImage(feedId: Int, thumbnailImage: Data)
   case patchLink(feedId: Int, folderName: String, title: String, summary: String, keywords: [String], memo: String)
   case getLinkProcessing
   case deleteLinkDenySummary(feedId: Int)
@@ -25,7 +25,7 @@ extension LinkEndpoint: BaseTargetType {
     switch self {
     case .postLinkSummary:
       return baseLinkRoutePath + "/summary"
-    case let .postLinkImage(feedId):
+    case let .postLinkImage(feedId, _):
       return baseLinkRoutePath + "/image/\(feedId)"
     case let .patchLink(feedId, _, _, _, _, _):
       return baseLinkRoutePath + "/\(feedId)"
@@ -57,8 +57,9 @@ extension LinkEndpoint: BaseTargetType {
         "content": content
       ], encoding: JSONEncoding.default)
       
-    case let .postLinkImage(feedId):
-      return .uploadMultipart([])
+    case let .postLinkImage(feedId, thumbnailImage):
+      let thumbnailImageFormData = MultipartFormData(provider: .data(thumbnailImage), name: "thumbnailImage", fileName: "\(feedId).jpg")
+      return .uploadMultipart([thumbnailImageFormData])
       
     case let .patchLink(_, folderName, title, summary, keywords, memo):
       let patchLinkBody = PatchLinkRequest(folderName: folderName, title: title, summary: summary, keywords: keywords, memo: memo)
@@ -66,6 +67,16 @@ extension LinkEndpoint: BaseTargetType {
       
     case .getLinkProcessing, .deleteLinkDenySummary:
       return .requestPlain
+    }
+  }
+  
+  var headers: [String : String]? {
+    switch self {
+    case .postLinkImage:
+      return ["Content-type":"multipart/form-data"]
+      
+    default:
+      return ["Content-type":"application/json"]
     }
   }
 }
