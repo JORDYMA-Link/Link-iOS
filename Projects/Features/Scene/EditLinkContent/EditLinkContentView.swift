@@ -12,6 +12,7 @@ import CommonFeature
 import Models
 
 import ComposableArchitecture
+import Kingfisher
 
 struct EditLinkContentView: View {
   @Perception.Bindable var store: StoreOf<EditLinkContentFeature>
@@ -37,12 +38,12 @@ struct EditLinkContentView: View {
             
             WithPerceptionTracking {
               BKTextField(
-                text: $store.link.title.sending(\.titleTextChanged),
+                text: $store.feed.title.sending(\.titleTextChanged),
                 isValidation: store.isTitleValidation,
                 textFieldType: .editLinkTitle,
                 textCount: 50,
                 isMultiLine: true,
-                isClearButton: true, 
+                isClearButton: true,
                 errorMessage: "제목은 최소 2자, 최대 50자까지 입력 가능해요.",
                 height: 67
               )
@@ -60,12 +61,12 @@ struct EditLinkContentView: View {
             
             WithPerceptionTracking {
               BKTextField(
-                text: $store.link.description.sending(\.descriptionChanged),
+                text: $store.feed.summary.sending(\.descriptionChanged),
                 isValidation: store.isDescriptionValidation,
                 textFieldType: .editLinkContent,
                 textCount: 200,
                 isMultiLine: true,
-                errorMessage: "요약 내용은 최소 2자, 최대 200자까지 입력 가능해요.", 
+                errorMessage: "요약 내용은 최소 2자, 최대 200자까지 입력 가능해요.",
                 height: 160
               )
               .padding(.top, 4)
@@ -94,7 +95,7 @@ struct EditLinkContentView: View {
             
             WithPerceptionTracking {
               BKChipView(
-                keywords: $store.link.keyword,
+                keywords: $store.feed.keywords,
                 chipType: .addWithDelete,
                 deleteAction: { store.send(.chipItemDeleteButtonTapped($0)) },
                 addAction: { store.send(.chipItemAddButtonTapped) }
@@ -125,12 +126,12 @@ struct EditLinkContentView: View {
             
             WithPerceptionTracking {
               BKPhotoPicker(
-                selectedImages: $store.selectedImage,
+                selectedPhotoInfos: $store.selectedPhotoInfos,
                 isPhotoError: $store.isPhotoError
               ) {
                 EditPhotoItem(
-                  currentImage: store.currentImage,
-                  selectedImages: store.selectedImage
+                  currentImage: store.feed.thumnailImage,
+                  selectedPhotoInfos: store.selectedPhotoInfos
                 )
               }
               .padding(.top, 12)
@@ -165,31 +166,38 @@ struct EditLinkContentView: View {
 }
 
 private struct EditPhotoItem: View {
-  private let currentImage: UIImage
-  private let selectedImages: [UIImage]
+  private let currentImage: URL?
+  private let selectedPhotoInfos: [Data]
   
   init(
-    currentImage: UIImage,
-    selectedImages: [UIImage]
+    currentImage: String,
+    selectedPhotoInfos: [Data]
   ) {
-    self.currentImage = currentImage
-    self.selectedImages = selectedImages
+    self.currentImage = URL(string: currentImage)
+    self.selectedPhotoInfos = selectedPhotoInfos
   }
   
   var body: some View {
-    if !selectedImages.isEmpty {
-      imageView(Image(uiImage: selectedImages[0]))
+    if !selectedPhotoInfos.isEmpty {
+      if let image = UIImage(data: selectedPhotoInfos[0]) {
+        Image(uiImage: image)
+          .resizable()
+          .editPhotoItem()
+      }
     } else {
-      imageView(Image(uiImage: currentImage))
+      KFImage.url(currentImage)
+        .fade(duration: 0.25)
+        .resizable()
+        .editPhotoItem()
     }
   }
-  
-  @MainActor
-  private func imageView(_ image: Image) -> some View {
-    image
-      .resizable()
+}
+
+private extension View {
+  func editPhotoItem() -> some View {
+    self
       .scaledToFill()
-      .frame(width: 80, height: 80, alignment: .leading)
+      .frame(width: 80, height: 80)
       .clipShape(RoundedRectangle(cornerRadius: 10))
       .overlay(alignment: .center) {
         VStack(spacing: 4) {
