@@ -23,8 +23,8 @@ public struct HomeFeature: Reducer {
     var category: CategoryType = .bookmarked
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
-    @Presents var linkContent: LinkFeature.State?
-    @Presents var editLinkContent: EditLinkFeature.State?
+    @Presents var link: LinkFeature.State?
+    @Presents var editLink: EditLinkFeature.State?
     @Presents var settingContent: SettingFeature.State?
     @Presents var calendarContent: CalendarViewFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
@@ -48,8 +48,8 @@ public struct HomeFeature: Reducer {
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
-    case linkContent(PresentationAction<LinkFeature.Action>)
-    case editLinkContent(PresentationAction<EditLinkFeature.Action>)
+    case link(PresentationAction<LinkFeature.Action>)
+    case editLink(PresentationAction<EditLinkFeature.Action>)
     case settingContent(PresentationAction<SettingFeature.Action>)
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -98,7 +98,7 @@ public struct HomeFeature: Reducer {
         return .none
         
       case .cellTapped:
-        state.linkContent = .init(linkCotentType: .contentDetail)
+        state.link = .init(linkCotentType: .contentDetail)
         return .none
         
       case let .cellMenuButtonTapped(selectedItem):
@@ -113,7 +113,7 @@ public struct HomeFeature: Reducer {
         guard let selectedItem = state.selectedcellMenuItem else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        state.editLinkContent = .init(feed: Feed.mock())
+        state.editLink = .init(feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.editFolderCellTapped):
@@ -133,10 +133,10 @@ public struct HomeFeature: Reducer {
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
       SearchKeywordFeature()
     }
-    .ifLet(\.$linkContent, action: \.linkContent) {
+    .ifLet(\.$link, action: \.link) {
       LinkFeature()
     }
-    .ifLet(\.$editLinkContent, action: \.editLinkContent) {
+    .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
     .ifLet(\.$settingContent, action: \.settingContent) {

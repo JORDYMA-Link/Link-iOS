@@ -1,5 +1,5 @@
 //
-//  LinkContentTextView.swift
+//  LinkTextView.swift
 //  Features
 //
 //  Created by kyuchul on 7/9/24.

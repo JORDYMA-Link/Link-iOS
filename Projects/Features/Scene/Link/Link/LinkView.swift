@@ -1,5 +1,5 @@
 //
-//  LinkContentView.swift
+//  LinkView.swift
 //  Features
 //
 //  Created by kyuchul on 7/6/24.
@@ -119,8 +119,8 @@ struct LinkView: View {
       )
       .fullScreenCover(
         item: $store.scope(
-          state: \.editLinkContent,
-          action: \.editLinkContent)
+          state: \.editLink,
+          action: \.editLink)
       ) { store in
         EditLinkView(store: store)
       }

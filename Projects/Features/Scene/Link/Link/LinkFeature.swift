@@ -1,5 +1,5 @@
 //
-//  LinkContentFeature.swift
+//  LinkFeature.swift
 //  Features
 //
 //  Created by kyuchul on 7/6/24.
@@ -46,7 +46,7 @@ public struct LinkFeature {
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
     
-    @Presents var editLinkContent: EditLinkFeature.State?
+    @Presents var editLink: EditLinkFeature.State?
     
     public init(linkCotentType: LinkCotentType) {
       self.linkCotentType = linkCotentType
@@ -78,7 +78,7 @@ public struct LinkFeature {
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case editMemoBottomSheet(EditMemoBottomSheetFeature.Action)
-    case editLinkContent(PresentationAction<EditLinkFeature.Action>)
+    case editLink(PresentationAction<EditLinkFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
   }
   
@@ -148,7 +148,7 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkContentCellTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLinkContent = .init(feed: Feed.mock())
+        state.editLink = .init(feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
@@ -167,7 +167,7 @@ public struct LinkFeature {
         return .none
       }
     }
-    .ifLet(\.$editLinkContent, action: \.editLinkContent) {
+    .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
   }

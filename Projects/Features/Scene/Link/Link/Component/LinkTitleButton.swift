@@ -1,5 +1,5 @@
 //
-//  LinkContentTitleButton.swift
+//  LinkTitleButton.swift
 //  Features
 //
 //  Created by kyuchul on 7/9/24.
