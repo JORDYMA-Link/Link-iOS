@@ -1,5 +1,5 @@
 //
-//  LinkContentHeaderView.swift
+//  LinkHeaderView.swift
 //  Features
 //
 //  Created by kyuchul on 7/7/24.
