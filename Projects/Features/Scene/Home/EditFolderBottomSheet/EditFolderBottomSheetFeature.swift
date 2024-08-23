@@ -16,35 +16,41 @@ import ComposableArchitecture
 public struct EditFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
-    public var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
+    public var folderList: [Folder] = []
+    public var selectedFolder: Folder = .init(id: 0, name: "", feedCount: 0)
     
     public var isEditFolderBottomSheetPresented: Bool = false
     
-    public var postLinkId: String?
-    
-    public var folderList: [Folder] = []
-    public var seletedFolder: Folder = .init(id: 0, name: "", feedCount: 0)
-    
+    public var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     public init() {}
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
+    case onTask
     case editFolderTapped(String)
     case folderCellTapped(Folder)
     case closeButtonTapped
+        
+    // MARK: Inner Business Action
+    case fetchFolderList
+    
+    // MARK: Inner SetState Action
+    case setFolderList([Folder])
+    case setSelectedFolder(Folder)
+    
+    // MARK: Delegate Action
+    public enum Delegate {
+      case didUpdateFolder(Folder)
+    }
+    case delegate(Delegate)
     
     // MARK: Child Action
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    
-    // MARK: Inner Business Action
-    case _onTask
-    
-    // MARK: Inner SetState Action
-    case _setFolderList([Folder])
-    case _selectedFolder(Folder)
   }
+  
+  @Dependency(\.folderClient) private var folderClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
@@ -55,31 +61,43 @@ public struct EditFolderBottomSheetFeature {
     
     Reduce { state, action in
       switch action {
-      case let .editFolderTapped(id):
-        state.postLinkId = id
+      case .onTask:
+        return .send(.fetchFolderList)
+        
+      case .editFolderTapped:
         state.isEditFolderBottomSheetPresented = true
         return .none
         
       case let .folderCellTapped(folder):
-        // 해당 폴더로 API 통신
-        print(folder)
         state.isEditFolderBottomSheetPresented = false
-        return .none
+        return .send(.delegate(.didUpdateFolder(folder)))
         
       case .closeButtonTapped:
         state.isEditFolderBottomSheetPresented = false
         return .none
         
-      case ._onTask:
-        guard let id = state.postLinkId else { return .none }
-        return requestFolderList(postLinkId: id)
-        
-      case let ._setFolderList(folderList):
+      case .fetchFolderList:
+        return .run(
+          operation: { send in
+            let folderList = try await folderClient.getFolders()
+            
+            if let selectedFolder = folderList.first {
+              await send(.setSelectedFolder(selectedFolder))
+            }
+            
+            await send(.setFolderList(folderList), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+                
+      case let .setFolderList(folderList):
         state.folderList = folderList
         return .none
         
-      case let ._selectedFolder(folder):
-        state.seletedFolder = folder
+      case let .setSelectedFolder(folder):
+        state.selectedFolder = folder
         return .none
         
       case .addFolderBottomSheet(.delegate(.fetchFolderList)):
@@ -88,27 +106,6 @@ public struct EditFolderBottomSheetFeature {
         
       default:
         return .none
-      }
-    }
-  }
-}
-
-extension EditFolderBottomSheetFeature {
-  /// 폴더 리스트 API 콜
-  private func requestFolderList(postLinkId: String) -> Effect<Action> {
-    .run { send in
-      do {
-        // API 연결 이전 테스트 -> postLinkId로 API 콜하는 상상 로직..
-        let dummyFolderList = [
-          Folder(id: 14125, name: "코코", feedCount: 214)
-          ]
-        await send(._setFolderList(dummyFolderList))
-        
-        if let firstFolder = dummyFolderList.first {
-          await send(._selectedFolder(firstFolder))
-        }
-      } catch {
-        print(error)
       }
     }
   }
