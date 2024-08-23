@@ -10,7 +10,7 @@ import SwiftUI
 
 import CommonFeature
 
-struct LinkContentTitleButton: View {
+struct LinkTitleButton: View {
   private let title: String
   private let buttonTitle: String
   private let action: () -> Void

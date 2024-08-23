@@ -75,7 +75,7 @@ public struct HomeView: View {
           action: \.linkContent
         )
       ) { store in
-        LinkContentView(store: store)
+        LinkView(store: store)
       }
       .navigationDestination(
         item: $store.scope(

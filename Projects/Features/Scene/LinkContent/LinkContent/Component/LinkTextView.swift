@@ -10,7 +10,7 @@ import SwiftUI
 
 import CommonFeature
 
-struct LinkContentTextView: View {
+struct LinkTextView: View {
   private let content: String
   
   init(

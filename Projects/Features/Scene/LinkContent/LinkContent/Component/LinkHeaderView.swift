@@ -14,7 +14,7 @@ import Common
 
 import SwiftUIIntrospect
 
-struct LinkContentHeaderView: View {
+struct LinkHeaderView: View {
   private let link: LinkDetail
   private let saveAction: () -> Void
   private let shareAction: () -> Void
@@ -117,7 +117,7 @@ struct LinkContentHeaderView: View {
   }
 }
 
-extension LinkContentHeaderView {
+extension LinkHeaderView {
   private struct Size {
     static let topSafeAreaInset: CGFloat = UIApplication.topSafeAreaInset
     static let navigationBarHeight: CGFloat = 56
