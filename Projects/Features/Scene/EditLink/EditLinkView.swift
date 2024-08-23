@@ -1,5 +1,5 @@
 //
-//  EditLinkContentView.swift
+//  EditLinkView.swift
 //  Features
 //
 //  Created by kyuchul on 7/12/24.
@@ -14,8 +14,8 @@ import Models
 import ComposableArchitecture
 import Kingfisher
 
-struct EditLinkContentView: View {
-  @Perception.Bindable var store: StoreOf<EditLinkContentFeature>
+struct EditLinkView: View {
+  @Perception.Bindable var store: StoreOf<EditLinkFeature>
   
   var body: some View {
     WithPerceptionTracking {

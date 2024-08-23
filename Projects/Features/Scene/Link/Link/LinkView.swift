@@ -122,7 +122,7 @@ struct LinkView: View {
           state: \.editLinkContent,
           action: \.editLinkContent)
       ) { store in
-        EditLinkContentView(store: store)
+        EditLinkView(store: store)
       }
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,

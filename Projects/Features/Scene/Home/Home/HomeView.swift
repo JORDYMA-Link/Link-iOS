@@ -90,7 +90,7 @@ public struct HomeView: View {
           state: \.editLinkContent,
           action: \.editLinkContent)
       ) { store in
-        EditLinkContentView(store: store)
+        EditLinkView(store: store)
       }
     }
   }
