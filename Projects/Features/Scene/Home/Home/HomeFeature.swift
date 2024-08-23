@@ -24,7 +24,7 @@ public struct HomeFeature: Reducer {
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var linkContent: LinkFeature.State?
-    @Presents var editLinkContent: EditLinkContentFeature.State?
+    @Presents var editLinkContent: EditLinkFeature.State?
     @Presents var settingContent: SettingFeature.State?
     @Presents var calendarContent: CalendarViewFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
@@ -49,7 +49,7 @@ public struct HomeFeature: Reducer {
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case linkContent(PresentationAction<LinkFeature.Action>)
-    case editLinkContent(PresentationAction<EditLinkContentFeature.Action>)
+    case editLinkContent(PresentationAction<EditLinkFeature.Action>)
     case settingContent(PresentationAction<SettingFeature.Action>)
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -137,7 +137,7 @@ public struct HomeFeature: Reducer {
       LinkFeature()
     }
     .ifLet(\.$editLinkContent, action: \.editLinkContent) {
-      EditLinkContentFeature()
+      EditLinkFeature()
     }
     .ifLet(\.$settingContent, action: \.settingContent) {
       SettingFeature()

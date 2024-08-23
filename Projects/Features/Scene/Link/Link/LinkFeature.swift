@@ -46,7 +46,7 @@ public struct LinkFeature {
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
     
-    @Presents var editLinkContent: EditLinkContentFeature.State?
+    @Presents var editLinkContent: EditLinkFeature.State?
     
     public init(linkCotentType: LinkCotentType) {
       self.linkCotentType = linkCotentType
@@ -78,7 +78,7 @@ public struct LinkFeature {
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case editMemoBottomSheet(EditMemoBottomSheetFeature.Action)
-    case editLinkContent(PresentationAction<EditLinkContentFeature.Action>)
+    case editLinkContent(PresentationAction<EditLinkFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
   }
   
@@ -168,7 +168,7 @@ public struct LinkFeature {
       }
     }
     .ifLet(\.$editLinkContent, action: \.editLinkContent) {
-      EditLinkContentFeature()
+      EditLinkFeature()
     }
   }
 }

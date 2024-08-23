@@ -1,5 +1,5 @@
 //
-//  EditLinkContentFeature.swift
+//  EditLinkFeature.swift
 //  Features
 //
 //  Created by kyuchul on 7/12/24.
@@ -15,7 +15,7 @@ import CommonFeature
 import ComposableArchitecture
 
 @Reducer
-public struct EditLinkContentFeature {
+public struct EditLinkFeature {
   @ObservableState
   public struct State: Equatable {
     var feed: Feed
