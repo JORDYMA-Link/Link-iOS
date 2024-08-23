@@ -98,7 +98,7 @@ public struct HomeFeature: Reducer {
         return .none
         
       case .cellTapped:
-        state.link = .init(linkCotentType: .contentDetail)
+        state.link = .init(linkType: .feedDetail(feedId: 2))
         return .none
         
       case let .cellMenuButtonTapped(selectedItem):
