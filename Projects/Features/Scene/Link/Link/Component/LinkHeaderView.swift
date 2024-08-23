@@ -9,23 +9,25 @@
 import SwiftUI
 
 import CommonFeature
+import Services
 import Models
 import Common
 
 import SwiftUIIntrospect
+import Kingfisher
 
 struct LinkHeaderView: View {
-  private let link: LinkDetail
-  private let saveAction: () -> Void
+  private var feed: Feed
+  private let saveAction: (Bool) -> Void
   private let shareAction: () -> Void
   @State private var height: CGFloat = 0
   
   init(
-    link: LinkDetail,
-    saveAction: @escaping () -> Void,
+    feed: Feed,
+    saveAction: @escaping (Bool) -> Void,
     shareAction: @escaping () -> Void
   ) {
-    self.link = link
+    self.feed = feed
     self.saveAction = saveAction
     self.shareAction = shareAction
   }
@@ -35,16 +37,17 @@ struct LinkHeaderView: View {
       let size = proxy.size
       let minY = proxy.frame(in: .global).minY
       let isScrolling = minY > 0
-      
-      CommonFeature.Images.contentDetailBackground
+            
+      KFImage.url(URL(string: feed.thumnailImage))
+        .fade(duration: 0.25)
         .resizable()
-        .aspectRatio(contentMode: .fill)
+        .scaledToFill()
         .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
         .clipped()
         .offset(y: isScrolling ? -minY : 0)
         .overlay(alignment: .top) {
           VStack(spacing: 0) {
-            titleView(link: link)
+            titleView()
             Spacer(minLength: 0)
             buttonView
           }
@@ -56,14 +59,15 @@ struct LinkHeaderView: View {
   }
   
   @MainActor
-  private func titleView(link: LinkDetail) -> some View {
+  private func titleView() -> some View {
     HStack(spacing: 0) {
       VStack(alignment: .leading, spacing: 0) {
-        CommonFeature.Images.icoBellClick
+        KFImage.url(URL(string: feed.platformImage ?? ""))
+          .fade(duration: 0.25)
           .resizable()
           .frame(width: 24, height: 24)
         
-        Text(link.title)
+        Text(feed.title)
           .font(.regular(size: ._28))
           .foregroundColor(Color.bkColor(.white))
           .lineLimit(3)
@@ -71,14 +75,15 @@ struct LinkHeaderView: View {
           .padding(.top, 4)
           .frame(maxWidth: .infinity, minHeight: Size.titleMinHeight, alignment: .topLeading)
           .fixedSize(horizontal: false, vertical: true)
-          .background(
-            GeometryReader { proxy in
-              Color.clear.onAppear { self.height = proxy.size.height }
+          .background(ViewHeightGeometry())
+          .onPreferenceChange(ViewPreferenceKey.self) { height in
+            DispatchQueue.main.async {
+              self.height = height
             }
-          )
-        
+          }
+          
         BKText(
-          text: link.date,
+          text: feed.date,
           font: .regular,
           size: ._16,
           lineHeight: 24,
@@ -95,11 +100,11 @@ struct LinkHeaderView: View {
       Spacer(minLength: 0)
       
       Button {
-        saveAction()
+        saveAction(!feed.isMarked)
       } label: {
         BKIcon(
-          image: CommonFeature.Images.icoSave,
-          color: .white, 
+          image: feed.isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave,
+          color: .white,
           size:CGSize(width: 20, height: 20)
         )
       }
@@ -122,7 +127,7 @@ extension LinkHeaderView {
     static let topSafeAreaInset: CGFloat = UIApplication.topSafeAreaInset
     static let navigationBarHeight: CGFloat = 56
     static let titleMinHeight: CGFloat = 76
-    static let headerMaxHeight: CGFloat = topSafeAreaInset + 266
-    static let headerMinHeight: CGFloat = topSafeAreaInset + 239
+    static let headerMaxHeight: CGFloat = 310
+    static let headerMinHeight: CGFloat = 272
   }
 }
