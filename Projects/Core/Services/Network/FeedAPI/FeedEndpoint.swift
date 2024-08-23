@@ -20,7 +20,7 @@ extension FeedEndpoint: BaseTargetType {
     
     switch self {
     case let .getFeed(feedId):
-      return baseFeedRoutePath + "/\(feedId)"
+      return baseFeedRoutePath + "/detail/\(feedId)"
     }
   }
   
