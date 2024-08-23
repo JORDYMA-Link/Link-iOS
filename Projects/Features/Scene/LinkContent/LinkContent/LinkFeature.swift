@@ -21,7 +21,7 @@ public enum LinkCotentType {
 }
 
 @Reducer
-public struct LinkContentFeature {
+public struct LinkFeature {
   @ObservableState
   public struct State: Equatable {
     /// 콘텐츠 디테일 or 링크 요약 분기 처리
@@ -84,6 +84,7 @@ public struct LinkContentFeature {
   
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.linkClient) private var linkClient
+  @Dependency(\.feedClient) private var feedClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {

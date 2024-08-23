@@ -11,7 +11,7 @@ import SwiftUI
 import CommonFeature
 import Common
 
-struct LinkContentNavigationBar: View {
+struct LinkNavigationBar: View {
   @Binding var isScrollDetected: Bool
   private let title: String
   private let leftAction: () -> Void
