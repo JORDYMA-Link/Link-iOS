@@ -21,7 +21,7 @@ extension LinkProcessingStatusResponse {
     return LinkProcessingStatus(
       feedId: feedId,
       title: title,
-      status: status
+      status: ProcessingStatusType(fromRawValue: status)
     )
   }
 }
