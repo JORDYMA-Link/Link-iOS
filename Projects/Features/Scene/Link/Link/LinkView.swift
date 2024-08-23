@@ -25,8 +25,8 @@ struct LinkView: View {
       ScrollView(showsIndicators: false) {
         VStack(spacing: 0) {
           LinkHeaderView(
-            link: LinkDetail.mock(),
-            saveAction: {},
+            feed: store.feed,
+            saveAction: { store.send(.saveButtonTapped($0)) },
             shareAction: { store.send(.shareButtonTapped) }
           )
           .background(ViewMaxYGeometry())
@@ -47,11 +47,11 @@ struct LinkView: View {
               color: .bkColor(.gray900)
             )
             
-            LinkTextView(content: "지난 22일 러시아 모스크바 시내 공연장에서 발생한 총기 난사 사건 사망자가 최소 115명으로 늘었으며 당국에 의해 11명이 체포됐다고 23일 AP통신이 보도했다. AP는 러시아 수사 위원회를 인용해 115명을 숨지게한 이번 총격 테러와 관련돼 11명이 체")
+            LinkTextView(content: store.feed.summary)
               .padding(.top, 6)
             
             BKChipView(
-              keywords: .constant(store.linkContent.keywords),
+              keywords: .constant(store.feed.keywords),
               chipType: .default
             )
             .padding(.top, 8)
@@ -71,8 +71,8 @@ struct LinkView: View {
             )
             .padding(.top, 16)
             
-            if !store.memo.isEmpty {
-              LinkTextView(content: store.memo)
+            if !store.feed.memo.isEmpty {
+              LinkTextView(content: store.feed.memo)
                 .padding(.top, 13)
             }
           }
@@ -84,7 +84,7 @@ struct LinkView: View {
             let minY = proxy.frame(in: .global).minY
             LinkNavigationBar(
               isScrollDetected: $isScrollDetected,
-              title: LinkDetail.mock().title,
+              title: store.feed.title,
               leftAction: { store.send(.closeButtonTapped) },
               rightAction: { store.send(.menuButtonTapped) }
             )
@@ -155,8 +155,8 @@ struct LinkView: View {
   
   @ViewBuilder
   private var folderTitle: some View {
-    switch store.linkCotentType {
-    case .contentDetail:
+    switch store.linkType {
+    case .feedDetail:
       LinkTitleButton(
         title: "폴더",
         buttonTitle: "수정",
@@ -180,8 +180,8 @@ struct LinkView: View {
   
   @ViewBuilder
   private var folderSection: some View {
-    switch store.linkCotentType {
-    case .contentDetail:
+    switch store.linkType {
+    case .feedDetail:
       BKFolderItem(
         folderItemType: .default,
         title: LinkDetail.mock().folderName,
@@ -192,14 +192,14 @@ struct LinkView: View {
       VStack(alignment: .leading, spacing: 10) {
         BKFolderItem(
           folderItemType: .default,
-          title: store.summary.recommend,
-          isSeleted: store.summary.recommend == store.selectedFolder,
+          title: store.feed.folderName,
+          isSeleted: store.feed.folderName == store.selectedFolder,
           action: { store.send(.recommendFolderItemTapped) }
         )
         
         BKAddFolderList(
           folderItemType: .default,
-          folderList: store.summary.folders,
+          folderList: store.feed.recommendFolders ?? [],
           selectedFolder: store.selectedFolder,
           itemAction: { store.send(.folderItemTapped($0)) },
           addAction: { store.send(.addFolderItemTapped) }
@@ -211,8 +211,8 @@ struct LinkView: View {
   
   @ViewBuilder
   private var bottomSafeAreaButton: some View {
-    switch store.linkCotentType {
-    case .contentDetail:
+    switch store.linkType {
+    case .feedDetail:
       BKRoundedButton(title: "원문 보기", confirmAction: {})
     case .summaryCompleted:
       HStack(spacing: 8) {

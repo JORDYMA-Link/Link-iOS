@@ -15,8 +15,8 @@ import Models
 import ComposableArchitecture
 
 /// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
-public enum LinkCotentType {
-  case contentDetail
+public enum LinkType: Equatable {
+  case feedDetail(feedId: Int)
   case summaryCompleted
 }
 
@@ -25,18 +25,14 @@ public struct LinkFeature {
   @ObservableState
   public struct State: Equatable {
     /// 콘텐츠 디테일 or 링크 요약 분기 처리
-    var linkCotentType: LinkCotentType
-    /// 콘텐츠 디테일 화면 데이터
-    var linkContent: LinkDetail = .mock()
-    /// 링크 요약 화면  데이터
-    var summary: Summary = .makeSummaryMock()
+    var linkType: LinkType
+    /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
+    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
-    /// 메모
-    var memo: String = "memo"
     /// 메모 타이틀
     var memoButtonTitle: String {
-      memo.isEmpty ? "추가" : "수정"
+      feed.memo.isEmpty ? "추가" : "수정"
     }
     
     var isMenuBottomSheetPresented: Bool = false
@@ -48,8 +44,8 @@ public struct LinkFeature {
     
     @Presents var editLink: EditLinkFeature.State?
     
-    public init(linkCotentType: LinkCotentType) {
-      self.linkCotentType = linkCotentType
+    public init(linkType: LinkType) {
+      self.linkType = linkType
     }
   }
   
@@ -60,6 +56,7 @@ public struct LinkFeature {
     case onTask
     case closeButtonTapped
     case menuButtonTapped
+    case saveButtonTapped(Bool)
     case shareButtonTapped
     case clipboardPopupSaveButtonTapped
     case editFolderButtonTapped
@@ -69,17 +66,21 @@ public struct LinkFeature {
     case editMemoButtonTapeed
     
     // MARK: Inner Business Action
-    case menuBottomSheetPresented(Bool)
-    case clipboardPopupPresented(Bool)
-    case clipboardToastPresented(Bool)
+    case fetchFeedDetail(Int)
     
     // MARK: Inner SetState Action
+    case setFeed(Feed)
     
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case editMemoBottomSheet(EditMemoBottomSheetFeature.Action)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
+    
+    // MARK: Present Action
+    case menuBottomSheetPresented(Bool)
+    case clipboardPopupPresented(Bool)
+    case clipboardToastPresented(Bool)
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -103,14 +104,24 @@ public struct LinkFeature {
         return .none
         
       case .onTask:
-        state.selectedFolder = state.summary.recommend
-        return .none
+        switch state.linkType {
+        case let .feedDetail(feedId):
+          return .run { send in await send(.fetchFeedDetail(feedId)) }
+          
+        case .summaryCompleted:
+          state.selectedFolder = state.feed.folderName
+          return .none
+        }
         
       case .closeButtonTapped:
          return .run { _ in await self.dismiss() }
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
+        
+      case let .saveButtonTapped(isMarked):
+        state.feed.isMarked = isMarked
+        return .none
         
       case .shareButtonTapped:
         return .run { send in await send(.clipboardPopupPresented(true)) }
@@ -122,9 +133,9 @@ public struct LinkFeature {
         return .send(.editFolderBottomSheet(.editFolderTapped("test")))
         
       case .recommendFolderItemTapped:
-        guard state.selectedFolder != state.summary.recommend else { return .none }
+        guard state.selectedFolder != state.feed.folderName else { return .none }
                 
-        state.selectedFolder = state.summary.recommend
+        state.selectedFolder = state.feed.folderName
         return .none
         
       case .addFolderItemTapped:
@@ -136,10 +147,26 @@ public struct LinkFeature {
         return .none
         
       case .editMemoButtonTapeed:
-        return .send(.editMemoBottomSheet(.editMemoTapped(state.memo)))
+        return .send(.editMemoBottomSheet(.editMemoTapped(state.feed.memo)))
+        
+      case let .fetchFeedDetail(feedId):
+        return .run(
+          operation: { send in
+            let feed = try await feedClient.getFeed(feedId)
+            
+            await send(.setFeed(feed), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .setFeed(feed):
+        state.feed = feed
+        return .none
         
       case let .editMemoBottomSheet(.delegate(.didUpdateMemo(memo))):
-        state.memo = memo
+        state.feed.memo = memo
         return .none
         
       case let .menuBottomSheetPresented(isPresented):
