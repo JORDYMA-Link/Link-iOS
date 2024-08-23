@@ -13,12 +13,16 @@ import Models
 struct FeedResponse: Decodable {
   let feedId: Int
   let thumnailImage: String
+  let platformImage: String
   let title: String
   let date: String
   let summary: String
   let keywords: [String]
   let folderName: String
   let memo: String
+  let isMarked: Bool
+  let originUrl: String
+  
 }
 
 extension FeedResponse {
@@ -26,12 +30,16 @@ extension FeedResponse {
     Feed(
       feedId: feedId,
       thumnailImage: thumnailImage,
+      platformImage: platformImage,
       title: title,
       date: date,
       summary: summary,
       keywords: keywords,
       folderName: folderName,
-      memo: memo
+      recommendFolders: [],
+      memo: memo,
+      isMarked: isMarked,
+      originUrl: originUrl
     )
   }
 }
