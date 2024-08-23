@@ -184,7 +184,7 @@ struct LinkView: View {
     case .feedDetail:
       BKFolderItem(
         folderItemType: .default,
-        title: LinkDetail.mock().folderName,
+        title: store.feed.folderName,
         isSeleted: false,
         action: {}
       )

@@ -67,6 +67,7 @@ public struct LinkFeature {
     
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
+    case patchFeed
     
     // MARK: Inner SetState Action
     case setFeed(Feed)
@@ -130,7 +131,7 @@ public struct LinkFeature {
         return .run { send in await send(.clipboardToastPresented(true)) }
                         
       case .editFolderButtonTapped:
-        return .send(.editFolderBottomSheet(.editFolderTapped("test")))
+        return .send(.editFolderBottomSheet(.editFolderTapped(state.feed.folderName)))
         
       case .recommendFolderItemTapped:
         guard state.selectedFolder != state.feed.folderName else { return .none }
@@ -161,13 +162,52 @@ public struct LinkFeature {
           }
         )
         
+      case .patchFeed:
+        return .run(
+          operation: { [state] send in
+            _ = try await linkClient.patchLink(
+              state.feed.feedId,
+              state.feed.folderName,
+              state.feed.title,
+              state.feed.summary,
+              state.feed.keywords,
+              state.feed.memo
+            )
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
       case let .setFeed(feed):
         state.feed = feed
         return .none
         
+      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(folder))):
+        guard state.feed.folderName != folder.name else { return .none }
+        
+        state.feed.folderName = folder.name
+        
+        switch state.linkType {
+        case .feedDetail:
+          return .run { send in await send(.patchFeed) }
+          
+        case .summaryCompleted:
+          return .none
+        }
+        
       case let .editMemoBottomSheet(.delegate(.didUpdateMemo(memo))):
+        guard state.feed.memo != memo else { return .none }
+        
         state.feed.memo = memo
-        return .none
+        
+        switch state.linkType {
+        case .feedDetail:
+          return .run { send in await send(.patchFeed) }
+          
+        case .summaryCompleted:
+          return .none
+        }
         
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
