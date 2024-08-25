@@ -40,12 +40,30 @@ public struct SettingView: View {
     })
     
     .bottomSheet(isPresented: $store.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
-      VStack(alignment: .center, content: {
-        if store.targetNickname.containsOnlyKorean {
-          nicknameTextField
-        } else {
-          nicknameNoticeTextField
+      VStack(alignment: .center) {
+        VStack(alignment: .leading) {
+          TextField(text: $store.targetNickname) {
+            Text("변경할 닉네임을 입력해주세요.")
+              .font(.regular(size: ._14))
+              .foregroundStyle(Color.bkColor(.gray800))
+          }
+          .frame(height: 46)
+          .padding(.leading, 10)
+          .background(Color.bkColor(store.targetNicknameValidation ? .gray300 : .white))
+          .clipShape(RoundedRectangle(cornerRadius: 10))
+          .overlay(
+            RoundedRectangle(cornerRadius: 10)
+              .stroke(Color.bkColor(.red), lineWidth: 1)
+              .opacity(store.targetNicknameValidation ? 0 : 1)
+          )
+          
+          if !store.targetNicknameValidation {
+            Text(store.validationNoticeMessage)
+              .foregroundStyle(Color.bkColor(.red))
+              .font(.regular(size: ._12))
+          }
         }
+        .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
         
         Spacer()
         
@@ -57,7 +75,7 @@ public struct SettingView: View {
         })
         .frame(maxWidth: .infinity, maxHeight: 52)
         .background(Color.bkColor(.main300))
-      })
+      }
     }
     
     .fullScreenCover(isPresented: $store.showLogoutConfirmModal, content: {
@@ -66,6 +84,10 @@ public struct SettingView: View {
       }, cancelAction: {
         store.send(.toggleLogOut)
       }))
+    })
+    
+    .onAppear(perform: {
+      store.send(.requestSettingInfo)
     })
   }
   
@@ -141,7 +163,7 @@ extension SettingView {
             Text("최신 1.0.9")
               .font(.regular(size: ._12))
               .foregroundStyle(Color.bkColor(.gray700))
-            Text("현재 1.0.9")
+            Text("현재 \(store.currentAppVersion)")
               .font(.semiBold(size: ._12))
               .foregroundStyle(Color.bkColor(.gray700))
           }
@@ -187,48 +209,7 @@ extension SettingView {
         .padding(.top, 32)
       }
       .padding(EdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16))
-      
     }
-  }
-  
-  @ViewBuilder
-  private var nicknameTextField: some View {
-    TextField(text: $store.targetNickname) {
-      Text("변경할 닉네임을 입력해주세요.")
-        .font(.regular(size: ._14))
-        .foregroundStyle(Color.bkColor(.gray800))
-    }
-    .frame(height: 46)
-    .padding(.leading, 10)
-    .background(Color.bkColor(.gray300))
-    .clipShape(RoundedRectangle(cornerRadius: 10))
-    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-  }
-  
-  @ViewBuilder
-  private var nicknameNoticeTextField: some View {
-    VStack(alignment: .leading, content: {
-      TextField(text: $store.targetNickname) {
-        Text("변경할 닉네임을 입력해주세요.")
-          .font(.regular(size: ._14))
-          .foregroundStyle(Color.bkColor(.gray800))
-      }
-      .frame(height: 46)
-      .padding(.leading, 10)
-      .background(Color.bkColor(.white))
-      .clipShape(RoundedRectangle(cornerRadius: 10))
-      .overlay(
-        RoundedRectangle(cornerRadius: 10)
-          .stroke(Color.bkColor(.red), lineWidth: 1)
-      )
-      
-      Text("특수문자는 허용되지 않습니다.")
-        .foregroundStyle(Color.bkColor(.red))
-        .font(.regular(size: ._12))
-      
-    })
-    .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-    
   }
   
   @ViewBuilder
