@@ -57,11 +57,20 @@ public struct SettingView: View {
               .opacity(store.targetNicknameValidation ? 0 : 1)
           )
           
-          if !store.targetNicknameValidation {
-            Text(store.validationNoticeMessage)
-              .foregroundStyle(Color.bkColor(.red))
-              .font(.regular(size: ._12))
+          HStack(alignment: .center) {
+            if !store.targetNicknameValidation {
+              Text(store.validationNoticeMessage)
+                .foregroundStyle(Color.bkColor(.red))
+                .font(.regular(size: ._12))
+            }
+            
+            Spacer()
+            
+            Text("\(store.targetNickname.count)/10")
+              .font(.regular(size: ._13))
+              .foregroundStyle(Color.bkColor(.gray600))
           }
+          
         }
         .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
         
