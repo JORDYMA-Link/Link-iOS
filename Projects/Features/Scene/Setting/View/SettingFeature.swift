@@ -53,8 +53,9 @@ public struct SettingFeature {
     case notAllowOthreLanguage
     case notAllowTextSymbol
     case notAllowSpace
+    case notAllowOverTenChar
     
-    var errorMessage: String {
+    var noticeMessage: String {
       switch self {
       case .notAllowOthreLanguage:
         return "영문 사용은 허용되지 않습니다."
@@ -62,6 +63,8 @@ public struct SettingFeature {
         return "이모지는 허용되지 않습니다"
       case .notAllowSpace:
         return "공백은 허용되지 않습니다"
+      case .notAllowOverTenChar:
+        return "10글자 이상은 허용되지 않습니다."
       }
     }
   }
@@ -118,11 +121,13 @@ public struct SettingFeature {
         }
         
         if target.containsWhitespace {
-          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowSpace.errorMessage)
+          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowSpace.noticeMessage)
         } else if target.containsEmoji {
-          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowTextSymbol.errorMessage)
+          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowTextSymbol.noticeMessage)
         } else if target.containsOtherLanguage {
-          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowOthreLanguage.errorMessage)
+          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowOthreLanguage.noticeMessage)
+        } else if target.count >= 10 {
+          setValidationResult(isValid: false, message: NicknameValidationNotice.notAllowOverTenChar.noticeMessage)
         } else {
           setValidationResult(isValid: true, message: "")
         }
