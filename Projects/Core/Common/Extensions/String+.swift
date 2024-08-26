@@ -14,21 +14,20 @@ extension String {
   }
   
   public var containsOtherLanguage: Bool {
-    let pattern = "[^가-힣]" // 한국어가 아닌 문자
-    if let _ = self.range(of: pattern, options: .regularExpression) {
-        return true // 한국어가 아닌 문자가 포함되어 있음
-    } else {
-        return false // 오직 한국어만 포함되어 있음
-    }
+    let koreanRange = Unicode.Scalar("\u{AC00}")...Unicode.Scalar("\u{D7A3}") // 한글 유니코드 범위
+    let nonKoreanCharacterSet = CharacterSet(charactersIn: koreanRange)
+    
+    // 문자열이 한글 이외의 문자를 포함하고 있는지 확인
+    return self.unicodeScalars.contains(where: { !nonKoreanCharacterSet.contains($0) })
   }
   
   public var containsEmoji: Bool {
-      let pattern = "[\\u{1F600}-\\u{1F64F}]|[\\u{1F300}-\\u{1F5FF}]|[\\u{1F680}-\\u{1F6FF}]|[\\u{1F700}-\\u{1F77F}]|[\\u{1F780}-\\u{1F7FF}]|[\\u{1F800}-\\u{1F8FF}]|[\\u{1F900}-\\u{1F9FF}]|[\\u{1FA00}-\\u{1FA6F}]|[\\u{1FA70}-\\u{1FAFF}]|[\\u{2600}-\\u{26FF}]|[\\u{2700}-\\u{27BF}]"
-      if let _ = self.range(of: pattern, options: .regularExpression) {
-          return true // 이모티콘이 포함되어 있음
-      } else {
-          return false // 이모티콘이 없음
+    for scalar in self.unicodeScalars {
+      if scalar.properties.isEmoji {
+        return true
       }
+    }
+    return false
   }
   
   public var containsWhitespace: Bool {
