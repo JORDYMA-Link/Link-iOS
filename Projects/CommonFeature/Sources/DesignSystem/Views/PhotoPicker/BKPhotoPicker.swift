@@ -34,7 +34,7 @@ public enum PhotoPickerError {
 
 public struct BKPhotoPicker<Content: View>: View {
   @State private var selectedPhotos: [PhotosPickerItem] = []
-  @Binding private var selectedImages: [UIImage]
+  @Binding private var selectedPhotoInfos: [Data]
   @Binding private var isPresentedError: Bool
   @Binding private var isPhotoError: PhotoPickerError?
   private let photoLibrary: PHPhotoLibrary
@@ -46,12 +46,12 @@ public struct BKPhotoPicker<Content: View>: View {
   }
   
   public init(
-    selectedImages: Binding<[UIImage]>,
+    selectedPhotoInfos: Binding<[Data]>,
     isPresentedError: Binding<Bool> = .constant(false),
     isPhotoError: Binding<PhotoPickerError?> = .constant(nil),
     photoLibrary: PHPhotoLibrary = .shared(),
     content: @escaping () -> Content) {
-      self._selectedImages = selectedImages
+      self._selectedPhotoInfos = selectedPhotoInfos
       self._isPresentedError = isPresentedError
       self._isPhotoError = isPhotoError
       self.content = content
@@ -87,7 +87,9 @@ extension BKPhotoPicker {
   private func loadTransferable(from photoSelection: [PhotosPickerItem]) {
     for photo in photoSelection {
       guard let fileExtension = photo.supportedContentTypes.first?.preferredFilenameExtension else {
-        isPresentedError = true
+        DispatchQueue.main.async {
+          isPresentedError = true
+        }
         return
       }
       
@@ -109,15 +111,15 @@ extension BKPhotoPicker {
               return
             }
             
-            if let image = UIImage(data: data) {
-              DispatchQueue.main.async {
-                selectedImages.removeAll()
-                selectedImages.append(image)
-              }
+            DispatchQueue.main.async {
+              selectedPhotoInfos.removeAll()
+              selectedPhotoInfos.append(data)
             }
           }
         case .failure:
-          isPresentedError = true
+          DispatchQueue.main.async {
+            isPresentedError = true
+          }
         }
       }
     }

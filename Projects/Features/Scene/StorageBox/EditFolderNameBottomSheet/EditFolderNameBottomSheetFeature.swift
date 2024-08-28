@@ -96,7 +96,7 @@ public struct EditFolderNameBottomSheetFeature {
       case .confirmButtonTapped:
         return .run(
           operation: { [state] send in
-            let fetchFolder = try await folderClient.fetchFolder(state.folder.id, state.folder.name)
+            let fetchFolder = try await folderClient.patchFolder(state.folder.id, state.folder.name)
             
             print(fetchFolder)
             

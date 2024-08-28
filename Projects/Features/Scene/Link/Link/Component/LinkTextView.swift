@@ -1,5 +1,5 @@
 //
-//  LinkContentTextView.swift
+//  LinkTextView.swift
 //  Features
 //
 //  Created by kyuchul on 7/9/24.
@@ -10,7 +10,7 @@ import SwiftUI
 
 import CommonFeature
 
-struct LinkContentTextView: View {
+struct LinkTextView: View {
   private let content: String
   
   init(
