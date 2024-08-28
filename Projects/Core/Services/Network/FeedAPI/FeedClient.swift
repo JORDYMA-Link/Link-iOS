@@ -16,6 +16,8 @@ import Moya
 public struct FeedClient {
   /// 피드 상세 메모 수정
   public var postFeedMemo: @Sendable (_ feedId: Int, _ memo: String) async throws -> Feed
+  /// 중요/미분류 피드 리스트 조회
+  public var postFeedByType: @Sendable (_ type: String, _ page: Int) async throws -> [FeedCard]
   /// 피드 삭제
   public var deleteFeed: @Sendable (_ feedId: Int) async throws -> Void
   /// 피드 북마크 여부 변경
@@ -35,6 +37,11 @@ extension FeedClient: DependencyKey {
         let responseDTO: FeedResponse = try await feedProvider.request(.postFeedMemo(feedId: feedId, memo: memo), modelType: FeedResponse.self)
         
         return responseDTO.toDomain()
+      },
+      postFeedByType: { type, page in
+        let responseDTO: FeedCardListResponse = try await feedProvider.request(.postFeedByType(type: type, page: page), modelType: FeedCardListResponse.self)
+        
+        return responseDTO.feedList.map { $0.toDomain() }
       },
       deleteFeed: { feedId in
         return try await feedProvider.requestPlain(.deleteFeed(feedId: feedId))
