@@ -1,5 +1,5 @@
 //
-//  LinkContentNavigationBar.swift
+//  LinkNavigationBar.swift
 //  Features
 //
 //  Created by kyuchul on 7/7/24.
@@ -11,7 +11,7 @@ import SwiftUI
 import CommonFeature
 import Common
 
-struct LinkContentNavigationBar: View {
+struct LinkNavigationBar: View {
   @Binding var isScrollDetected: Bool
   private let title: String
   private let leftAction: () -> Void

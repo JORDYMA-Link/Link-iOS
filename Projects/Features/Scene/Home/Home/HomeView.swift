@@ -71,11 +71,11 @@ public struct HomeView: View {
       }
       .navigationDestination(
         item: $store.scope(
-          state: \.linkContent,
-          action: \.linkContent
+          state: \.link,
+          action: \.link
         )
       ) { store in
-        LinkContentView(store: store)
+        LinkView(store: store)
       }
       .navigationDestination(
         item: $store.scope(
@@ -87,10 +87,10 @@ public struct HomeView: View {
       }
       .fullScreenCover(
         item: $store.scope(
-          state: \.editLinkContent,
-          action: \.editLinkContent)
+          state: \.editLink,
+          action: \.editLink)
       ) { store in
-        EditLinkContentView(store: store)
+        EditLinkView(store: store)
       }
     }
   }

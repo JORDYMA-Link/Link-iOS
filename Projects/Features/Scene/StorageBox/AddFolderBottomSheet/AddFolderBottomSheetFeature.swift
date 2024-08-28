@@ -48,14 +48,14 @@ public struct AddFolderBottomSheetFeature {
     case confirmButtonTapped
     
     // MARK: Inner Business Action
-    case successAddFolder
+    case successAddFolder(Folder)
     
     // MARK: Inner SetState Action
     case setValidation(Bool)
     
     // MARK: Delegate Action
     public enum Delegate {
-      case fetchFolderList
+      case fetchFolderList(Folder)
     }
     case delegate(Delegate)
   }
@@ -101,7 +101,7 @@ public struct AddFolderBottomSheetFeature {
             
             print(addFolder)
             
-            await send(.successAddFolder)
+            await send(.successAddFolder(addFolder))
           },
           catch: { error, send in
             print(error)
@@ -109,10 +109,10 @@ public struct AddFolderBottomSheetFeature {
         )
         .throttle(id: ThrottleId.confirmButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
-      case .successAddFolder:
+      case let .successAddFolder(folder):
         state.folderName = ""
         state.isAddFolderBottomSheetPresented = false
-        return .send(.delegate(.fetchFolderList))
+        return .send(.delegate(.fetchFolderList(folder)))
         
       case let .setValidation(isValidation):
         state.isValidation = isValidation

@@ -20,6 +20,7 @@ public enum BKColor: Equatable, Hashable {
     case gray800
     case gray900
     case green
+    case lightRed
     case red
     case yellow
     case main900
@@ -52,6 +53,7 @@ public extension BKColor {
         case .gray800: return CommonFeature.Colors.gray800.uiColor
         case .gray900: return CommonFeature.Colors.gray900.uiColor
         case .green: return CommonFeature.Colors.systemGreen.uiColor
+        case .lightRed: return CommonFeature.Colors.systemLightRed.uiColor
         case .red: return CommonFeature.Colors.systemRed.uiColor
         case .yellow: return CommonFeature.Colors.systemYellow.uiColor
         case .main900: return CommonFeature.Colors.main900.uiColor
@@ -84,6 +86,7 @@ public extension BKColor {
         case .gray800: return CommonFeature.Colors.gray800
         case .gray900: return CommonFeature.Colors.gray900
         case .green: return CommonFeature.Colors.systemGreen
+        case .lightRed: return CommonFeature.Colors.systemLightRed
         case .red: return CommonFeature.Colors.systemRed
         case .yellow: return CommonFeature.Colors.systemYellow
         case .main900: return CommonFeature.Colors.main900
