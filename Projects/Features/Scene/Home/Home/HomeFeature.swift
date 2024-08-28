@@ -105,6 +105,10 @@ public struct HomeFeature: Reducer {
         state.selectedcellMenuItem = selectedItem
         return .run { send in await send(.menuBottomSheetPresented(true)) }
         
+      case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
+        print("피드 수정 이후 홈에서 해당 피드 업데이트 처리")
+        return .none
+        
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
         return .none
@@ -113,7 +117,7 @@ public struct HomeFeature: Reducer {
         guard let selectedItem = state.selectedcellMenuItem else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(feed: Feed.mock())
+        state.editLink = .init(editLinkType: .home, feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.editFolderCellTapped):
