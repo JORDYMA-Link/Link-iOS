@@ -67,11 +67,20 @@ public struct LinkFeature {
     
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
+    case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
+    case dismiss
     
     // MARK: Inner SetState Action
     case setFeed(Feed)
+    case setDelegate
+    
+    // MARK: Delegate Action
+    public enum Delegate {
+      case didUpdateHome(Feed)
+    }
+    case delegate(Delegate)
     
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
@@ -86,10 +95,12 @@ public struct LinkFeature {
   }
   
   @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
   
   private enum ThrottleId {
+    case deleteButtonTapped
     case saveButtonTapped
   }
   
@@ -120,7 +131,7 @@ public struct LinkFeature {
         }
         
       case .closeButtonTapped:
-        return .run { _ in await self.dismiss() }
+        return .send(.dismiss)
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
@@ -170,6 +181,19 @@ public struct LinkFeature {
           }
         )
         
+      case let .deleteFeed(feedId):
+        return .run(
+          operation: { send in
+            _ = try await feedClient.deleteFeed(feedId)
+            
+            await send(.setDelegate)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        .throttle(id: ThrottleId.deleteButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
       case let .patchBookmark(feedId, isMarked):
         return .run(
           operation: { send in
@@ -199,9 +223,18 @@ public struct LinkFeature {
           }
         )
         
+      case .dismiss:
+        return .run { _ in await self.dismiss() }
+        
       case let .setFeed(feed):
         state.feed = feed
         return .none
+        
+      case .setDelegate:
+        return .run { [state] send in
+          await send(.delegate(.didUpdateHome(state.feed)))
+          await send(.dismiss)
+        }
         
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(folder))):
         guard state.feed.folderName != folder.name else { return .none }
@@ -233,8 +266,14 @@ public struct LinkFeature {
         return .none
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
-        print("deleteModal")
-        return .none
+        return .run { [state] send in
+          await alertClient.present(.init(
+            title: "삭제",
+            description:"콘텐츠를 삭제하시면 복원이 어려워요",
+            buttonType: .doubleButton(left: "취소", right: "확인"),
+            rightButtonAction: { await send(.deleteFeed(state.feed.feedId)) }
+          ))
+        }
         
       case let .clipboardPopupPresented(isPresented):
         state.isClipboardPopupPresented = isPresented
