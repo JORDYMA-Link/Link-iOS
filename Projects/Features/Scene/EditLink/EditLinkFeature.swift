@@ -14,11 +14,19 @@ import CommonFeature
 
 import ComposableArchitecture
 
+/// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
+public enum EditLinkType {
+  case home
+  case link
+}
+
 @Reducer
 public struct EditLinkFeature {
   @ObservableState
   public struct State: Equatable {
+    var editLinkType: EditLinkType
     var feed: Feed
+    var initFeed: Feed?
     var isTitleValidation: Bool = true
     var isDescriptionValidation: Bool = true
     
@@ -28,8 +36,13 @@ public struct EditLinkFeature {
     
     var addKeywordBottomSheet: AddKewordBottomSheetFeature.State = .init()
     
-    public init(feed: Feed) {
+    public init(
+      editLinkType: EditLinkType,
+      feed: Feed
+    ) {
+      self.editLinkType = editLinkType
       self.feed = feed
+      self.initFeed = feed
     }
   }
   
@@ -45,12 +58,23 @@ public struct EditLinkFeature {
     case editConfirmButtonTapped
     
     // MARK: Inner Business Action
+    case postThumbnailImage(Int, Data)
+    case patchLink(Int)
+    case dismiss
     
     // MARK: Inner SetState Action
-    case postThumbnailImage(Int)
-    case patchLink(Int)
     case setTitleValidation(Bool)
     case setDescriptionValidation(Bool)
+    case setDelegate
+    
+    // MARK: Delegate Action
+    public enum Delegate {
+      /// 디테일 or 요약 완료 화면으로 dismiss
+      case didUpdateLink(Feed)
+      /// 홈 화면으로 dismiss
+      case didUpdateHome(Feed)
+    }
+    case delegate(Delegate)
     
     // MARK: Child Action
     case addKeywordBottomSheet(AddKewordBottomSheetFeature.Action)
@@ -78,7 +102,19 @@ public struct EditLinkFeature {
         return .run { send in await send(.photoErrorAlertPresented) }
         
       case .closeButtonTapped:
-        return .run { _ in await self.dismiss() }
+        return .run { send in
+          await alertClient.present(.init(
+            title: "편집 중단",
+            description: 
+           """
+            편집을 중단하시겠어요?
+            수정한 내용이 반영되지 않아요
+            """,
+            buttonType: .doubleButton(left: "나가기", right: "취소"),
+            leftButtonAction: { await send(.dismiss) },
+            rightButtonAction: {}
+          ))
+        }
         
       case let .titleTextChanged(title):
         state.feed.title = title
@@ -108,13 +144,17 @@ public struct EditLinkFeature {
         return .run { [state] send in await send(.addKeywordBottomSheetPresented(state.feed.keywords)) }
         
       case .editConfirmButtonTapped:
-        return .run { [state] send in await send(.postThumbnailImage(state.feed.feedId)) }
-        
-      case let .postThumbnailImage(feedId):
-        guard let selectedPhoto = state.selectedPhotoInfos.first else {
-          return .send(.patchLink(feedId))
+        if let selectedPhoto = state.selectedPhotoInfos.first {
+          return .run { [state] send in await send(.postThumbnailImage(state.feed.feedId, selectedPhoto)) }
         }
         
+        guard state.feed != state.initFeed else {
+          return .run { _ in await self.dismiss() }
+        }
+        
+        return .run { [state] send in await send(.patchLink(state.feed.feedId)) }
+        
+      case let .postThumbnailImage(feedId, selectedPhoto):
         return .run(
           operation: { send in
             let imageURL = try await linkClient.postLinkImage(feedId, selectedPhoto)
@@ -125,6 +165,8 @@ public struct EditLinkFeature {
           },
           catch: { error, send in
             print(error)
+            
+            await send(.patchLink(feedId))
           }
         )
         
@@ -140,12 +182,15 @@ public struct EditLinkFeature {
               state.feed.memo
             )
             
-            await send(.closeButtonTapped)
+            await send(.setDelegate)
           },
           catch: { error, send in
             print(error)
           }
         )
+        
+      case .dismiss:
+        return .run { _ in await self.dismiss() }
         
       case let .setTitleValidation(isTitleValidation):
         state.isTitleValidation = isTitleValidation
@@ -154,6 +199,18 @@ public struct EditLinkFeature {
       case let .setDescriptionValidation(isDescriptionValidation):
         state.isDescriptionValidation = isDescriptionValidation
         return .none
+        
+      case .setDelegate:
+        return .run { [state] send in
+          switch state.editLinkType {
+          case .home:
+            await send(.delegate(.didUpdateHome(state.feed)))
+          case .link:
+            await send(.delegate(.didUpdateLink(state.feed)))
+          }
+          
+          await send(.dismiss)
+        }
         
       case let .addKeywordBottomSheet(.delegate(.updateKeywords(keyword))):
         state.feed.keywords = keyword

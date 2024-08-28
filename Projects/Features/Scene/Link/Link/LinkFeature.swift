@@ -209,13 +209,17 @@ public struct LinkFeature {
           return .none
         }
         
+      case let .editLink(.presented(.delegate(.didUpdateLink(feed)))):
+        state.feed = feed
+        return .none
+                
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
         return .none
         
       case .menuBottomSheet(.editLinkContentCellTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(feed: Feed.mock())
+        state.editLink = .init(editLinkType: .link, feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
