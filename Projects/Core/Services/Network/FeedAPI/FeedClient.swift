@@ -20,6 +20,8 @@ public struct FeedClient {
   public var deleteFeed: @Sendable (_ feedId: Int) async throws -> Void
   /// 피드 북마크 여부 변경
   public var patchBookmark: @Sendable (_ feedId: Int, _ setMarked: Bool) async throws -> FeedBookmark
+  /// 피드 일반, 키워드 검색
+  public var getFeedSearch: @Sendable (_ query: String, _ page: Int) async throws -> SearchFeed
   /// 피드 상세 조회
   public var getFeed: @Sendable (_ feedId: Int) async throws -> Feed
 }
@@ -39,6 +41,11 @@ extension FeedClient: DependencyKey {
       },
       patchBookmark: { feedId, setMarked in
         let responseDTO: FeedBookmarkResponse = try await feedProvider.request(.patchBookmark(feedId: feedId, setMarked: setMarked), modelType: FeedBookmarkResponse.self)
+        
+        return responseDTO.toDomain()
+      },
+      getFeedSearch: { query, page in
+        let responseDTO: SearchFeedResponse = try await feedProvider.request(.getFeedSearch(query: query, page: page), modelType: SearchFeedResponse.self)
         
         return responseDTO.toDomain()
       },
