@@ -28,13 +28,12 @@ public struct EditFolderBottomSheetFeature {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
-    case onTask
     case editFolderTapped(String)
     case folderCellTapped(Folder)
     case closeButtonTapped
         
     // MARK: Inner Business Action
-    case fetchFolderList
+    case fetchFolderList(String)
     
     // MARK: Inner SetState Action
     case setFolderList([Folder])
@@ -60,13 +59,10 @@ public struct EditFolderBottomSheetFeature {
     BindingReducer()
     
     Reduce { state, action in
-      switch action {
-      case .onTask:
-        return .send(.fetchFolderList)
-        
-      case .editFolderTapped:
+      switch action {        
+      case let .editFolderTapped(folderName):
         state.isEditFolderBottomSheetPresented = true
-        return .none
+        return .send(.fetchFolderList(folderName))
         
       case let .folderCellTapped(folder):
         state.isEditFolderBottomSheetPresented = false
@@ -76,13 +72,13 @@ public struct EditFolderBottomSheetFeature {
         state.isEditFolderBottomSheetPresented = false
         return .none
         
-      case .fetchFolderList:
+      case let .fetchFolderList(folderName):
         return .run(
           operation: { send in
             let folderList = try await folderClient.getFolders()
             
-            if let selectedFolder = folderList.first {
-              await send(.setSelectedFolder(selectedFolder))
+            if let index = folderList.firstIndex(where: { $0.name == folderName }) {
+              await send(.setSelectedFolder(folderList[index]))
             }
             
             await send(.setFolderList(folderList), animation: .default)
@@ -100,9 +96,10 @@ public struct EditFolderBottomSheetFeature {
         state.selectedFolder = folder
         return .none
         
-      case .addFolderBottomSheet(.delegate(.fetchFolderList)):
-        print("폴더 추가 완료하여 Get 폴더 리스트 API 콜")
-        return .none
+      case let .addFolderBottomSheet(.delegate(.fetchFolderList(folder))):
+        var folderList = state.folderList
+        folderList.append(folder)
+        return .send(.setFolderList(folderList), animation: .default)
         
       default:
         return .none
