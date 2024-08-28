@@ -14,6 +14,8 @@ import Dependencies
 import Moya
 
 public struct FeedClient {
+  /// 피드 상세 메모 수정
+  public var postFeedMemo: @Sendable (_ feedId: Int, _ memo: String) async throws -> Feed
   /// 피드 상세 조회
   public var getFeed: @Sendable (_ feedId: Int) async throws -> Feed
 }
@@ -23,6 +25,12 @@ extension FeedClient: DependencyKey {
     let feedProvider = Provider<FeedEndpoint>()
     
     return Self(
+      postFeedMemo: { feedId, memo in
+        let responseDTO: FeedResponse = try await feedProvider.request(.postFeedMemo(feedId: feedId, memo: memo), modelType: FeedResponse.self)
+        
+        return responseDTO.toDomain()
+      },
+      
       getFeed: { feedId in
         let responseDTO: FeedResponse = try await feedProvider.request(.getFeed(feedId: feedId), modelType: FeedResponse.self)
         
