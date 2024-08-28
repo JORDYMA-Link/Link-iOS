@@ -34,5 +34,17 @@ public struct LinkSummary: Equatable {
     let summary: String
     let keywords: [String]
     let folders: [String]
+    
+    public init(
+      subject: String,
+      summary: String,
+      keywords: [String],
+      folders: [String]
+    ) {
+      self.subject = subject
+      self.summary = summary
+      self.keywords = keywords
+      self.folders = folders
+    }
   }
 }
