@@ -67,6 +67,7 @@ public struct LinkFeature {
     
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
+    case patchBookmark(Int, Bool)
     case patchFeed
     
     // MARK: Inner SetState Action
@@ -87,6 +88,10 @@ public struct LinkFeature {
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
+  
+  private enum ThrottleId {
+    case saveButtonTapped
+  }
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
@@ -115,27 +120,29 @@ public struct LinkFeature {
         }
         
       case .closeButtonTapped:
-         return .run { _ in await self.dismiss() }
+        return .run { _ in await self.dismiss() }
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
         
       case let .saveButtonTapped(isMarked):
+        let feedId = state.feed.feedId
         state.feed.isMarked = isMarked
-        return .none
+        return .run { send in await send(.patchBookmark(feedId, isMarked)) }
+          .throttle(id: ThrottleId.saveButtonTapped, for: .seconds(2), scheduler: DispatchQueue.main, latest: false)
         
       case .shareButtonTapped:
         return .run { send in await send(.clipboardPopupPresented(true)) }
         
       case .clipboardPopupSaveButtonTapped:
         return .run { send in await send(.clipboardToastPresented(true)) }
-                        
+        
       case .editFolderButtonTapped:
         return .send(.editFolderBottomSheet(.editFolderTapped(state.feed.folderName)))
         
       case .recommendFolderItemTapped:
         guard state.selectedFolder != state.feed.folderName else { return .none }
-                
+        
         state.selectedFolder = state.feed.folderName
         return .none
         
@@ -157,6 +164,18 @@ public struct LinkFeature {
             let feed = try await feedClient.getFeed(feedId)
             
             await send(.setFeed(feed), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .patchBookmark(feedId, isMarked):
+        return .run(
+          operation: { send in
+            let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
+            
+            print(feedBookmark)
           },
           catch: { error, send in
             print(error)
@@ -203,7 +222,7 @@ public struct LinkFeature {
         
       case let .editLink(.presented(.delegate(.didUpdateLink(feed)))):
         return .send(.setFeed(feed))
-                
+        
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
         return .none
