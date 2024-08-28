@@ -148,7 +148,8 @@ public struct LinkFeature {
         return .none
         
       case .editMemoButtonTapeed:
-        return .send(.editMemoBottomSheet(.editMemoTapped(state.feed.memo)))
+        let feed = state.feed
+        return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
         
       case let .fetchFeedDetail(feedId):
         return .run(
@@ -196,22 +197,12 @@ public struct LinkFeature {
           return .none
         }
         
-      case let .editMemoBottomSheet(.delegate(.didUpdateMemo(memo))):
-        guard state.feed.memo != memo else { return .none }
-        
-        state.feed.memo = memo
-        
-        switch state.linkType {
-        case .feedDetail:
-          return .run { send in await send(.patchFeed) }
-          
-        case .summaryCompleted:
-          return .none
-        }
+      case let .editMemoBottomSheet(.delegate(.didUpdateMemo(feed))):
+        state.feed.memo = feed.memo
+        return .none
         
       case let .editLink(.presented(.delegate(.didUpdateLink(feed)))):
-        state.feed = feed
-        return .none
+        return .send(.setFeed(feed))
                 
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
