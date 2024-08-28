@@ -12,6 +12,7 @@ import Moya
 
 enum FeedEndpoint {
   case postFeedMemo(feedId: Int, memo: String)
+  case postFeedByType(type: String, page: Int, size: Int = 10)
   case deleteFeed(feedId: Int)
   case patchBookmark(feedId: Int, setMarked: Bool)
   case getFeedSearch(query: String, page: Int, size: Int = 10)
@@ -25,6 +26,8 @@ extension FeedEndpoint: BaseTargetType {
     switch self {
     case .postFeedMemo:
       return baseFeedRoutePath + "/memo"
+    case .postFeedByType:
+      return baseFeedRoutePath + "/by-type"
     case let .deleteFeed(feedId):
       return baseFeedRoutePath + "/\(feedId)"
     case let .patchBookmark(feedId, _):
@@ -38,7 +41,7 @@ extension FeedEndpoint: BaseTargetType {
   
   var method: Moya.Method {
     switch self {
-    case .postFeedMemo:
+    case .postFeedMemo, .postFeedByType:
       return .post
     case .deleteFeed:
       return .delete
@@ -55,6 +58,13 @@ extension FeedEndpoint: BaseTargetType {
       return .requestParameters(parameters: [
         "feedId": feedId,
         "memo": memo
+      ], encoding: JSONEncoding.default)
+      
+    case let .postFeedByType(type, page, size):
+      return .requestParameters(parameters: [
+        "type": type,
+        "page": page,
+        "size": size
       ], encoding: JSONEncoding.default)
       
     case let .patchBookmark(_, setMarked):
