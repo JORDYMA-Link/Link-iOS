@@ -105,7 +105,9 @@ public struct HomeFeature: Reducer {
         state.selectedcellMenuItem = selectedItem
         return .run { send in await send(.menuBottomSheetPresented(true)) }
         
-      case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
+
+      case let .editLink(.presented(.delegate(.didUpdateHome(feed)))), 
+        let .link(.presented(.delegate(.didUpdateHome(feed)))):
         print("피드 수정 이후 홈에서 해당 피드 업데이트 처리")
         return .none
         
