@@ -35,7 +35,6 @@ struct EditFolderBottomSheet: View {
         makeAddFolderBottomSheet()
           .presentationDetents([.height(202)])
       }
-      .task { await store.send(.onTask).finish() }
     }
   }
   
