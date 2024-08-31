@@ -114,7 +114,6 @@ public struct HomeFeature: Reducer {
         return .none
         
       case let .cellMenuButtonTapped(selectedItem):
-        state.selectedcellMenuItem = selectedItem
         return .run { send in await send(.menuBottomSheetPresented(true)) }
         
       case .fetchFeedList:
@@ -143,17 +142,15 @@ public struct HomeFeature: Reducer {
         return .none
         
       case .menuBottomSheet(.editLinkContentCellTapped):
-        guard let selectedItem = state.selectedcellMenuItem else { return .none }
         
         state.isMenuBottomSheetPresented = false
         state.editLink = .init(editLinkType: .home, feed: Feed.mock())
         return .none
         
       case .menuBottomSheet(.editFolderCellTapped):
-        guard let selectedItem = state.selectedcellMenuItem else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(String(selectedItem.id)))) }
+        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(Feed.mock().folderName))) }
         
       case .menuBottomSheet(.deleteLinkContentCellTapped):
         print("deleteModal")
