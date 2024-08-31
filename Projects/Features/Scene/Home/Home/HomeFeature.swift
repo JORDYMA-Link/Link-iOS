@@ -19,8 +19,11 @@ public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
     var viewDidLoad: Bool = false
-    var selectedcellMenuItem: LinkCard?
+    
     var category: CategoryType = .bookmarked
+    /// 저장된 콘텐츠 유무
+    var isFeedEmpty: Bool = false
+    var feedList: [FeedCard] = []
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var link: LinkFeature.State?
@@ -30,7 +33,6 @@ public struct HomeFeature: Reducer {
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
   
     var isMenuBottomSheetPresented: Bool = false
-//    var pushSetting: Bool = false
   }
   
   public enum Action: BindableAction {
@@ -38,12 +40,19 @@ public struct HomeFeature: Reducer {
     
     // MARK: User Action
     case onAppear
-    case searchBarTapped
+    case settingButtonTapped
+    case instructionBannerTapped
+    case searchBannerSearchBarTapped
+    case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
-    case calendarSearchTapped
-    case settingTapped
-    case cellTapped
+    case cardItemTapped
     case cellMenuButtonTapped(LinkCard)
+    
+    // MARK: Inner Business Action
+    case fetchFeedList
+    
+    // MARK: Inner SetState Action
+    case setFeedList([FeedCard])
     
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
@@ -54,11 +63,11 @@ public struct HomeFeature: Reducer {
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
-    // MARK: Inner Business Action
+    // MARK: Present Action
     case menuBottomSheetPresented(Bool)
-    
-    // MARK: Inner SetState Action
   }
+  
+  @Dependency(\.feedClient) private var feedClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
@@ -75,10 +84,21 @@ public struct HomeFeature: Reducer {
       case .onAppear:
         guard state.viewDidLoad == false else { return .none }
         state.viewDidLoad = true
+        return .send(.fetchFeedList)
+                
+      case .settingButtonTapped:
+        state.settingContent = .init()
+        return .none
+        
+      case .instructionBannerTapped:
         return .none
 
-      case .searchBarTapped:
+      case .searchBannerSearchBarTapped:
         state.searchKeyword = .init()
+        return .none
+        
+      case .searchBannerCalendarTapped:
+        state.calendarContent = .init()
         return .none
         
       case let .categoryButtonTapped(categoryType):
@@ -88,16 +108,8 @@ public struct HomeFeature: Reducer {
           state.category = categoryType
           return .none
         }
-
-      case .calendarSearchTapped:
-        state.calendarContent = .init()
-        return .none
         
-      case .settingTapped:
-        state.settingContent = .init()
-        return .none
-        
-      case .cellTapped:
+      case .cardItemTapped:
         state.link = .init(linkType: .feedDetail(feedId: 2))
         return .none
         
@@ -105,6 +117,21 @@ public struct HomeFeature: Reducer {
         state.selectedcellMenuItem = selectedItem
         return .run { send in await send(.menuBottomSheetPresented(true)) }
         
+      case .fetchFeedList:
+        return .run(
+          operation: { send in
+            let feedList = try await feedClient.postFeedByType("BOOKMARKED", 0)
+            
+            await send(.setFeedList(feedList), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .setFeedList(feedList):
+        state.feedList = feedList
+        return .none
 
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))), 
         let .link(.presented(.delegate(.didUpdateHome(feed)))):
