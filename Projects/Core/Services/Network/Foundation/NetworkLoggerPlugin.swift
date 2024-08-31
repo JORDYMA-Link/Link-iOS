@@ -37,8 +37,11 @@ public struct NetworkLoggerPlugin: PluginType {
 
     switch result {
     case .success(let response):
-      guard let json = try? response.mapJSON() as? [String: Any] else { return }
-      print("[Moya-Logger] Success: \(json)")
+      guard let json = try? response.mapJSON() as? [String: Any],
+            let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted),
+            let jsonString = String(data: jsonData, encoding: .utf8) else { return }
+      
+      print("[Moya-Logger] Success: \(jsonString)")
     case .failure(let error):
       print("[Moya-Logger] Fail: \(String(describing: error.errorDescription))")
     }
