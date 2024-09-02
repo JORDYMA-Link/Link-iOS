@@ -32,7 +32,7 @@ public struct EditFolderBottomSheetFeature {
     case editFolderTapped(Int, String)
     case folderCellTapped(Folder)
     case closeButtonTapped
-        
+    
     // MARK: Inner Business Action
     case fetchFolderList(String)
     
@@ -60,7 +60,7 @@ public struct EditFolderBottomSheetFeature {
     BindingReducer()
     
     Reduce { state, action in
-      switch action {        
+      switch action {
       case let .editFolderTapped(feedId, folderName):
         state.feedId = feedId
         state.isEditFolderBottomSheetPresented = true
@@ -88,17 +88,18 @@ public struct EditFolderBottomSheetFeature {
               folderList.remove(at: index)
             }
             
-            guard let selectedFolder else { return }
-            folderList.insert(selectedFolder, at: 0)
+            if let selectedFolder {
+              folderList.insert(selectedFolder, at: 0)
+              await send(.setSelectedFolder(selectedFolder))
+            }
             
-            await send(.setSelectedFolder(selectedFolder))
             await send(.setFolderList(folderList), animation: .default)
           },
           catch: { error, send in
             print(error)
           }
         )
-                
+        
       case let .setFolderList(folderList):
         state.folderList = folderList
         return .none
