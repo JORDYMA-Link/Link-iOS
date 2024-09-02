@@ -24,6 +24,7 @@ public struct HomeFeature: Reducer {
     /// 저장된 콘텐츠 유무
     var isFeedEmpty: Bool = false
     var feedList: [FeedCard] = []
+    var selectedFeed: FeedCard?
     
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var link: LinkFeature.State?
@@ -45,11 +46,11 @@ public struct HomeFeature: Reducer {
     case searchBannerSearchBarTapped
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
-    case cardItemTapped
-    case cellMenuButtonTapped(LinkCard)
+    case cardItemTapped(Int)
+    case cardItemMenuButtonTapped(FeedCard)
     
     // MARK: Inner Business Action
-    case fetchFeedList
+    case fetchFeedList(CategoryType)
     
     // MARK: Inner SetState Action
     case setFeedList([FeedCard])
@@ -64,10 +65,13 @@ public struct HomeFeature: Reducer {
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Present Action
-    case menuBottomSheetPresented(Bool)
   }
   
   @Dependency(\.feedClient) private var feedClient
+  
+  private enum ThrottleId {
+    case categoryButton
+  }
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
@@ -84,7 +88,7 @@ public struct HomeFeature: Reducer {
       case .onAppear:
         guard state.viewDidLoad == false else { return .none }
         state.viewDidLoad = true
-        return .send(.fetchFeedList)
+        return .send(.fetchFeedList(.bookmarked))
                 
       case .settingButtonTapped:
         state.settingContent = .init()
@@ -106,20 +110,23 @@ public struct HomeFeature: Reducer {
           return .none
         } else {
           state.category = categoryType
-          return .none
+          return .send(.fetchFeedList(categoryType))
+            .throttle(id: ThrottleId.categoryButton, for: .seconds(2), scheduler: DispatchQueue.main, latest: false)
         }
         
-      case .cardItemTapped:
-        state.link = .init(linkType: .feedDetail(feedId: 2))
+      case let .cardItemTapped(feedId):
+        state.link = .init(linkType: .feedDetail(feedId: feedId))
         return .none
         
-      case let .cellMenuButtonTapped(selectedItem):
-        return .run { send in await send(.menuBottomSheetPresented(true)) }
+      case let .cardItemMenuButtonTapped(selectedFeed):
+        state.selectedFeed = selectedFeed
+        state.isMenuBottomSheetPresented = true
+        return .none
         
-      case .fetchFeedList:
+      case let .fetchFeedList(categoryType):
         return .run(
           operation: { send in
-            let feedList = try await feedClient.postFeedByType("BOOKMARKED", 0)
+            let feedList = try await feedClient.postFeedByType(categoryType.rawValue, 0)
             
             await send(.setFeedList(feedList), animation: .default)
           },
