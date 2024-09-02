@@ -23,6 +23,12 @@ public struct NoticeView: View {
       LazyVStack {
         ForEach(store.noticeList) { notice in
           DisclosureGroup(
+            isExpanded: Binding<Bool>(
+              get: { store.expandedNoticeID == notice.id },
+              set: { isExpanded in
+                store.send(.expanding(target: isExpanded ? notice.id : nil))
+              }
+          ),
             content: {
               VStack(alignment: .leading) {
                 Text(notice.content)
