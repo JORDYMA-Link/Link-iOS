@@ -16,6 +16,7 @@ import ComposableArchitecture
 public struct NoticeFeature {
   @ObservableState
   public struct State: Equatable {
+    var expandedNoticeID: UUID?
     var noticeList: [NoticeModel] = []
     var page: Int = 0
     var size: Int = 10
@@ -25,6 +26,7 @@ public struct NoticeFeature {
     //MARK: LifeCycle
     case fetchNotice
     case setNoticeData(_ noticeData: [NoticeModel])
+    case expanding(target: UUID?)
   }
   
   @Dependency(\.noticeClient) private var noticeClient
@@ -41,6 +43,10 @@ public struct NoticeFeature {
       case let .setNoticeData(noticeData):
         state.noticeList.append(contentsOf: noticeData)
         state.page += 1
+        return .none
+        
+      case let .expanding(target):
+        state.expandedNoticeID = target
         return .none
       }
     }
