@@ -23,7 +23,7 @@ extension View {
         leadingTitle: "설정"
       ) {
         BKMenuBottomSheet(
-          menuItems: [.editLinkContent, .editFolder, .deleteLinkContent],
+          menuItems: [.editLink, .editFolder, .deleteLink],
           action: { store.send(.menuBottomSheet($0)) }
         )
       }

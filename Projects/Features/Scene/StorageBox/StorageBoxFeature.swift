@@ -133,12 +133,12 @@ public struct StorageBoxFeature: Reducer {
       case .addFolderBottomSheet(.delegate(.fetchFolderList)), .editFolderNameBottomSheet(.delegate(.fetchFolderList)):
         return .send(.fetchFolderList)
         
-      case .menuBottomSheet(.editFolderNameCellTapped):
+      case .menuBottomSheet(.editFolderNameItemTapped):
         guard let folder = state.selectedStorageBoxMenuItem else { return .none }
         state.isMenuBottomSheetPresented = false
         return .run { send in await send(.editFolderNameBottomSheet(.editFolderNameTapped(folder))) }
         
-      case .menuBottomSheet(.deleteFolderCellTapped):
+      case .menuBottomSheet(.deleteFolderItemTapped):
         state.isMenuBottomSheetPresented = false
         return .run { send in await send(.deleteFolderAlertPresented) }
         

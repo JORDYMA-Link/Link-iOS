@@ -261,12 +261,12 @@ public struct LinkFeature {
         state.isMenuBottomSheetPresented = isPresented
         return .none
         
-      case .menuBottomSheet(.editLinkContentCellTapped):
+      case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
         state.editLink = .init(editLinkType: .link, feed: Feed.mock())
         return .none
         
-      case .menuBottomSheet(.deleteLinkContentCellTapped):
+      case .menuBottomSheet(.deleteLinkItemTapped):
         return .run { [state] send in
           await alertClient.present(.init(
             title: "삭제",
