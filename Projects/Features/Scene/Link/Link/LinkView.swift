@@ -146,7 +146,7 @@ struct LinkView: View {
         leadingTitle: "설정"
       ) {
         BKMenuBottomSheet(
-          menuItems: [.editLinkContent, .deleteLinkContent],
+          menuItems: [.editLink, .deleteLink],
           action: { store.send(.menuBottomSheet($0)) }
         )
       }
