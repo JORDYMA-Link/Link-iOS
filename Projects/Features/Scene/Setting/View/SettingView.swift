@@ -95,6 +95,13 @@ public struct SettingView: View {
       }))
     })
     
+    .navigationDestination(item: $store.scope(
+      state: \.noticeContent,
+      action: \.noticeContent
+    ), destination: { store in
+      NoticeView(store: store )
+    })
+    
     .onAppear(perform: {
       store.send(.requestSettingInfo)
     })
@@ -131,7 +138,7 @@ extension SettingView {
           .font(.regular(size: ._12))
           .foregroundStyle(Color.bkColor(.gray700))
         Button(action: {
-          print("공지사항")
+          store.send(.tappedNotice)
         }, label: {
           Text("공지사항")
             .font(.regular(size: ._15))
@@ -169,7 +176,7 @@ extension SettingView {
             Text("버전 정보")
               .font(.regular(size: ._15))
             Spacer()
-            Text("최신 1.0.9")
+            Text("최신 \(store.currentAppVersion)")
               .font(.regular(size: ._12))
               .foregroundStyle(Color.bkColor(.gray700))
             Text("현재 \(store.currentAppVersion)")

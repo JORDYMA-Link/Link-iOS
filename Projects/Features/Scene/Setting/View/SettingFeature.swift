@@ -12,6 +12,7 @@ import Models
 
 import ComposableArchitecture
 
+
 @Reducer
 public struct SettingFeature {
   @ObservableState
@@ -19,18 +20,22 @@ public struct SettingFeature {
     var nickname: String = "블링크"
     var validationNoticeMessage: String = ""
     var currentAppVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    var latestAppVersion: String = "Unknown"
     var showEditNicknameSheet: Bool = false
     var showWithdrawModal: Bool = false
     var showLogoutConfirmModal: Bool = false
     var confirmWithdrawState: Bool = false
     var targetNickname: String = ""
     var targetNicknameValidation: Bool = true
+    
+    @Presents var noticeContent: NoticeFeature.State?
   }
   
   public enum Action: BindableAction {
     //action
     case requestSettingInfo
     case changeNickName(targetNickname: String)
+    case fetchLatestVersion(version: String?)
     
     //user Action
     case tappedNicknameEdit
@@ -47,6 +52,8 @@ public struct SettingFeature {
     
     //binding
     case binding(BindingAction<State>)
+    
+    case noticeContent(PresentationAction<NoticeFeature.Action>)
   }
   
   private enum NicknameValidationNotice {
@@ -78,21 +85,34 @@ public struct SettingFeature {
     
     Reduce { state, action in
       switch action {
+        //Programical Action
       case .requestSettingInfo:
         return .run { send in
           let response = try await settingClient.getUserProfile()
           await send(.changeNickName(targetNickname: response.nickname))
+          let latestVersion = try await fetchAppVersion()
+          await send(.fetchLatestVersion(version: latestVersion))
         }
         
+      case let .changeNickName(targetNickname):
+        state.nickname = targetNickname
+        state.targetNickname = ""
+        
+      case let .fetchLatestVersion(version):
+        state.latestAppVersion = version ?? state.currentAppVersion
+        
+      //User Action
       case .tappedNicknameEdit:
         state.showEditNicknameSheet = true
-        return .none
         
       case .toggleLogOut:
         state.showLogoutConfirmModal.toggle()
         
       case .tappedWithdrawCell:
         state.showWithdrawModal = true
+        
+      case .tappedNotice:
+        state.noticeContent = .init()
         
       case .toggleConfirmWithdrawNotice:
         state.showWithdrawModal.toggle()
@@ -108,9 +128,7 @@ public struct SettingFeature {
           await send(.changeNickName(targetNickname: response.nickname))
         }
         
-      case let .changeNickName(targetNickname):
-        state.nickname = targetNickname
-        state.targetNickname = ""
+      
         
       case .binding(\.targetNickname):
         let target = state.targetNickname
@@ -137,5 +155,23 @@ public struct SettingFeature {
       }
       return .none
     }
+    .ifLet(\.$noticeContent, action: \.noticeContent) {
+      NoticeFeature()
+    }
+  }
+}
+
+extension SettingFeature {
+  private func fetchAppVersion() async throws -> String? {
+    guard let bundleId = Bundle.main.bundleIdentifier else { throw VersionCheckError.fetchFailed }
+    let urlString = "https://itunes.apple.com/lookup?bundleId=\(bundleId)"
+    
+    guard let url = URL(string: urlString) else { throw VersionCheckError.fetchFailed }
+    
+    let (data, _) = try await URLSession.shared.data(from: url)
+    
+    let response = try JSONDecoder().decode(AppVersionResponse.self, from: data)
+    
+    return response.results.first?.version
   }
 }
