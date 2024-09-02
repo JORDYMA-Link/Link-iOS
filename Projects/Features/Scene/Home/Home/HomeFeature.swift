@@ -131,28 +131,35 @@ public struct HomeFeature: Reducer {
       case let .setFeedList(feedList):
         state.feedList = feedList
         return .none
+        
+        
+      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
+        if let index = state.feedList.firstIndex(where: { $0.feedId == feedId }) {
+          state.feedList[index].folderName = folder.name
+          state.feedList[index].folderId = folder.id
+        }
+        
+        return .none
 
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))), 
         let .link(.presented(.delegate(.didUpdateHome(feed)))):
         print("피드 수정 이후 홈에서 해당 피드 업데이트 처리")
         return .none
-        
-      case let .menuBottomSheetPresented(isPresented):
-        state.isMenuBottomSheetPresented = isPresented
-        return .none
-        
-      case .menuBottomSheet(.editLinkContentCellTapped):
+                
+      case .menuBottomSheet(.editLinkItemTapped):
+        guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
         state.editLink = .init(editLinkType: .home, feed: Feed.mock())
         return .none
         
-      case .menuBottomSheet(.editFolderCellTapped):
+      case .menuBottomSheet(.editFolderItemTapped):
+        guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(Feed.mock().folderName))) }
+        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedId, selectedFeed.folderName))) }
         
-      case .menuBottomSheet(.deleteLinkContentCellTapped):
+      case .menuBottomSheet(.deleteLinkItemTapped):
         print("deleteModal")
         return .none
         

@@ -149,7 +149,8 @@ public struct LinkFeature {
         return .run { send in await send(.clipboardToastPresented(true)) }
         
       case .editFolderButtonTapped:
-        return .send(.editFolderBottomSheet(.editFolderTapped(state.feed.folderName)))
+        let feed = state.feed
+        return .send(.editFolderBottomSheet(.editFolderTapped(feed.feedId, feed.folderName)))
         
       case .recommendFolderItemTapped:
         guard state.selectedFolder != state.feed.folderName else { return .none }
@@ -236,7 +237,7 @@ public struct LinkFeature {
           await send(.dismiss)
         }
         
-      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(folder))):
+      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard state.feed.folderName != folder.name else { return .none }
         
         state.feed.folderName = folder.name
