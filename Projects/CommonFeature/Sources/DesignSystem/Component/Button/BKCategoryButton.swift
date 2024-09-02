@@ -9,8 +9,17 @@
 import SwiftUI
 
 public enum CategoryType: String, CaseIterable {
-  case bookmarked = "북마크"
-  case unclassified = "미분류"
+  case bookmarked = "BOOKMARKED"
+  case unclassified = "UNCLASSIFIED"
+  
+  public var title: String {
+    switch self {
+    case .bookmarked:
+      return "북마크"
+    case .unclassified:
+      return "미분류"
+    }
+  }
 }
 
 public struct BKCategoryButton: View {
