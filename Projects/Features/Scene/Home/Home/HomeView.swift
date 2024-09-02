@@ -60,12 +60,12 @@ public struct HomeView: View {
     .padding(.bottom, 52)
     .background(Color.bkColor(.white))
     .animation(.easeIn(duration: 0.2), value: isScrollDetected)
+    .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+      self.isScrollDetected = $0
+    }
     .onAppear {
       store.send(.onAppear)
       UIScrollView.appearance().bounces = true
-    }
-    .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-      self.isScrollDetected = $0
     }
     .navigationDestination(
       item: $store.scope(
@@ -232,7 +232,7 @@ private struct CategoryHeaderView: View {
       HStack(spacing: 8) {
         ForEach(CategoryType.allCases, id: \.self) { type in
           BKCategoryButton(
-            title: type.rawValue,
+            title: type.title,
             isSelected: store.category == type,
             action: { store.send(.categoryButtonTapped(type), animation: .spring) }
           )

@@ -44,14 +44,17 @@ struct HomeCardSection: View {
         
         BKText(
           text: emptyTitle,
-          font: .light,
+          font: .regular,
           size: ._15,
           lineHeight: 22,
           color: .bkColor(.gray600)
         )
         .frame(maxWidth: .infinity)
+        .lineLimit(2)
         .multilineTextAlignment(.center)
+        .minimumScaleFactor(0.8)
         
+        Spacer()
         Spacer()
       }
       .frame(height: emptyHeight)
@@ -69,7 +72,7 @@ struct HomeCardSection: View {
           sourceImage: CommonFeature.Images.graphicBell,
           isMarked: true,
           saveAction: {},
-          menuAction: { },
+          menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
           title: item.title,
           description: item.summary,
           keyword: item.keywords,
@@ -78,7 +81,7 @@ struct HomeCardSection: View {
           recommendedFolderAction: {},
           addFolderAction: {}
         )
-        .onTapGesture { store.send(.cardItemTapped) }
+        .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
       }
     }
   }
