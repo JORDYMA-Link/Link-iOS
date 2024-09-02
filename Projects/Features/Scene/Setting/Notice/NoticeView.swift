@@ -8,22 +8,29 @@
 
 import SwiftUI
 
+import CommonFeature
+
 import ComposableArchitecture
 
+
 public struct NoticeView: View {
+  @Environment(\.dismiss) private var dismiss
+  
   public let store: StoreOf<NoticeFeature>
   
   public var body: some View {
     ScrollView(.vertical) {
-      LazyVStack(alignment: .leading) {
+      LazyVStack {
         ForEach(store.noticeList) { notice in
           DisclosureGroup(
             content: {
-              VStack {
+              VStack(alignment: .leading) {
                 Text(notice.content)
                   .font(.regular(size: ._14))
+                  .multilineTextAlignment(.leading)
                   .foregroundStyle(Color.bkColor(.gray800))
                   .padding(EdgeInsets(top: 13, leading: 16, bottom: 16, trailing: 13))
+                  .frame(maxWidth: .infinity, alignment: .leading)
               }
               .background(Color.bkColor(.gray300), in: .rect(cornerRadius: 10))
               .padding(.init(top: 8, leading: 0, bottom: 8, trailing: 0))
@@ -46,13 +53,25 @@ public struct NoticeView: View {
           .onAppear(perform: {
             guard let lastItem = store.noticeList.last else { return }
             if lastItem.id == notice.id {
-              debugPrint("paging")
+              store.send(.fetchNotice)
             }
           })
         } //Foreach
       }// LazyVStack
     } //ScrollView
-  }
+    .onAppear(perform: {
+      store.send(.fetchNotice)
+    }) //onAppear
+    
+    .navigationBarBackButtonHidden(true)
+    .toolbar {
+      ToolbarItem(placement: .topBarLeading) {
+        LeadingItem(type: .dismiss("공지사항", {
+          dismiss()
+        })) // LeadingItem
+      } //ToolbarItem
+    } // toolBar
+  }// body
 }
 
 

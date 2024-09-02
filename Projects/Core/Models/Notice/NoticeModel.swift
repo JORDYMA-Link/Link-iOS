@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct NoticeModel: Identifiable {
+public struct NoticeModel: Identifiable, Equatable {
   public let id: UUID = UUID()
   public let date: String
   public let title: String

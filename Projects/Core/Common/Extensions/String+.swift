@@ -48,4 +48,15 @@ extension String {
     
     return ceil(boundingRect.height)
   }
+  
+  public func toDate(from dateFormat: String) -> Date? {
+    // DateFormatter 생성 및 설정
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = dateFormat
+    dateFormatter.timeZone = TimeZone.current
+    dateFormatter.locale = Locale.current
+
+    // 문자열을 Date로 변환
+    return dateFormatter.date(from: self)
+  }
 }

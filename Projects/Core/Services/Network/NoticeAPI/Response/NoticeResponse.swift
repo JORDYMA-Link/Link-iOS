@@ -12,6 +12,10 @@ import Models
 
 struct NoticeListResponse: Decodable {
   let noticeList: [NoticeResponse]
+  
+  enum CodingKeys: String, CodingKey {
+    case noticeList = "notices"
+  }
 }
 
 struct NoticeResponse: Decodable {
@@ -30,8 +34,11 @@ extension NoticeListResponse {
 
 extension NoticeResponse {
   public func toDomain() -> NoticeModel {
+    let targetDate: Date? = date.toDate(from: "yyyy-MM-dd'T'HH:mm:ss") ?? date.toDate(from: "yyyy-MM-dd'T'HH:mm")
+    let dateString = targetDate?.toString(formatter: "YYYY.MM.dd") ?? date
+    
     return NoticeModel(
-      date: date,
+      date: dateString,
       title: title,
       content: content
     )
