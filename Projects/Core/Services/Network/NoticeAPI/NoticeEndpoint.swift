@@ -18,7 +18,7 @@ extension NoticeEndpoint: BaseTargetType {
   var path: String {
     switch self {
     case .getNotice:
-      return "/api/notices"
+      return "/notice"
     }
   }
   

@@ -15,7 +15,7 @@ import ComposableArchitecture
 @Reducer
 public struct NoticeFeature {
   @ObservableState
-  public struct State {
+  public struct State: Equatable {
     var noticeList: [NoticeModel] = []
     var page: Int = 0
     var size: Int = 10
