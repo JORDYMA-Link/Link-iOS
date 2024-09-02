@@ -16,6 +16,7 @@ import ComposableArchitecture
 public struct EditFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
+    public var feedId: Int = 0
     public var folderList: [Folder] = []
     public var selectedFolder: Folder = .init(id: 0, name: "", feedCount: 0)
     
@@ -28,7 +29,7 @@ public struct EditFolderBottomSheetFeature {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
-    case editFolderTapped(String)
+    case editFolderTapped(Int, String)
     case folderCellTapped(Folder)
     case closeButtonTapped
         
@@ -41,7 +42,7 @@ public struct EditFolderBottomSheetFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
-      case didUpdateFolder(Folder)
+      case didUpdateFolder(Int, Folder)
     }
     case delegate(Delegate)
     
@@ -60,27 +61,37 @@ public struct EditFolderBottomSheetFeature {
     
     Reduce { state, action in
       switch action {        
-      case let .editFolderTapped(folderName):
+      case let .editFolderTapped(feedId, folderName):
+        state.feedId = feedId
         state.isEditFolderBottomSheetPresented = true
         return .send(.fetchFolderList(folderName))
         
       case let .folderCellTapped(folder):
+        state.folderList = []
         state.isEditFolderBottomSheetPresented = false
-        return .send(.delegate(.didUpdateFolder(folder)))
+        return .send(.delegate(.didUpdateFolder(state.feedId, folder)))
         
       case .closeButtonTapped:
+        state.folderList = []
         state.isEditFolderBottomSheetPresented = false
         return .none
         
       case let .fetchFolderList(folderName):
         return .run(
           operation: { send in
-            let folderList = try await folderClient.getFolders()
+            var folderList = try await folderClient.getFolders()
+            
+            var selectedFolder: Folder?
             
             if let index = folderList.firstIndex(where: { $0.name == folderName }) {
-              await send(.setSelectedFolder(folderList[index]))
+              selectedFolder = folderList[index]
+              folderList.remove(at: index)
             }
             
+            guard let selectedFolder else { return }
+            folderList.insert(selectedFolder, at: 0)
+            
+            await send(.setSelectedFolder(selectedFolder))
             await send(.setFolderList(folderList), animation: .default)
           },
           catch: { error, send in
