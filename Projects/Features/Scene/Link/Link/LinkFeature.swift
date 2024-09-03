@@ -28,6 +28,8 @@ public struct LinkFeature {
     var linkType: LinkType
     /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
     var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
+    /// 뷰 진입 시 init 데이터
+    var initFeed: Feed?
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
     /// 메모 타이틀
@@ -70,15 +72,14 @@ public struct LinkFeature {
     case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
-    case dismiss
     
     // MARK: Inner SetState Action
     case setFeed(Feed)
-    case setDelegate
     
     // MARK: Delegate Action
     public enum Delegate {
-      case didUpdateHome(Feed)
+      case deleteFeed(Feed)
+      case updateFeed(Feed)
     }
     case delegate(Delegate)
     
@@ -131,7 +132,19 @@ public struct LinkFeature {
         }
         
       case .closeButtonTapped:
-        return .send(.dismiss)
+        return .run { [state] send in
+          switch state.linkType {
+          case .feedDetail:
+            guard state.feed != state.initFeed else { break }
+            
+            await send(.delegate(.updateFeed(state.feed)))
+          case .summaryCompleted:
+            // 링크 요약 연결 후 로직 수정
+            await dismiss()
+          }
+          
+          await dismiss()
+        }
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
@@ -184,10 +197,11 @@ public struct LinkFeature {
         
       case let .deleteFeed(feedId):
         return .run(
-          operation: { send in
+          operation: { [state] send in
             _ = try await feedClient.deleteFeed(feedId)
             
-            await send(.setDelegate)
+            await send(.delegate(.deleteFeed(state.feed)))
+            await dismiss()
           },
           catch: { error, send in
             print(error)
@@ -223,20 +237,12 @@ public struct LinkFeature {
             print(error)
           }
         )
-        
-      case .dismiss:
-        return .run { _ in await self.dismiss() }
-        
+                
       case let .setFeed(feed):
         state.feed = feed
+        state.initFeed = feed
         return .none
-        
-      case .setDelegate:
-        return .run { [state] send in
-          await send(.delegate(.didUpdateHome(state.feed)))
-          await send(.dismiss)
-        }
-        
+                
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard state.feed.folderName != folder.name else { return .none }
         
@@ -263,7 +269,7 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .link(Feed.mock()))
+        state.editLink = .init(editLinkType: .link(state.feed))
         return .none
         
       case .menuBottomSheet(.deleteLinkItemTapped):

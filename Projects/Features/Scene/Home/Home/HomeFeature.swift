@@ -29,7 +29,7 @@ public struct HomeFeature: Reducer {
     
     var feedList: [FeedCard] = []
     var selectedFeed: FeedCard?
-    
+
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
@@ -275,13 +275,14 @@ public struct HomeFeature: Reducer {
         state.fetchedAllFeedCards = isPaging
         return .none
         
+        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
-        // patch API 콜 필요
-        if let index = state.feedList.firstIndex(where: { $0.feedId == feedId }) {
-          state.feedList[index].folderName = folder.name
-          state.feedList[index].folderId = folder.id
+        guard let index = state.feedList.firstIndex(where: { $0.feedId == feedId }) else {
+          return .none
         }
         
+        state.feedList[index].folderName = folder.name
+        state.feedList[index].folderId = folder.id
         return .none
         
       case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
@@ -290,9 +291,21 @@ public struct HomeFeature: Reducer {
           await send(.routeStorageBoxFeedList(folder))
         }
         
-      case let .link(.presented(.delegate(.didUpdateHome(feed)))):
-        print("피드 수정 이후 홈에서 해당 피드 업데이트 처리")
+        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+      case let .link(.presented(.delegate(.updateFeed(feed)))):
+        guard let index = state.feedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
+          return .none
+        }
+        
+        let feedCard = state.feedList[index]
+        let updateFeedCard = feed.toFeedCard(feedCard)
+        
+        state.feedList[index] = updateFeedCard
         return .none
+        
+        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+      case let .link(.presented(.delegate(.deleteFeed(feed)))):
+        return .send(.setDeleteFeed(feed.feedId))
         
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
         return .run { send in
@@ -300,7 +313,6 @@ public struct HomeFeature: Reducer {
           await send(.cardItemTapped(feed.feedId))
         }
         
-        // 홈 -> 수정하기 다이렉트 이동 시 썸네일 정보가 없음 (기획, 백엔드 논의 뒤 수정)
       case .menuBottomSheet(.editLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
