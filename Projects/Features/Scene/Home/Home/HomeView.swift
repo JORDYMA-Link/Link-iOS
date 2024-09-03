@@ -94,14 +94,6 @@ public struct HomeView: View {
     }
     .padding(.bottom, 52)
     .background(Color.bkColor(.white))
-    .animation(.easeIn(duration: 0.2), value: isScrollDetected)
-    .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-      self.isScrollDetected = $0
-    }
-    .onAppear {
-      store.send(.onAppear)
-      UIScrollView.appearance().bounces = true
-    }
     .navigationDestination(
       item: $store.scope(
         state: \.settingContent,
@@ -140,6 +132,14 @@ public struct HomeView: View {
         action: \.editLink)
     ) { store in
       EditLinkView(store: store)
+    }
+    .animation(.easeIn(duration: 0.2), value: isScrollDetected)
+    .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+      self.isScrollDetected = $0
+    }
+    .onAppear {
+      store.send(.onAppear)
+      UIScrollView.appearance().bounces = true
     }
   }
 }
