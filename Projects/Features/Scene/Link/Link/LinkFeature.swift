@@ -263,7 +263,7 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .link, feed: Feed.mock())
+        state.editLink = .init(editLinkType: .link(Feed.mock()))
         return .none
         
       case .menuBottomSheet(.deleteLinkItemTapped):

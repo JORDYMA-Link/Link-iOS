@@ -229,7 +229,7 @@ public struct HomeFeature: Reducer {
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .home, feed: Feed.mock())
+        state.editLink = .init(editLinkType: .home(feedId: selectedFeed.feedId))
         return .none
         
       case .menuBottomSheet(.editFolderItemTapped):

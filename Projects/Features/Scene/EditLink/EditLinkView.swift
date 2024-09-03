@@ -161,6 +161,7 @@ struct EditLinkView: View {
       ) {
         AddKewordBottomSheet(store: store.scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet))
       }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
