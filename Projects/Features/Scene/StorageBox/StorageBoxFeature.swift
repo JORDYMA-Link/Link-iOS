@@ -27,12 +27,11 @@ public struct StorageBoxFeature: Reducer {
     
     var isMenuBottomSheetPresented: Bool = false
     var isDeleteFolderPresented: Bool = false
-    
-    var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
-    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
-    
+        
     @Presents var storageBoxContentList: StorageBoxContentListFeature.State?
     @Presents var searchKeyword: SearchKeywordFeature.State?
+    var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
   }
   
   public enum Action: BindableAction {
@@ -130,7 +129,7 @@ public struct StorageBoxFeature: Reducer {
         state.folderList = folderList
         return .none
         
-      case .addFolderBottomSheet(.delegate(.fetchFolderList)), .editFolderNameBottomSheet(.delegate(.fetchFolderList)):
+      case .addFolderBottomSheet(.delegate(.didUpdate)), .editFolderNameBottomSheet(.delegate(.fetchFolderList)):
         return .send(.fetchFolderList)
         
       case .menuBottomSheet(.editFolderNameItemTapped):

@@ -141,7 +141,7 @@ public struct EditFolderBottomSheetFeature {
         state.initSelectedFolder = folder
         return .none
         
-      case let .addFolderBottomSheet(.delegate(.fetchFolderList(folder))):
+      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
         var folderList = state.folderList
         folderList.append(folder)
         return .send(.setFolderList(folderList), animation: .default)

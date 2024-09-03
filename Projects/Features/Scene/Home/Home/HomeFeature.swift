@@ -22,8 +22,6 @@ public struct HomeFeature: Reducer {
     var viewDidLoad: Bool = false
     
     var category: CategoryType = .bookmarked
-    /// 저장된 콘텐츠 유무
-    var isFeedEmpty: Bool = false
     
     var page: Int = 0
     var morePagingNeeded: Bool = true
@@ -37,7 +35,9 @@ public struct HomeFeature: Reducer {
     @Presents var editLink: EditLinkFeature.State?
     @Presents var settingContent: SettingFeature.State?
     @Presents var calendarContent: CalendarViewFeature.State?
+    @Presents var storageBoxFeedList: StorageBoxContentListFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     
     var isMenuBottomSheetPresented: Bool = false
   }
@@ -55,6 +55,8 @@ public struct HomeFeature: Reducer {
     case cardItemTapped(Int)
     case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
+    case cardItemRecommendedFolderTapped(String)
+    case cardItemAddFolderTapped
     
     // MARK: Inner Business Action
     case resetPage
@@ -62,6 +64,8 @@ public struct HomeFeature: Reducer {
     case fetchFeedList(CategoryType, Int)
     case patchBookmark(Int, Bool)
     case deleteFeed(Int)
+    case postFolder(String)
+    case fetchFolderList(String)
     
     // MARK: Inner SetState Action
     case setFeedList([FeedCard])
@@ -76,12 +80,19 @@ public struct HomeFeature: Reducer {
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case settingContent(PresentationAction<SettingFeature.Action>)
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
+    case storageBoxFeedList(PresentationAction<StorageBoxContentListFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
+    
+    // MARK: Navigation Action
+    case routeFeedDetail
+    case routeStorageBoxFeedList(Folder)
     
     // MARK: Present Action
   }
   
   @Dependency(\.feedClient) private var feedClient
+  @Dependency(\.folderClient) private var folderClient
   @Dependency(\.alertClient) private var alertClient
   
   private enum ThrottleId {
@@ -92,6 +103,10 @@ public struct HomeFeature: Reducer {
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
+    }
+    
+    Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
+      AddFolderBottomSheetFeature()
     }
     
     BindingReducer()
@@ -150,6 +165,14 @@ public struct HomeFeature: Reducer {
         state.isMenuBottomSheetPresented = true
         return .none
         
+      case let .cardItemRecommendedFolderTapped(folderName):
+        /// addFolder 시 이미 존재하는 에러 발생 -> 해당 폴더의 폴더 리스트로이동
+        /// add Folder 성공 시 -> 폴더 생성 후 해당 폴더의 피드 리스트 이동
+        return .send(.postFolder(folderName))
+        
+      case .cardItemAddFolderTapped:
+        return .send(.addFolderBottomSheet(.addFolderTapped))
+        
       case .resetPage:
         state.morePagingNeeded = true
         state.fetchedAllFeedCards = false
@@ -205,6 +228,33 @@ public struct HomeFeature: Reducer {
           }
         )
         
+      case let .postFolder(folderName):
+        return .run(
+          operation: { send in
+            let addFolder = try await folderClient.postFolder(folderName)
+            
+            await send(.routeStorageBoxFeedList(addFolder))
+          },
+          catch: { error, send in
+            /// 이미 존재하는 폴더 에러 분기 처리 필요
+            await send(.fetchFolderList(folderName))
+          }
+        )
+        
+      case let .fetchFolderList(folderName):
+        return .run(
+          operation: { send in
+            async let folderList = try folderClient.getFolders()
+            
+            guard let recommendedFolder = try await folderList.filter({ $0.name == folderName }).first else { return }
+            
+            await send(.routeStorageBoxFeedList(recommendedFolder))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
       case let .setFeedList(feedList):
         if state.page == 0 {
           state.feedList = feedList
@@ -233,6 +283,12 @@ public struct HomeFeature: Reducer {
         }
         
         return .none
+        
+      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
+        return .run { send in
+          try await Task.sleep(for: .seconds(0.5))
+          await send(.routeStorageBoxFeedList(folder))
+        }
         
       case let .link(.presented(.delegate(.didUpdateHome(feed)))):
         print("피드 수정 이후 홈에서 해당 피드 업데이트 처리")
@@ -275,6 +331,10 @@ public struct HomeFeature: Reducer {
           ))
         }
         
+      case let .routeStorageBoxFeedList(folder):
+        state.storageBoxFeedList = .init(folderInput: folder)
+        return .none
+        
       default:
         return .none
       }
@@ -293,6 +353,9 @@ public struct HomeFeature: Reducer {
     }
     .ifLet(\.$calendarContent, action: \.calendarContent) {
       CalendarViewFeature()
+    }
+    .ifLet(\.$storageBoxFeedList, action: \.storageBoxFeedList) {
+      StorageBoxContentListFeature()
     }
   }
 }

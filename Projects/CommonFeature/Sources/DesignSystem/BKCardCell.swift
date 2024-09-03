@@ -34,10 +34,10 @@ public struct BKCardCell: View {
   private var keyword: [String]
   private var isUncategorized: Bool
   private var recommendedFolders: [String]?
-  private var recommendedFolderAction: (() -> Void)?
+  private var recommendedFolderAction: ((String) -> Void)?
   private var addFolderAction: (() -> Void)?
   
-  public init(width: CGFloat, sourceTitle: String, sourceImage: Image, isMarked: Bool, saveAction: @escaping () -> Void, menuAction: @escaping () -> Void, title: String, description: String, keyword: [String], isUncategorized: Bool = false, recommendedFolders: [String]? = nil, recommendedFolderAction: (() -> Void)? = nil, addFolderAction: (() -> Void)? = nil) {
+  public init(width: CGFloat, sourceTitle: String, sourceImage: Image, isMarked: Bool, saveAction: @escaping () -> Void, menuAction: @escaping () -> Void, title: String, description: String, keyword: [String], isUncategorized: Bool = false, recommendedFolders: [String]? = nil, recommendedFolderAction: ((String) -> Void)? = nil, addFolderAction: (() -> Void)? = nil) {
     self.width = width
     self.sourceTitle = sourceTitle
     self.sourceImage = sourceImage
@@ -162,7 +162,7 @@ public struct BKCardCell: View {
           ForEach(recommendedFolders ?? [], id: \.self) { text in
             makeRecommendedFolderText(text)
               .onTapGesture {
-                recommendedFolderAction?()
+                recommendedFolderAction?(text)
               }
           }
           
