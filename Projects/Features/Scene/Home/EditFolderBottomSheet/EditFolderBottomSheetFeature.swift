@@ -18,7 +18,10 @@ public struct EditFolderBottomSheetFeature {
   public struct State: Equatable {
     public var feedId: Int = 0
     public var folderList: [Folder] = []
-    public var selectedFolder: Folder = .init(id: 0, name: "", feedCount: 0)
+    /// 피드에 설정되어 있는 폴더
+    public var initSelectedFolder: Folder = .init(id: 0, name: "", feedCount: 0)
+    /// 폴더 아이템 선택
+    public var selectedFolder: Folder?
     
     public var isEditFolderBottomSheetPresented: Bool = false
     
@@ -35,6 +38,8 @@ public struct EditFolderBottomSheetFeature {
     
     // MARK: Inner Business Action
     case fetchFolderList(String)
+    case fetchFeed(Int)
+    case patchFeed(feedId: Int, folderName: String, title: String, summary: String, keywords: [String], memo: String)
     
     // MARK: Inner SetState Action
     case setFolderList([Folder])
@@ -51,6 +56,8 @@ public struct EditFolderBottomSheetFeature {
   }
   
   @Dependency(\.folderClient) private var folderClient
+  @Dependency(\.feedClient) private var feedClient
+  @Dependency(\.linkClient) private var linkClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
@@ -67,9 +74,8 @@ public struct EditFolderBottomSheetFeature {
         return .send(.fetchFolderList(folderName))
         
       case let .folderCellTapped(folder):
-        state.folderList = []
-        state.isEditFolderBottomSheetPresented = false
-        return .send(.delegate(.didUpdateFolder(state.feedId, folder)))
+        state.selectedFolder = folder
+        return .run { [state] send in await send(.fetchFeed(state.feedId)) }
         
       case .closeButtonTapped:
         state.folderList = []
@@ -100,12 +106,39 @@ public struct EditFolderBottomSheetFeature {
           }
         )
         
+      case let .fetchFeed(feedId):
+        return .run(
+          operation: { send in
+            let feed = try await feedClient.getFeed(feedId)
+            
+            await send(.patchFeed(feedId: feed.feedId, folderName: feed.folderName, title: feed.title, summary: feed.summary, keywords: feed.keywords, memo: feed.memo))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .patchFeed(feedId, folderName, title, summary, keywords, memo):
+        guard let selectedFolder = state.selectedFolder else { return .none }
+        
+        return .run(
+          operation: { send in
+            _ = try await linkClient.patchLink(feedId, selectedFolder.name, title, summary, keywords, memo)
+            
+            await send(.closeButtonTapped)
+            await send(.delegate(.didUpdateFolder(feedId, selectedFolder)))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
       case let .setFolderList(folderList):
         state.folderList = folderList
         return .none
         
       case let .setSelectedFolder(folder):
-        state.selectedFolder = folder
+        state.initSelectedFolder = folder
         return .none
         
       case let .addFolderBottomSheet(.delegate(.fetchFolderList(folder))):
