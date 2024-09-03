@@ -21,7 +21,7 @@ struct EditFolderBottomSheet: View {
       VStack(spacing: 0) {
         BKAddFolderList(
           folderList: store.folderList,
-          selectedFolder: store.selectedFolder,
+          selectedFolder: store.initSelectedFolder,
           itemAction: { store.send(.folderCellTapped($0), animation: .default) },
           addAction: { store.send(.addFolderBottomSheet(.addFolderTapped), animation: .default) }
         )
