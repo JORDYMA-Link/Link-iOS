@@ -109,7 +109,7 @@ struct LinkView: View {
       .task { await store.send(.onTask).finish() }
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
-        urlString: "https://www.naver.com",
+        urlString: store.feed.originUrl,
         saveAction: { store.send(.clipboardPopupSaveButtonTapped) }
       )
       .toast(
