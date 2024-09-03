@@ -27,7 +27,7 @@ struct HomeCardSection: View {
   }
   
   var body: some View {
-    VStack(spacing: 0) {
+    Group {
       if store.feedList.isEmpty {
         emptyView()
       } else {
@@ -63,7 +63,7 @@ struct HomeCardSection: View {
   
   @ViewBuilder
   private func contentSectionView() -> some View {
-    ForEach(store.feedList, id: \.feedId) { item in
+    ForEach(Array(store.feedList.enumerated()), id: \.offset) { index, item in
       WithPerceptionTracking {
         BKCardCell(
           width: 0,
@@ -82,6 +82,11 @@ struct HomeCardSection: View {
           addFolderAction: {}
         )
         .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
+        .onAppear {
+          if index != 0 && item == store.feedList.last && !store.fetchedAllFeedCards {
+            store.send(.updatePage)
+          }
+        }
       }
     }
   }
