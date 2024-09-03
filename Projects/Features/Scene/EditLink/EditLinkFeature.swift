@@ -174,7 +174,7 @@ public struct EditLinkFeature {
           },
           catch: { error, send in
             print(error)
-            
+            /// 성공 시 200 애러로 방출됨 (추후 수정 필요)
             await send(.patchLink(feedId))
           }
         )
