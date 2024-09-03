@@ -10,16 +10,16 @@ import Foundation
 
 public struct FeedCard: Equatable {
   public let feedId: Int
-  public let title: String
+  public var title: String
   public let summary: String
   public let platform: String
   public let platformImage: String
-  public let isMarked: Bool
+  public var isMarked: Bool
   public let isUnclassified: Bool
   public let keywords: [String]
   public let recommendedFolder: [String]
-  public let folderId: Int
-  public let folderName: String
+  public var folderId: Int
+  public var folderName: String
   
   public init(
     feedId: Int,
