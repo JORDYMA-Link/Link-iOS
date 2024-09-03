@@ -9,6 +9,7 @@
 import Foundation
 
 import CommonFeature
+import Common
 import Services
 import Models
 
@@ -52,13 +53,14 @@ public struct HomeFeature: Reducer {
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
     case cardItemTapped(Int)
+    case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
     
     // MARK: Inner Business Action
     case resetPage
     case updatePage
     case fetchFeedList(CategoryType, Int)
-    case patchFeed
+    case patchBookmark(Int, Bool)
     case deleteFeed(Int)
     
     // MARK: Inner SetState Action
@@ -84,6 +86,7 @@ public struct HomeFeature: Reducer {
   
   private enum ThrottleId {
     case categoryButton
+    case saveButton
   }
   
   public var body: some ReducerOf<Self> {
@@ -124,8 +127,8 @@ public struct HomeFeature: Reducer {
         } else {
           state.category = categoryType
           return .run { [state] send in
-              await send(.resetPage)
-              await send(.fetchFeedList(state.category, state.page))
+            await send(.resetPage)
+            await send(.fetchFeedList(state.category, state.page))
           }
           .throttle(id: ThrottleId.categoryButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         }
@@ -133,6 +136,14 @@ public struct HomeFeature: Reducer {
       case let .cardItemTapped(feedId):
         state.link = .init(linkType: .feedDetail(feedId: feedId))
         return .none
+        
+      case let .cardItemSaveButtonTapped(index, isMarked):
+        guard var item = state.feedList[safe: index] else { return .none }
+        
+        item.isMarked = isMarked
+        state.feedList[index] = item
+        return .send(.patchBookmark(item.feedId, isMarked))
+          .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case let .cardItemMenuButtonTapped(selectedFeed):
         state.selectedFeed = selectedFeed
@@ -170,8 +181,17 @@ public struct HomeFeature: Reducer {
           }
         )
         
-      case .patchFeed:
-        return .none
+      case let .patchBookmark(feedId, isMarked):
+        return .run(
+          operation: { send in
+            let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
+            
+            print(feedBookmark)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       case let .deleteFeed(feedId):
         return .run(

@@ -70,8 +70,8 @@ struct HomeCardSection: View {
           sourceTitle:
             item.platform,
           sourceImage: CommonFeature.Images.graphicBell,
-          isMarked: true,
-          saveAction: {},
+          isMarked: item.isMarked,
+          saveAction: { store.send(.cardItemSaveButtonTapped( index, !item.isMarked), animation: .default) },
           menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
           title: item.title,
           description: item.summary,
