@@ -85,7 +85,11 @@ public struct HomeFeature: Reducer {
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     
     // MARK: Navigation Action
-    case routeFeedDetail
+    case routeSetting
+    case routeInstruction
+    case routeSearchKeyword
+    case routeCalendar
+    case routeFeedDetail(Int)
     case routeStorageBoxFeedList(Folder)
     
     // MARK: Present Action
@@ -122,19 +126,16 @@ public struct HomeFeature: Reducer {
         return .send(.fetchFeedList(.bookmarked, state.page))
         
       case .settingButtonTapped:
-        state.settingContent = .init()
-        return .none
+        return .send(.routeSetting)
         
       case .instructionBannerTapped:
-        return .none
+        return .send(.routeInstruction)
         
       case .searchBannerSearchBarTapped:
-        state.searchKeyword = .init()
-        return .none
+        return .send(.routeSearchKeyword)
         
       case .searchBannerCalendarTapped:
-        state.calendarContent = .init()
-        return .none
+        return .send(.routeCalendar)
         
       case let .categoryButtonTapped(categoryType):
         if state.category == categoryType {
@@ -149,8 +150,7 @@ public struct HomeFeature: Reducer {
         }
         
       case let .cardItemTapped(feedId):
-        state.link = .init(linkType: .feedDetail(feedId: feedId))
-        return .none
+        return .send(.routeFeedDetail(feedId))
         
       case let .cardItemSaveButtonTapped(index, isMarked):
         guard var item = state.feedList[safe: index] else { return .none }
@@ -330,6 +330,24 @@ public struct HomeFeature: Reducer {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
+      case .routeSetting:
+        state.settingContent = .init()
+        return .none
+        
+      case .routeInstruction:
+        return .none
+        
+      case .routeSearchKeyword:
+        state.searchKeyword = .init()
+        return .none
+        
+      case .routeCalendar:
+        state.calendarContent = .init()
+        return .none
+        
+      case let .routeFeedDetail(feedId):
+        state.link = .init(linkType: .feedDetail(feedId: feedId))
+        return .none
         
       case let .routeStorageBoxFeedList(folder):
         state.storageBoxFeedList = .init(folderInput: folder)
@@ -359,5 +377,3 @@ public struct HomeFeature: Reducer {
     }
   }
 }
-
-
