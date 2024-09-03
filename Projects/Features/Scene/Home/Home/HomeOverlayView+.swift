@@ -43,4 +43,20 @@ extension View {
           .interactiveDismissDisabled()
       }
   }
+  
+  @ViewBuilder
+  func addFolderBottomSheet(store: StoreOf<HomeFeature>) -> some View {
+    @Perception.Bindable var store = store
+    
+    self
+      .bottomSheet(
+        isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
+        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
+        leadingTitle: "폴더 추가",
+        closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+  }
 }

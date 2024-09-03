@@ -67,8 +67,7 @@ struct HomeCardSection: View {
       WithPerceptionTracking {
         BKCardCell(
           width: 0,
-          sourceTitle:
-            item.platform,
+          sourceTitle: item.platform,
           sourceImage: CommonFeature.Images.graphicBell,
           isMarked: item.isMarked,
           saveAction: { store.send(.cardItemSaveButtonTapped( index, !item.isMarked), animation: .default) },
@@ -76,10 +75,10 @@ struct HomeCardSection: View {
           title: item.title,
           description: item.summary,
           keyword: item.keywords,
-          isUncategorized: true,
-          recommendedFolders: ["추천폴더1", "추천폴더2", "추천폴더3"],
-          recommendedFolderAction: {},
-          addFolderAction: {}
+          isUncategorized: store.category == .bookmarked,
+          recommendedFolders: item.recommendedFolder,
+          recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped($0)) },
+          addFolderAction: { store.send(.cardItemAddFolderTapped) }
         )
         .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
         .onAppear {

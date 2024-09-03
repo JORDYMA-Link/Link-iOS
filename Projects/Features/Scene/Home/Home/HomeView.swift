@@ -126,6 +126,14 @@ public struct HomeView: View {
     ) { store in
       CalendarView(store: store)
     }
+    .navigationDestination(
+      item: $store.scope(
+        state: \.storageBoxFeedList,
+        action: \.storageBoxFeedList
+      )
+    ) { store in
+      StorageBoxContentListView(store: store)
+    }
     .fullScreenCover(
       item: $store.scope(
         state: \.editLink,
