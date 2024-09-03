@@ -70,7 +70,7 @@ extension FeedEndpoint: BaseTargetType {
     case let .patchBookmark(_, setMarked):
       return .requestParameters(parameters: [
         "setMarked": setMarked
-      ], encoding: URLEncoding.default)
+      ], encoding: URLEncoding.queryString)
       
     case let .getFeedSearch(query, page, size):
       return .requestParameters(parameters: [
