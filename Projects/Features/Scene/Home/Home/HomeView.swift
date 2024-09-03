@@ -24,6 +24,8 @@ public struct HomeView: View {
   @State private var bannerHeight: CGFloat = 0
   /// 카테고리 헤더 Height
   @State private var categoryHeaderHeight: CGFloat = 0
+  /// 카테고리 버튼 선택 시 top Scroll ID
+  @Namespace private var topID
   
   public var body: some View {
     WithPerceptionTracking {
@@ -31,28 +33,61 @@ public struct HomeView: View {
         HomeNavigationView(store: store)
         
         GeometryReader { proxy in
-          ScrollView(showsIndicators: false) {
-            VStack(spacing: 0) {
-              HomeBanner(store: store)
-                .background(ViewHeightGeometry())
-                .onPreferenceChange(ViewPreferenceKey.self) { self.bannerHeight = $0 }
-              
-              Divider()
-                .foregroundStyle(Color.bkColor(.gray400))
-              
-              if store.isFeedEmpty {
-                emptyView()
-                  .frame(minHeight: proxy.size.height - bannerHeight - UIApplication.topSafeAreaInset)
-              } else {
-                cardView(
-                  emptyHeight: proxy.size.height - bannerHeight - categoryHeaderHeight - UIApplication.topSafeAreaInset
-                )
+          ScrollViewReader { scrollProxy in
+            ScrollView(showsIndicators: false) {
+              VStack(spacing: 0) {
+                HomeBanner(store: store)
+                  .background(ViewHeightGeometry())
+                  .onPreferenceChange(ViewPreferenceKey.self) { self.bannerHeight = $0 }
+                  .id(topID)
+                
+                Divider()
+                  .foregroundStyle(Color.bkColor(.gray400))
+                
+                LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
+                  Section {
+                    HomeCardSection(
+                      store: store,
+                      emptyHeight: proxy.size.height - bannerHeight - categoryHeaderHeight - UIApplication.topSafeAreaInset
+                    )
+                    .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+                  } header: {
+                    VStack(spacing: 0) {
+                      CategoryHeaderView(
+                        store: store,
+                        scrollAction: {
+                          withAnimation {
+                            scrollProxy.scrollTo(topID, anchor: .top)
+                          }
+                        }
+                      )
+                      .background(ViewMaxYGeometry())
+                      .onPreferenceChange(ViewPreferenceKey.self) { maxY in
+                        // 섹션 헤더의 최대 Y 위치 업데이트
+                        let navigationBarMaxY = (UIApplication.topSafeAreaInset - 20)
+                        let headerMaxY = maxY + navigationBarMaxY
+                        
+                        DispatchQueue.main.async {
+                          scrollViewDelegate.headerMaxY = headerMaxY
+                        }
+                      }
+                      .background(isScrollDetected ? Color.white : Color.bkColor(.gray300))
+                      
+                      Divider()
+                        .foregroundStyle(Color.bkColor(.gray400))
+                        .opacity(isScrollDetected ? 1 : 0)
+                    }
+                    .background(ViewHeightGeometry())
+                    .onPreferenceChange(HeaderHeightPreferenceKey.self) { self.categoryHeaderHeight = $0 }
+                  }
+                }
+                .padding(.top, 8)
               }
             }
-          }
-          .background(Color.bkColor(.gray300))
-          .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
-            scrollView.delegate = scrollViewDelegate
+            .background(Color.bkColor(.gray300))
+            .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
+              scrollView.delegate = scrollViewDelegate
+            }
           }
         }
       }
@@ -106,63 +141,6 @@ public struct HomeView: View {
     ) { store in
       EditLinkView(store: store)
     }
-  }
-  
-  @ViewBuilder
-  private func emptyView() -> some View {
-    VStack(alignment: .center) {
-      Spacer()
-      
-      VStack(spacing: 8) {
-        CommonFeature.Images.icoEmptyFolder
-          .resizable()
-          .scaledToFill()
-          .frame(width: 100, height: 100)
-        
-        BKText(
-          text: "저장된 콘텐츠가 없습니다",
-          font: .semiBold,
-          size: ._15,
-          lineHeight: 22,
-          color: .bkColor(.gray900)
-        )
-        .frame(maxWidth: .infinity)
-      }
-      
-      Spacer()
-    }
-  }
-  
-  @ViewBuilder
-  private func cardView(emptyHeight: CGFloat) -> some View {
-    LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
-      Section {
-        HomeCardSection(store: store, emptyHeight: emptyHeight)
-          .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
-      } header: {
-        VStack(spacing: 0) {
-          CategoryHeaderView(store: store)
-            .background(ViewMaxYGeometry())
-            .onPreferenceChange(ViewPreferenceKey.self) { maxY in
-              // 섹션 헤더의 최대 Y 위치 업데이트
-              let navigationBarMaxY = (UIApplication.topSafeAreaInset - 20)
-              let headerMaxY = maxY + navigationBarMaxY
-              
-              DispatchQueue.main.async {
-                scrollViewDelegate.headerMaxY = headerMaxY
-              }
-            }
-            .background(isScrollDetected ? Color.white : Color.bkColor(.gray300))
-          
-          Divider()
-            .foregroundStyle(Color.bkColor(.gray400))
-            .opacity(isScrollDetected ? 1 : 0)
-        }
-        .background(ViewHeightGeometry())
-        .onPreferenceChange(HeaderHeightPreferenceKey.self) { self.categoryHeaderHeight = $0 }
-      }
-    }
-    .padding(.top, 8)
   }
 }
 
@@ -222,9 +200,14 @@ private struct HomeBanner: View {
 
 private struct CategoryHeaderView: View {
   @Perception.Bindable private var store: StoreOf<HomeFeature>
+  private let scrollAction: () -> Void
   
-  init(store: StoreOf<HomeFeature>) {
+  init(
+    store: StoreOf<HomeFeature>,
+    scrollAction: @escaping () -> Void
+  ) {
     self.store = store
+    self.scrollAction = scrollAction
   }
   
   var body: some View {
@@ -234,7 +217,10 @@ private struct CategoryHeaderView: View {
           BKCategoryButton(
             title: type.title,
             isSelected: store.category == type,
-            action: { store.send(.categoryButtonTapped(type), animation: .spring) }
+            action: {
+              scrollAction()
+              store.send(.categoryButtonTapped(type))
+            }
           )
         }
       }
