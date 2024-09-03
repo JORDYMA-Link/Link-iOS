@@ -39,7 +39,7 @@ public struct EditFolderBottomSheetFeature {
     // MARK: Inner Business Action
     case fetchFolderList(String)
     case fetchFeed(Int)
-    case patchFeed(feedId: Int, folderName: String, title: String, summary: String, keywords: [String], memo: String)
+    case patchFeed(feedId: Int, title: String, summary: String, keywords: [String], memo: String)
     
     // MARK: Inner SetState Action
     case setFolderList([Folder])
@@ -111,14 +111,14 @@ public struct EditFolderBottomSheetFeature {
           operation: { send in
             let feed = try await feedClient.getFeed(feedId)
             
-            await send(.patchFeed(feedId: feed.feedId, folderName: feed.folderName, title: feed.title, summary: feed.summary, keywords: feed.keywords, memo: feed.memo))
+            await send(.patchFeed(feedId: feed.feedId, title: feed.title, summary: feed.summary, keywords: feed.keywords, memo: feed.memo))
           },
           catch: { error, send in
             print(error)
           }
         )
         
-      case let .patchFeed(feedId, folderName, title, summary, keywords, memo):
+      case let .patchFeed(feedId, title, summary, keywords, memo):
         guard let selectedFolder = state.selectedFolder else { return .none }
         
         return .run(
