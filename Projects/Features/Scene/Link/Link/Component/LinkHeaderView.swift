@@ -37,23 +37,24 @@ struct LinkHeaderView: View {
       let size = proxy.size
       let minY = proxy.frame(in: .global).minY
       let isScrolling = minY > 0
-            
-      KFImage.url(URL(string: feed.thumnailImage))
-        .fade(duration: 0.25)
-        .resizable()
-        .scaledToFill()
-        .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
-        .clipped()
-        .offset(y: isScrolling ? -minY : 0)
-        .overlay(alignment: .top) {
-          VStack(spacing: 0) {
-            titleView()
-            Spacer(minLength: 0)
-            buttonView
-          }
-          .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
-          .offset(y: isScrolling ? -minY : 0)
+      
+      BKImageView(
+        imageURL: feed.thumnailImage,
+        downsamplingSize: .init(width: size.width, height: size.height),
+        placeholder: CommonFeature.Images.icoEmptyThumnail
+      )
+      .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
+      .clipped()
+      .offset(y: isScrolling ? -minY : 0)
+      .overlay(alignment: .top) {
+        VStack(spacing: 0) {
+          titleView()
+          Spacer(minLength: 0)
+          buttonView
         }
+        .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
+        .offset(y: isScrolling ? -minY : 0)
+      }
     }
     .frame(height: height <= Size.titleMinHeight ? Size.headerMinHeight : Size.headerMaxHeight)
   }
@@ -81,7 +82,7 @@ struct LinkHeaderView: View {
               self.height = height
             }
           }
-          
+        
         BKText(
           text: feed.date,
           font: .regular,
@@ -114,7 +115,7 @@ struct LinkHeaderView: View {
       } label: {
         BKIcon(
           image: CommonFeature.Images.icoShare,
-          color: .white, 
+          color: .white,
           size: CGSize(width: 20, height: 20)
         )
       }
