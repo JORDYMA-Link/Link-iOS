@@ -28,8 +28,6 @@ public struct LinkFeature {
     var linkType: LinkType
     /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
     var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
-    /// 뷰 진입 시 init 데이터
-    var initFeed: Feed?
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
     /// 메모 타이틀
@@ -135,9 +133,8 @@ public struct LinkFeature {
         return .run { [state] send in
           switch state.linkType {
           case .feedDetail:
-            guard state.feed != state.initFeed else { break }
-            
             await send(.delegate(.updateFeed(state.feed)))
+            
           case .summaryCompleted:
             // 링크 요약 연결 후 로직 수정
             await dismiss()
@@ -240,7 +237,6 @@ public struct LinkFeature {
                 
       case let .setFeed(feed):
         state.feed = feed
-        state.initFeed = feed
         return .none
                 
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
