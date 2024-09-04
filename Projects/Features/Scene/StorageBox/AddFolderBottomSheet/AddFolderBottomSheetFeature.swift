@@ -55,7 +55,7 @@ public struct AddFolderBottomSheetFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
-      case fetchFolderList(Folder)
+      case didUpdate(Folder)
     }
     case delegate(Delegate)
   }
@@ -112,7 +112,7 @@ public struct AddFolderBottomSheetFeature {
       case let .successAddFolder(folder):
         state.folderName = ""
         state.isAddFolderBottomSheetPresented = false
-        return .send(.delegate(.fetchFolderList(folder)))
+        return .send(.delegate(.didUpdate(folder)))
         
       case let .setValidation(isValidation):
         state.isValidation = isValidation

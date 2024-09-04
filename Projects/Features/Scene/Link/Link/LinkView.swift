@@ -109,7 +109,7 @@ struct LinkView: View {
       .task { await store.send(.onTask).finish() }
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
-        urlString: "https://www.naver.com",
+        urlString: store.feed.originUrl,
         saveAction: { store.send(.clipboardPopupSaveButtonTapped) }
       )
       .toast(
@@ -146,7 +146,7 @@ struct LinkView: View {
         leadingTitle: "설정"
       ) {
         BKMenuBottomSheet(
-          menuItems: [.editLinkContent, .deleteLinkContent],
+          menuItems: [.editLink, .deleteLink],
           action: { store.send(.menuBottomSheet($0)) }
         )
       }

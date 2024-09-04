@@ -52,8 +52,20 @@ public struct Feed: Equatable {
   }
 }
 
-extension Feed {
-  public static func mock() -> Feed {
-    return Feed(feedId: 2, thumnailImage: "https://jordyma-dev.s3.ap-northeast-2.amazonaws.com/thumbnail/2_b40e41e8-f37d-4939-bd39-20af9658f9f3_image%20%281%29.png", platformImage: "", title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", date: "2024.09.01", summary: "The problem is not with KFImage, which is loading as expected, but with the fact that TabView", keywords: ["Design System", "디자인", "UI/UX"], folderName: "디자인", recommendFolders: ["ggg", "aaaa", "azzz"], memo: "", isMarked: true, originUrl: "www.naver.com")
+public extension Feed {
+  func toFeedCard(_ initFeedCard: FeedCard) -> FeedCard {
+    return FeedCard(
+      feedId: initFeedCard.feedId,
+      title: title,
+      summary: summary,
+      platform: initFeedCard.platform,
+      platformImage: initFeedCard.platformImage,
+      isMarked: isMarked,
+      isUnclassified: initFeedCard.isUnclassified,
+      keywords: keywords,
+      recommendedFolder: initFeedCard.recommendedFolder,
+      folderId: initFeedCard.folderId,
+      folderName: initFeedCard.folderName
+    )
   }
 }

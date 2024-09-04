@@ -43,9 +43,8 @@ struct KeywordSearchListView: View {
             LazyVStack(spacing: 20) {
               ForEach(section.searchList) { item in
                 BKCardCell(
-                  width: 0,
                   sourceTitle: item.source,
-                  sourceImage: CommonFeature.Images.graphicBell,
+                  sourceImage: "",
                   isMarked: item.isMarked,
                   saveAction: saveAction,
                   menuAction: menuAction,
