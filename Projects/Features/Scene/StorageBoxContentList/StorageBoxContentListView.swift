@@ -68,7 +68,7 @@ struct StorageBoxContentListView: View {
               LazyVStack(spacing: 20) {
                 Section {
                   ForEach(LinkCard.mock(), id: \.id) { item in
-                    BKCardCell(width: geometry.size.width - 32, sourceTitle: item.sourceTitle, sourceImage: CommonFeature.Images.graphicBell, isMarked: true, saveAction: {}, menuAction: {}, title: item.title, description: item.description, keyword: item.keyword)
+                    BKCardCell(sourceTitle: item.sourceTitle, sourceImage: "", isMarked: true, saveAction: {}, menuAction: {}, title: item.title, description: item.description, keyword: item.keyword)
                       .padding(.horizontal, 16)
                   }
                 }

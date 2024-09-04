@@ -113,7 +113,15 @@ extension BKPhotoPicker {
             
             DispatchQueue.main.async {
               selectedPhotoInfos.removeAll()
-              selectedPhotoInfos.append(data)
+              
+              let downsampleImage = data.downsampleImage(
+                .init(width: UIScreen.main.bounds.width, height: 310),
+                scale: 1
+              )
+              
+              if let downsampleData = downsampleImage.jpegData(compressionQuality: 1) {
+                selectedPhotoInfos.append(downsampleData)
+              }
             }
           }
         case .failure:
@@ -125,5 +133,23 @@ extension BKPhotoPicker {
     }
     
     selectedPhotos.removeAll()
+  }
+}
+
+private extension Data {
+  func downsampleImage(_ pointSize: CGSize, scale: CGFloat) -> UIImage {
+    let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    let imageSource = CGImageSourceCreateWithData(self as CFData, imageSourceOptions)!
+    
+    let maxDimensionInPixels = Swift.max(pointSize.width, pointSize.height) * scale
+    let downsampleOptions = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceShouldCacheImmediately: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+    ] as CFDictionary
+    
+    let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions)!
+    return UIImage(cgImage: downsampledImage)
   }
 }

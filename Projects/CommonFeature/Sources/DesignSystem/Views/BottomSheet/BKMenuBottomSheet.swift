@@ -42,20 +42,20 @@ public struct BKMenuBottomSheet: View {
   
   private func listCellTapped(_ item: BKMenuBottomSheet.MenuItem) {
     switch item {
-    case .editLinkContent:
-      action?(.editLinkContentCellTapped)
+    case .editLink:
+      action?(.editLinkItemTapped)
       return
     case .editFolder:
-      action?(.editFolderCellTapped)
+      action?(.editFolderItemTapped)
       return
     case .editFolderName:
-      action?(.editFolderNameCellTapped)
+      action?(.editFolderNameItemTapped)
       return
-    case .deleteLinkContent:
-      action?(.deleteLinkContentCellTapped)
+    case .deleteLink:
+      action?(.deleteLinkItemTapped)
       return
     case .deleteFolder:
-      action?(.deleteFolderCellTapped)
+      action?(.deleteFolderItemTapped)
       return
     }
   }
@@ -63,21 +63,21 @@ public struct BKMenuBottomSheet: View {
 
 public extension BKMenuBottomSheet {
   enum MenuItem: CaseIterable {
-    case editLinkContent
+    case editLink
     case editFolder
     case editFolderName
-    case deleteLinkContent
+    case deleteLink
     case deleteFolder
     
     var title: String {
       switch self {
-      case .editLinkContent:
+      case .editLink:
         return "수정하기"
       case .editFolder:
         return "폴더 변경하기"
       case .editFolderName:
         return "폴더 이름 수정하기"
-      case .deleteLinkContent:
+      case .deleteLink:
         return "삭제하기"
       case .deleteFolder:
         return "폴더 삭제하기"
@@ -86,7 +86,7 @@ public extension BKMenuBottomSheet {
     
     var isWarning: Bool {
       switch self {
-      case .deleteLinkContent, .deleteFolder:
+      case .deleteLink, .deleteFolder:
         return true
       default:
         return false
@@ -95,10 +95,10 @@ public extension BKMenuBottomSheet {
   }
   
   enum Delegate {
-    case editLinkContentCellTapped
-    case editFolderCellTapped
-    case editFolderNameCellTapped
-    case deleteLinkContentCellTapped
-    case deleteFolderCellTapped
+    case editLinkItemTapped
+    case editFolderItemTapped
+    case editFolderNameItemTapped
+    case deleteLinkItemTapped
+    case deleteFolderItemTapped
   }
 }

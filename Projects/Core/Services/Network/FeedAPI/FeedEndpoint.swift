@@ -12,8 +12,10 @@ import Moya
 
 enum FeedEndpoint {
   case postFeedMemo(feedId: Int, memo: String)
+  case postFeedByType(type: String, page: Int, size: Int = 10)
   case deleteFeed(feedId: Int)
   case patchBookmark(feedId: Int, setMarked: Bool)
+  case getFeedSearch(query: String, page: Int, size: Int = 10)
   case getFeed(feedId: Int)
 }
 
@@ -24,10 +26,14 @@ extension FeedEndpoint: BaseTargetType {
     switch self {
     case .postFeedMemo:
       return baseFeedRoutePath + "/memo"
+    case .postFeedByType:
+      return baseFeedRoutePath + "/by-type"
     case let .deleteFeed(feedId):
       return baseFeedRoutePath + "/\(feedId)"
     case let .patchBookmark(feedId, _):
       return baseFeedRoutePath + "/bookmark/\(feedId)"
+    case .getFeedSearch:
+      return baseFeedRoutePath + "/search"
     case let .getFeed(feedId):
       return baseFeedRoutePath + "/detail/\(feedId)"
     }
@@ -35,13 +41,13 @@ extension FeedEndpoint: BaseTargetType {
   
   var method: Moya.Method {
     switch self {
-    case .postFeedMemo:
+    case .postFeedMemo, .postFeedByType:
       return .post
     case .deleteFeed:
       return .delete
     case .patchBookmark:
       return .patch
-    case .getFeed:
+    case .getFeed, .getFeedSearch:
       return .get
     }
   }
@@ -54,9 +60,23 @@ extension FeedEndpoint: BaseTargetType {
         "memo": memo
       ], encoding: JSONEncoding.default)
       
+    case let .postFeedByType(type, page, size):
+      return .requestParameters(parameters: [
+        "type": type,
+        "page": page,
+        "size": size
+      ], encoding: JSONEncoding.default)
+      
     case let .patchBookmark(_, setMarked):
       return .requestParameters(parameters: [
         "setMarked": setMarked
+      ], encoding: URLEncoding.queryString)
+      
+    case let .getFeedSearch(query, page, size):
+      return .requestParameters(parameters: [
+        "query": query,
+        "page": page,
+        "size": size
       ], encoding: URLEncoding.default)
       
     case .getFeed, .deleteFeed:

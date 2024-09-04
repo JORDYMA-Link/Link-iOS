@@ -161,19 +161,20 @@ struct EditLinkView: View {
       ) {
         AddKewordBottomSheet(store: store.scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet))
       }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
 
 private struct EditPhotoItem: View {
-  private let currentImage: URL?
+  private let currentImage: String
   private let selectedPhotoInfos: [Data]
   
   init(
     currentImage: String,
     selectedPhotoInfos: [Data]
   ) {
-    self.currentImage = URL(string: currentImage)
+    self.currentImage = currentImage
     self.selectedPhotoInfos = selectedPhotoInfos
   }
   
@@ -182,13 +183,16 @@ private struct EditPhotoItem: View {
       if let image = UIImage(data: selectedPhotoInfos[0]) {
         Image(uiImage: image)
           .resizable()
+          .scaledToFill()
           .editPhotoItem()
       }
     } else {
-      KFImage.url(currentImage)
-        .fade(duration: 0.25)
-        .resizable()
-        .editPhotoItem()
+      BKImageView(
+        imageURL: currentImage,
+        downsamplingSize: .init(width: 80, height: 80),
+        placeholder: CommonFeature.Images.contentDetailBackground
+      )
+      .editPhotoItem()
     }
   }
 }
@@ -196,7 +200,6 @@ private struct EditPhotoItem: View {
 private extension View {
   func editPhotoItem() -> some View {
     self
-      .scaledToFill()
       .frame(width: 80, height: 80)
       .clipShape(RoundedRectangle(cornerRadius: 10))
       .overlay(alignment: .center) {

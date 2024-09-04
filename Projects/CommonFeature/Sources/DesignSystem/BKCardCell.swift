@@ -10,22 +10,11 @@ import SwiftUI
 
 import Common
 
-/// BKCardCell를 사용하는 부모뷰에서 GeometryReader 사용 필수
-///
-///  GeometryReader { proxy in
-///         ScrollView {
-///             LazyVStack(content: {
-///                 ForEach(1...10, id: \.self) { count in
-///                     BKCardCell(width: proxy.size.width ...)
-///                }
-///            }
-///        }
-///    }
+import Kingfisher
 
 public struct BKCardCell: View {
-  private var width: CGFloat
   private var sourceTitle: String
-  private var sourceImage: Image
+  private var sourceImage: String
   private var isMarked: Bool
   private var saveAction: () -> Void
   private var menuAction: () -> Void
@@ -34,11 +23,23 @@ public struct BKCardCell: View {
   private var keyword: [String]
   private var isUncategorized: Bool
   private var recommendedFolders: [String]?
-  private var recommendedFolderAction: (() -> Void)?
+  private var recommendedFolderAction: ((String) -> Void)?
   private var addFolderAction: (() -> Void)?
   
-  public init(width: CGFloat, sourceTitle: String, sourceImage: Image, isMarked: Bool, saveAction: @escaping () -> Void, menuAction: @escaping () -> Void, title: String, description: String, keyword: [String], isUncategorized: Bool = false, recommendedFolders: [String]? = nil, recommendedFolderAction: (() -> Void)? = nil, addFolderAction: (() -> Void)? = nil) {
-    self.width = width
+  public init(
+    sourceTitle: String,
+    sourceImage: String,
+    isMarked: Bool,
+    saveAction: @escaping () -> Void,
+    menuAction: @escaping () -> Void,
+    title: String,
+    description: String,
+    keyword: [String],
+    isUncategorized: Bool = false,
+    recommendedFolders: [String]? = nil,
+    recommendedFolderAction: ((String) -> Void)? = nil,
+    addFolderAction: (() -> Void)? = nil
+  ) {
     self.sourceTitle = sourceTitle
     self.sourceImage = sourceImage
     self.isMarked = isMarked
@@ -83,10 +84,12 @@ public struct BKCardCell: View {
   private func makeHeaderSection() -> some View {
     HStack {
       HStack(spacing: 6) {
-        sourceImage
-          .resizable()
-          .scaledToFit()
-          .frame(width: 22, height: 22)
+        BKImageView(
+          imageURL: sourceImage,
+          downsamplingSize: .init(width: 22, height: 22),
+          placeholder: CommonFeature.Images.icoEmptyPlatform
+        )
+        .frame(width: 22, height: 22)
         
         Text(sourceTitle)
           .font(.regular(size: ._12))
@@ -162,7 +165,7 @@ public struct BKCardCell: View {
           ForEach(recommendedFolders ?? [], id: \.self) { text in
             makeRecommendedFolderText(text)
               .onTapGesture {
-                recommendedFolderAction?()
+                recommendedFolderAction?(text)
               }
           }
           

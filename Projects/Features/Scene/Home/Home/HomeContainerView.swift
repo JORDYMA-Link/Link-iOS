@@ -34,6 +34,7 @@ struct HomeContainerView<Content: View>: View {
         }
         .cardSettingBottomSheet(store: store)
         .editFolderBottomSheet(store: store)
+        .addFolderBottomSheet(store: store)
         .toolbar(.hidden, for: .navigationBar)
       }
     }

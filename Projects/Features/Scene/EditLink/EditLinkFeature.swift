@@ -15,9 +15,9 @@ import CommonFeature
 import ComposableArchitecture
 
 /// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
-public enum EditLinkType {
-  case home
-  case link
+public enum EditLinkType: Equatable {
+  case home(feedId: Int)
+  case link(Feed)
 }
 
 @Reducer
@@ -25,7 +25,7 @@ public struct EditLinkFeature {
   @ObservableState
   public struct State: Equatable {
     var editLinkType: EditLinkType
-    var feed: Feed
+    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
     var initFeed: Feed?
     var isTitleValidation: Bool = true
     var isDescriptionValidation: Bool = true
@@ -37,12 +37,9 @@ public struct EditLinkFeature {
     var addKeywordBottomSheet: AddKewordBottomSheetFeature.State = .init()
     
     public init(
-      editLinkType: EditLinkType,
-      feed: Feed
+      editLinkType: EditLinkType
     ) {
       self.editLinkType = editLinkType
-      self.feed = feed
-      self.initFeed = feed
     }
   }
   
@@ -50,6 +47,7 @@ public struct EditLinkFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case onAppear
     case closeButtonTapped
     case titleTextChanged(String)
     case descriptionChanged(String)
@@ -58,11 +56,13 @@ public struct EditLinkFeature {
     case editConfirmButtonTapped
     
     // MARK: Inner Business Action
+    case fetchFeed(Int)
     case postThumbnailImage(Int, Data)
     case patchLink(Int)
     case dismiss
     
     // MARK: Inner SetState Action
+    case setFeed(Feed)
     case setTitleValidation(Bool)
     case setDescriptionValidation(Bool)
     case setDelegate
@@ -87,6 +87,7 @@ public struct EditLinkFeature {
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
+  @Dependency(\.feedClient) private var feedClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet) {
@@ -101,12 +102,20 @@ public struct EditLinkFeature {
         state.isPhotoErrorPresented = true
         return .run { send in await send(.photoErrorAlertPresented) }
         
+      case .onAppear:
+        switch state.editLinkType {
+        case let .link(feed):
+          return .send(.setFeed(feed))
+        case let .home(feedId):
+          return .send(.fetchFeed(feedId))
+        }
+        
       case .closeButtonTapped:
         return .run { send in
           await alertClient.present(.init(
             title: "편집 중단",
-            description: 
-           """
+            description:
+            """
             편집을 중단하시겠어요?
             수정한 내용이 반영되지 않아요
             """,
@@ -165,8 +174,20 @@ public struct EditLinkFeature {
           },
           catch: { error, send in
             print(error)
-            
+            /// 성공 시 200 애러로 방출됨 (추후 수정 필요)
             await send(.patchLink(feedId))
+          }
+        )
+        
+      case let .fetchFeed(feedId):
+        return .run(
+          operation: { send in
+            let feed = try await feedClient.getFeed(feedId)
+            
+            await send(.setFeed(feed), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
           }
         )
         
@@ -191,6 +212,11 @@ public struct EditLinkFeature {
         
       case .dismiss:
         return .run { _ in await self.dismiss() }
+        
+      case let .setFeed(feed):
+        state.feed = feed
+        state.initFeed = feed
+        return .none
         
       case let .setTitleValidation(isTitleValidation):
         state.isTitleValidation = isTitleValidation
