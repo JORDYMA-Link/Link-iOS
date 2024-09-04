@@ -38,7 +38,11 @@ public struct HomeView: View {
               VStack(spacing: 0) {
                 HomeBanner(store: store)
                   .background(ViewHeightGeometry())
-                  .onPreferenceChange(ViewPreferenceKey.self) { self.bannerHeight = $0 }
+                  .onPreferenceChange(ViewPreferenceKey.self) { height in
+                    DispatchQueue.main.async {
+                      self.bannerHeight = height
+                    }
+                  }
                   .id(topID)
                 
                 Divider()
@@ -78,7 +82,11 @@ public struct HomeView: View {
                         .opacity(isScrollDetected ? 1 : 0)
                     }
                     .background(ViewHeightGeometry())
-                    .onPreferenceChange(HeaderHeightPreferenceKey.self) { self.categoryHeaderHeight = $0 }
+                    .onPreferenceChange(HeaderHeightPreferenceKey.self) { height in
+                      DispatchQueue.main.async {
+                        self.categoryHeaderHeight = height
+                      }
+                    }
                   }
                 }
                 .padding(.top, 8)
