@@ -66,16 +66,15 @@ struct HomeCardSection: View {
     ForEach(Array(store.feedList.enumerated()), id: \.offset) { index, item in
       WithPerceptionTracking {
         BKCardCell(
-          width: 0,
           sourceTitle: item.platform,
-          sourceImage: CommonFeature.Images.graphicBell,
+          sourceImage: item.platformImage,
           isMarked: item.isMarked,
           saveAction: { store.send(.cardItemSaveButtonTapped( index, !item.isMarked), animation: .default) },
           menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
           title: item.title,
           description: item.summary,
           keyword: item.keywords,
-          isUncategorized: store.category == .bookmarked,
+          isUncategorized: item.isUnclassified,
           recommendedFolders: item.recommendedFolder,
           recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped($0)) },
           addFolderAction: { store.send(.cardItemAddFolderTapped) }
