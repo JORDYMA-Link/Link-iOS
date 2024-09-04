@@ -75,6 +75,7 @@ public struct HomeFeature: Reducer {
     
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
     case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
@@ -82,7 +83,6 @@ public struct HomeFeature: Reducer {
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
     case storageBoxFeedList(PresentationAction<StorageBoxContentListFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
-    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     
     // MARK: Navigation Action
     case routeSetting
@@ -300,7 +300,9 @@ public struct HomeFeature: Reducer {
         let feedCard = state.feedList[index]
         let updateFeedCard = feed.toFeedCard(feedCard)
         
-        state.feedList[index] = updateFeedCard
+        if feedCard != updateFeedCard {
+          state.feedList[index] = updateFeedCard
+        }
         return .none
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
@@ -309,7 +311,7 @@ public struct HomeFeature: Reducer {
         
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
         return .run { send in
-          try await Task.sleep(for: .seconds(0.5))
+          try await Task.sleep(for: .seconds(0.7))
           await send(.cardItemTapped(feed.feedId))
         }
         
