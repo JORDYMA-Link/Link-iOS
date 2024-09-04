@@ -29,7 +29,7 @@ public struct HomeFeature: Reducer {
     
     var feedList: [FeedCard] = []
     var selectedFeed: FeedCard?
-
+    
     @Presents var searchKeyword: SearchKeywordFeature.State?
     @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
@@ -53,6 +53,7 @@ public struct HomeFeature: Reducer {
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
     case pagination
+    case pullToRefresh
     case cardItemTapped(Int)
     case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
@@ -107,6 +108,7 @@ public struct HomeFeature: Reducer {
   
   private enum DebounceId {
     case pagination
+    case pullToRefresh
   }
   
   public var body: some ReducerOf<Self> {
@@ -149,7 +151,7 @@ public struct HomeFeature: Reducer {
           state.category = categoryType
           return .run { [state] send in
             await send(.resetPage)
-            await send(.fetchFeedList(state.category, state.page))
+            await send(.fetchFeedList(state.category, 0))
           }
           .throttle(id: ThrottleId.categoryButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         }
@@ -157,6 +159,13 @@ public struct HomeFeature: Reducer {
       case .pagination:
         return .send(.updatePage)
           .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
+        
+      case .pullToRefresh:
+        return .run { [state] send in
+          await send(.resetPage)
+          await send(.fetchFeedList(state.category, 0))
+        }
+        .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
         
       case let .cardItemTapped(feedId):
         return .send(.routeFeedDetail(feedId))

@@ -84,6 +84,7 @@ public struct HomeView: View {
                 .padding(.top, 8)
               }
             }
+            .refreshable { store.send(.pullToRefresh) }
             .background(Color.bkColor(.gray300))
             .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
               scrollView.delegate = scrollViewDelegate
