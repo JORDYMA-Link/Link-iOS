@@ -10,34 +10,27 @@ import SwiftUI
 
 import CommonFeature
 
+import ComposableArchitecture
+
 struct RecentSearchView: View {
-  private let resentSearches: [String]
-  private let removeAllAction: () -> Void
-  private let removeAction: (String) -> Void
-  private let recentSearchAction: (String) -> Void
+  @Perception.Bindable private var store: StoreOf<SearchFeature>
   
-  init(
-    resentSearches: [String],
-    removeAllAction: @escaping () -> Void,
-    removeAction: @escaping (String) -> Void,
-    recentSearchAction: @escaping (String) -> Void
-  ) {
-    self.resentSearches = resentSearches
-    self.removeAllAction = removeAllAction
-    self.removeAction = removeAction
-    self.recentSearchAction = recentSearchAction
+  init(store: StoreOf<SearchFeature>) {
+    self.store = store
   }
   
   var body: some View {
     VStack(spacing: 0) {
-      SearchRecentHeaderView(removeAction: removeAllAction)
+      RecentSearchHeaderView(
+        removeAllAction: { store.send(.removeAllRecentSearchesButtonTapeed, animation: .spring) }
+      )
       
       ScrollView(showsIndicators: false) {
-        ForEach(resentSearches, id: \.self) { searches in
+        ForEach(store.recentSearches, id: \.self) { searche in
           VStack(spacing: 0) {
             HStack {
               BKText(
-                text: searches,
+                text: searche,
                 font: .regular,
                 size: ._14,
                 lineHeight: 20,
@@ -51,7 +44,8 @@ struct RecentSearchView: View {
                 color: .bkColor(.gray700),
                 size: .init(width: 16, height: 16)
               )
-              .onTapGesture { removeAction(searches) }
+              .onTapGesture {
+                store.send(.removeRecentSearchesCellTapeed(searche), animation: .spring) }
             }
             .padding(16)
             
@@ -59,7 +53,7 @@ struct RecentSearchView: View {
               .foregroundStyle(Color.bkColor(.gray400))
           }
           .contentShape(Rectangle())
-          .onTapGesture { recentSearchAction(searches) }
+          .onTapGesture { store.send(.searchButtonTapped(searche), animation: .spring) }
         }
       }
     }
@@ -67,11 +61,11 @@ struct RecentSearchView: View {
 }
 
 extension RecentSearchView {
-  private struct SearchRecentHeaderView: View {
-    private let removeAction: () -> Void
+  private struct RecentSearchHeaderView: View {
+    private let removeAllAction: () -> Void
     
-    init(removeAction: @escaping () -> Void) {
-      self.removeAction = removeAction
+    init(removeAllAction: @escaping () -> Void) {
+      self.removeAllAction = removeAllAction
     }
     
     var body: some View {
@@ -94,7 +88,7 @@ extension RecentSearchView {
           color: .bkColor(.gray700)
         )
         .underline(color: .bkColor(.gray700))
-        .onTapGesture { removeAction() }
+        .onTapGesture { removeAllAction() }
       }
       .padding(16)
     }

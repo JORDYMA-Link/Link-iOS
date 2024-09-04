@@ -1,5 +1,5 @@
 //
-//  SearchKeywordFeature.swift
+//  SearchFeature.swift
 //  Blink
 //
 //  Created by kyuchul on 6/10/24.
@@ -14,7 +14,7 @@ import Services
 import ComposableArchitecture
 
 @Reducer
-public struct SearchKeywordFeature {
+public struct SearchFeature {
   @ObservableState
   public struct State: Equatable {
     var text = ""
@@ -106,7 +106,7 @@ public struct SearchKeywordFeature {
   }
 }
 
-extension SearchKeywordFeature {
+extension SearchFeature {
   private func requestSearchKeyword(keyword: String) -> Effect<Action> {
     return .run { send in
       do {

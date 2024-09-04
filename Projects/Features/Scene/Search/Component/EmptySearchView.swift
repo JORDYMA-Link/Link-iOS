@@ -10,11 +10,13 @@ import SwiftUI
 
 import CommonFeature
 
+import ComposableArchitecture
+
 struct EmptySearchView: View {
-  private let keyword: String
+  @Perception.Bindable private var store: StoreOf<SearchFeature>
   
-  init(keyword: String) {
-    self.keyword = keyword
+  init(store: StoreOf<SearchFeature>) {
+    self.store = store
   }
   
   var body: some View {
@@ -23,7 +25,7 @@ struct EmptySearchView: View {
       
       CommonFeature.Images.icoEmptySearch
       
-      SearchResultTitle(keyword: keyword, title: "에 대한 검색 결과가 없습니다.", isEmpty: true)
+      SearchResultTitle(keyword: store.keyword, title: "에 대한 검색 결과가 없습니다.", isEmpty: true)
         .padding(.bottom, 4)
       
       BKText(

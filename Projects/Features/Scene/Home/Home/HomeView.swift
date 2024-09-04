@@ -117,7 +117,7 @@ public struct HomeView: View {
         action: \.searchKeyword
       )
     ) { store in
-      SearchKeywordView(store: store)
+      SearchView(store: store)
     }
     .navigationDestination(
       item: $store.scope(
