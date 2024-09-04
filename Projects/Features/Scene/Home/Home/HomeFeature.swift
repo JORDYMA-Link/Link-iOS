@@ -52,6 +52,7 @@ public struct HomeFeature: Reducer {
     case searchBannerSearchBarTapped
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
+    case pagination
     case cardItemTapped(Int)
     case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
@@ -104,6 +105,10 @@ public struct HomeFeature: Reducer {
     case saveButton
   }
   
+  private enum DebounceId {
+    case pagination
+  }
+  
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
@@ -148,6 +153,10 @@ public struct HomeFeature: Reducer {
           }
           .throttle(id: ThrottleId.categoryButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         }
+        
+      case .pagination:
+        return .send(.updatePage)
+          .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
         
       case let .cardItemTapped(feedId):
         return .send(.routeFeedDetail(feedId))
