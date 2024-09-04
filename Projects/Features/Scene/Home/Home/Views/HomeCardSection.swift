@@ -82,7 +82,7 @@ struct HomeCardSection: View {
         .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
         .onAppear {
           if index != 0 && item == store.feedList.last && !store.fetchedAllFeedCards {
-            store.send(.updatePage)
+            store.send(.pagination)
           }
         }
       }
