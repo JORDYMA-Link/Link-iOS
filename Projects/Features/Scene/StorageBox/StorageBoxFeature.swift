@@ -29,7 +29,7 @@ public struct StorageBoxFeature: Reducer {
     var isDeleteFolderPresented: Bool = false
         
     @Presents var storageBoxContentList: StorageBoxContentListFeature.State?
-    @Presents var searchKeyword: SearchKeywordFeature.State?
+    @Presents var searchKeyword: SearchFeature.State?
     var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
   }
@@ -54,7 +54,7 @@ public struct StorageBoxFeature: Reducer {
     case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     case storageBoxContentList(PresentationAction<StorageBoxContentListFeature.Action>)
-    case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
+    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Present Action
@@ -163,7 +163,7 @@ public struct StorageBoxFeature: Reducer {
       StorageBoxContentListFeature()
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchKeywordFeature()
+      SearchFeature()
     }
   }
 }

@@ -30,7 +30,7 @@ public struct HomeFeature: Reducer {
     var feedList: [FeedCard] = []
     var selectedFeed: FeedCard?
     
-    @Presents var searchKeyword: SearchKeywordFeature.State?
+    @Presents var searchKeyword: SearchFeature.State?
     @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     @Presents var settingContent: SettingFeature.State?
@@ -78,7 +78,7 @@ public struct HomeFeature: Reducer {
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
+    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case settingContent(PresentationAction<SettingFeature.Action>)
@@ -390,7 +390,7 @@ public struct HomeFeature: Reducer {
       }
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchKeywordFeature()
+      SearchFeature()
     }
     .ifLet(\.$link, action: \.link) {
       LinkFeature()

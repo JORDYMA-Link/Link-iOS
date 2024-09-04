@@ -1,5 +1,5 @@
 //
-//  KeywordSearchListView.swift
+//  KeywordSearchView.swift
 //  Features
 //
 //  Created by kyuchul on 7/28/24.
@@ -11,43 +11,31 @@ import SwiftUI
 import Models
 import CommonFeature
 
-struct KeywordSearchListView: View {
-  private let keyword: String
-  private let searches: [SearchKeywordSection]
-  private let saveAction: () -> Void
-  private let menuAction: () -> Void
-  private let moreAction: (SearchKeywordSection) -> Void
+import ComposableArchitecture
+
+struct KeywordSearchView: View {
+  @Perception.Bindable private var store: StoreOf<SearchFeature>
   
-  init(
-    keyword: String,
-    searches: [SearchKeywordSection],
-    saveAction: @escaping () -> Void,
-    menuAction: @escaping () -> Void,
-    moreAction: @escaping (SearchKeywordSection) -> Void
-  ) {
-    self.keyword = keyword
-    self.searches = searches
-    self.saveAction = saveAction
-    self.menuAction = menuAction
-    self.moreAction = moreAction
+  init(store: StoreOf<SearchFeature>) {
+    self.store = store
   }
   
   var body: some View {
     ScrollView(showsIndicators: false) {
       VStack(alignment: .leading, spacing: 0) {
-        SearchResultTitle(keyword: keyword, title: "검색 결과")
+        SearchResultTitle(keyword: store.keyword, title: "검색 결과")
           .padding(.bottom, 24)
         
         LazyVStack(spacing: 32) {
-          ForEach(searches) { section in
+          ForEach(store.section) { section in
             LazyVStack(spacing: 20) {
               ForEach(section.searchList) { item in
                 BKCardCell(
                   sourceTitle: item.source,
                   sourceImage: "",
                   isMarked: item.isMarked,
-                  saveAction: saveAction,
-                  menuAction: menuAction,
+                  saveAction: {},
+                  menuAction: {},
                   title: item.title,
                   description: item.summary,
                   keyword: item.keywords,
@@ -56,9 +44,9 @@ struct KeywordSearchListView: View {
               }
               
               KeywordSearchListFooterView(
-                keyword: keyword,
+                keyword: store.keyword,
                 section: section,
-                footerMoreAction: moreAction
+                footerMoreAction: { section in store.send(.seeMoreButtonTapped(section), animation: .spring) }
               )
             }
           }
@@ -69,7 +57,7 @@ struct KeywordSearchListView: View {
   }
 }
 
-extension KeywordSearchListView {
+extension KeywordSearchView {
   private struct KeywordSearchListFooterView: View {
     private let keyword: String
     private let section: SearchKeywordSection
