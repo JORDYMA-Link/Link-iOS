@@ -24,7 +24,7 @@ public struct SettingFeature {
     var showEditNicknameSheet: Bool = false
     var showWithdrawModal: Bool = false
     var showLogoutConfirmModal: Bool = false
-    var confirmWithdrawState: Bool = false
+    var isConfirmedWithdrawWarning: Bool = false
     var targetNickname: String = ""
     var targetNicknameValidation: Bool = true
     
@@ -36,6 +36,7 @@ public struct SettingFeature {
     case requestSettingInfo
     case changeNickName(targetNickname: String)
     case fetchLatestVersion(version: String?)
+    case openExternalURL(type: PolicyType)
     
     //user Action
     case tappedNicknameEdit
@@ -44,9 +45,10 @@ public struct SettingFeature {
     case tappedService
     case versionInfo
     case tappedServiceInfo
-    case toggleLogOut
+    case tappedLogOut
     case tappedWithdrawCell
-    case toggleConfirmWithdrawNotice
+    case changeConfirmWithdrawModal
+    case confirmedWithdrawWarning
     case tappedCompletedEditingNickname
     case cancelCompletedEditingNickname
     
@@ -54,6 +56,23 @@ public struct SettingFeature {
     case binding(BindingAction<State>)
     
     case noticeContent(PresentationAction<NoticeFeature.Action>)
+  }
+  
+  public enum PolicyType {
+    case privacy
+    case termOfUse
+    case introduceService
+    
+    var url: URL? {
+      switch self {
+      case .privacy:
+        return URL(string:"https://www.notion.so/4df567ac571948f0a2b7d782bde3767a?pvs=4")
+      case .termOfUse:
+        return URL(string:"https://www.notion.so/ea068d8517af4ca0a719916f7d23dee2?pvs=4")
+      case .introduceService:
+        return URL(string:"https://www.naver.com")
+      }
+    }
   }
   
   private enum NicknameValidationNotice {
@@ -79,6 +98,7 @@ public struct SettingFeature {
   
   //MARK: - Dependency
   @Dependency(\.settingClient) private var settingClient
+  @Dependency(\.authClient) private var authClient
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -105,7 +125,7 @@ public struct SettingFeature {
       case .tappedNicknameEdit:
         state.showEditNicknameSheet = true
         
-      case .toggleLogOut:
+      case .tappedLogOut:
         state.showLogoutConfirmModal.toggle()
         
       case .tappedWithdrawCell:
@@ -114,8 +134,11 @@ public struct SettingFeature {
       case .tappedNotice:
         state.noticeContent = .init()
         
-      case .toggleConfirmWithdrawNotice:
+      case .changeConfirmWithdrawModal:
         state.showWithdrawModal.toggle()
+        
+      case .confirmedWithdrawWarning:
+        state.isConfirmedWithdrawWarning.toggle()
         
       case .cancelCompletedEditingNickname:
         state.showEditNicknameSheet = false

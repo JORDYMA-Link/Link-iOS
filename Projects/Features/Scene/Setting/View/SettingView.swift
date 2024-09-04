@@ -91,7 +91,7 @@ public struct SettingView: View {
       BKModal(modalType: .logout(checkAction: {
         
       }, cancelAction: {
-        store.send(.toggleLogOut)
+        store.send(.tappedLogOut)
       }))
     })
     
@@ -156,18 +156,18 @@ extension SettingView {
           .font(.regular(size: ._12))
           .foregroundStyle(Color.bkColor(.gray700))
         
-        Button(action: {
-        }, label: {
+        
+        Link(destination: SettingFeature.PolicyType.privacy.url!) {
           Text("개인정보 처리 방침")
             .font(.regular(size: ._15))
-        })
+        }
         .tint(.bkColor(.gray900))
         .padding(.top, 16)
         
-        Button(action: {}, label: {
+        Link(destination: SettingFeature.PolicyType.termOfUse.url!) {
           Text("서비스 이용약관")
             .font(.regular(size: ._15))
-        })
+        }
         .tint(.bkColor(.gray900))
         .padding(.top, 32)
         
@@ -198,15 +198,16 @@ extension SettingView {
         Text("도움말")
           .font(.regular(size: ._12))
           .foregroundStyle(Color.bkColor(.gray700))
-        Button(action: {}, label: {
+        
+        Link(destination: SettingFeature.PolicyType.introduceService.url!) {
           Text("서비스 이용방법")
-            .font(.regular(size: ._15))
-        })
+        }
+        .font(.regular(size: ._15))
         .tint(.bkColor(.gray900))
         .padding(.top, 16)
         
         Button(action: {
-          store.send(.toggleLogOut)
+          store.send(.tappedLogOut)
         }, label: {
           Text("로그아웃")
             .font(.regular(size: ._15))
@@ -251,7 +252,7 @@ extension SettingView {
         Spacer()
         
         Button {
-          store.send(.toggleConfirmWithdrawNotice)
+          store.send(.changeConfirmWithdrawModal)
         } label: {
           BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
         }
@@ -268,10 +269,10 @@ extension SettingView {
         .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
       
       Button {
-        store.send(.toggleConfirmWithdrawNotice)
+        store.send(.confirmedWithdrawWarning)
       } label: {
         HStack {
-          if store.confirmWithdrawState {
+          if store.isConfirmedWithdrawWarning {
             Image(systemName: "square" )
               .foregroundStyle(Color.bkColor(.gray700))
           } else {
@@ -289,12 +290,12 @@ extension SettingView {
         
       } label: {
         Text(BKModalType.withdrawNotice.okText)
-          .foregroundStyle(store.confirmWithdrawState ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
+          .foregroundStyle(store.isConfirmedWithdrawWarning ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
           .frame(maxWidth: 140, maxHeight: 48)
       }
-      .disabled(store.confirmWithdrawState)
+      .disabled(store.isConfirmedWithdrawWarning)
       .frame(maxWidth: .infinity, maxHeight: 48)
-      .background(store.confirmWithdrawState ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
+      .background(store.isConfirmedWithdrawWarning ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
       .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
