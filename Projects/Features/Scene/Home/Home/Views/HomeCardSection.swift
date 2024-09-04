@@ -38,27 +38,25 @@ struct HomeCardSection: View {
   
   @ViewBuilder
   private func emptyView() -> some View {
-    GeometryReader { proxy in
-      VStack(alignment: .center) {
-        Spacer()
-        
-        BKText(
-          text: emptyTitle,
-          font: .regular,
-          size: ._15,
-          lineHeight: 22,
-          color: .bkColor(.gray600)
-        )
-        .frame(maxWidth: .infinity)
-        .lineLimit(2)
-        .multilineTextAlignment(.center)
-        .minimumScaleFactor(0.8)
-        
-        Spacer()
-        Spacer()
-      }
-      .frame(height: emptyHeight)
+    VStack(alignment: .center) {
+      Spacer()
+      
+      BKText(
+        text: emptyTitle,
+        font: .regular,
+        size: ._15,
+        lineHeight: 22,
+        color: .bkColor(.gray600)
+      )
+      .frame(maxWidth: .infinity)
+      .lineLimit(2)
+      .multilineTextAlignment(.center)
+      .minimumScaleFactor(0.8)
+      
+      Spacer()
+      Spacer()
     }
+    .frame(height: emptyHeight)
   }
   
   @ViewBuilder
