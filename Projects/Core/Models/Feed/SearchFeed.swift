@@ -8,9 +8,12 @@
 
 import Foundation
 
-public struct SearchFeed: Equatable {
+public struct SearchFeed: Equatable, Identifiable {
+  public let id = UUID()
   public let query: String
   public let result: [FeedCard]
+  public var isPagination: Bool = true
+  public var isLast: Bool = false
   
   public init(
     query: String,
