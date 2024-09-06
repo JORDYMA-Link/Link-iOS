@@ -21,33 +21,44 @@ struct KeywordSearchView: View {
   }
   
   var body: some View {
-    ScrollView(showsIndicators: false) {
-      VStack(alignment: .leading, spacing: 0) {
-        SearchResultTitle(keyword: store.keyword, title: "검색 결과")
-          .padding(.bottom, 24)
-        
-        LazyVStack(spacing: 32) {
-          ForEach(store.section) { section in
-            LazyVStack(spacing: 20) {
-              ForEach(section.searchList) { item in
-                BKCardCell(
-                  sourceTitle: item.source,
-                  sourceImage: "",
-                  isMarked: item.isMarked,
-                  saveAction: {},
-                  menuAction: {},
-                  title: item.title,
-                  description: item.summary,
-                  keyword: item.keywords,
-                  isUncategorized: false
-                )
+    WithPerceptionTracking {
+      ScrollView(showsIndicators: false) {
+        VStack(alignment: .leading, spacing: 0) {
+          SearchResultTitle(keyword: store.keyword, title: "검색 결과")
+            .padding(.bottom, 24)
+          
+          LazyVStack(spacing: 32) {
+            ForEach(Array(store.feedSection.enumerated()), id: \.element.id) { index, section in
+              LazyVStack(spacing: 20) {
+                ForEach(section.result, id: \.feedId) { item in
+                  WithPerceptionTracking {
+                    BKCardCell(
+                      sourceTitle: item.platform,
+                      sourceImage: item.platformImage,
+                      isMarked: item.isMarked,
+                      saveAction: {},
+                      menuAction: {},
+                      title: item.title,
+                      description: item.summary,
+                      keyword: item.keywords,
+                      isUncategorized: false
+                    )
+                    .onTapGesture { store.send(.keywordSearchItemTapped(item.feedId)) }
+                  }
+                  if !section.isLast {
+                    KeywordSearchListFooterView(
+                      keyword: store.keyword,
+                      section: section,
+                      footerMoreAction: { section in store.send(.footerPaginationButtonTapped(index), animation: .spring)
+                      }
+                    )
+                  }
+                }
+                
+                if section.isLast {
+                  Spacer()
+                }
               }
-              
-              KeywordSearchListFooterView(
-                keyword: store.keyword,
-                section: section,
-                footerMoreAction: { section in store.send(.seeMoreButtonTapped(section), animation: .spring) }
-              )
             }
           }
         }
@@ -57,16 +68,16 @@ struct KeywordSearchView: View {
   }
 }
 
-extension KeywordSearchView {
-  private struct KeywordSearchListFooterView: View {
+private extension KeywordSearchView {
+  struct KeywordSearchListFooterView: View {
     private let keyword: String
-    private let section: SearchKeywordSection
-    private let footerMoreAction: (SearchKeywordSection) -> Void
+    private let section: SearchFeed
+    private let footerMoreAction: (SearchFeed) -> Void
     
     init(
       keyword: String,
-      section: SearchKeywordSection,
-      footerMoreAction: @escaping (SearchKeywordSection) -> Void
+      section: SearchFeed,
+      footerMoreAction: @escaping (SearchFeed) -> Void
     ) {
       self.keyword = keyword
       self.section = section
@@ -77,7 +88,7 @@ extension KeywordSearchView {
       VStack(spacing: 16) {
         SearchResultTitle(keyword: keyword, title: "검색 결과 더보기")
         
-        if !section.isSeeMoreButtonHidden {
+        if section.isPagination {
           BKText(
             text: "더보기",
             font: .semiBold,
