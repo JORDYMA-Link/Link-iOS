@@ -28,42 +28,43 @@ struct KeywordSearchView: View {
             .padding(.bottom, 24)
           
           LazyVStack(spacing: 32) {
-            ForEach(Array(store.feedSection.enumerated()), id: \.element.id) { index, section in
+            ForEach(Array(store.feedSection.enumerated()), id: \.element.id) { sectionIndex, section in
               LazyVStack(spacing: 20) {
-                ForEach(section.result, id: \.feedId) { item in
+                ForEach(Array(section.result.enumerated()), id: \.element.feedId) { index, item in
                   WithPerceptionTracking {
                     BKCardCell(
                       sourceTitle: item.platform,
                       sourceImage: item.platformImage,
                       isMarked: item.isMarked,
-                      saveAction: {},
-                      menuAction: {},
+                      saveAction: { store.send(.keywordSearchItemSaveButtonTapped(sectionIndex: sectionIndex, index: index, isMarked: !item.isMarked, feedId: item.feedId)) },
+                      menuAction: { store.send(.keywordSearchMenuButtonTapped(sectionIndex: sectionIndex, index: index, feed: item)) },
                       title: item.title,
                       description: item.summary,
                       keyword: item.keywords,
                       isUncategorized: false
                     )
-                    .onTapGesture { store.send(.keywordSearchItemTapped(item.feedId)) }
-                  }
-                  if !section.isLast {
-                    KeywordSearchListFooterView(
-                      keyword: store.keyword,
-                      section: section,
-                      footerMoreAction: { section in store.send(.footerPaginationButtonTapped(index), animation: .spring)
-                      }
-                    )
+                    .onTapGesture { store.send(.keywordSearchItemTapped(sectionIndex: sectionIndex, index: index, feed: item)) }
                   }
                 }
                 
-                if section.isLast {
-                  Spacer()
+                if !section.isLast {
+                  KeywordSearchListFooterView(
+                    keyword: store.keyword,
+                    section: section,
+                    footerMoreAction: { section in store.send(.footerPaginationButtonTapped(sectionIndex), animation: .spring)
+                    }
+                  )
                 }
+              }
+              
+              if section.isLast {
+                Spacer()
               }
             }
           }
         }
+        .padding(EdgeInsets(top: 20, leading: 16, bottom: 90, trailing: 16))
       }
-      .padding(EdgeInsets(top: 20, leading: 16, bottom: 90, trailing: 16))
     }
   }
 }

@@ -46,7 +46,36 @@ struct SearchView: View {
           action: \.link
         )
       ) { store in
-        LinkView(store: store)
+        LinkView(
+          store: store,
+          onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
+        )
+      }
+      .bottomSheet(
+        isPresented: $store.isMenuBottomSheetPresented,
+        detents: [.height(192)],
+        leadingTitle: "설정"
+      ) {
+        BKMenuBottomSheet(
+          menuItems: [.editLink, .editFolder, .deleteLink],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
+      }
+      .bottomSheet(
+        isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+        detents: [.height(132)],
+        leadingTitle: "폴더 수정",
+        closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+      .fullScreenCover(
+        item: $store.scope(
+          state: \.editLink,
+          action: \.editLink)
+      ) { store in
+        EditLinkView(store: store)
       }
       .onAppear { textIsFocused = true }
       .task { await store.send(.onTask).finish() }
