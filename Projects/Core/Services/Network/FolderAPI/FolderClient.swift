@@ -16,6 +16,7 @@ import Moya
 public struct FolderClient {
   /// 보관함 폴더 리스트 조회
   public var getFolders: @Sendable () async throws -> [Folder]
+  public var getFolderFeeds: @Sendable (_ folderId: Int, _ cursor: Int) async throws -> [FeedCard]
   /// 폴더 생성
   public var postFolder: @Sendable (_ name: String) async throws -> Folder
   /// 온보딩 주제 선택
@@ -34,6 +35,11 @@ extension FolderClient: DependencyKey {
       getFolders: {
         let responseDTO: FolderListResponse = try await folderProvider.request(.getFolders, modelType: FolderListResponse.self)
         return responseDTO.toDomain()
+      },
+      getFolderFeeds: { folderId, cursor in
+        let responseDTO: FolderFeedListResponse = try await folderProvider.request(.getFolderFeeds(folderId: folderId, cursor: cursor), modelType: FolderFeedListResponse.self)
+        
+        return responseDTO.feedList.map { $0.toDomain() }
       },
       postFolder: { name in
         let responseDTO: FolderResponse = try await folderProvider.request(.postFolder(name: name), modelType: FolderResponse.self)
