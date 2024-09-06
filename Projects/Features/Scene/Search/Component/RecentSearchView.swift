@@ -20,43 +20,50 @@ struct RecentSearchView: View {
   }
   
   var body: some View {
-    VStack(spacing: 0) {
-      RecentSearchHeaderView(
-        removeAllAction: { store.send(.removeAllRecentSearchesButtonTapeed, animation: .spring) }
-      )
-      
-      ScrollView(showsIndicators: false) {
-        ForEach(store.recentSearches, id: \.self) { searche in
-          VStack(spacing: 0) {
-            HStack {
-              BKText(
-                text: searche,
-                font: .regular,
-                size: ._14,
-                lineHeight: 20,
-                color: .bkColor(.gray900)
-              )
-              
-              Spacer()
-              
-              BKIcon(
-                image: CommonFeature.Images.icoClose,
-                color: .bkColor(.gray700),
-                size: .init(width: 16, height: 16)
-              )
+    WithPerceptionTracking {
+      VStack(spacing: 0) {
+        RecentSearchHeaderView(
+          removeAllAction: { store.send(.removeAllRecentSearchButtonTapped, animation: .spring) }
+        )
+        
+        ScrollView(showsIndicators: false) {
+          ForEach(store.recentSearches, id: \.self) { searche in
+            WithPerceptionTracking {
+              VStack(spacing: 0) {
+                HStack {
+                  BKText(
+                    text: searche,
+                    font: .regular,
+                    size: ._14,
+                    lineHeight: 20,
+                    color: .bkColor(.gray900)
+                  )
+                  
+                  Spacer()
+                  
+                  BKIcon(
+                    image: CommonFeature.Images.icoClose,
+                    color: .bkColor(.gray700),
+                    size: .init(width: 16, height: 16)
+                  )
+                  .onTapGesture { store.send(.removeRecentSearchButtonTapped(searche), animation: .spring) }
+                }
+                .padding(16)
+                
+                Divider()
+                  .foregroundStyle(Color.bkColor(.gray400))
+              }
+              .contentShape(Rectangle())
               .onTapGesture {
-                store.send(.removeRecentSearchesCellTapeed(searche), animation: .spring) }
+                hideKeyboard()
+                store.send(.recentSearchItemTapped(searche), animation: .spring)
+              }
             }
-            .padding(16)
-            
-            Divider()
-              .foregroundStyle(Color.bkColor(.gray400))
           }
-          .contentShape(Rectangle())
-          .onTapGesture { store.send(.searchButtonTapped(searche), animation: .spring) }
         }
       }
     }
+    .scrollDismissesKeyboard(.interactively)
   }
 }
 

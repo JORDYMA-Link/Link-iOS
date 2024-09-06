@@ -21,9 +21,9 @@ struct SearchView: View {
     WithPerceptionTracking {
       VStack(spacing: 0) {
         SearchNavigationBar(
-          text: $store.text,
+          text: $store.query,
           textIsFocused: _textIsFocused,
-          searchAction: { store.send(.searchButtonTapped(store.text)) },
+          searchAction: { store.send(.searchButtonTapped(store.query)) },
           dismiss: { store.send(.closeButtonTapped) }
         )
         
@@ -32,17 +32,25 @@ struct SearchView: View {
         
         if store.keyword.isEmpty {
           RecentSearchView(store: store)
-        } else if store.section.isEmpty {
+        } else if store.feedSection.isEmpty {
           EmptySearchView(store: store)
         } else {
           KeywordSearchView(store: store)
         }
       }
+      .searchKeywordBackground()
+      .toolbar(.hidden, for: .navigationBar)
+      .navigationDestination(
+        item: $store.scope(
+          state: \.link,
+          action: \.link
+        )
+      ) { store in
+        LinkView(store: store)
+      }
+      .onAppear { textIsFocused = true }
+      .task { await store.send(.onTask).finish() }
     }
-    .searchKeywordBackground()
-    .toolbar(.hidden, for: .navigationBar)
-    .onAppear { textIsFocused = true }
-    .task { await store.send(.onTask).finish() }
   }
 }
 

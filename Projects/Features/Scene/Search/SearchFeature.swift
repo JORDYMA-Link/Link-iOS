@@ -17,33 +17,53 @@ import ComposableArchitecture
 public struct SearchFeature {
   @ObservableState
   public struct State: Equatable {
-    var text = ""
+    var query = ""
     var keyword = ""
-    var section: [SearchKeywordSection] = []
+    
+    var page: Int = 0
+    
+    var feedSection: [SearchFeed] = []
     var recentSearches: [String] = []
     
-    public init() { }
+    @Presents var link: LinkFeature.State?
+    
+    public init() {}
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     case binding(BindingAction<State>)
     
     // MARK: User Action
     case onTask
     case closeButtonTapped
-    case removeAllRecentSearchesButtonTapeed
-    case removeRecentSearchesCellTapeed(String)
     case searchButtonTapped(String)
-    case seeMoreButtonTapped(SearchKeywordSection)
+    case removeAllRecentSearchButtonTapped
+    case removeRecentSearchButtonTapped(String)
+    case recentSearchItemTapped(String)
+    case keywordSearchItemTapped(Int)
+    case footerPaginationButtonTapped(Int)
     
     // MARK: Inner Business Action
+    case resetPage
+    case updatePage
+    case fetchSearchFeedSection(query: String, page: Int)
     
     // MARK: Inner SetState Action
-    case _setSearchList(SearchKeywordSection)
+    case setSearchFeedSection(SearchFeed)
+    case setRecentSearches(String)
+    case setRemoveAllRecentSearches
+    case setRemoveRecentSearches(String)
+    
+    // MARK: Child Action
+    case link(PresentationAction<LinkFeature.Action>)
+    
+    // MARK: Navigation Action
+    case routeFeedDetail(Int)
   }
   
-  @Dependency(\.dismiss) var dismiss
+  @Dependency(\.dismiss) private var dismiss
   @Dependency(\.userDefaultsClient) private var userDefault
+  @Dependency(\.feedClient) private var feedClient
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -58,80 +78,115 @@ public struct SearchFeature {
         return .none
         
       case .closeButtonTapped:
-         return .run { _ in await self.dismiss() }
+        return .run { _ in await self.dismiss() }
         
-      case .removeAllRecentSearchesButtonTapeed:
-        guard !userDefault.stringArray(.recentSearches, []).isEmpty else { return .none }
+      case let .searchButtonTapped(query):
+        guard !query.isEmpty else { return .none }
         
-        let emptyValue: [String] = []
-        userDefault.set(emptyValue, .recentSearches)
-        state.recentSearches = emptyValue
+        return .run { send in
+          await send(.setRecentSearches(query))
+          await send(.resetPage)
+        }
+        
+      case .removeAllRecentSearchButtonTapped:
+        guard !state.recentSearches.isEmpty else { return .none }
+        
+        return .send(.setRemoveAllRecentSearches)
+        
+      case let .removeRecentSearchButtonTapped(keyword):
+        return .send(.setRemoveRecentSearches(keyword))
+        
+      case let .recentSearchItemTapped(keyword):
+        state.query = keyword
+        
+        return .run { send in
+          await send(.setRecentSearches(keyword))
+          await send(.resetPage)
+        }
+        
+      case let .keywordSearchItemTapped(feedId):
+        return .send(.routeFeedDetail(feedId))
+        
+      case let .footerPaginationButtonTapped(index):
+        state.feedSection[index].isPagination = false
+        return .send(.updatePage)
+        
+      case .resetPage:
+        state.page = 0
+        return .send(.fetchSearchFeedSection(query: state.query, page: state.page))
+        
+      case .updatePage:
+        state.page += 1
+        return .send(.fetchSearchFeedSection(query: state.keyword, page: state.page))
+        
+      case let .fetchSearchFeedSection(query, page):
+        return .run(
+          operation: { send in
+            async let feedSectionResponse = try feedClient.getFeedSearch(query, page)
+            
+            var feedSection = try await feedSectionResponse
+            
+            if feedSection.result.count < 10 {
+              feedSection.isLast = true
+            }
+            
+            await send(.setSearchFeedSection(feedSection), animation: .default)
+          },
+          catch: { send, error in
+            print(error)
+          }
+        )
+        
+      case let .setSearchFeedSection(feedSection):
+        state.keyword = feedSection.query
+        
+        if state.page == 0 && feedSection.result.isEmpty {
+          state.feedSection = []
+        } else if state.page == 0 {
+          state.feedSection = [feedSection]
+        } else {
+          state.feedSection.append(feedSection)
+        }
         return .none
         
-      case let .removeRecentSearchesCellTapeed(keyword):
+      case let .setRecentSearches(query):
         var recentSearches = userDefault.stringArray(.recentSearches, [])
         
-        if let index = recentSearches.firstIndex(where: { $0 == keyword }) {
+        if let index = recentSearches.firstIndex(where: { $0 == query }) {
           recentSearches.remove(at: index)
         }
         
+        recentSearches.insert(query, at: 0)
+        let prefixRecentSearches = recentSearches.prefix(6).map { $0 }
+        userDefault.set(prefixRecentSearches, .recentSearches)
+        return .none
+        
+      case .setRemoveAllRecentSearches:
+        let emptyValue: [String] = []
+        userDefault.set(emptyValue, .recentSearches)
+        
+        state.recentSearches = emptyValue
+        return .none
+        
+      case let .setRemoveRecentSearches(keyword):
+        var recentSearches = userDefault.stringArray(.recentSearches, [])
+        recentSearches.removeAll(where: { $0 == keyword })
+        
         userDefault.set(recentSearches, .recentSearches)
+        
         state.recentSearches = recentSearches
         return .none
         
-      case let .searchButtonTapped(keyword):
-        guard !keyword.isEmpty else { return .none }
-        
-        state.text = keyword
-        state.section = []
-        state.keyword = keyword
-        saveRecentSearches(keyword: keyword)
-        return requestSearchKeyword(keyword: keyword)
-        
-      case let .seeMoreButtonTapped(section):
-        if let index = state.section.firstIndex(where: { $0.id.uuidString == section.id.uuidString }) {
-          state.section[index].isSeeMoreButtonHidden = true
-        }
-        
-        return requestSearchKeyword(keyword: state.keyword)
-        
-      case let ._setSearchList(searchList):
-        state.section.append(searchList)
+      case let .routeFeedDetail(feedId):
+        state.link = .init(linkType: .feedDetail(feedId: feedId))
         return .none
         
       default:
         return .none
       }
     }
-  }
-}
-
-extension SearchFeature {
-  private func requestSearchKeyword(keyword: String) -> Effect<Action> {
-    return .run { send in
-      do {
-        // API 연결 이전 테스트
-        let dummySearchList = [
-          SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 99, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"]),
-          SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 98, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: true, keywords: ["Design System", "디자인", "UX"]),
-          SearchKeyword(date: "2024-06-01", folderId: 1, folderName: "디자인", feedId: 97, title: "제목 텍스트", summary: "본문 텍스트 두줄 텍스트", source: "브런치", sourceUrl: "", isMarked: false, keywords: ["Design System", "디자인", "UX"])
-        ]
-        await send(._setSearchList(SearchKeywordSection(searchList: dummySearchList)))
-      } catch {
-        print(error)
-      }
+    .ifLet(\.$link, action: \.link) {
+      LinkFeature()
     }
-  }
-  
-  private func saveRecentSearches(keyword: String) {
-    var recentSearches = userDefault.stringArray(.recentSearches, [])
-
-    if let index = recentSearches.firstIndex(where: { $0 == keyword }) {
-      recentSearches.remove(at: index)
-    }
-    
-    recentSearches.insert(keyword, at: 0)
-    let prefixRecentSearches = recentSearches.prefix(6).map { $0 }
-    userDefault.set(prefixRecentSearches, .recentSearches)
   }
 }
