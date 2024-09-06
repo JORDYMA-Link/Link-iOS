@@ -19,6 +19,14 @@ struct LinkView: View {
   @Perception.Bindable var store: StoreOf<LinkFeature>
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
   @State private var isScrollDetected: Bool = false
+  private var onWillDisappear: (Feed) -> Void
+  
+  init(store: StoreOf<LinkFeature>,
+       onWillDisappear: @escaping (Feed) -> Void
+  ) {
+    self.store = store
+    self.onWillDisappear = onWillDisappear
+  }
   
   var body: some View {
     WithPerceptionTracking {
@@ -107,6 +115,7 @@ struct LinkView: View {
         self.isScrollDetected = $0
       }
       .task { await store.send(.onTask).finish() }
+      .onWillDisappear { onWillDisappear(store.feed) }
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
         urlString: store.feed.originUrl,
