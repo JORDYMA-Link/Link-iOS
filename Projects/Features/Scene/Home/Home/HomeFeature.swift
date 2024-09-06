@@ -35,7 +35,7 @@ public struct HomeFeature: Reducer {
     @Presents var editLink: EditLinkFeature.State?
     @Presents var settingContent: SettingFeature.State?
     @Presents var calendarContent: CalendarViewFeature.State?
-    @Presents var storageBoxFeedList: StorageBoxContentListFeature.State?
+    @Presents var storageBoxFeedList: StorageBoxFeedListFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     
@@ -84,7 +84,7 @@ public struct HomeFeature: Reducer {
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case settingContent(PresentationAction<SettingFeature.Action>)
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
-    case storageBoxFeedList(PresentationAction<StorageBoxContentListFeature.Action>)
+    case storageBoxFeedList(PresentationAction<StorageBoxFeedListFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Navigation Action
@@ -384,7 +384,7 @@ public struct HomeFeature: Reducer {
         return .none
         
       case let .routeStorageBoxFeedList(folder):
-        state.storageBoxFeedList = .init(folderInput: folder)
+        state.storageBoxFeedList = .init(folder: folder)
         return .none
         
       default:
@@ -407,7 +407,7 @@ public struct HomeFeature: Reducer {
       CalendarViewFeature()
     }
     .ifLet(\.$storageBoxFeedList, action: \.storageBoxFeedList) {
-      StorageBoxContentListFeature()
+      StorageBoxFeedListFeature()
     }
   }
 }
