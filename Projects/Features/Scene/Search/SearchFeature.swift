@@ -260,7 +260,11 @@ public struct SearchFeature {
         
         section.result.removeAll { $0.feedId == feedId }
         
-        state.feedSection[selectedFeed.sectionIndex] = section
+        if section.result.isEmpty {
+          state.feedSection.remove(at: selectedFeed.sectionIndex)
+        } else {
+          state.feedSection[selectedFeed.sectionIndex] = section
+        }
         return .none
         
       case let .setSelectedFeed(sectionIndex, index, feed):
