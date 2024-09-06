@@ -28,7 +28,7 @@ public struct StorageBoxFeature: Reducer {
     var isMenuBottomSheetPresented: Bool = false
     var isDeleteFolderPresented: Bool = false
         
-    @Presents var storageBoxContentList: StorageBoxContentListFeature.State?
+    @Presents var storageBoxFeedList: StorageBoxFeedListFeature.State?
     @Presents var searchKeyword: SearchFeature.State?
     var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
@@ -53,7 +53,7 @@ public struct StorageBoxFeature: Reducer {
     // MARK: Child Action
     case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case storageBoxContentList(PresentationAction<StorageBoxContentListFeature.Action>)
+    case storageBoxFeedList(PresentationAction<StorageBoxFeedListFeature.Action>)
     case searchKeyword(PresentationAction<SearchFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
@@ -93,7 +93,7 @@ public struct StorageBoxFeature: Reducer {
         return .send(.addFolderBottomSheet(.addFolderTapped))
         
       case let .storageBoxTapped(folder):
-        state.storageBoxContentList = .init(folderInput: folder)
+        state.storageBoxFeedList = .init(folder: folder)
         return .none
         
       case let .storageBoxMenuTapped(folder):
@@ -159,8 +159,8 @@ public struct StorageBoxFeature: Reducer {
         return .none
       }
     }
-    .ifLet(\.$storageBoxContentList, action: \.storageBoxContentList) {
-      StorageBoxContentListFeature()
+    .ifLet(\.$storageBoxFeedList, action: \.storageBoxFeedList) {
+      StorageBoxFeedListFeature()
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
       SearchFeature()

@@ -32,6 +32,9 @@ public struct StorageBoxView: View {
             )
             .storageBoxBannerBackgroundView()
             
+            Divider()
+              .foregroundStyle(Color.bkColor(.gray400))
+            
             LazyVGrid(
               columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible())],
               spacing: 16
@@ -69,11 +72,11 @@ public struct StorageBoxView: View {
       }
       .navigationDestination(
         item: $store.scope(
-          state: \.storageBoxContentList,
-          action: \.storageBoxContentList
+          state: \.storageBoxFeedList,
+          action: \.storageBoxFeedList
         )
       ) { store in
-        StorageBoxContentListView(store: store)
+        StorageBoxFeedListView(store: store)
       }
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         isScrollDetected = $0
@@ -98,7 +101,7 @@ private struct StorageBoxNavigationView: View {
   }
 }
 
-private extension View {
+extension View {
   func storageBoxBannerBackgroundView() -> some View {
     ZStack {
       Color.bkColor(.white)

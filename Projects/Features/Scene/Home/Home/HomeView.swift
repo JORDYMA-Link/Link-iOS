@@ -144,7 +144,7 @@ public struct HomeView: View {
         action: \.storageBoxFeedList
       )
     ) { store in
-      StorageBoxContentListView(store: store)
+      StorageBoxFeedListView(store: store)
     }
     .fullScreenCover(
       item: $store.scope(
