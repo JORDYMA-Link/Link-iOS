@@ -117,7 +117,7 @@ public struct HomeView: View {
         action: \.searchKeyword
       )
     ) { store in
-      SearchKeywordView(store: store)
+      SearchView(store: store)
     }
     .navigationDestination(
       item: $store.scope(
@@ -125,7 +125,10 @@ public struct HomeView: View {
         action: \.link
       )
     ) { store in
-      LinkView(store: store)
+      LinkView(
+        store: store,
+        onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
+      )
     }
     .navigationDestination(
       item: $store.scope(

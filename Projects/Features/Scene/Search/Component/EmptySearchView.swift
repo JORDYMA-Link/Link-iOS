@@ -10,33 +10,37 @@ import SwiftUI
 
 import CommonFeature
 
+import ComposableArchitecture
+
 struct EmptySearchView: View {
-  private let keyword: String
+  @Perception.Bindable private var store: StoreOf<SearchFeature>
   
-  init(keyword: String) {
-    self.keyword = keyword
+  init(store: StoreOf<SearchFeature>) {
+    self.store = store
   }
   
   var body: some View {
-    VStack(alignment: .center, spacing: 0) {
-      Spacer()
-      
-      CommonFeature.Images.icoEmptySearch
-      
-      SearchResultTitle(keyword: keyword, title: "에 대한 검색 결과가 없습니다.", isEmpty: true)
-        .padding(.bottom, 4)
-      
-      BKText(
-        text: "검색어를 다시 입력해주세요",
-        font: .regular,
-        size: ._12,
-        lineHeight: 18,
-        color: .bkColor(.gray700)
-      )
-      .lineLimit(1)
-      
-      Spacer()
+    WithPerceptionTracking {
+      VStack(alignment: .center, spacing: 0) {
+        Spacer()
+        
+        CommonFeature.Images.icoEmptySearch
+        
+          SearchResultTitle(keyword: store.keyword, title: "에 대한 검색 결과가 없습니다.", isEmpty: true)
+            .padding(.bottom, 4)
+        
+        BKText(
+          text: "검색어를 다시 입력해주세요",
+          font: .regular,
+          size: ._12,
+          lineHeight: 18,
+          color: .bkColor(.gray700)
+        )
+        .lineLimit(1)
+        
+        Spacer()
+      }
+      .padding(.horizontal, 56)
     }
-    .padding(.horizontal, 56)
   }
 }
