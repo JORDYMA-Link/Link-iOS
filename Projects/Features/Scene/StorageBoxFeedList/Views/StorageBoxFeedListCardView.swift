@@ -21,11 +21,13 @@ struct StorageBoxFeedListCardView: View {
   }
   
   var body: some View {
-    Group {
-      if store.folderFeedList.isEmpty {
-        emptyView()
-      } else {
-        contentView()
+    WithPerceptionTracking {
+      Group {
+        if store.folderFeedList.isEmpty {
+          emptyView()
+        } else {
+          contentView()
+        }
       }
     }
   }
@@ -39,16 +41,24 @@ struct StorageBoxFeedListCardView: View {
   private func contentView() -> some View {
     LazyVStack(spacing: 20) {
       ForEach(Array(store.folderFeedList.enumerated()), id: \.element.feedId) { index, item in
-        BKCardCell(
-          sourceTitle: item.platform,
-          sourceImage: item.platformImage,
-          isMarked: item.isMarked,
-          saveAction: {},
-          menuAction: {},
-          title: item.title,
-          description: item.summary,
-          keyword: item.keywords
-        )
+        WithPerceptionTracking {
+          BKCardCell(
+            sourceTitle: item.platform,
+            sourceImage: item.platformImage,
+            isMarked: item.isMarked,
+            saveAction: { store.send(.cardItemSaveButtonTapped(index, !item.isMarked), animation: .default) },
+            menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
+            title: item.title,
+            description: item.summary,
+            keyword: item.keywords
+          )
+          .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
+          .onAppear {
+            if index != 0 && item == store.folderFeedList.last && !store.fetchedAllFeedCards {
+              store.send(.pagination)
+            }
+          }
+        }
       }
     }
     .padding(.horizontal, 16)
