@@ -77,7 +77,6 @@ public struct LinkFeature {
     // MARK: Delegate Action
     public enum Delegate {
       case deleteFeed(Feed)
-      case updateFeed(Feed)
     }
     case delegate(Delegate)
     
@@ -128,20 +127,9 @@ public struct LinkFeature {
           state.selectedFolder = state.feed.folderName
           return .none
         }
-        
+                
       case .closeButtonTapped:
-        return .run { [state] send in
-          switch state.linkType {
-          case .feedDetail:
-            await send(.delegate(.updateFeed(state.feed)))
-            
-          case .summaryCompleted:
-            // 링크 요약 연결 후 로직 수정
-            await dismiss()
-          }
-          
-          await dismiss()
-        }
+        return .run { _ in await self.dismiss() }
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
@@ -234,11 +222,11 @@ public struct LinkFeature {
             print(error)
           }
         )
-                
+        
       case let .setFeed(feed):
         state.feed = feed
         return .none
-                
+        
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard state.feed.folderName != folder.name else { return .none }
         

@@ -14,7 +14,6 @@ import CommonFeature
 
 import ComposableArchitecture
 
-/// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
 public enum EditLinkType: Equatable {
   case home(feedId: Int)
   case link(Feed)

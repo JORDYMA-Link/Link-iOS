@@ -30,7 +30,7 @@ public struct HomeFeature: Reducer {
     var feedList: [FeedCard] = []
     var selectedFeed: FeedCard?
     
-    @Presents var searchKeyword: SearchKeywordFeature.State?
+    @Presents var searchKeyword: SearchFeature.State?
     @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     @Presents var settingContent: SettingFeature.State?
@@ -59,6 +59,7 @@ public struct HomeFeature: Reducer {
     case cardItemMenuButtonTapped(FeedCard)
     case cardItemRecommendedFolderTapped(String)
     case cardItemAddFolderTapped
+    case dismissCardDetail(Feed)
     
     // MARK: Inner Business Action
     case resetPage
@@ -78,7 +79,7 @@ public struct HomeFeature: Reducer {
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
+    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case settingContent(PresentationAction<SettingFeature.Action>)
@@ -190,6 +191,20 @@ public struct HomeFeature: Reducer {
         
       case .cardItemAddFolderTapped:
         return .send(.addFolderBottomSheet(.addFolderTapped))
+        
+      /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+      case let .dismissCardDetail(feed):
+        guard let index = state.feedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
+          return .none
+        }
+        
+        let feedCard = state.feedList[index]
+        let updateFeedCard = feed.toFeedCard(feedCard)
+        
+        if feedCard != updateFeedCard {
+          state.feedList[index] = updateFeedCard
+        }
+        return .none
         
       case .resetPage:
         state.morePagingNeeded = true
@@ -308,22 +323,8 @@ public struct HomeFeature: Reducer {
           try await Task.sleep(for: .seconds(0.5))
           await send(.routeStorageBoxFeedList(folder))
         }
-        
-        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .link(.presented(.delegate(.updateFeed(feed)))):
-        guard let index = state.feedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
-          return .none
-        }
-        
-        let feedCard = state.feedList[index]
-        let updateFeedCard = feed.toFeedCard(feedCard)
-        
-        if feedCard != updateFeedCard {
-          state.feedList[index] = updateFeedCard
-        }
-        return .none
-        
-        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+                
+      /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .link(.presented(.delegate(.deleteFeed(feed)))):
         return .send(.setDeleteFeed(feed.feedId))
         
@@ -362,6 +363,7 @@ public struct HomeFeature: Reducer {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
+        
       case .routeSetting:
         state.settingContent = .init()
         return .none
@@ -390,7 +392,7 @@ public struct HomeFeature: Reducer {
       }
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchKeywordFeature()
+      SearchFeature()
     }
     .ifLet(\.$link, action: \.link) {
       LinkFeature()
@@ -409,3 +411,4 @@ public struct HomeFeature: Reducer {
     }
   }
 }
+
