@@ -20,27 +20,29 @@ struct StorageBoxFeedListHeader: View {
   }
   
   var body: some View {
-    HStack(spacing: 8) {
-      Button {
-        store.send(.closeButtonTapped)
-      } label: {
-        BKIcon(
-          image: CommonFeature.Images.icoChevronLeft,
-          color: .bkColor(.gray900),
-          size: CGSize(width: 24, height: 24)
+    WithPerceptionTracking {
+      HStack(spacing: 8) {
+        Button {
+          store.send(.closeButtonTapped)
+        } label: {
+          BKIcon(
+            image: CommonFeature.Images.icoChevronLeft,
+            color: .bkColor(.gray900),
+            size: CGSize(width: 24, height: 24)
+          )
+        }
+        
+        BKText(
+          text: store.folderInput.name,
+          font: .semiBold,
+          size: ._16,
+          lineHeight: 24,
+          color: .bkColor(.gray900)
         )
+        .lineLimit(1)
+        
+        Spacer()
       }
-      
-      BKText(
-        text: store.folderInput.name,
-        font: .semiBold,
-        size: ._16,
-        lineHeight: 24,
-        color: .bkColor(.gray900)
-      )
-      .lineLimit(1)
-      
-      Spacer()
     }
   }
 }

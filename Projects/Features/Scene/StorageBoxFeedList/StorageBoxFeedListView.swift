@@ -16,7 +16,7 @@ import SwiftUIIntrospect
 
 struct StorageBoxFeedListView: View {
   @Perception.Bindable var store: StoreOf<StorageBoxFeedListFeature>
-  @StateObject var scrollViewDelegate = ScrollViewDelegate()
+  @StateObject private var scrollViewDelegate = ScrollViewDelegate()
   @State private var isScrollDetected: Bool = false
   
   var body: some View {
@@ -30,8 +30,8 @@ struct StorageBoxFeedListView: View {
         ScrollView(showsIndicators: false) {
           VStack(spacing: 0) {
             BKSearchBanner(
-              searchAction: {},
-              calendarAction: {}
+              searchAction: { store.send(.searchBannerSearchBarTapped) },
+              calendarAction: { store.send(.searchBannerCalendarTapped) }
             )
             .storageBoxBannerBackgroundView()
             
@@ -53,16 +53,71 @@ struct StorageBoxFeedListView: View {
             StorageBoxFeedListCardView(store: store)
           }
         }
+        .refreshable { store.send(.pullToRefresh) }
         .background(Color.bkColor(.gray300))
         .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
         }
       }
       .toolbar(.hidden, for: .navigationBar)
+      .navigationDestination(
+        item: $store.scope(
+          state: \.searchKeyword,
+          action: \.searchKeyword
+        )
+      ) { store in
+        SearchView(store: store)
+      }
+      .navigationDestination(
+        item: $store.scope(
+          state: \.calendarContent,
+          action: \.calendarContent
+        )
+      ) { store in
+        CalendarView(store: store)
+      }
+      .navigationDestination(
+        item: $store.scope(
+          state: \.link,
+          action: \.link
+        )
+      ) { store in
+        LinkView(
+          store: store,
+          onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
+        )
+      }
+      .bottomSheet(
+        isPresented: $store.isMenuBottomSheetPresented,
+        detents: [.height(192)],
+        leadingTitle: "설정"
+      ) {
+        BKMenuBottomSheet(
+          menuItems: [.editLink, .editFolder, .deleteLink],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
+      }
+      .bottomSheet(
+        isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+        detents: [.height(132)],
+        leadingTitle: "폴더 수정",
+        closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+      .fullScreenCover(
+        item: $store.scope(
+          state: \.editLink,
+          action: \.editLink)
+      ) { store in
+        EditLinkView(store: store)
+      }
       .animation(.easeIn(duration: 0.2), value: isScrollDetected)
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         self.isScrollDetected = $0
       }
+      .onViewDidLoad { store.send(.onViewDidLoad) }
     }
   }
 }
