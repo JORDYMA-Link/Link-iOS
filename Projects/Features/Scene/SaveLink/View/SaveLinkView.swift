@@ -87,21 +87,16 @@ public struct SaveLinkView: View {
                   
               }
           }
-          .fullScreenCover(
+          .modal(
             isPresented: $store.presentLoading,
-              content: {
-                      BKModal(modalType: .linkLoading(checkAction: {}, cancelAction: {
-                        store.presentLoading.toggle()
-                      }))
-                      .transition(.opacity)
-          })
-          .transaction { transaction in
-              transaction.disablesAnimations = true
-          }
-          
-          Spacer()
+            type: .linkLoading(
+              checkAction: {
+                store.send(.onTapBackToMain)
+                dismiss()
+              }))
+        Spacer()
       }
-      }
+    }
 }
 
 #Preview {

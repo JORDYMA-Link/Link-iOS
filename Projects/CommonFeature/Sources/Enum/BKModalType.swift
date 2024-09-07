@@ -9,7 +9,7 @@
 import Foundation
 
 public enum BKModalType {
-    case linkLoading(checkAction: (()->Void), cancelAction: (()->Void))
+    case linkLoading(checkAction: (()->Void))
     case cancelConfirm(checkAction: (()->Void), cancelAction: (()->Void))
     case custom(titleText:String, description: String, checkAction: (()->Void), cancelAction: (()->Void)?)
     case deleteFolder(checkAction: (()->Void), cancelAction: (()->Void))
@@ -82,6 +82,8 @@ extension BKModalType {
             return "탈퇴하기"
         case .logout:
             return "로그아웃"
+        case .linkLoading:
+          return "메인으로"
         default:
             return "확인"
         }
