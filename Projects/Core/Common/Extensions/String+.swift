@@ -60,3 +60,10 @@ extension String {
     return dateFormatter.date(from: self)
   }
 }
+
+public extension String {
+  /// String 시작과 끝 공백 체크
+  func isValidLeadingTrailingWhitespace() -> Bool {
+    return self.hasPrefix(" ") || self.hasSuffix(" ")
+  }
+}

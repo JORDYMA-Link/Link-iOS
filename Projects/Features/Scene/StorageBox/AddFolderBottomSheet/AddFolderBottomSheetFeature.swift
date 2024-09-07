@@ -8,17 +8,33 @@
 
 import Foundation
 
+import Common
 import Models
 import Services
 
 import ComposableArchitecture
+
+public enum FolderValidationError: Error {
+  case textcount
+  case hasprefix
+}
 
 @Reducer
 public struct AddFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
     public var folderName: String = ""
-    public var isValidation: Bool = true
+    public var isValidation: Bool = false
+    public var folderErrorType: FolderValidationError = .textcount
+    public var errorMessage: String {
+      switch folderErrorType {
+      case .textcount:
+        return "폴더 이름은 10글자 이내로 입력해주세요"
+      case .hasprefix:
+        return "폴더 이름 시작과 끝에는 공백을 입력할 수 없어요"
+      }
+    }
+    
     public var isAddFolderBottomSheetPresented: Bool = false
     
     public init() {}
@@ -32,11 +48,14 @@ public struct AddFolderBottomSheetFeature {
     case confirmButtonTapped
     
     // MARK: Inner Business Action
-    case successAddFolder
-        
+    case successAddFolder(Folder)
+    
+    // MARK: Inner SetState Action
+    case setValidation(Bool)
+    
     // MARK: Delegate Action
     public enum Delegate {
-      case fetchFolderList
+      case didUpdate(Folder)
     }
     case delegate(Delegate)
   }
@@ -53,7 +72,18 @@ public struct AddFolderBottomSheetFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.folderName):
-        return .none
+        if state.folderName.isEmpty || state.folderName.count > 10 {
+          state.folderErrorType = .textcount
+          return .send(.setValidation(false))
+        }
+        
+        if state.folderName.isValidLeadingTrailingWhitespace() {
+          state.folderErrorType = .hasprefix
+          return .send(.setValidation(false))
+        }
+        
+        return .send(.setValidation(true))
+        
         
       case .addFolderTapped:
         state.isAddFolderBottomSheetPresented = true
@@ -71,7 +101,7 @@ public struct AddFolderBottomSheetFeature {
             
             print(addFolder)
             
-            await send(.successAddFolder)
+            await send(.successAddFolder(addFolder))
           },
           catch: { error, send in
             print(error)
@@ -79,11 +109,15 @@ public struct AddFolderBottomSheetFeature {
         )
         .throttle(id: ThrottleId.confirmButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
-      case .successAddFolder:
+      case let .successAddFolder(folder):
         state.folderName = ""
         state.isAddFolderBottomSheetPresented = false
-        return .send(.delegate(.fetchFolderList))
-                        
+        return .send(.delegate(.didUpdate(folder)))
+        
+      case let .setValidation(isValidation):
+        state.isValidation = isValidation
+        return .none
+        
       default:
         return .none
       }

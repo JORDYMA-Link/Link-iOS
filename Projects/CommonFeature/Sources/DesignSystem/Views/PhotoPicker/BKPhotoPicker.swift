@@ -12,11 +12,29 @@ import PhotosUI
 public enum PhotoPickerError {
   case type
   case size
+  
+  public var title: String {
+    switch self {
+    case .type:
+      return "지원 불가"
+    case .size:
+      return "용량 초과"
+    }
+  }
+  
+  public var message: String {
+    switch self {
+    case .type:
+      return "JPG, PNG 형식을 제외한 파일 형식은 업로드할 수 없습니다"
+    case .size:
+      return "선택한 이미지 크기가 5MB를 초과합니다 다시 선택해주세요"
+    }
+  }
 }
 
 public struct BKPhotoPicker<Content: View>: View {
   @State private var selectedPhotos: [PhotosPickerItem] = []
-  @Binding private var selectedImages: [UIImage]
+  @Binding private var selectedPhotoInfos: [Data]
   @Binding private var isPresentedError: Bool
   @Binding private var isPhotoError: PhotoPickerError?
   private let photoLibrary: PHPhotoLibrary
@@ -28,12 +46,12 @@ public struct BKPhotoPicker<Content: View>: View {
   }
   
   public init(
-    selectedImages: Binding<[UIImage]>,
+    selectedPhotoInfos: Binding<[Data]>,
     isPresentedError: Binding<Bool> = .constant(false),
     isPhotoError: Binding<PhotoPickerError?> = .constant(nil),
     photoLibrary: PHPhotoLibrary = .shared(),
     content: @escaping () -> Content) {
-      self._selectedImages = selectedImages
+      self._selectedPhotoInfos = selectedPhotoInfos
       self._isPresentedError = isPresentedError
       self._isPhotoError = isPhotoError
       self.content = content
@@ -69,7 +87,9 @@ extension BKPhotoPicker {
   private func loadTransferable(from photoSelection: [PhotosPickerItem]) {
     for photo in photoSelection {
       guard let fileExtension = photo.supportedContentTypes.first?.preferredFilenameExtension else {
-        isPresentedError = true
+        DispatchQueue.main.async {
+          isPresentedError = true
+        }
         return
       }
       
@@ -91,19 +111,45 @@ extension BKPhotoPicker {
               return
             }
             
-            if let image = UIImage(data: data) {
-              DispatchQueue.main.async {
-                selectedImages.removeAll()
-                selectedImages.append(image)
+            DispatchQueue.main.async {
+              selectedPhotoInfos.removeAll()
+              
+              let downsampleImage = data.downsampleImage(
+                .init(width: UIScreen.main.bounds.width, height: 310),
+                scale: 1
+              )
+              
+              if let downsampleData = downsampleImage.jpegData(compressionQuality: 1) {
+                selectedPhotoInfos.append(downsampleData)
               }
             }
           }
         case .failure:
-          isPresentedError = true
+          DispatchQueue.main.async {
+            isPresentedError = true
+          }
         }
       }
     }
     
     selectedPhotos.removeAll()
+  }
+}
+
+private extension Data {
+  func downsampleImage(_ pointSize: CGSize, scale: CGFloat) -> UIImage {
+    let imageSourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
+    let imageSource = CGImageSourceCreateWithData(self as CFData, imageSourceOptions)!
+    
+    let maxDimensionInPixels = Swift.max(pointSize.width, pointSize.height) * scale
+    let downsampleOptions = [
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceShouldCacheImmediately: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+    ] as CFDictionary
+    
+    let downsampledImage = CGImageSourceCreateThumbnailAtIndex(imageSource, 0, downsampleOptions)!
+    return UIImage(cgImage: downsampledImage)
   }
 }
