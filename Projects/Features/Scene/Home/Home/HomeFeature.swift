@@ -19,8 +19,6 @@ import ComposableArchitecture
 public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
-    var viewDidLoad: Bool = false
-    
     var category: CategoryType = .bookmarked
     
     var page: Int = 0
@@ -46,7 +44,7 @@ public struct HomeFeature: Reducer {
     case binding(BindingAction<State>)
     
     // MARK: User Action
-    case onAppear
+    case onViewDidLoad
     case settingButtonTapped
     case instructionBannerTapped
     case searchBannerSearchBarTapped
@@ -128,9 +126,7 @@ public struct HomeFeature: Reducer {
       case .binding:
         return .none
         
-      case .onAppear:
-        guard state.viewDidLoad == false else { return .none }
-        state.viewDidLoad = true
+      case .onViewDidLoad:
         return .send(.fetchFeedList(.bookmarked, state.page))
         
       case .settingButtonTapped:

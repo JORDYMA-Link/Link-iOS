@@ -18,7 +18,6 @@ import ComposableArchitecture
 public struct StorageBoxFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
-    var viewDidLoad: Bool = false
     var folderList: [Folder] = []
     var selectedStorageBoxMenuItem: Folder?
     var isAddFolder: Bool {
@@ -37,7 +36,7 @@ public struct StorageBoxFeature: Reducer {
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
-    case onAppear
+    case onViewDidLoad
     case searchBannerTapped
     case addStorageBoxTapped
     case storageBoxTapped(Folder)
@@ -80,9 +79,7 @@ public struct StorageBoxFeature: Reducer {
       case .binding:
         return .none
         
-      case .onAppear:
-        guard state.viewDidLoad == false else { return .none }
-        state.viewDidLoad = true
+      case .onViewDidLoad:
         return .send(.fetchFolderList)
         
       case .searchBannerTapped:
