@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import UIKit
+
 import ComposableArchitecture
 
 @Reducer
@@ -45,10 +47,12 @@ struct SaveLinkFeature {
       case .onTapNextButton:
         guard state.urlText.containsHTTPorHTTPS else { return .none }
         
-        return .run { send in
+        return .run { [targetURL = state.urlText] send in
           //FIXME: 현재 요청 500 에러로 인해 주석 처리했습니다.
-//          guard let _ = try? await linkClient.postLinkSummary(targetURL, "") else { return } //혹시 에러 발생시 대응이 필요할수도 있을지도 모르니
+          await UIApplication.shared.endEditing()
           await send(.presentModal)
+          guard let _ = try? await linkClient.postLinkSummary(targetURL, "Blink") else { return }//혹시 에러 발생시 대응이 필요할수도 있을지도 모르니
+          
         }
         
       case .onTapBackToMain:
