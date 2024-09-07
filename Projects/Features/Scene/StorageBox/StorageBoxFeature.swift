@@ -18,7 +18,6 @@ import ComposableArchitecture
 public struct StorageBoxFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
-    var viewDidLoad: Bool = false
     var folderList: [Folder] = []
     var selectedStorageBoxMenuItem: Folder?
     var isAddFolder: Bool {
@@ -27,18 +26,17 @@ public struct StorageBoxFeature: Reducer {
     
     var isMenuBottomSheetPresented: Bool = false
     var isDeleteFolderPresented: Bool = false
-    
+        
+    @Presents var storageBoxFeedList: StorageBoxFeedListFeature.State?
+    @Presents var searchKeyword: SearchFeature.State?
     var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
-    
-    @Presents var storageBoxContentList: StorageBoxContentListFeature.State?
-    @Presents var searchKeyword: SearchKeywordFeature.State?
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
-    case onAppear
+    case onViewDidLoad
     case searchBannerTapped
     case addStorageBoxTapped
     case storageBoxTapped(Folder)
@@ -54,11 +52,11 @@ public struct StorageBoxFeature: Reducer {
     // MARK: Child Action
     case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case storageBoxContentList(PresentationAction<StorageBoxContentListFeature.Action>)
-    case searchKeyword(PresentationAction<SearchKeywordFeature.Action>)
+    case storageBoxFeedList(PresentationAction<StorageBoxFeedListFeature.Action>)
+    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
-    // MARK: Route Action
+    // MARK: Present Action
     case menuBottomSheetPresented(Bool)
     case deleteFolderAlertPresented
   }
@@ -81,9 +79,7 @@ public struct StorageBoxFeature: Reducer {
       case .binding:
         return .none
         
-      case .onAppear:
-        guard state.viewDidLoad == false else { return .none }
-        state.viewDidLoad = true
+      case .onViewDidLoad:
         return .send(.fetchFolderList)
         
       case .searchBannerTapped:
@@ -94,7 +90,7 @@ public struct StorageBoxFeature: Reducer {
         return .send(.addFolderBottomSheet(.addFolderTapped))
         
       case let .storageBoxTapped(folder):
-        state.storageBoxContentList = .init(folderInput: folder)
+        state.storageBoxFeedList = .init(folder: folder)
         return .none
         
       case let .storageBoxMenuTapped(folder):
@@ -130,15 +126,15 @@ public struct StorageBoxFeature: Reducer {
         state.folderList = folderList
         return .none
         
-      case .addFolderBottomSheet(.delegate(.fetchFolderList)), .editFolderNameBottomSheet(.delegate(.fetchFolderList)):
+      case .addFolderBottomSheet(.delegate(.didUpdate)), .editFolderNameBottomSheet(.delegate(.fetchFolderList)):
         return .send(.fetchFolderList)
         
-      case .menuBottomSheet(.editFolderNameCellTapped):
+      case .menuBottomSheet(.editFolderNameItemTapped):
         guard let folder = state.selectedStorageBoxMenuItem else { return .none }
         state.isMenuBottomSheetPresented = false
         return .run { send in await send(.editFolderNameBottomSheet(.editFolderNameTapped(folder))) }
         
-      case .menuBottomSheet(.deleteFolderCellTapped):
+      case .menuBottomSheet(.deleteFolderItemTapped):
         state.isMenuBottomSheetPresented = false
         return .run { send in await send(.deleteFolderAlertPresented) }
         
@@ -160,11 +156,11 @@ public struct StorageBoxFeature: Reducer {
         return .none
       }
     }
-    .ifLet(\.$storageBoxContentList, action: \.storageBoxContentList) {
-      StorageBoxContentListFeature()
+    .ifLet(\.$storageBoxFeedList, action: \.storageBoxFeedList) {
+      StorageBoxFeedListFeature()
     }
     .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchKeywordFeature()
+      SearchFeature()
     }
   }
 }

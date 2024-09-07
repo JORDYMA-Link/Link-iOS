@@ -12,11 +12,11 @@ import Moya
 
 enum FolderEndpoint {
   case getFolders
-  case getFolderFeeds(folderId: String)
+  case getFolderFeeds(folderId: Int, cursor: Int, pageSize: Int = 10)
   case postFolder(name: String)
   case postOnboardingFolder(topics: [String])
   case deleteFolder(folderId: Int)
-  case fetchFolder(folderId: Int, name: String)
+  case patchFolder(folderId: Int, name: String)
 }
 
 extension FolderEndpoint: BaseTargetType {
@@ -24,11 +24,11 @@ extension FolderEndpoint: BaseTargetType {
     switch self {
     case .getFolders, .postFolder:
       return "/api/folders"
-    case let .getFolderFeeds(folderId):
+    case let .getFolderFeeds(folderId, _, _):
       return "/api/folders/\(folderId)/feeds"
     case .postOnboardingFolder:
       return "/api/folders/onboarding"
-    case let .deleteFolder(folderId), let .fetchFolder(folderId, _):
+    case let .deleteFolder(folderId), let .patchFolder(folderId, _):
       return "/api/folders/\(folderId)"
     }
   }
@@ -41,15 +41,25 @@ extension FolderEndpoint: BaseTargetType {
       return .post
     case .deleteFolder:
       return .delete
-    case .fetchFolder:
+    case .patchFolder:
       return .patch
     }
   }
   
   var task: Moya.Task {
     switch self {
-    case .getFolders, .getFolderFeeds, .deleteFolder:
+    case .getFolders, .deleteFolder:
       return .requestPlain
+      
+    case let .getFolderFeeds(_, cursor, pageSize):
+      var parameters: [String: Any] = ["pageSize": pageSize]
+      
+      // cursor가 0이 아닐 때만 추가
+      if cursor != 0 {
+        parameters["cursor"] = cursor
+      }
+      
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
       
     case let .postFolder(name):
       return .requestParameters(parameters: [
@@ -61,7 +71,7 @@ extension FolderEndpoint: BaseTargetType {
         "topics" : topics
       ], encoding: JSONEncoding.default)
       
-    case let .fetchFolder(_, name):
+    case let .patchFolder(_, name):
       return .requestParameters(parameters: [
         "name" : name
       ], encoding: JSONEncoding.default)

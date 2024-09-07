@@ -15,8 +15,8 @@ import SwiftUIIntrospect
 
 struct AddFolderBottomSheet: View {
   @Perception.Bindable var store: StoreOf<AddFolderBottomSheetFeature>
-  @FocusState private var textIsFocused: Bool
   @State private var textFieldDelegate = TextFieldDelegate()
+  @FocusState private var textIsFocused: Bool
   
   var body: some View {
     WithPerceptionTracking {
@@ -24,11 +24,12 @@ struct AddFolderBottomSheet: View {
         VStack(spacing: 0) {
           BKTextField(
             text: $store.folderName,
-            isHighlight: $store.isValidation,
+            isValidation: store.isValidation,
             textIsFocused: _textIsFocused,
             textFieldType: .addFolder,
             textCount: 10,
-            isMultiLine: false
+            isMultiLine: false, 
+            errorMessage: store.errorMessage
           )
           .introspect(.textField, on: .iOS(.v17)) { textField in
             textField.delegate = textFieldDelegate
@@ -39,7 +40,7 @@ struct AddFolderBottomSheet: View {
           
           BKRoundedButton(
             title: "완료",
-            isDisabled: store.isValidation,
+            isDisabled: !store.isValidation,
             isCornerRadius: false,
             confirmAction: { store.send(.confirmButtonTapped) }
           )

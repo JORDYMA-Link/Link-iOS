@@ -19,23 +19,13 @@ struct EditFolderBottomSheet: View {
   var body: some View {
     WithPerceptionTracking {
       VStack(spacing: 0) {
-        ScrollView(.horizontal, showsIndicators: false) {
-          LazyHStack(spacing: 10) {
-            ForEach(Array(store.folderList.enumerated()), id: \.offset) { index, folder in
-              BKFolderItem(
-                title: folder.name,
-                isSeleted: store.seletedFolder == folder,
-                action: { store.send(.folderCellTapped(folder), animation: .default) }
-              )
-            }
-            
-            BKAddFolderItem(
-              action: { store.send(.addFolderBottomSheet(.addFolderTapped), animation: .default) }
-            )
-          }
-          .padding(.vertical, 12)
-          .padding(.horizontal, 16)
-        }
+        BKAddFolderList(
+          folderList: store.folderList,
+          selectedFolder: store.initSelectedFolder,
+          itemAction: { store.send(.folderCellTapped($0), animation: .default) },
+          addAction: { store.send(.addFolderBottomSheet(.addFolderTapped), animation: .default) }
+        )
+        .padding(.vertical, 12)
         .frame(height: 76)
         
         Spacer()
@@ -44,11 +34,6 @@ struct EditFolderBottomSheet: View {
       .sheet(isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented) {
         makeAddFolderBottomSheet()
           .presentationDetents([.height(202)])
-      }
-      .task {
-        await store
-          .send(._onTask)
-          .finish()
       }
     }
   }

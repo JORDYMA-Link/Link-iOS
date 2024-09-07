@@ -28,56 +28,62 @@ public struct BKModal: View {
                 .opacity(0.6)
                 .zIndex(0)
             
-            GeometryReader { geometry in
-                VStack {
-                    modalView
-                        .frame(width: geometry.size.width - 24) // 너비에서 24만큼 줄임
-                        .padding(.top, geometry.safeAreaInsets.top) // 상단 safe area만큼 패딩 추가
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .center) // 전체 화면
-            }
+          modalView
+            .zIndex(1)
+            .frame(
+              alignment: .center
+            )
         })
+
     }
     
     //MARK: - modalView
     @ViewBuilder
     public var modalView: some View {
-        VStack{
-            
-            if case .linkLoading(_, _) = modalType {
-                LottieView(animation: .named("lodingAnimation", bundle: CommonFeatureResources.bundle))
-                    .playing(loopMode: .loop)
-                    .frame(width: 90, height: 59)
-                    .padding(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
-            }
-
-            Text(modalType.modalTitle)
-                .font(.semiBold(size: ._14))
-                .padding(.bottom, 8)
-            
-            Text(modalType.modalDescription)
-                .font(.regular(size: ._14))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(BKColor.gray700.swiftUIColor)
-                .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
-            
-            
-            
-            switch modalType {
-            case .linkLoading(let checkAction, let cancelAction), .cancelConfirm(checkAction: let checkAction, cancelAction: let cancelAction), .deleteFolder(let checkAction, let cancelAction), .deleteContent(let checkAction, let cancelAction), .photoTypeError(checkAction: let checkAction, cancelAction: let cancelAction), .photoSizeError(checkAction: let checkAction, cancelAction: let cancelAction):
-                
-                configureButton(checkAction: checkAction, cancelAction: cancelAction)
-                
-            case .custom(_, _, let checkAction, let cancelAction):
-                configureButton(checkAction: checkAction, cancelAction: cancelAction)
-            case .logout(let checkAction, let cancelAction):
-                configureButton(checkAction: checkAction, cancelAction: cancelAction)
-            default:
-                EmptyView()
-            }
+      VStack{
+        if case .linkLoading(_) = modalType {
+          LottieView(animation: .named("lodingAnimation", bundle: CommonFeatureResources.bundle))
+            .playing(loopMode: .loop)
+            .frame(width: 90, height: 59)
+            .padding(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
         }
-        .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
-        .background(RoundedRectangle(cornerRadius: 10).fill(BKColor.white.swiftUIColor))
+        
+        Text(modalType.modalTitle)
+          .font(.semiBold(size: ._14))
+          .padding(.bottom, 8)
+        
+        Text(modalType.modalDescription)
+          .font(.regular(size: ._14))
+          .multilineTextAlignment(.center)
+          .foregroundStyle(BKColor.gray700.swiftUIColor)
+          .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
+        
+        
+        
+        switch modalType {
+        case .cancelConfirm(checkAction: let checkAction, cancelAction: let cancelAction), .deleteFolder(let checkAction, let cancelAction), .deleteContent(let checkAction, let cancelAction), .photoTypeError(checkAction: let checkAction, cancelAction: let cancelAction), .photoSizeError(checkAction: let checkAction, cancelAction: let cancelAction):
+          
+          configureButton(checkAction: checkAction, cancelAction: cancelAction)
+          
+        case let .linkLoading(checkAction):
+          configureButton(checkAction: checkAction, cancelAction: nil)
+          
+        case .custom(_, _, let checkAction, let cancelAction):
+          configureButton(checkAction: checkAction, cancelAction: cancelAction)
+          
+        case .logout(let checkAction, let cancelAction):
+          configureButton(checkAction: checkAction, cancelAction: cancelAction)
+        default:
+          EmptyView()
+        }
+      }
+      .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20)) // 내부 컨텐츠에 패딩 적용
+      .frame(maxWidth: .infinity)
+      .background(
+        RoundedRectangle(cornerRadius: 10)
+          .fill(BKColor.white.swiftUIColor)
+      )
+      .padding(.horizontal, 20)
     }
     
     //MARK: - makeButton
@@ -99,10 +105,17 @@ public struct BKModal: View {
                 Text(modalType.okText)
                     .foregroundStyle(BKColor.white.swiftUIColor)
             })
-            .frame(maxWidth: 140, maxHeight: 48)
+            .frame(maxWidth: .infinity, maxHeight: 48)
             .background(BKColor.gray900.swiftUIColor)
             .clipShape(RoundedRectangle(cornerRadius: 10))
         })
     }
+}
+
+#Preview {
+  Text("hello world")
+    .modal(isPresented: .constant(true), type: .linkLoading(checkAction: {
+      print("hello")
+    }))
 }
 

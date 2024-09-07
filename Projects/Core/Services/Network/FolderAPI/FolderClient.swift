@@ -14,11 +14,17 @@ import Dependencies
 import Moya
 
 public struct FolderClient {
+  /// 보관함 폴더 리스트 조회
   public var getFolders: @Sendable () async throws -> [Folder]
+  public var getFolderFeeds: @Sendable (_ folderId: Int, _ cursor: Int) async throws -> [FeedCard]
+  /// 폴더 생성
   public var postFolder: @Sendable (_ name: String) async throws -> Folder
+  /// 온보딩 주제 선택
   public var postOnboardingFolder: @Sendable (_ topics: [String]) async throws -> OnboardingFolder
+  /// 폴더 삭제
   public var deleteFolder: @Sendable (_ folderId: Int) async throws -> Void
-  public var fetchFolder: @Sendable (_ folderId: Int, _ name: String) async throws -> Folder
+  /// 폴더 수정
+  public var patchFolder: @Sendable (_ folderId: Int, _ name: String) async throws -> Folder
 }
 
 extension FolderClient: DependencyKey {
@@ -29,6 +35,11 @@ extension FolderClient: DependencyKey {
       getFolders: {
         let responseDTO: FolderListResponse = try await folderProvider.request(.getFolders, modelType: FolderListResponse.self)
         return responseDTO.toDomain()
+      },
+      getFolderFeeds: { folderId, cursor in
+        let responseDTO: FolderFeedListResponse = try await folderProvider.request(.getFolderFeeds(folderId: folderId, cursor: cursor), modelType: FolderFeedListResponse.self)
+        
+        return responseDTO.feedList.map { $0.toDomain() }
       },
       postFolder: { name in
         let responseDTO: FolderResponse = try await folderProvider.request(.postFolder(name: name), modelType: FolderResponse.self)
@@ -41,8 +52,8 @@ extension FolderClient: DependencyKey {
       deleteFolder: { folderId in
         return try await folderProvider.requestPlain(.deleteFolder(folderId: folderId))
       },
-      fetchFolder: { folderId, name in
-        let responseDTO: FolderResponse = try await folderProvider.request(.fetchFolder(folderId: folderId, name: name), modelType: FolderResponse.self)
+      patchFolder: { folderId, name in
+        let responseDTO: FolderResponse = try await folderProvider.request(.patchFolder(folderId: folderId, name: name), modelType: FolderResponse.self)
         return responseDTO.toDomain()
       }
     )
@@ -50,8 +61,8 @@ extension FolderClient: DependencyKey {
 }
 
 public extension DependencyValues {
-    var folderClient: FolderClient {
-        get { self[FolderClient.self] }
-        set { self[FolderClient.self] = newValue }
-    }
+  var folderClient: FolderClient {
+    get { self[FolderClient.self] }
+    set { self[FolderClient.self] = newValue }
+  }
 }
