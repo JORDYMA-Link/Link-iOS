@@ -121,6 +121,14 @@ public struct HomeView: View {
     }
     .navigationDestination(
       item: $store.scope(
+        state: \.calendarContent,
+        action: \.calendarContent
+      )
+    ) { store in
+      CalendarView(store: store)
+    }
+    .navigationDestination(
+      item: $store.scope(
         state: \.link,
         action: \.link
       )
@@ -132,19 +140,11 @@ public struct HomeView: View {
     }
     .navigationDestination(
       item: $store.scope(
-        state: \.calendarContent,
-        action: \.calendarContent
-      )
-    ) { store in
-      CalendarView(store: store)
-    }
-    .navigationDestination(
-      item: $store.scope(
         state: \.storageBoxFeedList,
         action: \.storageBoxFeedList
       )
     ) { store in
-      StorageBoxContentListView(store: store)
+      StorageBoxFeedListView(store: store)
     }
     .fullScreenCover(
       item: $store.scope(
@@ -157,8 +157,8 @@ public struct HomeView: View {
     .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
       self.isScrollDetected = $0
     }
-    .onAppear {
-      store.send(.onAppear)
+    .onViewDidLoad {
+      store.send(.onViewDidLoad)
       UIScrollView.appearance().bounces = true
     }
   }
