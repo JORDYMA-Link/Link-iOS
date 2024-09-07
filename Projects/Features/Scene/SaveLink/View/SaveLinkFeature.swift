@@ -21,11 +21,18 @@ struct SaveLinkFeature {
   }
     
   enum Action: BindableAction {
+    //MARK: - Action
+    case presentModal
+    
+    //MARK: UserAction
     case onTapNextButton
     case onTapBackButton
+    case onTapBackToMain
     
     case binding(BindingAction<State>)
   }
+  
+  @Dependency(\.linkClient) private var linkClient
   
   var body: some ReducerOf<Self> {
     BindingReducer()
@@ -33,24 +40,36 @@ struct SaveLinkFeature {
     Reduce { state, action in
       switch action {
       case .onTapBackButton:
+        break
         
-        return .none
       case .onTapNextButton:
+        guard state.urlText.containsHTTPorHTTPS else { return .none }
+        
+        return .run { send in
+          //FIXME: 현재 요청 500 에러로 인해 주석 처리했습니다.
+//          guard let _ = try? await linkClient.postLinkSummary(targetURL, "") else { return } //혹시 에러 발생시 대응이 필요할수도 있을지도 모르니
+          await send(.presentModal)
+        }
+        
+      case .onTapBackToMain:
+        state.presentLoading.toggle()
+        return .none
+        
+        
+      case .presentModal:
         if state.urlText.containsHTTPorHTTPS {
           state.presentLoading.toggle()
         } else {
           state.isValidationURL = false
         }
         
-        return .none
-        
       case .binding(\.urlText):
         state.saveButtonActive = !state.urlText.isEmpty
         
-        return .none
-      case .binding(_):
-          return .none
+      case .binding:
+        break
       }
+      return .none
     }
   }
 }
