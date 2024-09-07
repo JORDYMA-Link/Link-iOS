@@ -58,6 +58,7 @@ public struct SaveLinkView: View {
                 
                 Button {
                   self.store.send(.onTapNextButton)
+                  hideKeyboard()
                 } label: {
                   CommonFeature.Images.icoChevronRight
                         .renderingMode(.template)
