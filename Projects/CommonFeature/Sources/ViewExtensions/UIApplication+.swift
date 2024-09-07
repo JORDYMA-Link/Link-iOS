@@ -37,4 +37,8 @@ public extension UIApplication {
       .compactMap { $0 as? UIWindowScene }
       .first { $0.windows.contains(where: \.isKeyWindow) }
   }
+  
+  func endEditing() {
+    sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+  }
 }
