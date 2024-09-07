@@ -87,13 +87,14 @@ public struct SettingView: View {
       }
     }
     
-    .fullScreenCover(isPresented: $store.showLogoutConfirmModal, content: {
-      BKModal(modalType: .logout(checkAction: {
+    .modal(
+      isPresented: $store.showLogoutConfirmModal,
+      type: .logout(checkAction: {
         
       }, cancelAction: {
         store.send(.tappedLogOut)
-      }))
-    })
+      })
+    )
     
     .navigationDestination(item: $store.scope(
       state: \.noticeContent,
@@ -299,6 +300,7 @@ extension SettingView {
       .clipShape(RoundedRectangle(cornerRadius: 10))
     }
     .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
+    .ignoresSafeArea()
     .background(RoundedRectangle(cornerRadius: 10).fill(BKColor.white.swiftUIColor))
   }
 }
