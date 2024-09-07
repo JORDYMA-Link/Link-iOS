@@ -12,7 +12,7 @@ import Moya
 
 enum FolderEndpoint {
   case getFolders
-  case getFolderFeeds(folderId: String)
+  case getFolderFeeds(folderId: Int, cursor: Int, pageSize: Int = 10)
   case postFolder(name: String)
   case postOnboardingFolder(topics: [String])
   case deleteFolder(folderId: Int)
@@ -24,7 +24,7 @@ extension FolderEndpoint: BaseTargetType {
     switch self {
     case .getFolders, .postFolder:
       return "/api/folders"
-    case let .getFolderFeeds(folderId):
+    case let .getFolderFeeds(folderId, _, _):
       return "/api/folders/\(folderId)/feeds"
     case .postOnboardingFolder:
       return "/api/folders/onboarding"
@@ -48,8 +48,18 @@ extension FolderEndpoint: BaseTargetType {
   
   var task: Moya.Task {
     switch self {
-    case .getFolders, .getFolderFeeds, .deleteFolder:
+    case .getFolders, .deleteFolder:
       return .requestPlain
+      
+    case let .getFolderFeeds(_, cursor, pageSize):
+      var parameters: [String: Any] = ["pageSize": pageSize]
+      
+      // cursor가 0이 아닐 때만 추가
+      if cursor != 0 {
+        parameters["cursor"] = cursor
+      }
+      
+      return .requestParameters(parameters: parameters, encoding: URLEncoding.queryString)
       
     case let .postFolder(name):
       return .requestParameters(parameters: [
