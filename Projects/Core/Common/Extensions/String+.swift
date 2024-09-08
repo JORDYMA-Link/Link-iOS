@@ -13,9 +13,30 @@ extension String {
     return self.lowercased().hasPrefix("http") || self.lowercased().hasPrefix("https")
   }
   
-  public var containsOnlyKorean: Bool {
-    let regex = "^[가-힣]+$"
-    return self.range(of: regex, options: .regularExpression) != nil
+  public var containsOtherLanguage: Bool {
+    let koreanRange = Unicode.Scalar("\u{AC00}")...Unicode.Scalar("\u{D7A3}") // 한글 유니코드 범위
+    let nonKoreanCharacterSet = CharacterSet(charactersIn: koreanRange)
+    
+    // 문자열이 한글 이외의 문자를 포함하고 있는지 확인
+    return self.unicodeScalars.contains(where: { !nonKoreanCharacterSet.contains($0) })
+  }
+  
+  public var containsEmoji: Bool {
+    for scalar in self.unicodeScalars {
+      if scalar.properties.isEmoji {
+        return true
+      }
+    }
+    return false
+  }
+  
+  public var containsWhitespace: Bool {
+      let pattern = "\\s"
+      if let _ = self.range(of: pattern, options: .regularExpression) {
+          return true // 공백이 포함되어 있음
+      } else {
+          return false // 공백이 없음
+      }
   }
   
   public func calculateHeight(font: UIFont, width: CGFloat) -> CGFloat {
@@ -26,6 +47,17 @@ extension String {
     let boundingRect = attributedText.boundingRect(with: maxSize, options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
     
     return ceil(boundingRect.height)
+  }
+  
+  public func toDate(from dateFormat: String) -> Date? {
+    // DateFormatter 생성 및 설정
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = dateFormat
+    dateFormatter.timeZone = TimeZone.current
+    dateFormatter.locale = Locale.current
+
+    // 문자열을 Date로 변환
+    return dateFormatter.date(from: self)
   }
 }
 
