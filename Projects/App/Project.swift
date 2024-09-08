@@ -15,7 +15,9 @@ let project = Project.make(
             bundleId: DefaultSetting.projectBundleId(),
             infoPlist: .file(path: .relativeToRoot("Projects/App/Info.plist")),
             sources: ["Sources/**"],
-            resources: ["Resources/**"],
+            resources: ["Resources/**",
+                        "Resources/GoogleService-Info.plist"
+                       ],
             entitlements: .file(path: .relativeToRoot("Projects/App/Blink.entitlements")),
             dependencies: [
                 .project(target: .features, projectPath: .features),
