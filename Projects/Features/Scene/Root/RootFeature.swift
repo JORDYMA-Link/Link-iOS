@@ -52,8 +52,6 @@ public struct RootFeature: Reducer {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        socialLogin.initKakaoSDK()
-        
         return .run {  send in
           try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
           
@@ -62,15 +60,6 @@ public struct RootFeature: Reducer {
           } else {
             await send(.refreshToken(Result { try await authClient.requestRegenerateToken(keychainClient.read(.refreshToken)) }))
           }
-          
-          #warning("테스트 시  keychainClient 코드 주석 후 밑 해당 코드 사용")
-          // userDefault.set(true, .isFirstLogin)
-          //
-          // if userDefault.bool(.isFirstLogin, false) {
-          //  await send(.changeScreen(.login()), animation: .spring)
-          // } else {
-          //  await send(.changeScreen(.mainTab()), animation: .spring)
-          // }
         }
         
       case let .refreshToken(.success(token)):
