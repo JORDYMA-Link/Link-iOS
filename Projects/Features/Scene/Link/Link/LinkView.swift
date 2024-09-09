@@ -116,6 +116,7 @@ struct LinkView: View {
       }
       .task { await store.send(.onTask).finish() }
       .onWillDisappear { onWillDisappear(store.feed) }
+      .popGestureOnlyDisabled()
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
         urlString: store.feed.originUrl,
