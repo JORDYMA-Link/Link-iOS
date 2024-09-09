@@ -17,7 +17,7 @@ import ComposableArchitecture
 /// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
 public enum LinkType: Equatable {
   case feedDetail(feedId: Int)
-  case summaryCompleted
+  case summaryCompleted(feedId: Int)
 }
 
 @Reducer
