@@ -15,7 +15,7 @@ import Moya
 
 public struct LinkClient {
   /// 링크 요약
-  public var postLinkSummary: @Sendable (_ link: String, _ content: String) async throws -> LinkSummary
+  public var postLinkSummary: @Sendable (_ link: String, _ content: String) async throws -> Int
   /// 링크 썸네일 이미지 업로드
   public var postLinkImage: @Sendable (_ feedId: Int, _ thumbnailImage: Data) async throws -> String
   /// 링크 저장(수정)
@@ -39,8 +39,8 @@ extension LinkClient: DependencyKey {
     
     return Self(
       postLinkSummary: { link, content in
-        let responseDTO: LinkSummaryResponse = try await linkProvider.request(.postLinkSummary(link: link, content: content), modelType: LinkSummaryResponse.self)
-        return responseDTO.toDomain()
+        let responseDTO: FeedIDResponse = try await linkProvider.request(.postLinkSummary(link: link, content: content), modelType: FeedIDResponse.self)
+        return responseDTO.feedId
       },
       postLinkImage: { feedId, thumbnailImage in
         return try await linkProvider.request(.postLinkImage(feedId: feedId, thumbnailImage: thumbnailImage), modelType: String.self)

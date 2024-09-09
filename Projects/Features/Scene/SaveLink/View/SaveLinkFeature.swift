@@ -67,11 +67,11 @@ public struct SaveLinkFeature {
       case .postLinkSummary:
         return .run(
           operation: { [state] send in
-            _ = try await linkClient.postLinkSummary(state.urlText, "Dummy")
+            let feedId: Int = try await linkClient.postLinkSummary(state.urlText, "Dummy")
             
             // 요약 성공 시 LodingAlert 닫힌 후 요약 상세 페이지로 이동
             await alertClient.dismiss()
-            await send(.routeSummaryCompleted(feedId: 2))
+            await send(.routeSummaryCompleted(feedId: feedId))
           },
           catch: { error, send in
             print(error)
