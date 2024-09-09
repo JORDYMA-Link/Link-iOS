@@ -12,32 +12,30 @@ import Models
 
 struct LinkSummaryResponse: Decodable {
   let feedId: Int
-  let content: LinkSummaryContentResponse
-  let sourceURL: String
+  let subject: String
+  let summary: String
+  let keywords: [String]
+  let folders: [String]
+  let platformImage: String
   let recommendFolder: String
   let recommendFolders: [String]
-  
-  struct LinkSummaryContentResponse: Decodable {
-    let subject: String
-    let summary: String
-    let keywords: [String]
-    let folders: [String]
-  }
 }
 
 extension LinkSummaryResponse {
-  func toDomain() -> LinkSummary {
-    return LinkSummary(
+  public func toDomain() -> Feed {
+    return Feed(
       feedId: feedId,
-      content: LinkSummary.LinkSummaryContent(
-        subject: content.subject,
-        summary: content.summary,
-        keywords: content.keywords,
-        folders: content.folders
-      ),
-      sourceURL: sourceURL,
-      recommendFolder: recommendFolder,
-      recommendFolders: recommendFolders
+      thumnailImage: "",
+      platformImage: platformImage,
+      title: subject,
+      date: "",
+      summary: summary,
+      keywords: keywords,
+      folderName: recommendFolder,
+      recommendFolders: recommendFolders,
+      memo: "",
+      isMarked: false,
+      originUrl: ""
     )
   }
 }
