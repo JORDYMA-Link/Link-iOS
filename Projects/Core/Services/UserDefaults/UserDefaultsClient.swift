@@ -13,6 +13,7 @@ import ComposableArchitecture
 public struct UserDefaultsClient {
     public enum UserDefaultsKey: String {
         case fcmToken
+        case isPopGestureEnabled
         case recentSearches
     }
     
