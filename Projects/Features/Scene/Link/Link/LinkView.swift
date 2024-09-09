@@ -165,7 +165,7 @@ struct LinkView: View {
   @ViewBuilder
   private var folderTitle: some View {
     switch store.linkType {
-    case .feedDetail:
+    case .feedDetail, .summarySave:
       LinkTitleButton(
         title: "폴더",
         buttonTitle: "수정",
@@ -190,7 +190,7 @@ struct LinkView: View {
   @ViewBuilder
   private var folderSection: some View {
     switch store.linkType {
-    case .feedDetail:
+    case .feedDetail, .summarySave:
       BKFolderItem(
         folderItemType: .default,
         title: store.feed.folderName,
@@ -221,12 +221,12 @@ struct LinkView: View {
   @ViewBuilder
   private var bottomSafeAreaButton: some View {
     switch store.linkType {
-    case .feedDetail:
+    case .feedDetail, .summarySave:
       BKRoundedButton(title: "원문 보기", confirmAction: {})
     case .summaryCompleted:
       HStack(spacing: 8) {
         BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {})
-        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: {})
+        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: { store.send(.summarySaveButtonTapped) })
       }
     }
   }

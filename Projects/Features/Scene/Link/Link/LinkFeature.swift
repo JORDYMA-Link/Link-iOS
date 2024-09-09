@@ -14,10 +14,13 @@ import Models
 
 import ComposableArchitecture
 
-/// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
 public enum LinkType: Equatable {
+  /// 콘텐츠 디테일
   case feedDetail(feedId: Int)
+  /// 링크 요약
   case summaryCompleted(feedId: Int)
+  /// 링크 요약 이후 저장
+  case summarySave(feedId: Int)
 }
 
 @Reducer
@@ -39,10 +42,10 @@ public struct LinkFeature {
     var isClipboardPopupPresented: Bool = false
     var isClipboardToastPresented: Bool = false
     
+    @Presents var editLink: EditLinkFeature.State?
+    
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
-    
-    @Presents var editLink: EditLinkFeature.State?
     
     public init(linkType: LinkType) {
       self.linkType = linkType
@@ -53,6 +56,7 @@ public struct LinkFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case onA
     case onTask
     case closeButtonTapped
     case menuButtonTapped
@@ -64,9 +68,11 @@ public struct LinkFeature {
     case addFolderItemTapped
     case folderItemTapped(any FolderItem)
     case editMemoButtonTapeed
+    case summarySaveButtonTapped
     
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
+    case fetchLinkSummary(Int)
     case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
@@ -76,6 +82,10 @@ public struct LinkFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
+      case summaryCompletedSaveButtonTapped(Int)
+      case summaryCompletedCloseButtonTapped
+      case summarySaveCloseButtonTapped
+      case popStack
       case deleteFeed(Feed)
     }
     case delegate(Delegate)
@@ -118,18 +128,33 @@ public struct LinkFeature {
       case .binding:
         return .none
         
+      case .onA:
+        return .run { send in
+          await send(.delegate(.popStack))
+        }
+        
       case .onTask:
         switch state.linkType {
-        case let .feedDetail(feedId):
+        case let .feedDetail(feedId), let .summarySave(feedId):
           return .run { send in await send(.fetchFeedDetail(feedId)) }
           
-        case .summaryCompleted:
-          state.selectedFolder = state.feed.folderName
-          return .none
+        case let .summaryCompleted(feedId):
+          return .run { send in await send(.fetchLinkSummary(feedId)) }
         }
-                
+        
       case .closeButtonTapped:
-        return .run { _ in await self.dismiss() }
+        switch state.linkType {
+        case .feedDetail:
+          return .run { _ in await self.dismiss() }
+        case .summaryCompleted:
+          return .run { send in
+            await send(.delegate(.summaryCompletedCloseButtonTapped))
+          }
+        case .summarySave:
+          return .run { send in
+            await send(.delegate(.summarySaveCloseButtonTapped))
+          }
+        }
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
@@ -168,10 +193,27 @@ public struct LinkFeature {
         let feed = state.feed
         return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
         
+      case .summarySaveButtonTapped:
+        return .run { [state] send in
+          await send(.delegate(.summaryCompletedSaveButtonTapped(state.feed.feedId)))
+        }
+        
       case let .fetchFeedDetail(feedId):
         return .run(
           operation: { send in
             let feed = try await feedClient.getFeed(feedId)
+            
+            await send(.setFeed(feed), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .fetchLinkSummary(feedId):
+        return .run(
+          operation: { send in
+            let feed = try await linkClient.getLinkSummary(feedId)
             
             await send(.setFeed(feed), animation: .default)
           },
@@ -233,7 +275,7 @@ public struct LinkFeature {
         state.feed.folderName = folder.name
         
         switch state.linkType {
-        case .feedDetail:
+        case .feedDetail, .summarySave:
           return .run { send in await send(.patchFeed) }
           
         case .summaryCompleted:
