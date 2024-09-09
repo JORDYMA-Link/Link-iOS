@@ -10,65 +10,92 @@ import Foundation
 import ComposableArchitecture
 
 @Reducer
-struct SaveLinkFeature {
+public struct SaveLinkFeature {
   @ObservableState
-  struct State {
+  public struct State: Equatable {
     var urlText = ""
-    var presentLoading = false
     var saveButtonActive = false
     var isValidationURL = true
     var validationReasonText = "URL 형식이 올바르지 않아요. 다시 입력해주세요."
-  }
     
-  enum Action: BindableAction {
-    //MARK: - Action
-    case presentModal
+    @Presents var link: LinkFeature.State?
+  }
+  
+  public enum Action: BindableAction {
+    case binding(BindingAction<State>)
     
     //MARK: UserAction
     case onTapNextButton
     case onTapBackButton
-    case onTapBackToMain
     
-    case binding(BindingAction<State>)
+    // MARK: Inner Business Action
+    case postLinkSummary
+    
+    // MARK: Child Action
+    case link(PresentationAction<LinkFeature.Action>)
+    
+    // MARK: Present Action
+    case linkSummaryLoadingAlertPresented
+    
+    // MARK: Navigation Action
+    case routeSummaryCompleted(feedId: Int)
   }
   
+  @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   
-  var body: some ReducerOf<Self> {
+  public var body: some ReducerOf<Self> {
     BindingReducer()
     
     Reduce { state, action in
       switch action {
-      case .onTapBackButton:
-        break
-        
-      case .onTapNextButton:
-        guard state.urlText.containsHTTPorHTTPS else { return .none }
-        
-        return .run { [targetURL = state.urlText] send in
-          await send(.presentModal)
-          guard let _ = try? await linkClient.postLinkSummary(targetURL, "") else { return } //혹시 에러 발생시 대응이 필요할수도 있을지도 모르니
-        }
-        
-      case .onTapBackToMain:
-        state.presentLoading.toggle()
+      case .binding(\.urlText):
+        state.saveButtonActive = !state.urlText.isEmpty && state.urlText.containsHTTPorHTTPS
+        state.isValidationURL = state.urlText.count != 1 && state.urlText.containsHTTPorHTTPS
         return .none
         
+      case .onTapBackButton:
+        return .run { _ in await self.dismiss() }
         
-      case .presentModal:
-        if state.urlText.containsHTTPorHTTPS {
-          state.presentLoading.toggle()
-        } else {
-          state.isValidationURL = false
+      case .onTapNextButton:
+        return .run { send in
+          await send(.linkSummaryLoadingAlertPresented)
+          await send(.postLinkSummary)
         }
         
-      case .binding(\.urlText):
-        state.saveButtonActive = !state.urlText.isEmpty
+      case .postLinkSummary:
+        return .run(
+          operation: { [state] send in
+            _ = try await linkClient.postLinkSummary(state.urlText, "Dummy")
+            
+            // 요약 성공 시 LodingAlert 닫힌 후 요약 상세 페이지로 이동
+            await alertClient.dismiss()
+            await send(.routeSummaryCompleted(feedId: 2))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
-      case .binding:
-        break
+        case .linkSummaryLoadingAlertPresented:
+        return .run { send in
+          await alertClient.present(.init(
+            isLoadingType: true,
+            title: "잠시만 기다려주세요",
+            description: "블링크가 눈 깜짝할 새에 요약할게요",
+            buttonType: .singleButton("메인으로"),
+            rightButtonAction: { await send(.onTapBackButton) }
+          ))
+        }
+        
+      case let .routeSummaryCompleted(feedId):
+        state.link = .init(linkType: .summaryCompleted(feedId: feedId))
+        return .none
+        
+      default:
+        return .none
       }
-      return .none
     }
   }
 }
