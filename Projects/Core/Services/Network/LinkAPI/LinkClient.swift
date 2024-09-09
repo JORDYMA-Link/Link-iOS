@@ -27,6 +27,8 @@ public struct LinkClient {
     _ keywords: [String],
     _ memo: String
   ) async throws -> Void
+  /// 링크 요약 결과 조회
+  public var getLinkSummary: @Sendable (_ feedId: Int) async throws -> Feed
   /// 요약 중인 링크 조회
   public var getLinkProcessing: @Sendable () async throws -> LinkProcessing
   /// 요약 불가 링크 삭제
@@ -47,6 +49,10 @@ extension LinkClient: DependencyKey {
       },
       patchLink: { feedId, folderName, title, summary, keywords, memo in
         return try await linkProvider.requestPlain(.patchLink(feedId: feedId, folderName: folderName, title: title, summary: summary, keywords: keywords, memo: memo))
+      }, getLinkSummary: { feedId in
+        let responseDTO: LinkSummaryResponse = try await linkProvider.request(.getLinkSummary(feedId: feedId), modelType: LinkSummaryResponse.self)
+        
+        return responseDTO.toDomain()
       },
       getLinkProcessing: {
         let responseDTO: LinkProcessingResponse = try await linkProvider.request(.getLinkProcessing, modelType: LinkProcessingResponse.self)

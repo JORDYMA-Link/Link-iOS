@@ -14,6 +14,7 @@ enum LinkEndpoint {
   case postLinkSummary(link: String, content: String)
   case postLinkImage(feedId: Int, thumbnailImage: Data)
   case patchLink(feedId: Int, folderName: String, title: String, summary: String, keywords: [String], memo: String)
+  case getLinkSummary(feedId: Int)
   case getLinkProcessing
   case deleteLinkDenySummary(feedId: Int)
 }
@@ -29,6 +30,8 @@ extension LinkEndpoint: BaseTargetType {
       return baseLinkRoutePath + "/image/\(feedId)"
     case let .patchLink(feedId, _, _, _, _, _):
       return baseLinkRoutePath + "/\(feedId)"
+    case let .getLinkSummary(feedId):
+      return baseLinkRoutePath + "/summary\(feedId)"
     case .getLinkProcessing:
       return baseLinkRoutePath + "/processing"
     case let .deleteLinkDenySummary(feedId):
@@ -42,7 +45,7 @@ extension LinkEndpoint: BaseTargetType {
       return .post
     case .patchLink:
       return .patch
-    case .getLinkProcessing:
+    case .getLinkSummary, .getLinkProcessing:
       return .get
     case .deleteLinkDenySummary:
       return .delete
@@ -65,7 +68,7 @@ extension LinkEndpoint: BaseTargetType {
       let patchLinkBody = PatchLinkRequest(folderName: folderName, title: title, summary: summary, keywords: keywords, memo: memo)
       return .requestJSONEncodable(patchLinkBody)
       
-    case .getLinkProcessing, .deleteLinkDenySummary:
+    case .getLinkSummary, .getLinkProcessing, .deleteLinkDenySummary:
       return .requestPlain
     }
   }
