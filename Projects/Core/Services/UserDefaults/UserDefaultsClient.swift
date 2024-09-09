@@ -12,7 +12,7 @@ import ComposableArchitecture
 
 public struct UserDefaultsClient {
     public enum UserDefaultsKey: String {
-        case isFirstLogin
+        case fcmToken
         case recentSearches
     }
     

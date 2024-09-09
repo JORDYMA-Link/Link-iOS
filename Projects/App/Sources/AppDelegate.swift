@@ -11,11 +11,15 @@ import SwiftUI
 import Features
 
 import ComposableArchitecture
+import FirebaseCore
+import FirebaseMessaging
 
 final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
-  let store = Store(
-      initialState: AppDelegateFeature.State(),
-      reducer: { AppDelegateFeature() }
+  let store = StoreOf<AppDelegateFeature>.init(
+      initialState: .init(),
+      reducer: {
+        AppDelegateFeature()
+      }
     )
   
   func application(
@@ -27,5 +31,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationC
   }
   
   func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    store.send(.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken))
   }
 }
