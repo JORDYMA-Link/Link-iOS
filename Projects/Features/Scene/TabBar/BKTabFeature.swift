@@ -18,8 +18,8 @@ public struct BKTabFeature {
   public struct State: Equatable {
     var currentItem: BKTabViewType = .home
     var isSaveContentPresented = false
-    var isSaveLinkPresented = false
     
+    @Presents var saveLink: SaveLinkFeature.State?
     var home: HomeFeature.State = .init()
     var storageBox: StorageBoxFeature.State = .init()
     
@@ -32,6 +32,7 @@ public struct BKTabFeature {
     case roundedTabIconTapped
     case saveLinkButtonTapped
     
+    case saveLink(PresentationAction<SaveLinkFeature.Action>)
     case storageBox(StorageBoxFeature.Action)
     case home(HomeFeature.Action)
   }
@@ -53,12 +54,15 @@ public struct BKTabFeature {
 
       case .saveLinkButtonTapped:
         state.isSaveContentPresented.toggle()
-        state.isSaveLinkPresented = true
-        return . none
+        state.saveLink = .init()
+        return .none
         
       default:
         return .none
       }
+    }
+    .ifLet(\.$saveLink, action: \.saveLink) {
+      SaveLinkFeature()
     }
   }
 }
