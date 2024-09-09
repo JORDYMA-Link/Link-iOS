@@ -15,7 +15,6 @@ import ComposableArchitecture
 
 @Reducer
 public struct SummaryStatusFeature {
-  
   @ObservableState
   public struct State: Equatable {
     var processingList: [LinkProcessingStatus] = []
@@ -25,8 +24,9 @@ public struct SummaryStatusFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
-    case onTask
+    case onAppear
     case closeButtonTapped
+    case summaryStatusItemTapped(Int)
     case deleteButtonTapped(Int)
     
     // MARK: Inner Business Action
@@ -36,6 +36,13 @@ public struct SummaryStatusFeature {
     // MARK: Inner SetState Action
     case setProcessingList([LinkProcessingStatus])
     case setDeleteProcessingLink(Int)
+    
+    // MARK: Delegate Action
+    public enum Delegate {
+      case summaryStatusItemTapped(Int)
+    }
+    
+    case delegate(Delegate)
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -46,11 +53,15 @@ public struct SummaryStatusFeature {
     
     Reduce { state, action in
       switch action {
-      case .onTask:
+      case .onAppear:
         return .send(.fetchLinkProcessing)
         
       case .closeButtonTapped:
         return .run { _ in await self.dismiss() }
+        
+      case let .summaryStatusItemTapped(feedId):
+        return .run { send in await send(.delegate(.summaryStatusItemTapped(feedId)), animation: .default) }
+        
         
       case let .deleteButtonTapped(feedId):
         return .send(.deleteLinkProcessing(feedId))

@@ -34,7 +34,7 @@ struct SummaryStatusItem: View {
       HStack(spacing: 4) {
         titleView
         
-        if status == .deny {
+        if status == .failed {
           deleteButton
         }
       }
@@ -104,22 +104,22 @@ struct SummaryStatusItem: View {
 private extension SummaryStatusItem {
   var statusTintColor: Color {
     switch status {
-    case .requested:
+    case .requested, .processing:
       return .bkColor(.gray600)
     case .completed:
       return .bkColor(.main300)
-    case .deny:
+    case .failed:
       return .bkColor(.red)
     }
   }
   
   var statusBackgroundColor: Color {
     switch status {
-    case .requested:
+    case .requested, .processing:
       return .bkColor(.white)
     case .completed:
       return .bkColor(.main50)
-    case .deny:
+    case .failed:
       return .bkColor(.lightRed)
     }
   }

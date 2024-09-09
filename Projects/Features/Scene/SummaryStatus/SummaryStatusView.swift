@@ -21,12 +21,15 @@ struct SummaryStatusView: View {
     WithPerceptionTracking {
       ScrollView(showsIndicators: false) {
         LazyVStack(spacing: 0) {
-          ForEach(LinkProcessingStatus.mock(), id: \.feedId) { item in
+          ForEach(store.processingList, id: \.feedId) { item in
             SummaryStatusItem(
               title: item.title,
               status: item.status,
               deleteAction: { store.send(.deleteButtonTapped(item.feedId)) }
             )
+            .onTapGesture {
+              store.send(.summaryStatusItemTapped(item.feedId))
+            }
           }
         }
       }
@@ -41,6 +44,7 @@ struct SummaryStatusView: View {
           )
         }
       }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
