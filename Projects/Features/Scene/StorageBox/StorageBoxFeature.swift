@@ -18,6 +18,8 @@ import ComposableArchitecture
 public struct StorageBoxFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
+    var viewDidLoad: Bool = false
+    
     var folderList: [Folder] = []
     var selectedStorageBoxMenuItem: Folder?
     var isAddFolder: Bool {
@@ -27,8 +29,6 @@ public struct StorageBoxFeature: Reducer {
     var isMenuBottomSheetPresented: Bool = false
     var isDeleteFolderPresented: Bool = false
         
-    @Presents var storageBoxFeedList: StorageBoxFeedListFeature.State?
-    @Presents var searchKeyword: SearchFeature.State?
     var editFolderNameBottomSheet: EditFolderNameBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
   }
@@ -38,6 +38,7 @@ public struct StorageBoxFeature: Reducer {
     // MARK: User Action
     case onViewDidLoad
     case searchBannerTapped
+    case searchBannerCalendarTapped
     case addStorageBoxTapped
     case storageBoxTapped(Folder)
     case storageBoxMenuTapped(Folder)
@@ -49,11 +50,18 @@ public struct StorageBoxFeature: Reducer {
     // MARK: Inner SetState Action
     case setFolderList([Folder])
     
+    // MARK: Delegate Action
+    public enum Delegate {
+      case routeSearchKeyword
+      case routeCalendar
+      case routeStorageBoxFeedList(Folder)
+    }
+    
+    case delegate(Delegate)
+    
     // MARK: Child Action
     case editFolderNameBottomSheet(EditFolderNameBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case storageBoxFeedList(PresentationAction<StorageBoxFeedListFeature.Action>)
-    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Present Action
@@ -80,18 +88,22 @@ public struct StorageBoxFeature: Reducer {
         return .none
         
       case .onViewDidLoad:
+        guard state.viewDidLoad == false else { return .none }
+        state.viewDidLoad = true
+        
         return .send(.fetchFolderList)
         
       case .searchBannerTapped:
-        state.searchKeyword = .init()
-        return .none
+        return .send(.delegate(.routeSearchKeyword))
+        
+      case .searchBannerCalendarTapped:
+        return .send(.delegate(.routeCalendar))
         
       case .addStorageBoxTapped:
         return .send(.addFolderBottomSheet(.addFolderTapped))
-        
+              
       case let .storageBoxTapped(folder):
-        state.storageBoxFeedList = .init(folder: folder)
-        return .none
+        return .send(.delegate(.routeStorageBoxFeedList(folder)))
         
       case let .storageBoxMenuTapped(folder):
         state.selectedStorageBoxMenuItem = folder
@@ -155,12 +167,6 @@ public struct StorageBoxFeature: Reducer {
       default:
         return .none
       }
-    }
-    .ifLet(\.$storageBoxFeedList, action: \.storageBoxFeedList) {
-      StorageBoxFeedListFeature()
-    }
-    .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchFeature()
     }
   }
 }
