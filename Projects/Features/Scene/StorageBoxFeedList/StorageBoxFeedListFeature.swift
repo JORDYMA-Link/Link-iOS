@@ -295,7 +295,7 @@ public struct StorageBoxFeedListFeature {
         return .none
         
       case let .routeFeedDetail(feedId):
-        state.link = .init(linkType: .feedDetail(feedId: feedId))
+        state.link = .init(linkType: .feedDetail, feedId: feedId)
         return .none
         
       default:
