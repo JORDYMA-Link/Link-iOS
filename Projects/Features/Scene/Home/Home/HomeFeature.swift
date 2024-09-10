@@ -19,6 +19,7 @@ import ComposableArchitecture
 public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
+    var viewDidLoad: Bool = false
     var category: CategoryType = .bookmarked
     
     var page: Int = 0
@@ -28,12 +29,7 @@ public struct HomeFeature: Reducer {
     var feedList: [FeedCard] = []
     var selectedFeed: FeedCard?
     
-    @Presents var searchKeyword: SearchFeature.State?
-    @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
-    @Presents var settingContent: SettingFeature.State?
-    @Presents var calendarContent: CalendarViewFeature.State?
-    @Presents var storageBoxFeedList: StorageBoxFeedListFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     
@@ -46,7 +42,6 @@ public struct HomeFeature: Reducer {
     // MARK: User Action
     case onViewDidLoad
     case settingButtonTapped
-    case instructionBannerTapped
     case searchBannerSearchBarTapped
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
@@ -57,7 +52,7 @@ public struct HomeFeature: Reducer {
     case cardItemMenuButtonTapped(FeedCard)
     case cardItemRecommendedFolderTapped(String)
     case cardItemAddFolderTapped
-    case dismissCardDetail(Feed)
+    case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
     case resetPage
@@ -74,24 +69,24 @@ public struct HomeFeature: Reducer {
     case setMorePagingStatus(Bool)
     case setFetchedAllCardsStatus(Bool)
     
+    // MARK: Delegate Action
+    public enum Delegate {
+      case routeSetting
+      case routeSearchKeyword
+      case routeCalendar
+      case routeFeedDetail(Int)
+      case routeStorageBoxFeedList(Folder)
+    }
+    
+    case delegate(Delegate)
+    
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case searchKeyword(PresentationAction<SearchFeature.Action>)
-    case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
-    case settingContent(PresentationAction<SettingFeature.Action>)
-    case calendarContent(PresentationAction<CalendarViewFeature.Action>)
-    case storageBoxFeedList(PresentationAction<StorageBoxFeedListFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Navigation Action
-    case routeSetting
-    case routeInstruction
-    case routeSearchKeyword
-    case routeCalendar
-    case routeFeedDetail(Int)
-    case routeStorageBoxFeedList(Folder)
     
     // MARK: Present Action
   }
@@ -127,19 +122,18 @@ public struct HomeFeature: Reducer {
         return .none
         
       case .onViewDidLoad:
+        guard state.viewDidLoad == false else { return .none }
+        state.viewDidLoad = true
         return .send(.fetchFeedList(.bookmarked, state.page))
         
       case .settingButtonTapped:
-        return .send(.routeSetting)
-        
-      case .instructionBannerTapped:
-        return .send(.routeInstruction)
-        
+        return .send(.delegate(.routeSetting))
+                
       case .searchBannerSearchBarTapped:
-        return .send(.routeSearchKeyword)
+        return .send(.delegate(.routeSearchKeyword))
         
       case .searchBannerCalendarTapped:
-        return .send(.routeCalendar)
+        return .send(.delegate(.routeCalendar))
         
       case let .categoryButtonTapped(categoryType):
         if state.category == categoryType {
@@ -165,7 +159,7 @@ public struct HomeFeature: Reducer {
         .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
         
       case let .cardItemTapped(feedId):
-        return .send(.routeFeedDetail(feedId))
+        return .send(.delegate(.routeFeedDetail(feedId)))
         
       case let .cardItemSaveButtonTapped(index, isMarked):
         guard var item = state.feedList[safe: index] else { return .none }
@@ -189,7 +183,7 @@ public struct HomeFeature: Reducer {
         return .send(.addFolderBottomSheet(.addFolderTapped))
         
       /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .dismissCardDetail(feed):
+      case let .feedDetailWillDisappear(feed):
         guard let index = state.feedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
           return .none
         }
@@ -262,7 +256,7 @@ public struct HomeFeature: Reducer {
           operation: { send in
             let addFolder = try await folderClient.postFolder(folderName)
             
-            await send(.routeStorageBoxFeedList(addFolder))
+            await send(.delegate(.routeStorageBoxFeedList(addFolder)))
           },
           catch: { error, send in
             /// 이미 존재하는 폴더 에러 분기 처리 필요
@@ -277,7 +271,7 @@ public struct HomeFeature: Reducer {
             
             guard let recommendedFolder = try await folderList.filter({ $0.name == folderName }).first else { return }
             
-            await send(.routeStorageBoxFeedList(recommendedFolder))
+            await send(.delegate(.routeStorageBoxFeedList(recommendedFolder)))
           },
           catch: { error, send in
             print(error)
@@ -317,13 +311,9 @@ public struct HomeFeature: Reducer {
       case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
         return .run { send in
           try await Task.sleep(for: .seconds(0.5))
-          await send(.routeStorageBoxFeedList(folder))
+          await send(.delegate(.routeStorageBoxFeedList(folder)))
         }
-                
-      /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .link(.presented(.delegate(.deleteFeed(feed)))):
-        return .send(.setDeleteFeed(feed.feedId))
-        
+                        
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
         return .run { send in
           try await Task.sleep(for: .seconds(0.7))
@@ -359,51 +349,13 @@ public struct HomeFeature: Reducer {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
-        
-      case .routeSetting:
-        state.settingContent = .init()
-        return .none
-        
-      case .routeInstruction:
-        return .none
-        
-      case .routeSearchKeyword:
-        state.searchKeyword = .init()
-        return .none
-        
-      case .routeCalendar:
-        state.calendarContent = .init()
-        return .none
-        
-      case let .routeFeedDetail(feedId):
-        state.link = .init(linkType: .feedDetail(feedId: feedId))
-        return .none
-        
-      case let .routeStorageBoxFeedList(folder):
-        state.storageBoxFeedList = .init(folder: folder)
-        return .none
-        
+
       default:
         return .none
       }
     }
-    .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchFeature()
-    }
-    .ifLet(\.$link, action: \.link) {
-      LinkFeature()
-    }
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
-    }
-    .ifLet(\.$settingContent, action: \.settingContent) {
-      SettingFeature()
-    }
-    .ifLet(\.$calendarContent, action: \.calendarContent) {
-      CalendarViewFeature()
-    }
-    .ifLet(\.$storageBoxFeedList, action: \.storageBoxFeedList) {
-      StorageBoxFeedListFeature()
     }
   }
 }
