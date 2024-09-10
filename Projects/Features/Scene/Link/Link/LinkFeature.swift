@@ -266,23 +266,15 @@ public struct LinkFeature {
             print(error)
           }
         )
-        
+                
       case let .setFeed(feed):
         state.feed = feed
         return .none
         
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard state.feed.folderName != folder.name else { return .none }
-        
         state.feed.folderName = folder.name
-        
-        switch state.linkType {
-        case .feedDetail, .summarySave:
-          return .run { send in await send(.patchFeed) }
-          
-        case .summaryCompleted:
-          return .none
-        }
+        return .none
         
       case let .editMemoBottomSheet(.delegate(.didUpdateMemo(feed))):
         state.feed.memo = feed.memo
