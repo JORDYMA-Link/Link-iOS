@@ -14,18 +14,23 @@ import Models
 
 import ComposableArchitecture
 
-/// 콘텐츠 디테일 or 링크 요약 분기 처리 사용
 public enum LinkType: Equatable {
-  case feedDetail(feedId: Int)
+  /// 콘텐츠 디테일
+  case feedDetail
+  /// 링크 요약
   case summaryCompleted
+  /// 링크 요약 이후 저장
+  case summarySave
 }
 
 @Reducer
 public struct LinkFeature {
   @ObservableState
   public struct State: Equatable {
-    /// 콘텐츠 디테일 or 링크 요약 분기 처리
+    /// 콘텐츠 디테일 or 링크 요약 or 링크 요약 이후 저장 분기 처리
     var linkType: LinkType
+    /// init FeedId
+    var feedId: Int
     /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
     var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
     /// 링크 요약 화면 시 선택할 폴더
@@ -38,14 +43,20 @@ public struct LinkFeature {
     var isMenuBottomSheetPresented: Bool = false
     var isClipboardPopupPresented: Bool = false
     var isClipboardToastPresented: Bool = false
-    
-    var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
-    var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
+    var isWebViewPresented: Bool = false
     
     @Presents var editLink: EditLinkFeature.State?
     
-    public init(linkType: LinkType) {
+    var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
+    var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
+    
+    public init(
+      linkType: LinkType,
+      feedId: Int
+    ) {
       self.linkType = linkType
+      self.feedId = feedId
     }
   }
   
@@ -64,9 +75,13 @@ public struct LinkFeature {
     case addFolderItemTapped
     case folderItemTapped(any FolderItem)
     case editMemoButtonTapeed
+    case showURLButtonTapped
+    case summaryEditButtonTapped
+    case summarySaveButtonTapped
     
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
+    case fetchLinkSummary(Int)
     case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
@@ -76,12 +91,16 @@ public struct LinkFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
+      case summaryCompletedSaveButtonTapped(Int)
+      case summaryCompletedCloseButtonTapped
+      case summarySaveCloseButtonTapped
       case deleteFeed(Feed)
     }
     case delegate(Delegate)
     
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     case editMemoBottomSheet(EditMemoBottomSheetFeature.Action)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -90,6 +109,7 @@ public struct LinkFeature {
     case menuBottomSheetPresented(Bool)
     case clipboardPopupPresented(Bool)
     case clipboardToastPresented(Bool)
+    case editLinkPresented
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -100,11 +120,16 @@ public struct LinkFeature {
   private enum ThrottleId {
     case deleteButtonTapped
     case saveButtonTapped
+    case summarySaveButtonTapped
   }
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
+    }
+    
+    Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
+      AddFolderBottomSheetFeature()
     }
     
     Scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet) {
@@ -117,19 +142,33 @@ public struct LinkFeature {
       switch action {
       case .binding:
         return .none
-        
+                
       case .onTask:
         switch state.linkType {
-        case let .feedDetail(feedId):
-          return .run { send in await send(.fetchFeedDetail(feedId)) }
+        case .feedDetail, .summarySave:
+          return .run { [state] send in
+            await send(.fetchFeedDetail(state.feedId))
+          }
           
         case .summaryCompleted:
-          state.selectedFolder = state.feed.folderName
-          return .none
+          return .run { [state] send in
+            await send(.fetchLinkSummary(state.feedId))
+          }
         }
-                
+        
       case .closeButtonTapped:
-        return .run { _ in await self.dismiss() }
+        switch state.linkType {
+        case .feedDetail:
+          return .run { _ in await self.dismiss() }
+        case .summaryCompleted:
+          return .run { send in
+            await send(.delegate(.summaryCompletedCloseButtonTapped))
+          }
+        case .summarySave:
+          return .run { send in
+            await send(.delegate(.summarySaveCloseButtonTapped))
+          }
+        }
         
       case .menuButtonTapped:
         return .run { send in await send(.menuBottomSheetPresented(true)) }
@@ -157,8 +196,7 @@ public struct LinkFeature {
         return .none
         
       case .addFolderItemTapped:
-        print("폴더추가 바텀시트 오픈")
-        return .none
+        return .send(.addFolderBottomSheet(.addFolderTapped))
         
       case let .folderItemTapped(folder):
         state.selectedFolder = folder.folderName
@@ -168,10 +206,33 @@ public struct LinkFeature {
         let feed = state.feed
         return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
         
+      case .showURLButtonTapped:
+        state.isWebViewPresented = true
+        return .none
+        
+      case .summaryEditButtonTapped:
+        return .send(.editLinkPresented)
+        
+      case .summarySaveButtonTapped:
+        return .run { send in await send(.patchFeed) }
+          .throttle(id: ThrottleId.summarySaveButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
       case let .fetchFeedDetail(feedId):
         return .run(
           operation: { send in
             let feed = try await feedClient.getFeed(feedId)
+            
+            await send(.setFeed(feed), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .fetchLinkSummary(feedId):
+        return .run(
+          operation: { send in
+            let feed = try await linkClient.getLinkSummary(feedId)
             
             await send(.setFeed(feed), animation: .default)
           },
@@ -186,7 +247,6 @@ public struct LinkFeature {
             _ = try await feedClient.deleteFeed(feedId)
             
             await send(.delegate(.deleteFeed(state.feed)))
-            await dismiss()
           },
           catch: { error, send in
             print(error)
@@ -209,7 +269,7 @@ public struct LinkFeature {
       case .patchFeed:
         return .run(
           operation: { [state] send in
-            _ = try await linkClient.patchLink(
+            let feedId = try await linkClient.patchLink(
               state.feed.feedId,
               state.feed.folderName,
               state.feed.title,
@@ -217,28 +277,30 @@ public struct LinkFeature {
               state.feed.keywords,
               state.feed.memo
             )
+            
+            await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
           },
           catch: { error, send in
             print(error)
           }
         )
-        
+                
       case let .setFeed(feed):
         state.feed = feed
         return .none
         
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard state.feed.folderName != folder.name else { return .none }
-        
         state.feed.folderName = folder.name
+        return .none
         
-        switch state.linkType {
-        case .feedDetail:
-          return .run { send in await send(.patchFeed) }
-          
-        case .summaryCompleted:
-          return .none
-        }
+      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
+        state.selectedFolder = folder.name
+        
+        var folderList = state.feed.recommendFolders ?? []
+        folderList.append(folder.name)
+        state.feed.recommendFolders = folderList
+        return .none
         
       case let .editMemoBottomSheet(.delegate(.didUpdateMemo(feed))):
         state.feed.memo = feed.memo
@@ -253,10 +315,10 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .link(state.feed))
-        return .none
+        return .send(.editLinkPresented)
         
       case .menuBottomSheet(.deleteLinkItemTapped):
+        state.isMenuBottomSheetPresented = false
         return .run { [state] send in
           await alertClient.present(.init(
             title: "삭제",
@@ -272,6 +334,10 @@ public struct LinkFeature {
         
       case let .clipboardToastPresented(isPresented):
         state.isClipboardToastPresented = isPresented
+        return .none
+        
+      case .editLinkPresented:
+        state.editLink = .init(editLinkType: .link(state.feed))
         return .none
         
       default:

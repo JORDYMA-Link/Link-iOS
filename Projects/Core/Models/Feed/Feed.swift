@@ -18,7 +18,7 @@ public struct Feed: Equatable {
   public var summary: String
   public var keywords: [String]
   public var folderName: String
-  public let recommendFolders: [String]?
+  public var recommendFolders: [String]?
   public var memo: String
   public var isMarked: Bool
   public var originUrl: String

@@ -28,6 +28,7 @@ public final class BkAlertManager: ObservableObject {
   
   public func dismiss() {
     isPresented = false
+    property.removeAll()
     continuation?.resume()
     continuation = nil
   }

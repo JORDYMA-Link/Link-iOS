@@ -103,49 +103,6 @@ public struct HomeView: View {
     }
     .padding(.bottom, 52)
     .background(Color.bkColor(.white))
-    .navigationDestination(
-      item: $store.scope(
-        state: \.settingContent,
-        action: \.settingContent
-      )
-    ) { store in
-      SettingView(store: store)
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.searchKeyword,
-        action: \.searchKeyword
-      )
-    ) { store in
-      SearchView(store: store)
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.calendarContent,
-        action: \.calendarContent
-      )
-    ) { store in
-      CalendarView(store: store)
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.link,
-        action: \.link
-      )
-    ) { store in
-      LinkView(
-        store: store,
-        onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
-      )
-    }
-    .navigationDestination(
-      item: $store.scope(
-        state: \.storageBoxFeedList,
-        action: \.storageBoxFeedList
-      )
-    ) { store in
-      StorageBoxFeedListView(store: store)
-    }
     .fullScreenCover(
       item: $store.scope(
         state: \.editLink,
@@ -205,8 +162,6 @@ private struct HomeBanner: View {
     WithPerceptionTracking {
       VStack(spacing: 12) {
         BKInstructionBanner()
-          .contentShape(Rectangle())
-          .onTapGesture { store.send(.instructionBannerTapped) }
         
         BKSearchBanner(
           searchAction: { store.send(.searchBannerSearchBarTapped) },

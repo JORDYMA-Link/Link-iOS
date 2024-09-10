@@ -17,19 +17,24 @@ enum FolderEndpoint {
   case postOnboardingFolder(topics: [String])
   case deleteFolder(folderId: Int)
   case patchFolder(folderId: Int, name: String)
+  case patchFeedFolder(feedId: Int, name: String)
 }
 
 extension FolderEndpoint: BaseTargetType {
   var path: String {
+    let baseFolderRoutePath: String = "/api/folders"
+    
     switch self {
     case .getFolders, .postFolder:
-      return "/api/folders"
+      return baseFolderRoutePath
     case let .getFolderFeeds(folderId, _, _):
-      return "/api/folders/\(folderId)/feeds"
+      return baseFolderRoutePath + "/\(folderId)/feeds"
     case .postOnboardingFolder:
-      return "/api/folders/onboarding"
+      return baseFolderRoutePath + "/onboarding"
     case let .deleteFolder(folderId), let .patchFolder(folderId, _):
-      return "/api/folders/\(folderId)"
+      return baseFolderRoutePath + "/\(folderId)"
+    case .patchFeedFolder:
+      return baseFolderRoutePath + "/feed"
     }
   }
   
@@ -41,7 +46,7 @@ extension FolderEndpoint: BaseTargetType {
       return .post
     case .deleteFolder:
       return .delete
-    case .patchFolder:
+    case .patchFolder, .patchFeedFolder:
       return .patch
     }
   }
@@ -73,6 +78,12 @@ extension FolderEndpoint: BaseTargetType {
       
     case let .patchFolder(_, name):
       return .requestParameters(parameters: [
+        "name" : name
+      ], encoding: JSONEncoding.default)
+      
+    case let .patchFeedFolder(feedId, name):
+      return .requestParameters(parameters: [
+        "feedId" : feedId,
         "name" : name
       ], encoding: JSONEncoding.default)
     }

@@ -52,6 +52,7 @@ public struct RootFeature: Reducer {
     Reduce { state, action in
       switch action {
       case .onAppear:
+        userDefault.set(true, .isPopGestureEnabled)
         return .run {  send in
           try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
           
