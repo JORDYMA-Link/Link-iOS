@@ -28,7 +28,7 @@ struct SummaryStatusView: View {
               deleteAction: { store.send(.deleteButtonTapped(item.feedId)) }
             )
             .onTapGesture {
-              if item.status != .failed {
+              if item.status == .completed {
                 store.send(.summaryStatusItemTapped(item.feedId))
               }
             }
