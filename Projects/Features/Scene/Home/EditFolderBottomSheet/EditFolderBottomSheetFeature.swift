@@ -38,8 +38,7 @@ public struct EditFolderBottomSheetFeature {
     
     // MARK: Inner Business Action
     case fetchFolderList(String)
-    case fetchFeed(Int)
-    case patchFeed(feedId: Int, title: String, summary: String, keywords: [String], memo: String)
+    case patchFeedFolder(Int, String)
     
     // MARK: Inner SetState Action
     case setFolderList([Folder])
@@ -56,8 +55,6 @@ public struct EditFolderBottomSheetFeature {
   }
   
   @Dependency(\.folderClient) private var folderClient
-  @Dependency(\.feedClient) private var feedClient
-  @Dependency(\.linkClient) private var linkClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
@@ -75,7 +72,7 @@ public struct EditFolderBottomSheetFeature {
         
       case let .folderCellTapped(folder):
         state.selectedFolder = folder
-        return .run { [state] send in await send(.fetchFeed(state.feedId)) }
+        return .run { [state] send in await send(.patchFeedFolder(state.feedId, folder.name)) }
         
       case .closeButtonTapped:
         state.folderList = []
@@ -106,33 +103,19 @@ public struct EditFolderBottomSheetFeature {
           }
         )
         
-      case let .fetchFeed(feedId):
+      case let .patchFeedFolder(feedId, name):
         return .run(
           operation: { send in
-            let feed = try await feedClient.getFeed(feedId)
-            
-            await send(.patchFeed(feedId: feed.feedId, title: feed.title, summary: feed.summary, keywords: feed.keywords, memo: feed.memo))
-          },
-          catch: { error, send in
-            print(error)
-          }
-        )
-        
-      case let .patchFeed(feedId, title, summary, keywords, memo):
-        guard let selectedFolder = state.selectedFolder else { return .none }
-        
-        return .run(
-          operation: { send in
-            _ = try await linkClient.patchLink(feedId, selectedFolder.name, title, summary, keywords, memo)
+            let feedFolder = try await folderClient.patchFeedFolder(feedId, name)
             
             await send(.closeButtonTapped)
-            await send(.delegate(.didUpdateFolder(feedId, selectedFolder)))
+            await send(.delegate(.didUpdateFolder(feedId, feedFolder)))
           },
           catch: { error, send in
             print(error)
           }
         )
-        
+                
       case let .setFolderList(folderList):
         state.folderList = folderList
         return .none
