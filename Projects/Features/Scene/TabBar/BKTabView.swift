@@ -71,8 +71,8 @@ public struct BKTabView: View {
           }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .onAppear { UITabBar.appearance().isHidden = true }
         .popGestureEnabled()
+        .onAppear { UITabBar.appearance().isHidden = true }
       } destination: { store in
         WithPerceptionTracking {
           switch store.state {
