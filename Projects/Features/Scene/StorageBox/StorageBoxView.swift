@@ -28,7 +28,7 @@ public struct StorageBoxView: View {
           VStack(spacing: 0) {
             BKSearchBanner(
               searchAction: { store.send(.searchBannerTapped) },
-              calendarAction: {}
+              calendarAction: { store.send(.searchBannerCalendarTapped) }
             )
             .storageBoxBannerBackgroundView()
             
@@ -55,6 +55,7 @@ public struct StorageBoxView: View {
             .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
           }
         }
+        .refreshable { store.send(.pullToRefresh) }
         .background(Color.bkColor(.gray300))
         .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
@@ -62,22 +63,6 @@ public struct StorageBoxView: View {
       }
       .padding(.bottom, 52)
       .background(Color.bkColor(.white))
-      .navigationDestination(
-        item: $store.scope(
-          state: \.searchKeyword,
-          action: \.searchKeyword
-        )
-      ) { store in
-        SearchView(store: store)
-      }
-      .navigationDestination(
-        item: $store.scope(
-          state: \.storageBoxFeedList,
-          action: \.storageBoxFeedList
-        )
-      ) { store in
-        StorageBoxFeedListView(store: store)
-      }
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         isScrollDetected = $0
       }

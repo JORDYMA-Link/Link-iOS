@@ -111,11 +111,7 @@ struct LinkView: View {
       .ignoresSafeArea(edges: .top)
       .toolbar(.hidden, for: .navigationBar)
       .animation(.easeInOut, value: isScrollDetected)
-      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-        self.isScrollDetected = $0
-      }
-      .task { await store.send(.onTask).finish() }
-      .onWillDisappear { onWillDisappear(store.feed) }
+      .linkPopGestureOnlyDisabled(store.linkType)
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
         urlString: store.feed.originUrl,
@@ -126,6 +122,12 @@ struct LinkView: View {
         toastType: .clipboard,
         toastContent: { BKClipboardToast() }
       )
+      .fullScreenCover(
+        isPresented: $store.isWebViewPresented) {
+          if let url = URL(string: store.feed.originUrl) {
+            BKContainerWebView(url: url)
+          }
+        }
       .fullScreenCover(
         item: $store.scope(
           state: \.editLink,
@@ -159,13 +161,23 @@ struct LinkView: View {
           action: { store.send(.menuBottomSheet($0)) }
         )
       }
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
+      }
+      .task { await store.send(.onTask).finish() }
+      .onWillDisappear {
+        // FeedDetail에서만 스와이프백이 가능하기 때문에 WillDisappear 시 부모뷰 업데이트
+        if store.linkType == .feedDetail {
+          onWillDisappear(store.feed)
+        }
+      }
     }
   }
   
   @ViewBuilder
   private var folderTitle: some View {
     switch store.linkType {
-    case .feedDetail:
+    case .feedDetail, .summarySave:
       LinkTitleButton(
         title: "폴더",
         buttonTitle: "수정",
@@ -190,7 +202,7 @@ struct LinkView: View {
   @ViewBuilder
   private var folderSection: some View {
     switch store.linkType {
-    case .feedDetail:
+    case .feedDetail, .summarySave:
       BKFolderItem(
         folderItemType: .default,
         title: store.feed.folderName,
@@ -221,13 +233,25 @@ struct LinkView: View {
   @ViewBuilder
   private var bottomSafeAreaButton: some View {
     switch store.linkType {
-    case .feedDetail:
-      BKRoundedButton(title: "원문 보기", confirmAction: {})
+    case .feedDetail, .summarySave:
+      BKRoundedButton(title: "원문 보기", confirmAction: { store.send(.showURLButtonTapped) })
     case .summaryCompleted:
       HStack(spacing: 8) {
-        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {})
-        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: {})
+        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: { store.send(.summaryEditButtonTapped) })
+        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: { store.send(.summarySaveButtonTapped) })
       }
+    }
+  }
+}
+
+private extension View {
+  @ViewBuilder
+  func linkPopGestureOnlyDisabled(_ type: LinkType) -> some View {
+    if type != .feedDetail {
+      self
+        .popGestureOnlyDisabled()
+    } else {
+      self
     }
   }
 }

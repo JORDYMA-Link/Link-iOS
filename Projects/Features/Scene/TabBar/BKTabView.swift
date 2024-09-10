@@ -47,32 +47,88 @@ public struct BKTabView: View {
   }
   
   public var body: some View {
-    NavigationStack {
-      WithPerceptionTracking {
-        TabView(selection: $store.currentItem) {
-          switch store.currentItem {
-          case .home:
-            HomeContainerView(store: store.scope(state: \.home, action: \.home), tabbar: tabbar)
-          case .folder:
-            StorageBoxContainerView(store: store.scope(state: \.storageBox, action: \.storageBox), tabbar: tabbar)
+    WithPerceptionTracking {
+      NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+        WithPerceptionTracking {
+          TabView(selection: $store.currentItem) {
+            switch store.currentItem {
+            case .home:
+              HomeContainerView(
+                store: store.scope(state: \.home, action: \.home),
+                tabbar: tabbar,
+                summaryToastIsPresented: .constant(true),
+                toastAction: { store.send(.routeSummaryStatusButtonTapped) }
+              )
+              
+            case .folder:
+              StorageBoxContainerView(
+                store: store.scope(state: \.storageBox, action: \.storageBox),
+                tabbar: tabbar,
+                summaryToastIsPresented: .constant(true),
+                toastAction: { store.send(.routeSummaryStatusButtonTapped) }
+              )
+            }
           }
         }
         .toolbar(.hidden, for: .navigationBar)
-        .toast(
-          isPresented: .constant(false),
-          toastType: .summary,
-          toastContent: {
-            BKSummaryToast(
-              summaryType: .summaryComplete,
-              action: {}
-            )
+        .popGestureEnabled()
+        .onAppear { UITabBar.appearance().isHidden = true }
+      } destination: { store in
+        WithPerceptionTracking {
+          switch store.state {
+          case .Setting:
+            if let store = store.scope(
+              state: \.Setting,
+              action: \.Setting) {
+              SettingView(store: store)
+            }
+            
+          case .SearchKeyword:
+            if let store = store.scope(
+              state: \.SearchKeyword,
+              action: \.SearchKeyword) {
+              SearchView(store: store)
+            }
+            
+          case .Calendar:
+            if let store = store.scope(
+              state: \.Calendar,
+              action: \.Calendar) {
+              CalendarView(store: store)
+            }
+            
+          case .StorageBoxFeedList:
+            if let store = store.scope(
+              state: \.StorageBoxFeedList,
+              action: \.StorageBoxFeedList) {
+              StorageBoxFeedListView(store: store)
+            }
+            
+            
+          case .SaveLink:
+            if let store = store.scope(
+              state: \.SaveLink,
+              action: \.SaveLink) {
+              SaveLinkView(store: store)
+            }
+            
+          case .SummaryStatus:
+            if let store = store.scope(
+              state: \.SummaryStatus,
+              action: \.SummaryStatus) {
+              SummaryStatusView(store: store)
+            }
+            
+          case .Link:
+            if let store = store.scope(
+              state: \.Link,
+              action: \.Link) {
+              LinkView(
+                store: store,
+                onWillDisappear: { self.store.send(.feedDetailWillDisappear($0)) }
+              )
+            }
           }
-        )
-        .navigationDestination(isPresented: $store.isSaveLinkPresented) {
-          SaveLinkView(store: Store(initialState: SaveLinkFeature.State(), reducer: { SaveLinkFeature() } ))
-        }
-        .onAppear {
-          UITabBar.appearance().isHidden = true
         }
       }
     }
