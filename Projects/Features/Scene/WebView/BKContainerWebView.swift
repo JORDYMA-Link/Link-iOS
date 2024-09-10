@@ -30,6 +30,11 @@ struct BKContainerWebView: View {
         url: url,
         viewModel: viewModel
       )
+      .overlay{
+        if viewModel.isLoading {
+          ProgressView()
+        }
+      }
       
       BottomToolBar(
         viewModel: viewModel

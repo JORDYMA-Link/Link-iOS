@@ -13,6 +13,7 @@ final class BKWebViewModel: ObservableObject {
   @Published var title: String = ""
   @Published var canGoBack = false
   @Published var canGoForward = false
+  @Published var isLoading = true
   
   var webView: WKWebView?
   

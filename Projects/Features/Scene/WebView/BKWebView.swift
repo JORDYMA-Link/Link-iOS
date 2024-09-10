@@ -54,4 +54,8 @@ final class Coordinator: NSObject, WKNavigationDelegate {
     self.parent.viewModel.canGoBack = webView.canGoBack
     self.parent.viewModel.canGoForward = webView.canGoForward
   }
+  
+  func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    self.parent.viewModel.isLoading = false
+  }
 }
