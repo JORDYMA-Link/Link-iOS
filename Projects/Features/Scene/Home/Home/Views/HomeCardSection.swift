@@ -74,7 +74,7 @@ struct HomeCardSection: View {
           keyword: item.keywords,
           isUncategorized: item.isUnclassified,
           recommendedFolders: item.recommendedFolder,
-          recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped($0)) },
+          recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped(item.feedId, $0)) },
           addFolderAction: { store.send(.cardItemAddFolderTapped) }
         )
         .onTapGesture { store.send(.cardItemTapped(item.feedId)) }

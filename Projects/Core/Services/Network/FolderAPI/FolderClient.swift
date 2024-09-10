@@ -25,6 +25,8 @@ public struct FolderClient {
   public var deleteFolder: @Sendable (_ folderId: Int) async throws -> Void
   /// 폴더 수정
   public var patchFolder: @Sendable (_ folderId: Int, _ name: String) async throws -> Folder
+  /// 피드에 폴더 지정
+  public var patchFeedFolder: @Sendable (_ folderId: Int, _ name: String) async throws -> Folder
 }
 
 extension FolderClient: DependencyKey {
@@ -54,6 +56,10 @@ extension FolderClient: DependencyKey {
       },
       patchFolder: { folderId, name in
         let responseDTO: FolderResponse = try await folderProvider.request(.patchFolder(folderId: folderId, name: name), modelType: FolderResponse.self)
+        return responseDTO.toDomain()
+      },
+      patchFeedFolder: { feedId, name in
+        let responseDTO: FolderResponse = try await folderProvider.request(.patchFeedFolder(feedId: feedId, name: name), modelType: FolderResponse.self)
         return responseDTO.toDomain()
       }
     )
