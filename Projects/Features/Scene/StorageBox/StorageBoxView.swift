@@ -55,6 +55,7 @@ public struct StorageBoxView: View {
             .padding(EdgeInsets(top: 32, leading: 16, bottom: 32, trailing: 16))
           }
         }
+        .refreshable { store.send(.pullToRefresh) }
         .background(Color.bkColor(.gray300))
         .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
           scrollView.delegate = scrollViewDelegate
