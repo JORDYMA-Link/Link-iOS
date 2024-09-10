@@ -50,7 +50,7 @@ public struct HomeFeature: Reducer {
     case cardItemTapped(Int)
     case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
-    case cardItemRecommendedFolderTapped(String)
+    case cardItemRecommendedFolderTapped(Int, String)
     case cardItemAddFolderTapped
     case feedDetailWillDisappear(Feed)
     
@@ -60,8 +60,7 @@ public struct HomeFeature: Reducer {
     case fetchFeedList(CategoryType, Int)
     case patchBookmark(Int, Bool)
     case deleteFeed(Int)
-    case postFolder(String)
-    case fetchFolderList(String)
+    case patchFeedFolder(Int, String)
     
     // MARK: Inner SetState Action
     case setFeedList([FeedCard])
@@ -174,10 +173,8 @@ public struct HomeFeature: Reducer {
         state.isMenuBottomSheetPresented = true
         return .none
         
-      case let .cardItemRecommendedFolderTapped(folderName):
-        /// addFolder 시 이미 존재하는 에러 발생 -> 해당 폴더의 폴더 리스트로이동
-        /// add Folder 성공 시 -> 폴더 생성 후 해당 폴더의 피드 리스트 이동
-        return .send(.postFolder(folderName))
+      case let .cardItemRecommendedFolderTapped(feedId, folderName):
+        return .send(.patchFeedFolder(feedId, folderName))
         
       case .cardItemAddFolderTapped:
         return .send(.addFolderBottomSheet(.addFolderTapped))
@@ -250,34 +247,19 @@ public struct HomeFeature: Reducer {
             print(error)
           }
         )
-        
-      case let .postFolder(folderName):
+                
+      case let .patchFeedFolder(feedId, name):
         return .run(
           operation: { send in
-            let addFolder = try await folderClient.postFolder(folderName)
+            let feedFolder = try await folderClient.patchFeedFolder(feedId, name)
             
-            await send(.delegate(.routeStorageBoxFeedList(addFolder)))
-          },
-          catch: { error, send in
-            /// 이미 존재하는 폴더 에러 분기 처리 필요
-            await send(.fetchFolderList(folderName))
-          }
-        )
-        
-      case let .fetchFolderList(folderName):
-        return .run(
-          operation: { send in
-            async let folderList = try folderClient.getFolders()
-            
-            guard let recommendedFolder = try await folderList.filter({ $0.name == folderName }).first else { return }
-            
-            await send(.delegate(.routeStorageBoxFeedList(recommendedFolder)))
+            await send(.delegate(.routeStorageBoxFeedList(feedFolder)))
           },
           catch: { error, send in
             print(error)
           }
         )
-        
+                
       case let .setFeedList(feedList):
         if state.page == 0 {
           state.feedList = feedList
