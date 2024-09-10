@@ -76,6 +76,35 @@ public struct BKTabView: View {
       } destination: { store in
         WithPerceptionTracking {
           switch store.state {
+          case .Setting:
+            if let store = store.scope(
+              state: \.Setting,
+              action: \.Setting) {
+              SettingView(store: store)
+            }
+            
+          case .SearchKeyword:
+            if let store = store.scope(
+              state: \.SearchKeyword,
+              action: \.SearchKeyword) {
+              SearchView(store: store)
+            }
+            
+          case .Calendar:
+            if let store = store.scope(
+              state: \.Calendar,
+              action: \.Calendar) {
+              CalendarView(store: store)
+            }
+            
+          case .StorageBoxFeedList:
+            if let store = store.scope(
+              state: \.StorageBoxFeedList,
+              action: \.StorageBoxFeedList) {
+              StorageBoxFeedListView(store: store)
+            }
+            
+            
           case .SaveLink:
             if let store = store.scope(
               state: \.SaveLink,
@@ -94,7 +123,10 @@ public struct BKTabView: View {
             if let store = store.scope(
               state: \.Link,
               action: \.Link) {
-              LinkView(store: store, onWillDisappear: { _ in })
+              LinkView(
+                store: store,
+                onWillDisappear: { self.store.send(.feedDetailWillDisappear($0)) }
+              )
             }
           }
         }

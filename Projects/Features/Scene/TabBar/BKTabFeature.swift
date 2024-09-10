@@ -8,6 +8,8 @@
 
 import Foundation
 
+import Models
+
 import ComposableArchitecture
 
 @Reducer
@@ -16,11 +18,15 @@ public struct BKTabFeature {
   
   @Reducer(state: .equatable)
   public enum Path {
+    case Setting(SettingFeature)
+    case SearchKeyword(SearchFeature)
+    case Calendar(CalendarViewFeature)
+    case StorageBoxFeedList(StorageBoxFeedListFeature)
     case SaveLink(SaveLinkFeature)
     case SummaryStatus(SummaryStatusFeature)
     case Link(LinkFeature)
   }
-    
+  
   @ObservableState
   public struct State: Equatable {
     var currentItem: BKTabViewType = .home
@@ -32,13 +38,15 @@ public struct BKTabFeature {
     
     public init() {}
   }
-    
+  
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     // MARK: User Action
     case roundedTabIconTapped
     case saveLinkButtonTapped
     case routeSummaryStatusButtonTapped
+    /// 피드 디테일 WillDisappear
+    case feedDetailWillDisappear(Feed)
     
     case path(StackAction<Path.State, Path.Action>)
     case storageBox(StorageBoxFeature.Action)
@@ -56,38 +64,75 @@ public struct BKTabFeature {
       case .binding:
         return .none
         
+        /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
         state.isSaveContentPresented.toggle()
         return .none
-
+        
+        /// - 링크 저장 버튼 눌렀을 때
       case .saveLinkButtonTapped:
         state.isSaveContentPresented.toggle()
         state.path.append(.SaveLink(SaveLinkFeature.State()))
         return .none
         
+        /// - 링크 요약 토스트 -> 보러가기 버튼 눌렀을 때
       case .routeSummaryStatusButtonTapped:
         state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
         return .none
+                
+        /// - 네비게이션 바 `세팅`버튼 눌렀을 때
+      case .home(.delegate(.routeSetting)):
+        state.path.append(.Setting(SettingFeature.State()))
+        return .none
         
-      // 링크요약 리스트 화면 Delegate
+        /// - 상단 배너  `콘텐츠를 찾아드립니다` 눌렀을 때
+      case .home(.delegate(.routeSearchKeyword)), .storageBox(.delegate(.routeSearchKeyword)):
+        state.path.append(.SearchKeyword(SearchFeature.State()))
+        return .none
+        
+        /// - 상단 배너  `캘린더`  버튼 눌렀을 때
+      case .home(.delegate(.routeCalendar)), .storageBox(.delegate(.routeCalendar)):
+        state.path.append(.Calendar(CalendarViewFeature.State()))
+        return .none
+        
+        /// - 홈 ->  `피드 디테일` 진입 시
+      case let .home(.delegate(.routeFeedDetail(feedId))):
+        state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
+        return .none
+        
+        /// - 피드 디테일 진입 후 `피드 삭제하기` 눌렀을 때
+      case let .path(.element(id: _, action: .Link(.delegate(.deleteFeed(feed))))):
+        state.path.removeAll()
+        return .send(.home(.setDeleteFeed(feed.feedId)))
+        
+        /// - 피드 디테일 진입 후 `WillDisappear` 됐을 때
+      case let .feedDetailWillDisappear(feed):
+        return .send(.home(.feedDetailWillDisappear(feed)))
+        
+        /// - 홈(미분류) -> `추천 폴더` 눌렀을 때  && 폴더함 -> `폴더` 진입 시
+      case let .home(.delegate(.routeStorageBoxFeedList(folder))), let .storageBox(.delegate(.routeStorageBoxFeedList(folder))):
+        state.path.append(.StorageBoxFeedList(StorageBoxFeedListFeature.State(folder: folder)))
+        return .none
+        
+        /// - 링크 요약 리스트 화면 -> `요약 리스트 아이템` 눌렀을 때 `요약 완료 화면`으로 이동
       case let .path(.element(id: _, action: .SummaryStatus(.delegate(.summaryStatusItemTapped(feedId))))):
-        state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted(feedId: feedId))))
+        state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
         return .none
-                
-      // 요약완료 화면 Delegate
+        
+        /// - 요약 완료 화면 ->  `확인` 버튼 눌렀을 때 `링크 요약 이후 저장 화면`으로 이동
       case let .path(.element(id: _, action: .Link(.delegate(.summaryCompletedSaveButtonTapped(feedId))))):
-        state.path.append(.Link(LinkFeature.State(linkType: .summarySave(feedId: feedId))))
+        state.path.append(.Link(LinkFeature.State(linkType: .summarySave, feedId: feedId)))
         return .none
-                
+        
+        /// - 요약 완료 화면 -> `확인` 버튼 누르지 않고 `뒤로가기` 버튼 눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.summaryCompletedCloseButtonTapped)))):
         state.path.removeAll()
-        /// 모달 띄우기
+        /// - 링크 저장 독촉 모달 띄우기
         return .none
         
-      // 요약완료 -> 요약완료 확인화면 Delegate
+        /// - 링크 요약 이후 저장 화면 -> `뒤로가기` 버튼 눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
-        /// homeView 리로드
         return .none
         
       default:
