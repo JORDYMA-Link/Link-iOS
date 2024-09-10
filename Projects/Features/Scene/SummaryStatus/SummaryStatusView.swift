@@ -16,6 +16,7 @@ import ComposableArchitecture
 
 struct SummaryStatusView: View {
   @Perception.Bindable var store: StoreOf<SummaryStatusFeature>
+  private let timer = Timer.publish(every: 5, tolerance: 0.5, on: .main, in: .common).autoconnect()
   
   var body: some View {
     WithPerceptionTracking {
@@ -46,7 +47,12 @@ struct SummaryStatusView: View {
           )
         }
       }
+      .onReceive(timer) { time in
+        /// 5초에 한번 API 재통신
+        store.send(.onAppear)
+      }
       .onAppear { store.send(.onAppear) }
+      .onDisappear { timer.upstream.connect().cancel() }
     }
   }
 }
