@@ -73,6 +73,7 @@ public struct LinkFeature {
     case addFolderItemTapped
     case folderItemTapped(any FolderItem)
     case editMemoButtonTapeed
+    case summaryEditButtonTapped
     case summarySaveButtonTapped
     
     // MARK: Inner Business Action
@@ -114,6 +115,7 @@ public struct LinkFeature {
   private enum ThrottleId {
     case deleteButtonTapped
     case saveButtonTapped
+    case summarySaveButtonTapped
   }
   
   public var body: some ReducerOf<Self> {
@@ -196,9 +198,12 @@ public struct LinkFeature {
         let feed = state.feed
         return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
         
+      case .summaryEditButtonTapped:
+        return .send(.editLinkPresented)
+        
       case .summarySaveButtonTapped:
-        return .run { [state] send in
-          await send(.delegate(.summaryCompletedSaveButtonTapped(state.feed.feedId)))
+        return .run { send in await send(.patchFeed) }
+          .throttle(id: ThrottleId.summarySaveButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         }
         
       case let .fetchFeedDetail(feedId):
@@ -253,7 +258,7 @@ public struct LinkFeature {
       case .patchFeed:
         return .run(
           operation: { [state] send in
-            _ = try await linkClient.patchLink(
+            let feedId = try await linkClient.patchLink(
               state.feed.feedId,
               state.feed.folderName,
               state.feed.title,
@@ -261,6 +266,8 @@ public struct LinkFeature {
               state.feed.keywords,
               state.feed.memo
             )
+            
+            await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
           },
           catch: { error, send in
             print(error)
@@ -289,8 +296,7 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .link(state.feed))
-        return .none
+        return .send(.editLinkPresented)
         
       case .menuBottomSheet(.deleteLinkItemTapped):
         state.isMenuBottomSheetPresented = false
@@ -309,6 +315,10 @@ public struct LinkFeature {
         
       case let .clipboardToastPresented(isPresented):
         state.isClipboardToastPresented = isPresented
+        return .none
+        
+      case .editLinkPresented:
+        state.editLink = .init(editLinkType: .link(state.feed))
         return .none
         
       default:
