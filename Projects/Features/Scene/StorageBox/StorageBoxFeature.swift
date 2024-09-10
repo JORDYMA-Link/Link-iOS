@@ -39,6 +39,7 @@ public struct StorageBoxFeature: Reducer {
     case onViewDidLoad
     case searchBannerTapped
     case searchBannerCalendarTapped
+    case pullToRefresh
     case addStorageBoxTapped
     case storageBoxTapped(Folder)
     case storageBoxMenuTapped(Folder)
@@ -72,6 +73,10 @@ public struct StorageBoxFeature: Reducer {
   @Dependency(\.folderClient) private var folderClient
   @Dependency(\.alertClient) private var alertClient
   
+  private enum DebounceId {
+    case pullToRefresh
+  }
+  
   public var body: some ReducerOf<Self> {
     Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
       AddFolderBottomSheetFeature()
@@ -98,6 +103,9 @@ public struct StorageBoxFeature: Reducer {
         
       case .searchBannerCalendarTapped:
         return .send(.delegate(.routeCalendar))
+        
+      case .pullToRefresh:
+        return .send(.fetchFolderList)
         
       case .addStorageBoxTapped:
         return .send(.addFolderBottomSheet(.addFolderTapped))
