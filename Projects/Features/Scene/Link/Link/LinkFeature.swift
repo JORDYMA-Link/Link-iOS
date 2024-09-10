@@ -48,6 +48,7 @@ public struct LinkFeature {
     @Presents var editLink: EditLinkFeature.State?
     
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
     
     public init(
@@ -99,6 +100,7 @@ public struct LinkFeature {
     
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     case editMemoBottomSheet(EditMemoBottomSheetFeature.Action)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -124,6 +126,10 @@ public struct LinkFeature {
   public var body: some ReducerOf<Self> {
     Scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet) {
       EditFolderBottomSheetFeature()
+    }
+    
+    Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
+      AddFolderBottomSheetFeature()
     }
     
     Scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet) {
@@ -190,8 +196,7 @@ public struct LinkFeature {
         return .none
         
       case .addFolderItemTapped:
-        print("폴더추가 바텀시트 오픈")
-        return .none
+        return .send(.addFolderBottomSheet(.addFolderTapped))
         
       case let .folderItemTapped(folder):
         state.selectedFolder = folder.folderName
@@ -287,6 +292,14 @@ public struct LinkFeature {
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard state.feed.folderName != folder.name else { return .none }
         state.feed.folderName = folder.name
+        return .none
+        
+      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
+        state.selectedFolder = folder.name
+        
+        var folderList = state.feed.recommendFolders ?? []
+        folderList.append(folder.name)
+        state.feed.recommendFolders = folderList
         return .none
         
       case let .editMemoBottomSheet(.delegate(.didUpdateMemo(feed))):
