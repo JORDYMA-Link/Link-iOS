@@ -16,19 +16,21 @@ import ComposableArchitecture
 
 public enum LinkType: Equatable {
   /// 콘텐츠 디테일
-  case feedDetail(feedId: Int)
+  case feedDetail
   /// 링크 요약
-  case summaryCompleted(feedId: Int)
+  case summaryCompleted
   /// 링크 요약 이후 저장
-  case summarySave(feedId: Int)
+  case summarySave
 }
 
 @Reducer
 public struct LinkFeature {
   @ObservableState
   public struct State: Equatable {
-    /// 콘텐츠 디테일 or 링크 요약 분기 처리
+    /// 콘텐츠 디테일 or 링크 요약 or 링크 요약 이후 저장 분기 처리
     var linkType: LinkType
+    /// init FeedId
+    var feedId: Int
     /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
     var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
     /// 링크 요약 화면 시 선택할 폴더
@@ -47,8 +49,12 @@ public struct LinkFeature {
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
     
-    public init(linkType: LinkType) {
+    public init(
+      linkType: LinkType,
+      feedId: Int
+    ) {
       self.linkType = linkType
+      self.feedId = feedId
     }
   }
   
@@ -56,7 +62,6 @@ public struct LinkFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
-    case onA
     case onTask
     case closeButtonTapped
     case menuButtonTapped
@@ -85,7 +90,6 @@ public struct LinkFeature {
       case summaryCompletedSaveButtonTapped(Int)
       case summaryCompletedCloseButtonTapped
       case summarySaveCloseButtonTapped
-      case popStack
       case deleteFeed(Feed)
     }
     case delegate(Delegate)
@@ -127,19 +131,18 @@ public struct LinkFeature {
       switch action {
       case .binding:
         return .none
-        
-      case .onA:
-        return .run { send in
-          await send(.delegate(.popStack))
-        }
-        
+                
       case .onTask:
         switch state.linkType {
-        case let .feedDetail(feedId), let .summarySave(feedId):
-          return .run { send in await send(.fetchFeedDetail(feedId)) }
+        case .feedDetail, .summarySave:
+          return .run { [state] send in
+            await send(.fetchFeedDetail(state.feedId))
+          }
           
-        case let .summaryCompleted(feedId):
-          return .run { send in await send(.fetchLinkSummary(feedId)) }
+        case .summaryCompleted:
+          return .run { [state] send in
+            await send(.fetchLinkSummary(state.feedId))
+          }
         }
         
       case .closeButtonTapped:
@@ -228,7 +231,6 @@ public struct LinkFeature {
             _ = try await feedClient.deleteFeed(feedId)
             
             await send(.delegate(.deleteFeed(state.feed)))
-            await dismiss()
           },
           catch: { error, send in
             print(error)
@@ -299,6 +301,7 @@ public struct LinkFeature {
         return .none
         
       case .menuBottomSheet(.deleteLinkItemTapped):
+        state.isMenuBottomSheetPresented = false
         return .run { [state] send in
           await alertClient.present(.init(
             title: "삭제",
