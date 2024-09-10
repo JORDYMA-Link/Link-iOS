@@ -43,6 +43,7 @@ public struct LinkFeature {
     var isMenuBottomSheetPresented: Bool = false
     var isClipboardPopupPresented: Bool = false
     var isClipboardToastPresented: Bool = false
+    var isWebViewPresented: Bool = false
     
     @Presents var editLink: EditLinkFeature.State?
     
@@ -73,6 +74,7 @@ public struct LinkFeature {
     case addFolderItemTapped
     case folderItemTapped(any FolderItem)
     case editMemoButtonTapeed
+    case showURLButtonTapped
     case summaryEditButtonTapped
     case summarySaveButtonTapped
     
@@ -105,6 +107,7 @@ public struct LinkFeature {
     case menuBottomSheetPresented(Bool)
     case clipboardPopupPresented(Bool)
     case clipboardToastPresented(Bool)
+    case editLinkPresented
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -198,13 +201,16 @@ public struct LinkFeature {
         let feed = state.feed
         return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
         
+      case .showURLButtonTapped:
+        state.isWebViewPresented = true
+        return .none
+        
       case .summaryEditButtonTapped:
         return .send(.editLinkPresented)
         
       case .summarySaveButtonTapped:
         return .run { send in await send(.patchFeed) }
           .throttle(id: ThrottleId.summarySaveButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
-        }
         
       case let .fetchFeedDetail(feedId):
         return .run(

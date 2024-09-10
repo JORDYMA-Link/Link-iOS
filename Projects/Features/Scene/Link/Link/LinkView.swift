@@ -123,6 +123,12 @@ struct LinkView: View {
         toastContent: { BKClipboardToast() }
       )
       .fullScreenCover(
+        isPresented: $store.isWebViewPresented) {
+          if let url = URL(string: store.feed.originUrl) {
+            BKContainerWebView(url: url)
+          }
+        }
+      .fullScreenCover(
         item: $store.scope(
           state: \.editLink,
           action: \.editLink)
@@ -228,10 +234,10 @@ struct LinkView: View {
   private var bottomSafeAreaButton: some View {
     switch store.linkType {
     case .feedDetail, .summarySave:
-      BKRoundedButton(title: "원문 보기", confirmAction: {})
+      BKRoundedButton(title: "원문 보기", confirmAction: { store.send(.showURLButtonTapped) })
     case .summaryCompleted:
       HStack(spacing: 8) {
-        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {})
+        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: { store.send(.summaryEditButtonTapped) })
         BKRoundedButton(buttonType: .main, title: "확인", confirmAction: { store.send(.summarySaveButtonTapped) })
       }
     }
