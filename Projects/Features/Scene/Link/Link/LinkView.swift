@@ -111,12 +111,7 @@ struct LinkView: View {
       .ignoresSafeArea(edges: .top)
       .toolbar(.hidden, for: .navigationBar)
       .animation(.easeInOut, value: isScrollDetected)
-      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-        self.isScrollDetected = $0
-      }
-      .task { await store.send(.onTask).finish() }
-      .onWillDisappear { onWillDisappear(store.feed) }
-      .popGestureOnlyDisabled()
+      .linkPopGestureOnlyDisabled(store.linkType)
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
         urlString: store.feed.originUrl,
@@ -159,6 +154,16 @@ struct LinkView: View {
           menuItems: [.editLink, .deleteLink],
           action: { store.send(.menuBottomSheet($0)) }
         )
+      }
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
+      }
+      .task { await store.send(.onTask).finish() }
+      .onWillDisappear {
+        // FeedDetail에서만 스와이프백이 가능하기 때문에 WillDisappear 시 부모뷰 업데이트
+        if store.linkType == .feedDetail {
+          onWillDisappear(store.feed)
+        }
       }
     }
   }
@@ -229,6 +234,18 @@ struct LinkView: View {
         BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {})
         BKRoundedButton(buttonType: .main, title: "확인", confirmAction: { store.send(.summarySaveButtonTapped) })
       }
+    }
+  }
+}
+
+private extension View {
+  @ViewBuilder
+  func linkPopGestureOnlyDisabled(_ type: LinkType) -> some View {
+    if type != .feedDetail {
+      self
+        .popGestureOnlyDisabled()
+    } else {
+      self
     }
   }
 }
