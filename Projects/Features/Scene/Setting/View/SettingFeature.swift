@@ -130,9 +130,11 @@ public struct SettingFeature {
       case let .changeNickName(targetNickname):
         state.nickname = targetNickname
         state.targetNickname = ""
+        return .none
         
       case let .fetchLatestVersion(version):
         state.latestAppVersion = version ?? state.currentAppVersion
+        return .none
         
       //User Action
       case .tappedNicknameEdit:
@@ -158,15 +160,19 @@ public struct SettingFeature {
         
       case .tappedNotice:
         state.noticeContent = .init()
+        return .none
         
       case .changeConfirmWithdrawModal:
         state.showWithdrawModal.toggle()
+        return .none
         
       case .confirmedWithdrawWarning:
         state.isConfirmedWithdrawWarning.toggle()
+        return .none
         
       case .cancelCompletedEditingNickname:
         state.showEditNicknameSheet = false
+        return .none
         
       case .tappedCompletedEditingNickname:
         guard state.targetNicknameValidation, !state.targetNickname.isEmpty else { return .none }
@@ -233,11 +239,11 @@ public struct SettingFeature {
         } else {
           setValidationResult(isValid: true, message: "")
         }
+        return .none
         
       default:
-        break
+        return .none
       }
-      return .none
     }
     .ifLet(\.$noticeContent, action: \.noticeContent) {
       NoticeFeature()
