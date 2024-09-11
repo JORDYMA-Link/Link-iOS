@@ -9,9 +9,9 @@
 import Foundation
 
 import Models
+import Services
 
 import ComposableArchitecture
-
 
 @Reducer
 public struct SettingFeature {
@@ -47,15 +47,26 @@ public struct SettingFeature {
     case tappedServiceInfo
     case tappedLogOut
     case tappedWithdrawCell
+    case signoutButtonTapped
     case changeConfirmWithdrawModal
     case confirmedWithdrawWarning
     case tappedCompletedEditingNickname
     case cancelCompletedEditingNickname
     
+    case postLogout
+    case postSignout
+    
+    case setDeleteKeychain
+    
     //binding
     case binding(BindingAction<State>)
-    
     case noticeContent(PresentationAction<NoticeFeature.Action>)
+    
+    public enum Delegate {
+      case logout
+      case signout
+    }
+    case delegate(Delegate)
   }
   
   public enum PolicyType {
@@ -97,6 +108,8 @@ public struct SettingFeature {
   
   
   //MARK: - Dependency
+  @Dependency(\.alertClient) private var alertClient
+  @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.settingClient) private var settingClient
   @Dependency(\.authClient) private var authClient
   
@@ -126,10 +139,21 @@ public struct SettingFeature {
         state.showEditNicknameSheet = true
         
       case .tappedLogOut:
-        state.showLogoutConfirmModal.toggle()
+        return .run { send in
+          await alertClient.present(.init(
+            title: "로그아웃",
+            description: "정말 로그아웃 하시겠어요?",
+            buttonType: .doubleButton(left: "아니오", right: "로그아웃"),
+            rightButtonAction: { await send(.postLogout) })
+          )
+        }
         
       case .tappedWithdrawCell:
         state.showWithdrawModal = true
+        return .none
+        
+      case .signoutButtonTapped:
+        return .send(.postSignout)
         
       case .tappedNotice:
         state.noticeContent = .init()
@@ -150,8 +174,42 @@ public struct SettingFeature {
           let response = try await settingClient.requestUserProfile(targetNickName)
           await send(.changeNickName(targetNickname: response.nickname))
         }
-        
       
+      case .postLogout:
+        return .run(
+          operation: { send in
+            let refreshToken = keychainClient.read(.refreshToken)
+            
+             _ = try await authClient.logout(refreshToken)
+            
+            await send(.setDeleteKeychain)
+            await send(.delegate(.logout))
+          },
+          catch : { error, send in
+            print(error)
+          }
+        )
+        
+      case .postSignout:
+        return .run(
+          operation: { send in
+            let refreshToken = keychainClient.read(.refreshToken)
+            
+             _ = try await authClient.signout(refreshToken)
+            
+            await send(.setDeleteKeychain)
+            await send(.delegate(.signout))
+          },
+          catch : { error, send in
+            print(error)
+          }
+        )
+        
+      case .setDeleteKeychain:
+        return .run { send in
+          try await keychainClient.delete(.accessToken)
+          try await keychainClient.delete(.refreshToken)
+        }
         
       case .binding(\.targetNickname):
         let target = state.targetNickname
