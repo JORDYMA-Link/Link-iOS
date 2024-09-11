@@ -11,10 +11,11 @@ import SwiftUI
 public enum BKRoundedButtonType {
   case main
   case gray
+  case black
   
   var tintColor: BKColor {
     switch self {
-    case .main:
+    case .main, .black:
       return .white
     case .gray:
       return .gray900
@@ -27,12 +28,14 @@ public enum BKRoundedButtonType {
       return .main300
     case .gray:
       return .gray300
+    case .black:
+      return .gray900
     }
   }
   
   var stroke: CGFloat {
     switch self {
-    case .main:
+    case .main, .black:
       return 0
     case .gray:
       return 1

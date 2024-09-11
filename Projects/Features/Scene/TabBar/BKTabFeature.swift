@@ -134,7 +134,7 @@ public struct BKTabFeature {
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
         return .none
-        
+                
       default:
         return .none
       }
