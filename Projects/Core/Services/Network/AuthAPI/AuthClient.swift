@@ -10,13 +10,19 @@ import Foundation
 
 import Models
 
-import ComposableArchitecture
-import Moya
+import Dependencies
 
 public struct AuthClient {
+  /// 카카오로그인
   public var requestKakaoLogin: @Sendable (_ request: KakaoLoginRequest) async throws -> TokenInfo
+  /// 애플로그인
   public var requestAppleLogin: @Sendable (_ idToken: String) async throws -> TokenInfo
+  /// 토큰재발급
   public var requestRegenerateToken: @Sendable (_ refreshToken: String) async throws -> TokenInfo
+  /// 로그아웃
+  public var logout: @Sendable (_ refreshToken: String) async throws -> Void
+  /// 회원탈퇴
+  public var signout: @Sendable (_ refreshToken: String) async throws -> Void
 }
 
 extension AuthClient: DependencyKey {
@@ -35,6 +41,12 @@ extension AuthClient: DependencyKey {
       requestRegenerateToken: { refreshToken in
         let responseDTO: TokenResponse = try await authProvider.request(.regenerateToken(refreshToken: refreshToken), modelType: TokenResponse.self)
         return responseDTO.toDomain()
+      },
+      logout: { refreshToken in
+        return try await authProvider.requestPlain(.logout(refreshToken: refreshToken))
+      },
+      signout: { refreshToken in
+        return try await authProvider.requestPlain(.signout(refreshToken: refreshToken))
       }
     )
   }
