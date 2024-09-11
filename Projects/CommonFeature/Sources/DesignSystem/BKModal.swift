@@ -112,10 +112,4 @@ public struct BKModal: View {
     }
 }
 
-#Preview {
-  Text("hello world")
-    .modal(isPresented: .constant(true), type: .linkLoading(checkAction: {
-      print("hello")
-    }))
-}
 
