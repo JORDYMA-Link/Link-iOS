@@ -341,7 +341,13 @@ fileprivate struct SignoutAlert: View {
             title: "탈퇴하기",
             isDisabled: !isCheck,
             isCornerRadius: true,
-            confirmAction: { buttonAction() }
+            confirmAction: {
+              dismiss()
+              
+              DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                buttonAction()
+              }
+            }
           )
         }
         .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
@@ -353,9 +359,6 @@ fileprivate struct SignoutAlert: View {
     }
     .onAppear {
       show()
-    }
-    .onTapGesture {
-      dismiss()
     }
   }
   

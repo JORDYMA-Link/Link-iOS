@@ -137,6 +137,7 @@ public struct SettingFeature {
       //User Action
       case .tappedNicknameEdit:
         state.showEditNicknameSheet = true
+        return .none
         
       case .tappedLogOut:
         return .run { send in
@@ -180,7 +181,8 @@ public struct SettingFeature {
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
             
-             _ = try await authClient.logout(refreshToken)
+            // 500 에러 이후 수정
+//             _ = try await authClient.logout(refreshToken)
             
             await send(.setDeleteKeychain)
             await send(.delegate(.logout))
@@ -195,8 +197,9 @@ public struct SettingFeature {
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
             
-             _ = try await authClient.signout(refreshToken)
-            
+            // 500 에러 이후 수정
+//             _ = try await authClient.signout(refreshToken)
+
             await send(.setDeleteKeychain)
             await send(.delegate(.signout))
           },
