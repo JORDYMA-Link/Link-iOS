@@ -74,7 +74,7 @@ public struct RootFeature: Reducer {
           await send(.changeScreen(.login()), animation: .spring)
         }
         
-      case .refreshToken(.failure):
+      case .refreshToken(.failure), .mainTab(.path(.element(id: _, action: .Setting(.delegate(.logout))))), .mainTab(.path(.element(id: _, action: .Setting(.delegate(.signout))))):
         return .send(.changeScreen(.login()), animation: .spring)
         
       case .login(.delegate(.moveToOnboarding)):
