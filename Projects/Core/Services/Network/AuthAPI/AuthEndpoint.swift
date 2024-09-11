@@ -14,6 +14,8 @@ enum AuthEndpoint {
   case kakaoLogin(request: KakaoLoginRequest)
   case appleLogin(idToken: String)
   case regenerateToken(refreshToken: String)
+  case logout(refreshToken: String)
+  case signout(refreshToken: String)
 }
 
 extension AuthEndpoint: BaseTargetType {
@@ -25,12 +27,16 @@ extension AuthEndpoint: BaseTargetType {
       return "/auth/apple-login"
     case .regenerateToken:
       return "/auth/regenerate-token"
+    case .logout:
+      return "/auth/logout"
+    case .signout:
+      return "/auth/signout"
     }
   }
   
   var method: Moya.Method {
     switch self {
-    case .kakaoLogin, .appleLogin, .regenerateToken:
+    case .kakaoLogin, .appleLogin, .regenerateToken, .logout, .signout:
       return .post
     }
   }
@@ -45,14 +51,14 @@ extension AuthEndpoint: BaseTargetType {
         "idToken" : idToken
       ], encoding: JSONEncoding.default)
       
-    case .regenerateToken:
+    case .regenerateToken, .logout, .signout:
       return .requestPlain
     }
   }
   
   var headers: [String : String]? {
     switch self {
-    case let .regenerateToken(refreshToken):
+    case let .regenerateToken(refreshToken), let .logout(refreshToken), let .signout(refreshToken):
       return [
         "Content-type":"application/json",
         "Authorization": "Bearer \(refreshToken)"

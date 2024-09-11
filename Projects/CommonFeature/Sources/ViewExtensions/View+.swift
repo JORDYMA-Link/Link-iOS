@@ -44,21 +44,3 @@ public extension View {
       }
   }
 }
-
-public extension View {
-  func modal(
-    isPresented: Binding<Bool>,
-    type: BKModalType
-  ) -> some View {
-    fullScreenCover(isPresented: isPresented) {
-      BKModal(modalType: type)
-        .presentationClearBackground()
-    }
-    .transaction { transaction in
-      if isPresented.wrappedValue {
-        transaction.disablesAnimations = true
-        transaction.animation = .linear(duration: 0.1)
-      }
-    }
-  }
-}
