@@ -19,66 +19,70 @@ public struct CalendarView: View {
   private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
   
   public var body: some View {
-    VStack(alignment: .leading) {
-      
-      Button{
-        store.send(.calendarAction(.tappedCurrentSheetButton))
-      } label: {
-        HStack {
-          Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
-            .font(.semiBold(size: ._20))
-          Image(systemName: "chevron.down")
-        }
-        .foregroundStyle(Color.bkColor(.gray900))
-        .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
-        
-      }
-      .padding(.leading, 20)
-      
-      ZStack(alignment: .top){
-        MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
-        
-        if store.calendar.changeCurrentPageSheet {
-          selectionCurrentPageView
-            .padding(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
-        }
-      }
-      .padding(.horizontal, 20)
-      
-      ZStack{
-        Color.bkColor(.gray300)
-          .ignoresSafeArea()
-        
-        if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
-          GeometryReader { geometry in
-            VStack{
-              makeCategorySectionHeader
-              
-              ScrollView(.horizontal) {
-                LazyHStack(spacing: 4) {
-                  Section {
-                    ForEach(1...10, id: \.self) { count in
-                      BKCardCell(sourceTitle: "브런치", sourceImage: "", isMarked: true, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: false, recommendedFolders: nil, recommendedFolderAction: { _ in }, addFolderAction: {})
-                    }
-                  }
-                  .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
-                }
-              }
-              .scrollIndicators(.hidden)
-            }
+    WithPerceptionTracking{
+      VStack(alignment: .leading) {
+        Button{
+          store.send(.calendarAction(.tappedCurrentSheetButton))
+        } label: {
+          HStack {
+            Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
+              .font(.semiBold(size: ._20))
+            Image(systemName: "chevron.down")
           }
-        } else {
-          noneContentsView
+          .foregroundStyle(Color.bkColor(.gray900))
+          .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
+          
+        }
+        .padding(.leading, 20)
+        
+        ZStack(alignment: .top){
+          MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
+          
+          if store.calendar.changeCurrentPageSheet {
+            selectionCurrentPageView
+              .padding(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
+          }
+        }
+        .padding(.horizontal, 20)
+        
+        ZStack{
+          Color.bkColor(.gray300)
+            .ignoresSafeArea()
+          
+          if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
+            GeometryReader { geometry in
+              VStack{
+                makeCategorySectionHeader
+                
+                ScrollView(.horizontal) {
+                  LazyHStack(spacing: 4) {
+                    Section {
+                      ForEach(store.article.article, id: \.self) { value in
+                        BKCardCell(sourceTitle: value.platform, sourceImage: value.platformImage, isMarked: value.isMarked, saveAction: {}, menuAction: {}, title: value.title, description: value.summary, keyword: value.keywords, isUncategorized: false, recommendedFolders: nil, recommendedFolderAction: { _ in }, addFolderAction: {})
+                          .onTapGesture{
+                            store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
+                          }
+                      }
+                    }
+                    .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
+                  }
+                }
+                .scrollIndicators(.hidden)
+              }
+            }
+          } else {
+            noneContentsView
+          }
         }
       }
-    }
-    
-    .navigationBarBackButtonHidden(true)
-    .toolbar {
-      ToolbarItem(placement: .topBarLeading) {
-        LeadingItem(type: .dismiss("저장 기록", {
-          dismiss()
-        }))
+      
+      .navigationBarBackButtonHidden(true)
+      .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+          LeadingItem(type: .dismiss("저장 기록", {
+            dismiss()
+          }))
+        }
       }
     }
   }

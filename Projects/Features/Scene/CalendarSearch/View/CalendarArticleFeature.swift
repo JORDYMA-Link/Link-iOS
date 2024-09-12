@@ -7,6 +7,9 @@
 //
 
 import Foundation
+
+import Models
+
 import ComposableArchitecture
 
 @Reducer
@@ -14,17 +17,24 @@ public struct CalendarArticleFeature {
   @ObservableState
   public struct State: Equatable {
     var categorySelectedIndex: Int = 0
+    var article: [CalendarFeed] = []
   }
   
   public enum Action {
+    //MARK: - Business Action
+    case updatingArticleState(_ newValue: [CalendarFeed]?)
+    //MARK: - User Action
     case changeCategorySelectedIndex(targetIndex: Int)
   }
   
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .changeCategorySelectedIndex(targetIndex):
-        state.categorySelectedIndex = targetIndex
+      case let .updatingArticleState(newArticle):
+        state.article = newArticle ?? []
+        return .none
+      case let .changeCategorySelectedIndex(feedId):
+        state.categorySelectedIndex = feedId
         return .none
       }
     }
