@@ -68,12 +68,15 @@ struct MigratedCalendarView: UIViewRepresentable {
     }
     //MARK: - DataSource
     func minimumDate(for calendar: FSCalendar) -> Date {
-      guard let date = Calendar.current.getDateFromComponents(year: 2024, month: 1, day: 1) else { return calendar.minimumDate }
-      return date
+      if let date = Calendar.current.getDateFromComponents(year: 2024, month: 1, day: 1) {
+        return date + 32400
+      } else {
+        return calendar.minimumDate
+      }
     }
     
     func calendar(_ calendar: FSCalendar, numberOfEventsFor date: Date) -> Int {
-      if calendarStore.state.eventDate.contains(date + 86400) {
+      if calendarStore.state.eventDate.contains(date + 32400) {
         return 1
       } else {
         return 0
