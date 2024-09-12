@@ -24,7 +24,7 @@ public struct LoginFeature {
     public init() {}
   }
   
-  public enum Action: BindableAction, Equatable {
+  public enum Action: BindableAction {
     // MARK: User Action
     case binding(BindingAction<State>)
     case kakaoLoginButtonTapped
@@ -32,11 +32,12 @@ public struct LoginFeature {
     
     // MARK: Inner Business Action
     case login(SocialLoginInfo)
-    case checkFolderIsEmpty
-    case handleDestination(Bool)
+    case fetchFolderList
+    case putFcmPushToken
     
     // MARK: Inner SetState Action
     case setSocialLoginInfo(SocialLoginInfo)
+    case setSaveKeychain(TokenInfo)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -47,10 +48,11 @@ public struct LoginFeature {
     case delegate(Delegate)
   }
   
-  @Dependency(\.userDefaultsClient) private var userDefault
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.socialLogin) private var socialLogin
   @Dependency(\.authClient) private var authClient
+  @Dependency(\.userClient) private var userClient
   @Dependency(\.folderClient) private var folderClient
   
   private enum ThrottleId {
@@ -105,38 +107,58 @@ public struct LoginFeature {
             }
             
             guard let tokenInfo else { return }
-            try await keychainClient.save(.accessToken, tokenInfo.accessToken)
-            try await keychainClient.save(.refreshToken, tokenInfo.refreshToken)
             
-            await send(.checkFolderIsEmpty)
+            await send(.setSaveKeychain(tokenInfo))
+            await send(.putFcmPushToken)
+            /// 폴더 유무로 첫 가입 유저 확인
+            await send(.fetchFolderList)
           },
           catch: { error, send in
             debugPrint(error)
           }
         )
         
-      case .checkFolderIsEmpty:
+      case .fetchFolderList:
         return .run(
           operation: { send in
-            let folderList = try await folderClient.getFolders()
+            async let folderListResponse = try folderClient.getFolders()
             
-            await send(.handleDestination(folderList.isEmpty))
+            let folderList = try await folderListResponse
+            
+            if folderList.isEmpty {
+              await send(.delegate(.moveToOnboarding))
+            } else {
+              await send(.delegate(.moveToMainTab))
+            }
           },
           catch: { error, send in
             debugPrint(error)
           }
         )
         
-      case let .handleDestination(isFirstLogin):
-        if isFirstLogin {
-          return .send(.delegate(.moveToOnboarding))
-        } else {
-          return .send(.delegate(.moveToMainTab))
-        }
-  
+      case .putFcmPushToken:
+        return .run(
+          operation: { send in
+            guard !userDefaultsClient.string(.fcmToken, "").isEmpty else {
+              return
+            }
+            
+            try await userClient.putFcmPushToken(userDefaultsClient.string(.fcmToken, ""))
+          },
+          catch: { error, send in
+            debugPrint(error)
+          }
+        )
+          
       case let .setSocialLoginInfo(info):
         state.loginInfo = info
         return .none
+        
+      case let .setSaveKeychain(token):
+        return .run { _ in
+          try await keychainClient.save(.accessToken, token.accessToken)
+          try await keychainClient.save(.refreshToken, token.refreshToken)
+        }
         
       default:
         return .none
