@@ -30,12 +30,20 @@ public struct RootFeature: Reducer {
   }
   
   public enum Action {
+    // MARK: User Action
     case onAppear
     case onOpenURL(URL)
-    case changeScreen(State)
     
+    // MARK: Inner Business Action
     case refreshToken(Result<TokenInfo, Error>)
+    case putFcmPushToken(Result<Void, Error>)
     
+    // MARK: Inner SetState Action
+    case changeScreen(State)
+    case setUpdateToken(TokenInfo)
+    case setPopGestureEnabled(Bool)
+    
+    // MARK: Child Action
     case splash(SplashFeature.Action)
     case login(LoginFeature.Action)
     case onBoardingSubject(OnboardingSubjectFeature.Action)
@@ -43,56 +51,89 @@ public struct RootFeature: Reducer {
     case mainTab(BKTabFeature.Action)
   }
   
-  @Dependency(\.userDefaultsClient) var userDefault
-  @Dependency(\.keychainClient) var keychainClient
-  @Dependency(\.socialLogin) var socialLogin
-  @Dependency(\.authClient) var authClient
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
+  @Dependency(\.keychainClient) private var keychainClient
+  @Dependency(\.socialLogin) private var socialLogin
+  @Dependency(\.authClient) private var authClient
+  @Dependency(\.userClient) private var userClient
   
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case .onAppear:
-        userDefault.set(true, .isPopGestureEnabled)
         return .run {  send in
-          try await Task.sleep(nanoseconds: 2 * 1_000_000_000)
+          try await Task.sleep(for: .seconds(2))
+          
+          await send(.setPopGestureEnabled(true))
           
           if keychainClient.checkToTokenIsExist() {
-            await send(.changeScreen(.login()), animation: .spring)
+            await send(.changeScreen(.login()))
           } else {
             await send(.refreshToken(Result { try await authClient.requestRegenerateToken(keychainClient.read(.refreshToken)) }))
           }
         }
         
-      case let .refreshToken(.success(token)):
-        return .run { send in
-          try await keychainClient.update(.accessToken, token.accessToken)
-          try await keychainClient.update(.refreshToken, token.refreshToken)
-          
-          await send(.changeScreen(.mainTab()), animation: .spring)
-        } catch: { error, send in
-          debugPrint(error)
-          await send(.changeScreen(.login()), animation: .spring)
-        }
-        
-      case .refreshToken(.failure), .mainTab(.path(.element(id: _, action: .Setting(.delegate(.logout))))), .mainTab(.path(.element(id: _, action: .Setting(.delegate(.signout))))):
-        return .send(.changeScreen(.login()), animation: .spring)
-        
-      case .login(.delegate(.moveToOnboarding)):
-        return .send(.changeScreen(.onBoardingSubject()), animation: .spring)
-        
-      case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
-        return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
-        
-      case .onBoardingSubject(.delegate(.moveToMainTab)), .onBoardingFlow(.delegate(.moveToMainTab)), .login(.delegate(.moveToMainTab)):
-        return .send(.changeScreen(.mainTab()), animation: .spring)
-        
       case let .onOpenURL(url):
         socialLogin.handleKakaoUrl(url)
         return .none
         
+      case let .refreshToken(.success(token)):
+        return .run { send in
+          await send(.setUpdateToken(token))
+
+          guard !userDefaultsClient.string(.fcmToken, "").isEmpty else {
+            await send(.changeScreen(.mainTab()))
+            return
+          }
+          
+          await send(.putFcmPushToken(Result { try await userClient.putFcmPushToken(userDefaultsClient.string(.fcmToken, "")) }))
+          await send(.changeScreen(.mainTab()))
+        }
+        
+      case .refreshToken(.failure):
+        return .send(.changeScreen(.login()))
+        
+      case .putFcmPushToken(.success):
+        return .none
+        
+      case .putFcmPushToken(.failure):
+        return .send(.changeScreen(.mainTab()))
+        
       case let .changeScreen(newState):
         state = newState
         return .none
+        
+      case let .setUpdateToken(token):
+        return .run { _ in
+          try await keychainClient.update(.accessToken, token.accessToken)
+          try await keychainClient.update(.refreshToken, token.refreshToken)
+        }
+        
+      case let .setPopGestureEnabled(isEnabled):
+        userDefaultsClient.set(isEnabled, .isPopGestureEnabled)
+        return .none
+        
+        /// - MainTab Delegate
+      case .mainTab(.path(.element(id: _, action: .Setting(.delegate(.logout))))), .mainTab(.path(.element(id: _, action: .Setting(.delegate(.signout))))):
+        return .send(.changeScreen(.login()))
+        
+        /// - Login Delegate
+      case .login(.delegate(.moveToOnboarding)):
+        return .send(.changeScreen(.onBoardingSubject()))
+        
+      case .login(.delegate(.moveToMainTab)):
+        return .send(.changeScreen(.mainTab()))
+        
+        /// - OnBoardingSubject Delegate
+      case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
+        return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
+        
+      case .onBoardingSubject(.delegate(.moveToMainTab)):
+        return .send(.changeScreen(.mainTab()))
+        
+        /// - OnBoardingFlow Delegate
+      case .onBoardingFlow(.delegate(.moveToMainTab)):
+        return .send(.changeScreen(.mainTab()), animation: .spring)
         
       default:
         return .none
