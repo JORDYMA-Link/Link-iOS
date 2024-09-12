@@ -40,9 +40,13 @@ public struct ListResponse: Decodable {
 
 extension FeedCalendarSearchResponse {
   func toDomain() -> SearchCalendar {
-    SearchCalendar(
-      currentMonthData: self.monthlyFeedMap.mapValues({ $0.toDomain() })
-    )
+    let existedFeed = self.monthlyFeedMap
+      .filter({ !$0.value.list.isEmpty })
+      .map({ (key, value) in
+        return (key.toDate(from: "YYYY-MM-dd")!, value.toDomain())
+      })
+    
+    return SearchCalendar(currentMonthData: Dictionary(uniqueKeysWithValues: existedFeed))
   }
 }
 
@@ -56,8 +60,8 @@ extension DaysInfoResponse {
 }
 
 extension ListResponse {
-  func toDomain() -> List{
-    List(
+  func toDomain() -> CalendarFeed{
+    CalendarFeed(
       folderID: self.folderID,
       folderName: self.folderName,
       feedID: self.feedID,

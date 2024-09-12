@@ -9,24 +9,24 @@
 import Foundation
 
 // MARK: - FeedCalendarSearchResponse
-public struct SearchCalendar {
-  let currentMonthData: [String: DaysInfo]
+public struct SearchCalendar: Equatable {
+  public let existedFeedData: [Date: DaysInfo]
   
   public init(
-    currentMonthData: [String : DaysInfo]
+    currentMonthData: [Date : DaysInfo]
   ) {
-    self.currentMonthData = currentMonthData
+    self.existedFeedData = currentMonthData
   }
 }
 
 // MARK: - DaysInfo
-public struct DaysInfo {
-    let isArchived: Bool
-    let list: [List]
+public struct DaysInfo: Equatable {
+  public let isArchived: Bool
+  public let list: [CalendarFeed]
   
   public init(
     isArchived: Bool,
-    list: [List]
+    list: [CalendarFeed]
   ) {
     self.isArchived = isArchived
     self.list = list
@@ -34,13 +34,13 @@ public struct DaysInfo {
 }
 
 // MARK: - List
-public struct List {
-    let folderID: Int
-    let folderName: String
-    let feedID: Int
-    let title, summary, platform, platformImage: String
-    let isMarked: Bool
-    let keywords: [String]
+public struct CalendarFeed: Hashable {
+  public let folderID: Int
+  public let folderName: String
+  public let feedID: Int
+  public let title, summary, platform, platformImage: String
+  public let isMarked: Bool
+  public let keywords: [String]
   
   public init(
     folderID: Int,
