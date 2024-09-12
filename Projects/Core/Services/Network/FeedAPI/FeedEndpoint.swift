@@ -85,7 +85,7 @@ extension FeedEndpoint: BaseTargetType {
     case let .getFeedSearchByDate(date):
       return .requestParameters(parameters: [
         "yearMonth" : date
-      ], encoding: JSONEncoding.default)
+      ], encoding: URLEncoding.default)
       
     case .getFeed, .deleteFeed:
       return .requestPlain
