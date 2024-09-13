@@ -52,7 +52,7 @@ public struct HomeView: View {
                   Section {
                     HomeCardSection(
                       store: store,
-                      emptyHeight: proxy.size.height - bannerHeight - categoryHeaderHeight - UIApplication.topSafeAreaInset
+                      emptyHeight: proxy.size.height - bannerHeight - categoryHeaderHeight
                     )
                     .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
                   } header: {
