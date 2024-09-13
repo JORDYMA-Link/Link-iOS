@@ -17,7 +17,10 @@ import SwiftUIIntrospect
 struct StorageBoxFeedListView: View {
   @Perception.Bindable var store: StoreOf<StorageBoxFeedListFeature>
   @StateObject private var scrollViewDelegate = ScrollViewDelegate()
+  /// 스크롤 유무
   @State private var isScrollDetected: Bool = false
+  /// 상단 배너 Height
+  @State private var bannerHeight: CGFloat = 0
   
   var body: some View {
     WithPerceptionTracking {
@@ -27,36 +30,47 @@ struct StorageBoxFeedListView: View {
           isScrollDetected: $isScrollDetected
         )
         
-        ScrollView(showsIndicators: false) {
-          VStack(spacing: 0) {
-            BKSearchBanner(
-              searchAction: { store.send(.searchBannerSearchBarTapped) },
-              calendarAction: { store.send(.searchBannerCalendarTapped) }
-            )
-            .storageBoxBannerBackgroundView()
-            
-            Divider()
-              .foregroundStyle(Color.bkColor(.gray400))
-            
-            StorageBoxFeedListHeader(store: store)
-              .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 16))
-              .background(ViewMaxYGeometry())
-              .onPreferenceChange(ViewPreferenceKey.self) { maxY in
-                let navigationBarMaxY = (UIApplication.topSafeAreaInset - 20)
-                let headerMaxY = maxY + navigationBarMaxY
-                
+        GeometryReader { proxy in
+          ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+              BKSearchBanner(
+                searchAction: { store.send(.searchBannerSearchBarTapped) },
+                calendarAction: { store.send(.searchBannerCalendarTapped) }
+              )
+              .storageBoxBannerBackgroundView()
+              .background(ViewHeightGeometry())
+              .onPreferenceChange(ViewPreferenceKey.self) { height in
                 DispatchQueue.main.async {
-                  scrollViewDelegate.headerMaxY = headerMaxY
+                  self.bannerHeight = height
                 }
               }
-            
-            StorageBoxFeedListCardView(store: store)
+              
+              Divider()
+                .foregroundStyle(Color.bkColor(.gray400))
+              
+              StorageBoxFeedListHeader(store: store)
+                .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 16))
+                .background(ViewMaxYGeometry())
+                .onPreferenceChange(ViewPreferenceKey.self) { maxY in
+                  let navigationBarMaxY = (UIApplication.topSafeAreaInset - 20)
+                  let headerMaxY = maxY + navigationBarMaxY
+                  
+                  DispatchQueue.main.async {
+                    scrollViewDelegate.headerMaxY = headerMaxY
+                  }
+                }
+              
+              StorageBoxFeedListCardView(
+                store: store,
+                emptyHeight: proxy.size.height - bannerHeight - 44
+              )
+            }
           }
-        }
-        .refreshable { store.send(.pullToRefresh) }
-        .background(Color.bkColor(.gray300))
-        .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
-          scrollView.delegate = scrollViewDelegate
+          .refreshable { store.send(.pullToRefresh) }
+          .background(Color.bkColor(.gray300))
+          .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
+            scrollView.delegate = scrollViewDelegate
+          }
         }
       }
       .toolbar(.hidden, for: .navigationBar)
