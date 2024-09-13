@@ -214,7 +214,7 @@ public struct LinkFeature {
         return .send(.editLinkPresented)
         
       case .summarySaveButtonTapped:
-        return .run { send in await send(.patchFeed) }
+        return .send(.patchFeed)
           .throttle(id: ThrottleId.summarySaveButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case let .fetchFeedDetail(feedId):
@@ -269,7 +269,7 @@ public struct LinkFeature {
       case .patchFeed:
         return .run(
           operation: { [state] send in
-            let feedId = try await linkClient.patchLink(
+            async let feedIdResponse = try linkClient.patchLink(
               state.feed.feedId,
               state.feed.folderName,
               state.feed.title,
@@ -277,6 +277,8 @@ public struct LinkFeature {
               state.feed.keywords,
               state.feed.memo
             )
+            
+            let feedId = try await feedIdResponse
             
             await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
           },
