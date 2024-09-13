@@ -18,7 +18,7 @@ public struct Feed: Equatable {
   public var summary: String
   public var keywords: [String]
   public var folderName: String
-  public var recommendFolders: [String]?
+  public var folders: [String]?
   public var memo: String
   public var isMarked: Bool
   public var originUrl: String
@@ -32,7 +32,7 @@ public struct Feed: Equatable {
     summary: String,
     keywords: [String],
     folderName: String,
-    recommendFolders: [String]?,
+    folders: [String]?,
     memo: String,
     isMarked: Bool,
     originUrl: String
@@ -45,7 +45,7 @@ public struct Feed: Equatable {
     self.summary = summary
     self.keywords = keywords
     self.folderName = folderName
-    self.recommendFolders = recommendFolders
+    self.folders = folders
     self.memo = memo
     self.isMarked = isMarked
     self.originUrl = originUrl
