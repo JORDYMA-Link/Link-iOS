@@ -14,7 +14,6 @@ import Models
 import Common
 
 import SwiftUIIntrospect
-import Kingfisher
 
 struct LinkHeaderView: View {
   private var feed: Feed
@@ -63,10 +62,12 @@ struct LinkHeaderView: View {
   private func titleView() -> some View {
     HStack(spacing: 0) {
       VStack(alignment: .leading, spacing: 0) {
-        KFImage.url(URL(string: feed.platformImage ?? ""))
-          .fade(duration: 0.25)
-          .resizable()
-          .frame(width: 24, height: 24)
+        BKImageView(
+          imageURL: feed.platformImage ?? "",
+          downsamplingSize: .init(width: 24, height: 24),
+          placeholder: CommonFeature.Images.icoEmptyPlatform
+        )
+        .frame(width: 24, height: 24)
         
         Text(feed.title)
           .font(.regular(size: ._28))
