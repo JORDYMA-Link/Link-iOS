@@ -106,12 +106,15 @@ public struct SettingFeature {
     }
   }
   
-  
   //MARK: - Dependency
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.keychainClient) private var keychainClient
-  @Dependency(\.settingClient) private var settingClient
+  @Dependency(\.userClient) private var userClient
   @Dependency(\.authClient) private var authClient
+  
+  private enum ThrottleId {
+    case logoutButton
+  }
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -121,7 +124,7 @@ public struct SettingFeature {
         //Programical Action
       case .requestSettingInfo:
         return .run { send in
-          let response = try await settingClient.getUserProfile()
+          let response = try await userClient.getUserProfile()
           await send(.changeNickName(targetNickname: response.nickname))
           let latestVersion = try await fetchAppVersion()
           await send(.fetchLatestVersion(version: latestVersion))
@@ -150,6 +153,7 @@ public struct SettingFeature {
             rightButtonAction: { await send(.postLogout) })
           )
         }
+        .throttle(id: ThrottleId.logoutButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case .tappedWithdrawCell:
         state.showWithdrawModal = true
@@ -178,7 +182,7 @@ public struct SettingFeature {
         guard state.targetNicknameValidation, !state.targetNickname.isEmpty else { return .none }
         state.showEditNicknameSheet = false
         return .run { [targetNickName = state.targetNickname] send in
-          let response = try await settingClient.requestUserProfile(targetNickName)
+          let response = try await userClient.requestUserProfile(targetNickName)
           await send(.changeNickName(targetNickname: response.nickname))
         }
       

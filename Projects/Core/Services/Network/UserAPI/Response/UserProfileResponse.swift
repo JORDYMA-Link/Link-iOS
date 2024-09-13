@@ -1,5 +1,5 @@
 //
-//  SettingResponse.swift
+//  UserProfileResponse.swift
 //  Models
 //
 //  Created by 문정호 on 8/25/24.
