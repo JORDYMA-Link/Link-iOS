@@ -271,7 +271,7 @@ public struct LinkFeature {
           operation: { [state] send in
             async let feedIdResponse = try linkClient.patchLink(
               state.feed.feedId,
-              state.feed.folderName,
+              state.selectedFolder,
               state.feed.title,
               state.feed.summary,
               state.feed.keywords,
@@ -288,6 +288,7 @@ public struct LinkFeature {
         )
                 
       case let .setFeed(feed):
+        state.selectedFolder = feed.folderName
         state.feed = feed
         return .none
         
@@ -299,9 +300,9 @@ public struct LinkFeature {
       case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
         state.selectedFolder = folder.name
         
-        var folderList = state.feed.recommendFolders ?? []
-        folderList.append(folder.name)
-        state.feed.recommendFolders = folderList
+        var folderList = state.feed.folders ?? []
+        folderList.insert(folder.name, at: 0)
+        state.feed.folders = folderList
         return .none
         
       case let .editMemoBottomSheet(.delegate(.didUpdateMemo(feed))):
@@ -309,7 +310,7 @@ public struct LinkFeature {
         return .none
         
       case let .editLink(.presented(.delegate(.didUpdateLink(feed)))):
-        return .send(.setFeed(feed))
+        return .send(.fetchFeedDetail(feed.feedId))
         
       case let .menuBottomSheetPresented(isPresented):
         state.isMenuBottomSheetPresented = isPresented
