@@ -45,8 +45,6 @@ extension LinkClient: DependencyKey {
         return responseDTO.feedId
       },
       postLinkImage: { feedId, thumbnailImage in
-//        return try await linkProvider.request(.postLinkImage(feedId: feedId, thumbnailImage: thumbnailImage), modelType: String.self)
-//        
         return try await linkProvider.requestPlain(.postLinkImage(feedId: feedId, thumbnailImage: thumbnailImage))
       },
       patchLink: { feedId, folderName, title, summary, keywords, memo in
