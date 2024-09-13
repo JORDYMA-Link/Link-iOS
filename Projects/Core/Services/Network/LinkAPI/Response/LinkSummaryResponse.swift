@@ -32,7 +32,7 @@ extension LinkSummaryResponse {
       summary: summary,
       keywords: keywords,
       folderName: recommendFolder,
-      recommendFolders: recommendFolders,
+      folders: folders,
       memo: "",
       isMarked: false,
       originUrl: ""

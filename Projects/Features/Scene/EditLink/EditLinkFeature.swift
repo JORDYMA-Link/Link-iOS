@@ -24,7 +24,7 @@ public struct EditLinkFeature {
   @ObservableState
   public struct State: Equatable {
     var editLinkType: EditLinkType
-    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
+    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
     var initFeed: Feed?
     var isTitleValidation: Bool = true
     var isDescriptionValidation: Bool = true

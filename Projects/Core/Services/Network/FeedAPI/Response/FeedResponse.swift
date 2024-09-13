@@ -36,7 +36,7 @@ extension FeedResponse {
       summary: summary,
       keywords: keywords,
       folderName: folderName,
-      recommendFolders: [],
+      folders: [],
       memo: memo,
       isMarked: isMarked,
       originUrl: originUrl
