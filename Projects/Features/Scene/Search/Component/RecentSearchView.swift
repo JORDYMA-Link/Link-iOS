@@ -38,6 +38,7 @@ struct RecentSearchView: View {
                     lineHeight: 20,
                     color: .bkColor(.gray900)
                   )
+                  .lineLimit(1)
                   
                   Spacer()
                   
