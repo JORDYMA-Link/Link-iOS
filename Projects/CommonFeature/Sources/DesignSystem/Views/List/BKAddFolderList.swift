@@ -49,33 +49,54 @@ public struct BKAddFolderList<Item: FolderItem>: View {
   }
   
   public var body: some View {
-    let type = folderItemType == .addFolderBottomSheet
-    ScrollView(.horizontal, showsIndicators: false) {
-      LazyHStack(spacing: 10) {
-        if !type {
-          BKAddFolderItem(
-            folderItemType: folderItemType, 
-            action: { addAction() }
-          )
+    VStack(spacing: 0) {
+      let type = folderItemType == .addFolderBottomSheet
+      ScrollView(.horizontal, showsIndicators: false) {
+        LazyHStack(spacing: 10) {
+          if !type {
+            BKAddFolderItem(
+              folderItemType: folderItemType,
+              action: { addAction() }
+            )
+          }
+          
+          ForEach(folderList, id: \.folderName) { item in
+            BKFolderItem(
+              folderItemType: folderItemType,
+              title: item.folderName,
+              isSeleted: selectedFolder == item,
+              action: { itemAction(item) }
+            )
+          }
+          
+          if type {
+            BKAddFolderItem(
+              folderItemType: folderItemType,
+              action: { addAction() }
+            )
+          }
         }
-        
-        ForEach(folderList, id: \.folderName) { item in
-          BKFolderItem(
-            folderItemType: folderItemType, 
-            title: item.folderName,
-            isSeleted: selectedFolder == item,
-            action: { itemAction(item) }
-          )
-        }
-        
-        if type {
-          BKAddFolderItem(
-            folderItemType: folderItemType, 
-            action: { addAction() }
-          )
-        }
+        .padding(.horizontal, 16)
       }
-      .padding(.horizontal, 16)
+      
+      if selectedFolder.folderName == "미분류" {
+        unclassifiedLabel
+      }
     }
   }
+  
+  @ViewBuilder
+  private var unclassifiedLabel: some View {
+    BKText(
+      text: "미분류된 콘텐츠는 홈 미분류 페이지에 노출되요",
+      font: .regular,
+      size: ._12,
+      lineHeight: 18,
+      color: .bkColor(.main300)
+    )
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding(.top, 8)
+    .padding(.leading, 16)
+  }
 }
+

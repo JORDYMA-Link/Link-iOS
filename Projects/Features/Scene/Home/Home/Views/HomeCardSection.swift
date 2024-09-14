@@ -56,7 +56,7 @@ struct HomeCardSection: View {
       Spacer()
       Spacer()
     }
-    .frame(height: emptyHeight)
+    .frame(minHeight: emptyHeight)
   }
   
   @ViewBuilder

@@ -24,7 +24,7 @@ public struct EditLinkFeature {
   @ObservableState
   public struct State: Equatable {
     var editLinkType: EditLinkType
-    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", recommendFolders: [], memo: "", isMarked: false, originUrl: "")
+    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
     var initFeed: Feed?
     var isTitleValidation: Bool = true
     var isDescriptionValidation: Bool = true
@@ -165,16 +165,12 @@ public struct EditLinkFeature {
       case let .postThumbnailImage(feedId, selectedPhoto):
         return .run(
           operation: { send in
-            let imageURL = try await linkClient.postLinkImage(feedId, selectedPhoto)
-            
-            print(imageURL)
+            try await linkClient.postLinkImage(feedId, selectedPhoto)
             
             await send(.patchLink(feedId))
           },
           catch: { error, send in
-            print(error)
-            /// 성공 시 200 애러로 방출됨 (추후 수정 필요)
-            await send(.patchLink(feedId))
+            debugPrint(error)
           }
         )
         

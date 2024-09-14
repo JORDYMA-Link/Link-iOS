@@ -31,7 +31,7 @@ extension LinkEndpoint: BaseTargetType {
     case let .patchLink(feedId, _, _, _, _, _):
       return baseLinkRoutePath + "/\(feedId)"
     case let .getLinkSummary(feedId):
-      return baseLinkRoutePath + "/summary\(feedId)"
+      return baseLinkRoutePath + "/summary/\(feedId)"
     case .getLinkProcessing:
       return baseLinkRoutePath + "/processing"
     case let .deleteLinkDenySummary(feedId):

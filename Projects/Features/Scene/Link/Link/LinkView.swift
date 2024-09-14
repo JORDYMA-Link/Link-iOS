@@ -144,6 +144,15 @@ struct LinkView: View {
         EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
       }
       .bottomSheet(
+        isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
+        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
+        leadingTitle: "폴더 추가",
+        closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+      .bottomSheet(
         isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
         detents: [.height(292 - UIApplication.bottomSafeAreaInset)],
         leadingTitle: "메모",
@@ -215,15 +224,15 @@ struct LinkView: View {
           folderItemType: .default,
           title: store.feed.folderName,
           isSeleted: store.feed.folderName == store.selectedFolder,
-          action: { store.send(.recommendFolderItemTapped) }
+          action: { store.send(.recommendFolderItemTapped, animation: .default) }
         )
         
         BKAddFolderList(
           folderItemType: .default,
-          folderList: store.feed.recommendFolders ?? [],
+          folderList: store.feed.folders ?? [],
           selectedFolder: store.selectedFolder,
-          itemAction: { store.send(.folderItemTapped($0)) },
-          addAction: { store.send(.addFolderItemTapped) }
+          itemAction: { store.send(.folderItemTapped($0), animation: .default) },
+          addAction: { store.send(.addFolderItemTapped, animation: .default) }
         )
         .padding(.horizontal, -16)
       }

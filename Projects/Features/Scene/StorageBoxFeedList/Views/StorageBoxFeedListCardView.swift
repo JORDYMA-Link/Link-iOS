@@ -15,9 +15,14 @@ import ComposableArchitecture
 
 struct StorageBoxFeedListCardView: View {
   @Perception.Bindable private var store: StoreOf<StorageBoxFeedListFeature>
+  private let emptyHeight: CGFloat
   
-  init(store: StoreOf<StorageBoxFeedListFeature>) {
+  init(
+    store: StoreOf<StorageBoxFeedListFeature>,
+    emptyHeight: CGFloat
+  ) {
     self.store = store
+    self.emptyHeight = emptyHeight
   }
   
   var body: some View {
@@ -29,12 +34,29 @@ struct StorageBoxFeedListCardView: View {
           contentView()
         }
       }
+      .padding(.horizontal, 16)
+      .padding(.bottom, 20)
     }
   }
   
   @ViewBuilder
   private func emptyView() -> some View {
-    EmptyView()
+    VStack(alignment: .center) {
+      Spacer()
+      
+      BKText(
+        text: "아직 저장된 글이 없어요",
+        font: .regular,
+        size: ._15,
+        lineHeight: 22,
+        color: .bkColor(.gray600)
+      )
+      .frame(maxWidth: .infinity)
+      
+      Spacer()
+      Spacer()
+    }
+    .frame(minHeight: emptyHeight)
   }
   
   @ViewBuilder
@@ -61,8 +83,6 @@ struct StorageBoxFeedListCardView: View {
         }
       }
     }
-    .padding(.horizontal, 16)
-    .padding(.bottom, 20)
   }
 }
 
