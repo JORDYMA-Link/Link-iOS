@@ -52,6 +52,7 @@ public struct AddFolderBottomSheetFeature {
     
     // MARK: Inner SetState Action
     case setValidation(Bool)
+    case reset
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -110,12 +111,19 @@ public struct AddFolderBottomSheetFeature {
         .throttle(id: ThrottleId.confirmButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case let .successAddFolder(folder):
-        state.folderName = ""
         state.isAddFolderBottomSheetPresented = false
-        return .send(.delegate(.didUpdate(folder)))
+        return .run { send in
+          await send(.reset)
+          await send(.delegate(.didUpdate(folder)))
+        }
         
       case let .setValidation(isValidation):
         state.isValidation = isValidation
+        return .none
+        
+      case .reset:
+        state.folderName = ""
+        state.isValidation = false
         return .none
         
       default:
