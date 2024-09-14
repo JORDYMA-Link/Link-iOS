@@ -27,13 +27,22 @@ public struct NoticeFeature {
     case fetchNotice
     case setNoticeData(_ noticeData: [NoticeModel])
     case expanding(target: UUID?)
+    
+    //MARK: User Action
+    case tappedNaviBackButton
   }
   
+  //MARK: - Dependency
+  @Dependency(\.dismiss) private var dismiss
   @Dependency(\.noticeClient) private var noticeClient
   
+  //MARK: - Body
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
+      case .tappedNaviBackButton:
+        return .run { _ in await self.dismiss() }
+        
       case .fetchNotice:
         return .run { [page = state.page, size = state.size] send in
           let response = try await noticeClient.getNotice(page, size)
