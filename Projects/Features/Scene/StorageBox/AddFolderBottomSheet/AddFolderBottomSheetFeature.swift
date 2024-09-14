@@ -24,7 +24,7 @@ public struct AddFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
     public var folderName: String = ""
-    public var isValidation: Bool = false
+    public var isValidation: Bool = true
     public var folderErrorType: FolderValidationError = .textcount
     public var errorMessage: String {
       switch folderErrorType {
@@ -123,7 +123,7 @@ public struct AddFolderBottomSheetFeature {
         
       case .reset:
         state.folderName = ""
-        state.isValidation = false
+        state.isValidation = true
         return .none
         
       default:
