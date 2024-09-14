@@ -143,7 +143,7 @@ public struct HomeFeature: Reducer {
             await send(.resetPage)
             await send(.fetchFeedList(state.category, 0))
           }
-          .throttle(id: ThrottleId.categoryButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+          .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
         }
         
       case .pagination:

@@ -10,10 +10,16 @@ import SwiftUI
 import WebKit
 
 final class BKWebViewModel: ObservableObject {
+  /// 타이틀 URL
   @Published var title: String = ""
-  @Published var canGoBack = false
-  @Published var canGoForward = false
-  @Published var isLoading = true
+  /// 뒤로가기 가능 여부
+  @Published var canGoBack: Bool = false
+  /// 앞으로가기 가능 여부
+  @Published var canGoForward: Bool = false
+  /// 웹뷰 로딩
+  @Published var isLoading: Bool = true
+  /// ActivityViewPresented
+  @Published var isActivityViewPresented: Bool = false
   
   var webView: WKWebView?
   

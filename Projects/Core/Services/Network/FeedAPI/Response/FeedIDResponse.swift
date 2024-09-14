@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// 링크 요약 response
 struct FeedIDResponse: Decodable {
   let feedId: Int
 }

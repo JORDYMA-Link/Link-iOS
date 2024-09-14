@@ -20,33 +20,27 @@ struct SummaryStatusView: View {
   
   var body: some View {
     WithPerceptionTracking {
-      ScrollView(showsIndicators: false) {
-        LazyVStack(spacing: 0) {
-          ForEach(store.processingList, id: \.feedId) { item in
-            SummaryStatusItem(
-              title: item.title,
-              status: item.status,
-              deleteAction: { store.send(.deleteButtonTapped(item.feedId)) }
-            )
-            .onTapGesture {
-              if item.status == .completed {
-                store.send(.summaryStatusItemTapped(item.feedId))
+      VStack(spacing: 0) {
+        SummaryStatusNavigationBar(store: store)
+        
+        ScrollView(showsIndicators: false) {
+          LazyVStack(spacing: 0) {
+            ForEach(store.processingList, id: \.feedId) { item in
+              SummaryStatusItem(
+                title: item.title,
+                status: item.status,
+                deleteAction: { store.send(.deleteButtonTapped(item.feedId)) }
+              )
+              .onTapGesture {
+                if item.status == .completed {
+                  store.send(.summaryStatusItemTapped(item.feedId))
+                }
               }
             }
           }
         }
       }
-      .navigationBarBackButtonHidden()
-      .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          LeadingItem(
-            type: .dismiss(
-              "요약 중인 링크", 
-              { store.send(.closeButtonTapped) }
-            )
-          )
-        }
-      }
+      .toolbar(.hidden, for: .navigationBar)
       .onReceive(timer) { time in
         /// 5초에 한번 API 재통신
         store.send(.onAppear)
@@ -54,5 +48,20 @@ struct SummaryStatusView: View {
       .onAppear { store.send(.onAppear) }
       .onDisappear { timer.upstream.connect().cancel() }
     }
+  }
+}
+
+private struct SummaryStatusNavigationBar: View {
+  private var store: StoreOf<SummaryStatusFeature>
+  
+  init(store: StoreOf<SummaryStatusFeature>) {
+    self.store = store
+  }
+  
+  var body: some View {
+    makeBKNavigationView(
+      leadingType: .dismiss("요약 중인 링크", { store.send(.closeButtonTapped) }),
+      trailingType: .none
+    )
   }
 }
