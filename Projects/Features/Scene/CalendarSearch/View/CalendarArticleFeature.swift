@@ -17,24 +17,64 @@ public struct CalendarArticleFeature {
   @ObservableState
   public struct State: Equatable {
     var categorySelectedIndex: Int = 0
-    var article: [CalendarFeed] = []
+    var folderList: [Int: FolderInfo] = [0: FolderInfo()]
+    var allArticle: [CalendarFeed] = []
+    var displayArticle: [CalendarFeed] = []
+    
+    init(
+      categorySelectedIndex: Int = 0,
+      folerList: [Int: FolderInfo] = [0: FolderInfo()],
+      article: [CalendarFeed] = []
+    ) {
+      self.categorySelectedIndex = categorySelectedIndex
+      self.folderList = folerList
+      self.allArticle = article
+      self.displayArticle = self.allArticle
+    }
   }
   
   public enum Action {
     //MARK: - Business Action
-    case updatingArticleState(_ newValue: [CalendarFeed]?)
+    case filteringFolder
+    case allFolderCountUp
     //MARK: - User Action
     case changeCategorySelectedIndex(targetIndex: Int)
+  }
+  
+  struct FolderInfo: Hashable {
+    let folderName: String
+    var feedCount = 0
+    
+    init(
+      folderName: String = "전체",
+      feedCount: Int = 0
+    ) {
+      self.folderName = folderName
+      self.feedCount = feedCount
+    }
+    
   }
   
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .updatingArticleState(newArticle):
-        state.article = newArticle ?? []
+      case .filteringFolder:
+        for element in state.allArticle {
+          if let _ = state.folderList[element.folderID] {
+            state.folderList[element.folderID]?.feedCount += 1
+          } else {
+            state.folderList[element.folderID] = FolderInfo(folderName: element.folderName, feedCount: 1)
+          }
+        }
         return .none
-      case let .changeCategorySelectedIndex(feedId):
-        state.categorySelectedIndex = feedId
+        
+      case .allFolderCountUp:
+        state.folderList[0]?.feedCount += 1
+        return .none
+        
+      case let .changeCategorySelectedIndex(folderId):
+        state.categorySelectedIndex = folderId
+        state.displayArticle = state.allArticle.filter({ $0.folderID == folderId })
         return .none
       }
     }

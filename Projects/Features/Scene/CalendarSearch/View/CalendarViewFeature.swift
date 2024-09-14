@@ -46,7 +46,9 @@ public struct CalendarViewFeature {
       CalendarArticleFeature()
     }
     
-    Reduce { state, action in
+    Reduce {
+      state,
+      action in
       switch action {
       case let .fetchCalendarData(yearMonth):
         return .run { send in
@@ -55,24 +57,28 @@ public struct CalendarViewFeature {
           await send(.spreadEachReducer(responseDTO))
         }
         
-      //MARK: Business Action
+        //MARK: Business Action
       case let .spreadEachReducer(searchCalendar):
         state.calendarSearchData = searchCalendar
         return .run { send in
           await send(.calendarAction(.updatingEventDate(searchCalendar.existedFeedData.map{ $0.key })))
         }
         
-      //MARK: Delegate Action
+        //MARK: Delegate Action
       case let .calendarAction(.delegate(.requestFetch(yearMonth))):
         return .run { send in
           await send(.fetchCalendarData(yearMonth: yearMonth))
         }
         
       case let .calendarAction(.delegate(.changeSelectedDateFeedCard(date))):
-        guard let data = state.calendarSearchData else { return .none }
+        guard let data = state.calendarSearchData?.existedFeedData[date]?.list else { return .none }
         
-        return .run { [state = data.existedFeedData] send in
-          await send(.articleAction(.updatingArticleState(state[date]?.list)))
+        state.article = CalendarArticleFeature.State(
+          article: data
+        )
+        
+        return .run { send in
+          await send(.articleAction(.filteringFolder))
         }
         
       default:

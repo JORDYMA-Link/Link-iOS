@@ -57,8 +57,17 @@ public struct CalendarView: View {
                 ScrollView(.horizontal) {
                   LazyHStack(spacing: 4) {
                     Section {
-                      ForEach(store.article.article, id: \.self) { value in
-                        BKCardCell(sourceTitle: value.platform, sourceImage: value.platformImage, isMarked: value.isMarked, saveAction: {}, menuAction: {}, title: value.title, description: value.summary, keyword: value.keywords, isUncategorized: false, recommendedFolders: nil, recommendedFolderAction: { _ in }, addFolderAction: {})
+                      ForEach(store.article.displayArticle, id: \.self) { value in
+                        BKCardCell(sourceTitle: value.platform,
+                                   sourceImage: value.platformImage,
+                                   isMarked: value.isMarked,
+                                   saveAction: {}, //FIXME: 동작 수행
+                                   menuAction: {}, //FIXME: 동작 수행
+                                   title: value.title,
+                                   description: value.summary,
+                                   keyword: value.keywords,
+                                   isUncategorized: false
+                        )
                           .onTapGesture{
                             store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
                           }
@@ -75,7 +84,10 @@ public struct CalendarView: View {
           }
         }
       }
-      
+      .onAppear(
+        perform: {
+          store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
+      })
       .navigationBarBackButtonHidden(true)
       .toolbar {
         ToolbarItem(placement: .topBarLeading) {
@@ -169,43 +181,40 @@ public struct CalendarView: View {
   }
 
   private var makeCategorySectionHeader: some View {
-      let categories = ["중요", "미분류"]
-  
-      return ScrollView(.horizontal) {
-          HStack(spacing: 8) {
-              ForEach(categories.indices, id: \.self) { index in
-                
-                let isSelectedIndex = (store.article.categorySelectedIndex == index)
-                
-                  Text(categories[index])
-                      .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
-                      .foregroundColor(isSelectedIndex ? Color.white : Color.black)
-                      .padding(.vertical, 10)
-                      .padding(.horizontal, 14)
-                      .background(
-                          RoundedRectangle(cornerRadius: 100)
-                              .fill(isSelectedIndex ? Color.black : Color.white)
-                              .overlay(
-                                  RoundedRectangle(cornerRadius: 100)
-                                      .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
-                              )
-                          
-                      )
-                      .onTapGesture {
-                        debugPrint("selected")
-                        store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: index)))
-                        debugPrint(store.state.article.categorySelectedIndex)
-                      }
-              }
-          }
-          .padding(.leading, 16)
+    let categories = store.article.folderList
+    
+    return ScrollView(.horizontal) {
+      LazyHStack(spacing: 8) {
+        ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
+          let folder = store.article.folderList[key]
+          let folderName = folder?.folderName ?? ""
+          let feedCount = folder?.feedCount ?? 0
+          let isSelectedIndex = (store.article.categorySelectedIndex == key)
+          
+          Text("\(folderName) \(feedCount)")
+            .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
+            .foregroundColor(isSelectedIndex ? Color.white : Color.black)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .background(
+              RoundedRectangle(cornerRadius: 100)
+                .fill(isSelectedIndex ? Color.black : Color.white)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 100)
+                    .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
+                )
+            )
+            .onTapGesture {
+              store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
+              debugPrint(store.state.article.categorySelectedIndex)
+            }
+        }
       }
-      .scrollDisabled(true)
-      .padding(EdgeInsets(top: 20, leading: 0, bottom: 36, trailing: 0))
+      .padding(.leading, 16)
+    }
+    .scrollDisabled(true)
+    .padding(EdgeInsets(top: 20, leading: 0, bottom: 36, trailing: 0))
   }
-  
-  
-  
 }
 
 //MARK: - Calculating Date Part
