@@ -17,6 +17,7 @@ enum FeedEndpoint {
   case patchBookmark(feedId: Int, setMarked: Bool)
   case getFeedSearch(query: String, page: Int, size: Int = 10)
   case getFeed(feedId: Int)
+  case getFeedSearchByDate(date: String)
 }
 
 extension FeedEndpoint: BaseTargetType {
@@ -36,6 +37,8 @@ extension FeedEndpoint: BaseTargetType {
       return baseFeedRoutePath + "/search"
     case let .getFeed(feedId):
       return baseFeedRoutePath + "/detail/\(feedId)"
+    case let .getFeedSearchByDate:
+      return baseFeedRoutePath + "/by-date"
     }
   }
   
@@ -47,7 +50,7 @@ extension FeedEndpoint: BaseTargetType {
       return .delete
     case .patchBookmark:
       return .patch
-    case .getFeed, .getFeedSearch:
+    case .getFeed, .getFeedSearch, .getFeedSearchByDate:
       return .get
     }
   }
@@ -77,6 +80,11 @@ extension FeedEndpoint: BaseTargetType {
         "query": query,
         "page": page,
         "size": size
+      ], encoding: URLEncoding.default)
+      
+    case let .getFeedSearchByDate(date):
+      return .requestParameters(parameters: [
+        "yearMonth" : date
       ], encoding: URLEncoding.default)
       
     case .getFeed, .deleteFeed:
