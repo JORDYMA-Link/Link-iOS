@@ -19,67 +19,91 @@ public struct CalendarView: View {
   private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
   
   public var body: some View {
-    VStack(alignment: .leading) {
-      
-      Button{
-        store.send(.calendarAction(.tappedCurrentSheetButton))
-      } label: {
+    WithPerceptionTracking{
+      VStack(alignment: .leading) {
         HStack {
-          Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
-            .font(.semiBold(size: ._20))
-          Image(systemName: "chevron.down")
-        }
-        .foregroundStyle(Color.bkColor(.gray900))
-        .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
-        
-      }
-      .padding(.leading, 20)
-      
-      ZStack(alignment: .top){
-        MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
-        
-        if store.calendar.changeCurrentPageSheet {
-          selectionCurrentPageView
-            .padding(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
-        }
-      }
-      .padding(.horizontal, 20)
-      
-      ZStack{
-        Color.bkColor(.gray300)
-          .ignoresSafeArea()
-        
-        if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
-          GeometryReader { geometry in
-            VStack{
-              makeCategorySectionHeader
-              
-              ScrollView(.horizontal) {
-                LazyHStack(spacing: 4) {
-                  Section {
-                    ForEach(1...10, id: \.self) { count in
-                      BKCardCell(sourceTitle: "브런치", sourceImage: "", isMarked: true, saveAction: {}, menuAction: {}, title: "방문자 상위 50위 생성형 AI 웹 서비스 분석", description: "꽁꽁얼어붙은", keyword: ["Design System", "디자인", "UI/UX"], isUncategorized: false, recommendedFolders: nil, recommendedFolderAction: { _ in }, addFolderAction: {})
-                    }
-                  }
-                  .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
-                }
-              }
-              .scrollIndicators(.hidden)
+          Button{
+            dismiss()
+          } label: {
+            HStack {
+              Image(systemName: "chevron.left")
+                .bold()
+              Text("저장 기록")
+                .font(.semiBold(size: ._16))
             }
+            .foregroundStyle(Color.bkColor(.gray900))
           }
-        } else {
-          noneContentsView
+        }
+        .padding(.all, 16)
+        
+        
+        Button{
+          store.send(.calendarAction(.tappedCurrentSheetButton))
+        } label: {
+          HStack {
+            Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
+              .font(.semiBold(size: ._20))
+            Image(systemName: "chevron.down")
+          }
+          .foregroundStyle(Color.bkColor(.gray900))
+          .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
+        }
+        .padding(.leading, 20)
+        
+        ZStack(alignment: .top){
+          MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
+          
+          if store.calendar.changeCurrentPageSheet {
+            selectionCurrentPageView
+              .padding(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
+          }
+        }
+        .padding(.horizontal, 20)
+        
+        ZStack{
+          Color.bkColor(.gray300)
+            .ignoresSafeArea()
+          
+          if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
+            GeometryReader { geometry in
+              VStack{
+                makeCategorySectionHeader
+                
+                ScrollView(.horizontal) {
+                  LazyHStack(spacing: 4) {
+                    Section {
+                      ForEach(store.article.displayArticle, id: \.self) { value in
+                        BKCardCell(sourceTitle: value.platform,
+                                   sourceImage: value.platformImage,
+                                   isMarked: value.isMarked,
+                                   saveAction: {}, //FIXME: 동작 수행
+                                   menuAction: {}, //FIXME: 동작 수행
+                                   title: value.title,
+                                   description: value.summary,
+                                   keyword: value.keywords,
+                                   isUncategorized: false
+                        )
+                          .onTapGesture{
+                            store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
+                          }
+                      }
+                    }
+                    .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
+                  }
+                }
+                .scrollIndicators(.hidden)
+              }
+            }
+          } else {
+            noneContentsView
+          }
         }
       }
-    }
-    
-    .navigationBarBackButtonHidden(true)
-    .toolbar {
-      ToolbarItem(placement: .topBarLeading) {
-        LeadingItem(type: .dismiss("저장 기록", {
-          dismiss()
-        }))
-      }
+      .onAppear(
+        perform: {
+          store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
+        })
+      .navigationBarBackButtonHidden(true)
     }
   }
   
@@ -165,43 +189,39 @@ public struct CalendarView: View {
   }
 
   private var makeCategorySectionHeader: some View {
-      let categories = ["중요", "미분류"]
-  
-      return ScrollView(.horizontal) {
-          HStack(spacing: 8) {
-              ForEach(categories.indices, id: \.self) { index in
-                
-                let isSelectedIndex = (store.article.categorySelectedIndex == index)
-                
-                  Text(categories[index])
-                      .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
-                      .foregroundColor(isSelectedIndex ? Color.white : Color.black)
-                      .padding(.vertical, 10)
-                      .padding(.horizontal, 14)
-                      .background(
-                          RoundedRectangle(cornerRadius: 100)
-                              .fill(isSelectedIndex ? Color.black : Color.white)
-                              .overlay(
-                                  RoundedRectangle(cornerRadius: 100)
-                                      .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
-                              )
-                          
-                      )
-                      .onTapGesture {
-                        debugPrint("selected")
-                        store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: index)))
-                        debugPrint(store.state.article.categorySelectedIndex)
-                      }
-              }
-          }
-          .padding(.leading, 16)
+    let categories = store.article.folderList
+    
+    return ScrollView(.horizontal) {
+      LazyHStack(spacing: 8) {
+        ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
+          let folder = store.article.folderList[key]
+          let folderName = folder?.folderName ?? ""
+          let feedCount = folder?.feedCount ?? 0
+          let isSelectedIndex = (store.article.categorySelectedIndex == key)
+          
+          Text("\(folderName) \(feedCount)")
+            .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
+            .foregroundColor(isSelectedIndex ? Color.white : Color.black)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .background(
+              RoundedRectangle(cornerRadius: 100)
+                .fill(isSelectedIndex ? Color.black : Color.white)
+                .overlay(
+                  RoundedRectangle(cornerRadius: 100)
+                    .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
+                )
+            )
+            .onTapGesture {
+              store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
+            }
+        }
       }
-      .scrollDisabled(true)
-      .padding(EdgeInsets(top: 20, leading: 0, bottom: 36, trailing: 0))
+    } //LazyHStack
+    .scrollDisabled(true)
+    .frame(height: 50)
+    .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
   }
-  
-  
-  
 }
 
 //MARK: - Calculating Date Part
