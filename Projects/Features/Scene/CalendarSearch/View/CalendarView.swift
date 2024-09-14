@@ -11,7 +11,7 @@ import ComposableArchitecture
 import CommonFeature
 
 public struct CalendarView: View {
-  let store: StoreOf<CalendarViewFeature>
+  @Perception.Bindable var store: StoreOf<CalendarViewFeature>
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
@@ -24,18 +24,23 @@ public struct CalendarView: View {
         trailingType: .none
       )
       
-      Button{
-        store.send(.calendarAction(.tappedCurrentSheetButton))
-      } label: {
-        HStack {
-          Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
-            .font(.semiBold(size: ._20))
-          Image(systemName: "chevron.down")
+      HStack {
+        Button{
+          store.send(.calendarAction(.tappedCurrentSheetButton))
+        } label: {
+          HStack {
+            Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
+              .font(.semiBold(size: ._20))
+            Image(systemName: "chevron.down")
+          }
+          .foregroundStyle(Color.bkColor(.gray900))
+          .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
         }
-        .foregroundStyle(Color.bkColor(.gray900))
-        .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
+        .frame(alignment: .leading)
+        .padding(.leading, 20)
+        
+        Spacer()
       }
-      .padding(.leading, 20)
       
       ZStack(alignment: .top){
         MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
@@ -73,18 +78,19 @@ public struct CalendarView: View {
                       .onTapGesture{
                         store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
                       }
-                    }
-                  }
+                      .frame(width: 257)
+                    } // Foreach
+                  }// Section
                   .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
-                }
-              }
+                }// LazyHStack
+              }// ScrollView
               .scrollIndicators(.hidden)
-            }
-          }
+            }// VStack
+          }// GeometryReader
         } else {
           noneContentsView
-        }
-      }
+        }// else
+      }// ZStack
     }
     .onAppear(
       perform: {
@@ -96,54 +102,56 @@ public struct CalendarView: View {
   //MARK: - ViewBuilder
   @ViewBuilder
   private var selectionCurrentPageView: some View {
-    VStack {
-      HStack {
-        Spacer()
-        
-        Button {
-          store.send(.calendarAction(.changeCurrentYear(dif: -1)))
-        } label: {
-          Image(systemName: "chevron.backward")
-            .tint(.bkColor(.black))
+    WithPerceptionTracking {
+      VStack {
+        HStack {
+          Spacer()
+          
+          Button {
+            store.send(.calendarAction(.changeCurrentYear(dif: -1)))
+          } label: {
+            Image(systemName: "chevron.backward")
+              .tint(.bkColor(.black))
+          }
+          
+          Text(store.calendar.currentSheetDate.toString(formatter: "yyyy년"))
+            .font(.regular(size: ._14))
+          
+          Button {
+            store.send(.calendarAction(.changeCurrentYear(dif: 1)))
+          } label: {
+            Image(systemName: "chevron.right")
+              .tint(.bkColor(.black))
+          }
+          
+          Spacer()
+          
+          Button {
+            store.send(.calendarAction(.tappedCurrentSheetButton))
+          } label: {
+            Image(systemName: "xmark")
+              .tint(.bkColor(.black))
+          }
         }
         
-        Text(store.calendar.currentSheetDate.toString(formatter: "yyyy년"))
-          .font(.regular(size: ._14))
-        
-        Button {
-          store.send(.calendarAction(.changeCurrentYear(dif: 1)))
-        } label: {
-          Image(systemName: "chevron.right")
-            .tint(.bkColor(.black))
-        }
-        
-        Spacer()
-        
-        Button {
-          store.send(.calendarAction(.tappedCurrentSheetButton))
-        } label: {
-          Image(systemName: "xmark")
-            .tint(.bkColor(.black))
+        LazyVGrid(columns: columns, spacing: 20) {
+          ForEach(months, id: \.self) { month in
+            Text(month.toString)
+              .frame(minWidth: 0, maxWidth: .infinity)
+              .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
+              .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+              .onTapGesture {
+                guard !isPast(targetMonth: month.rawValue) else {return}
+                store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
+              }
+          }
         }
       }
-      
-      LazyVGrid(columns: columns, spacing: 20) {
-        ForEach(months, id: \.self) { month in
-          Text(month.toString)
-            .frame(minWidth: 0, maxWidth: .infinity)
-            .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
-            .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
-            .onTapGesture {
-              guard !isPast(targetMonth: month.rawValue) else {return}
-              store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
-            }
-        }
-      }
-    }
-    .padding(.all, 10)
-    .background(Color.bkColor(.gray300))
-    .clipShape(.rect(cornerRadius: 10))
+      .padding(.all, 10)
+      .background(Color.bkColor(.gray300))
+      .clipShape(.rect(cornerRadius: 10))
     .shadow(radius: 10, x: 0, y: 8)
+    }
   }
   
   @ViewBuilder
@@ -177,36 +185,38 @@ public struct CalendarView: View {
   private var makeCategorySectionHeader: some View {
     let categories = store.article.folderList
     
-    return ScrollView(.horizontal) {
-      LazyHStack(spacing: 8) {
-        ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
-          let folder = store.article.folderList[key]
-          let folderName = folder?.folderName ?? ""
-          let feedCount = folder?.feedCount ?? 0
-          let isSelectedIndex = (store.article.categorySelectedIndex == key)
-          
-          Text("\(folderName) \(feedCount)")
-            .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
-            .foregroundColor(isSelectedIndex ? Color.white : Color.black)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 14)
-            .background(
-              RoundedRectangle(cornerRadius: 100)
-                .fill(isSelectedIndex ? Color.black : Color.white)
-                .overlay(
-                  RoundedRectangle(cornerRadius: 100)
-                    .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
-                )
-            )
-            .onTapGesture {
-              store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
-            }
+    return WithPerceptionTracking {
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 8) {
+          ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
+            let folder = store.article.folderList[key]
+            let folderName = folder?.folderName ?? ""
+            let feedCount = folder?.feedCount ?? 0
+            let isSelectedIndex = (store.article.categorySelectedIndex == key)
+            
+            Text("\(folderName) \(feedCount)")
+              .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
+              .foregroundColor(isSelectedIndex ? Color.white : Color.black)
+              .padding(.vertical, 10)
+              .padding(.horizontal, 14)
+              .background(
+                RoundedRectangle(cornerRadius: 100)
+                  .fill(isSelectedIndex ? Color.black : Color.white)
+                  .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                      .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
+                  )
+              )
+              .onTapGesture {
+                store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
+              }
+          }
         }
-      }
-    } //LazyHStack
-    .scrollDisabled(true)
-    .frame(height: 50)
-    .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
+      } //LazyHStack
+      .scrollDisabled(true)
+      .frame(height: 40)
+      .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
+    }
   }
 }
 
