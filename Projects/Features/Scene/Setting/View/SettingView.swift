@@ -20,18 +20,23 @@ public struct SettingView: View {
   
   public var body: some View {
     WithPerceptionTracking {
+      makeBKNavigationView(
+        leadingType: .dismiss("설정", { store.send(.tappedNaviBackButton) }),
+        trailingType: .none
+      )
+      
       ZStack {
         settingView
         
         Spacer()
           .navigationBarBackButtonHidden(true)
-          .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              LeadingItem(type: .dismiss("설정", {
-                dismiss()
-              }))
-            }
-          }
+        //            .toolbar {
+        //              ToolbarItem(placement: .topBarLeading) {
+        //                LeadingItem(type: .dismiss("설정", {
+        //                  dismiss()
+        //                }))
+        //              }
+        //            }
       }
       .bottomSheet(isPresented: $store.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
         VStack(alignment: .center) {
