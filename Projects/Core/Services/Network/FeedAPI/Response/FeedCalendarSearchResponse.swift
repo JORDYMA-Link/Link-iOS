@@ -11,18 +11,18 @@ import Foundation
 import Models
 
 // MARK: - FeedCalendarSearchResponse
-public struct FeedCalendarSearchResponse: Decodable {
+struct FeedCalendarSearchResponse: Decodable {
   let monthlyFeedMap: [String: DaysInfoResponse]
 }
 
 // MARK: - DaysInfo
-public struct DaysInfoResponse: Decodable {
+struct DaysInfoResponse: Decodable {
     let isArchived: Bool
     let list: [ListResponse]
 }
 
 // MARK: - List
-public struct ListResponse: Decodable {
+struct ListResponse: Decodable {
     let folderID: Int
     let folderName: String
     let feedID: Int
@@ -43,7 +43,7 @@ extension FeedCalendarSearchResponse {
     let existedFeed = self.monthlyFeedMap
       .filter({ !$0.value.list.isEmpty })
       .map({ (key, value) in
-        return (key.toDate(from: "YYYY-MM-dd")!, value.toDomain())
+        return ((key.toDate(from: "YYYY-MM-dd") ?? Date()) + 32400, value.toDomain())
       })
     
     return SearchCalendar(currentMonthData: Dictionary(uniqueKeysWithValues: existedFeed))
@@ -60,7 +60,7 @@ extension DaysInfoResponse {
 }
 
 extension ListResponse {
-  func toDomain() -> CalendarFeed{
+  func toDomain() -> CalendarFeed {
     CalendarFeed(
       folderID: self.folderID,
       folderName: self.folderName,
