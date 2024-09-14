@@ -40,6 +40,13 @@ struct BKContainerWebView: View {
         viewModel: viewModel
       )
     }
+    .sheet(isPresented: $viewModel.isActivityViewPresented) {
+      BKActivityView(
+        isPresented: $viewModel.isActivityViewPresented,
+        activityItmes: [URL(string: viewModel.title) ?? ""]
+      )
+      .presentationDetents([.medium])
+    }
   }
 }
 
@@ -121,7 +128,9 @@ private struct BottomToolBar: View {
         color: .bkColor(.gray900),
         size: .init(width: 24, height: 24)
       )
-      .onTapGesture {}
+      .onTapGesture {
+        viewModel.isActivityViewPresented = true
+      }
       
       Spacer()
       
