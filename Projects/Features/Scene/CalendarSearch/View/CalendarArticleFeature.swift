@@ -66,15 +66,23 @@ public struct CalendarArticleFeature {
             state.folderList[element.folderID] = FolderInfo(folderName: element.folderName, feedCount: 1)
           }
         }
-        return .none
+        
+        return .run { send in
+          await send(.allFolderCountUp)
+        }
         
       case .allFolderCountUp:
-        state.folderList[0]?.feedCount += 1
+        let contentsCount = state.allArticle.count
+        state.folderList[0]?.feedCount = contentsCount
         return .none
         
       case let .changeCategorySelectedIndex(folderId):
         state.categorySelectedIndex = folderId
-        state.displayArticle = state.allArticle.filter({ $0.folderID == folderId })
+        if folderId == 0 {
+          state.displayArticle = state.allArticle
+        } else {
+          state.displayArticle = state.allArticle.filter({ $0.folderID == folderId})
+        }
         return .none
       }
     }

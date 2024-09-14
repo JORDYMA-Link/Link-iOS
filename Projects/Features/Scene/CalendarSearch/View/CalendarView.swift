@@ -21,6 +21,22 @@ public struct CalendarView: View {
   public var body: some View {
     WithPerceptionTracking{
       VStack(alignment: .leading) {
+        HStack {
+          Button{
+            dismiss()
+          } label: {
+            HStack {
+              Image(systemName: "chevron.left")
+                .bold()
+              Text("저장 기록")
+                .font(.semiBold(size: ._16))
+            }
+            .foregroundStyle(Color.bkColor(.gray900))
+          }
+        }
+        .padding(.all, 16)
+        
+        
         Button{
           store.send(.calendarAction(.tappedCurrentSheetButton))
         } label: {
@@ -31,7 +47,6 @@ public struct CalendarView: View {
           }
           .foregroundStyle(Color.bkColor(.gray900))
           .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
-          
         }
         .padding(.leading, 20)
         
@@ -87,15 +102,8 @@ public struct CalendarView: View {
       .onAppear(
         perform: {
           store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
-      })
+        })
       .navigationBarBackButtonHidden(true)
-      .toolbar {
-        ToolbarItem(placement: .topBarLeading) {
-          LeadingItem(type: .dismiss("저장 기록", {
-            dismiss()
-          }))
-        }
-      }
     }
   }
   
@@ -206,14 +214,13 @@ public struct CalendarView: View {
             )
             .onTapGesture {
               store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
-              debugPrint(store.state.article.categorySelectedIndex)
             }
         }
       }
-      .padding(.leading, 16)
-    }
+    } //LazyHStack
     .scrollDisabled(true)
-    .padding(EdgeInsets(top: 20, leading: 0, bottom: 36, trailing: 0))
+    .frame(height: 50)
+    .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
   }
 }
 
