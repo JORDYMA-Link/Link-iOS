@@ -33,7 +33,6 @@ public struct SearchFeature {
     var selectedFeed: SelectedFeed?
     var recentSearches: [String] = []
     
-    @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
@@ -81,7 +80,6 @@ public struct SearchFeature {
     case delegate(Delegate)
     
     // MARK: Child Action
-    case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -305,11 +303,7 @@ public struct SearchFeature {
         
         state.recentSearches = recentSearches
         return .none
-                
-        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .link(.presented(.delegate(.deleteFeed(feed)))):
-        return .send(.setDeleteFeed(feed.feedId))
-        
+                        
       case .editLink(.presented(.delegate(.didUpdateHome))):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
@@ -375,9 +369,6 @@ public struct SearchFeature {
       default:
         return .none
       }
-    }
-    .ifLet(\.$link, action: \.link) {
-      LinkFeature()
     }
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()

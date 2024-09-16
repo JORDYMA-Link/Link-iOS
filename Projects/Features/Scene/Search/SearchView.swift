@@ -40,17 +40,6 @@ struct SearchView: View {
       }
       .searchKeywordBackground()
       .toolbar(.hidden, for: .navigationBar)
-      .navigationDestination(
-        item: $store.scope(
-          state: \.link,
-          action: \.link
-        )
-      ) { store in
-        LinkView(
-          store: store,
-          onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
-        )
-      }
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
         detents: [.height(192)],
