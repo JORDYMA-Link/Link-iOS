@@ -51,6 +51,7 @@ struct HomeContainerView<Content: View>: View {
       .cardSettingBottomSheet(store: store)
       .editFolderBottomSheet(store: store)
       .addFolderBottomSheet(store: store)
+      .editLinkFullScreenOver(store: store)
       .toolbar(.hidden, for: .navigationBar)
     }
   }
