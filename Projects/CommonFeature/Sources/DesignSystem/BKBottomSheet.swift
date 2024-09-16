@@ -10,6 +10,8 @@ import SwiftUI
 
 import Common
 
+import ComposableArchitecture
+
 public extension View {
   func bottomSheet<Content: View>(
     isPresented: Binding<Bool>,
@@ -59,23 +61,48 @@ fileprivate struct BKBottomSheetModifier<SheetContent: View>: ViewModifier {
       
       content
         .sheet(isPresented: $isPresented) {
-          VStack(spacing: 0) {
-            makeBKNavigationView(leadingType: .pop(leadingTitle), trailingType: .pop(action: {
-              closeButtonAction?()
-              if isDismissible {
-                isPresented = false
-              }
-            }))
-            
-            sheetContent()
-          }
-          .if(currentDetent == nil) { view in
-            view.presentationDetents(detents)
-          }
-          .ifLet(currentDetent) { view, currentDetent in
-            view.presentationDetents(detents, selection: currentDetent)
+          WithPerceptionTracking {
+            VStack(spacing: 0) {
+              navBar
+              sheetContent()
+            }
+            .if(currentDetent == nil) { view in
+              view.presentationDetents(detents)
+            }
+            .ifLet(currentDetent) { view, currentDetent in
+              view.presentationDetents(detents, selection: currentDetent)
+            }
           }
         }
     }
+  }
+  
+  @ViewBuilder
+  private var navBar: some View {
+    HStack(spacing: 12) {
+      BKText(
+        text: leadingTitle,
+        font: .semiBold,
+        size: ._16,
+        lineHeight: 24,
+        color: .bkColor(.black)
+      )
+      .frame(maxWidth: .infinity, alignment: .leading)
+      
+      BKIcon(
+        image: CommonFeature.Images.icoClose,
+        color: .bkColor(.gray900),
+        size: .init(width: 24, height: 24)
+      )
+      .onTapGesture {
+        closeButtonAction?()
+        
+        if isDismissible {
+          isPresented = false
+        }
+      }
+    }
+    .padding(.horizontal, 20)
+    .frame(minHeight: 56, maxHeight: 56)
   }
 }
