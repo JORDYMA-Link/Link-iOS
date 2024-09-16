@@ -23,6 +23,7 @@ struct RecentSearchView: View {
     WithPerceptionTracking {
       VStack(spacing: 0) {
         RecentSearchHeaderView(
+          recentSearches: store.recentSearches,
           removeAllAction: { store.send(.removeAllRecentSearchButtonTapped, animation: .spring) }
         )
         
@@ -70,9 +71,14 @@ struct RecentSearchView: View {
 
 extension RecentSearchView {
   private struct RecentSearchHeaderView: View {
+    private let recentSearches: [String]
     private let removeAllAction: () -> Void
     
-    init(removeAllAction: @escaping () -> Void) {
+    init(
+      recentSearches: [String],
+      removeAllAction: @escaping () -> Void
+    ) {
+      self.recentSearches = recentSearches
       self.removeAllAction = removeAllAction
     }
     
@@ -88,15 +94,19 @@ extension RecentSearchView {
         
         Spacer()
         
-        BKText(
-          text: "모두 지우기",
-          font: .regular,
-          size: ._13,
-          lineHeight: 18,
-          color: .bkColor(.gray700)
-        )
-        .underline(color: .bkColor(.gray700))
-        .onTapGesture { removeAllAction() }
+        if !recentSearches.isEmpty {
+          BKText(
+            text: "모두 지우기",
+            font: .regular,
+            size: ._13,
+            lineHeight: 18,
+            color: .bkColor(.gray700)
+          )
+          .underline(color: .bkColor(.gray700))
+          .onTapGesture { removeAllAction() }
+        } else {
+          Spacer()
+        }
       }
       .padding(16)
     }
