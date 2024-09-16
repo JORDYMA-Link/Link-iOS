@@ -45,6 +45,7 @@ public struct AddFolderBottomSheetFeature {
     // MARK: User Action
     case addFolderTapped
     case closeButtonTapped
+    case folderNameTextChanged(String)
     case confirmButtonTapped
     
     // MARK: Inner Business Action
@@ -72,7 +73,17 @@ public struct AddFolderBottomSheetFeature {
     
     Reduce { state, action in
       switch action {
-      case .binding(\.folderName):
+      case .addFolderTapped:
+        state.isAddFolderBottomSheetPresented = true
+        return .none
+        
+      case .closeButtonTapped:
+        state.isAddFolderBottomSheetPresented = false
+        return .send(.reset)
+        
+      case let .folderNameTextChanged(folderName):
+        state.folderName = folderName
+        
         if state.folderName.isEmpty || state.folderName.count > 10 {
           state.folderErrorType = .textcount
           return .send(.setValidation(false))
@@ -84,16 +95,6 @@ public struct AddFolderBottomSheetFeature {
         }
         
         return .send(.setValidation(true))
-        
-        
-      case .addFolderTapped:
-        state.isAddFolderBottomSheetPresented = true
-        return .none
-        
-      case .closeButtonTapped:
-        state.folderName = ""
-        state.isAddFolderBottomSheetPresented = false
-        return .none
         
       case .confirmButtonTapped:
         return .run(
