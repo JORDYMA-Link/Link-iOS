@@ -189,14 +189,16 @@ private struct CategoryHeaderView: View {
     WithPerceptionTracking {
       HStack(spacing: 8) {
         ForEach(CategoryType.allCases, id: \.self) { type in
-          BKCategoryButton(
-            title: type.title,
-            isSelected: store.category == type,
-            action: {
-              scrollAction()
-              store.send(.categoryButtonTapped(type))
-            }
-          )
+          WithPerceptionTracking {
+            BKCategoryButton(
+              title: type.title,
+              isSelected: store.category == type,
+              action: {
+                scrollAction()
+                store.send(.categoryButtonTapped(type))
+              }
+            )
+          }
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)

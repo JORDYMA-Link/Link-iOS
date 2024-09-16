@@ -28,10 +28,12 @@ struct HomeCardSection: View {
   
   var body: some View {
     Group {
-      if store.feedList.isEmpty {
-        emptyView()
-      } else {
-        contentSectionView()
+      WithPerceptionTracking {
+        if store.feedList.isEmpty {
+          emptyView()
+        } else {
+          contentSectionView()
+        }
       }
     }
   }
