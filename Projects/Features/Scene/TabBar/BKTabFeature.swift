@@ -107,8 +107,19 @@ public struct BKTabFeature {
         
         /// - 피드 디테일 진입 후 `피드 삭제하기` 눌렀을 때
       case let .path(.element(id: _, action: .Link(.delegate(.deleteFeed(feed))))):
-        state.path.removeAll()
-        return .send(.home(.setDeleteFeed(feed.feedId)))
+        state.path.removeLast()
+        
+        guard let stackElementId = state.path.ids.last,
+              let lastPath = state.path.last else {
+          return .send(.home(.setDeleteFeed(feed.feedId)))
+        }
+        
+        switch lastPath {
+        case .SearchKeyword:
+          return .send(.path(.element(id: stackElementId, action: .SearchKeyword(.setDeleteFeed(feed.feedId)))))
+        default:
+          return .none
+        }
         
         /// - 피드 디테일 진입 후 `뒤로가기` 버튼  눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.feedDetailCloseButtonTapped)))):
