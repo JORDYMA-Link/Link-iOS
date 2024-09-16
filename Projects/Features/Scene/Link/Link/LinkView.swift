@@ -133,7 +133,9 @@ struct LinkView: View {
           state: \.editLink,
           action: \.editLink)
       ) { store in
-        EditLinkView(store: store)
+        WithPerceptionTracking {
+          EditLinkView(store: store)
+        }
       }
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,

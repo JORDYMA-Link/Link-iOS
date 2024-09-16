@@ -92,6 +92,7 @@ public struct LinkFeature {
     // MARK: Delegate Action
     public enum Delegate {
       case summaryCompletedSaveButtonTapped(Int)
+      case feedDetailCloseButtonTapped
       case summaryCompletedCloseButtonTapped
       case summarySaveCloseButtonTapped
       case deleteFeed(Feed)
@@ -159,7 +160,9 @@ public struct LinkFeature {
       case .closeButtonTapped:
         switch state.linkType {
         case .feedDetail:
-          return .run { _ in await self.dismiss() }
+          return .run { send in
+            await send(.delegate(.feedDetailCloseButtonTapped))
+          }
         case .summaryCompleted:
           return .run { send in
             await send(.delegate(.summaryCompletedCloseButtonTapped))
@@ -318,7 +321,10 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
-        return .send(.editLinkPresented)
+        return .run { send in
+            try? await Task.sleep(for: .seconds(0.1))
+            await send(.editLinkPresented)
+        }
         
       case .menuBottomSheet(.deleteLinkItemTapped):
         state.isMenuBottomSheetPresented = false
