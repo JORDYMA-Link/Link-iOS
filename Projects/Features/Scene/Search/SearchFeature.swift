@@ -73,14 +73,21 @@ public struct SearchFeature {
     case setRemoveAllRecentSearches
     case setRemoveRecentSearches(String)
     
+    // MARK: Delegate Action
+    public enum Delegate {
+      case routeFeedDetail(Int)
+    }
+    
+    case delegate(Delegate)
+    
     // MARK: Child Action
     case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
-    
-    // MARK: Navigation Action
-    case routeFeedDetail(Int)
+        
+    // MARK: Present Action
+    case editLinkPresented(Int)
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -138,7 +145,7 @@ public struct SearchFeature {
       case let .keywordSearchItemTapped(sectionIndex, index, feed):
         return .run { send in
           await send(.setSelectedFeed(sectionIndex: sectionIndex, index: index, feed: feed))
-          await send(.routeFeedDetail(feed.feedId))
+          await send(.delegate(.routeFeedDetail(feed.feedId)))
         }
         
       case let .keywordSearchItemSaveButtonTapped(sectionIndex, index, isMarked, feedId):
@@ -332,10 +339,12 @@ public struct SearchFeature {
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        print(selectedFeed.feed.feedId)
-        state.editLink = .init(editLinkType: .home(feedId: selectedFeed.feed.feedId))
-        return .none
-        
+        return .run { send in
+          try? await Task.sleep(for: .seconds(0.1))
+          
+          await send(.editLinkPresented(selectedFeed.feed.feedId))
+        }
+                
       case .menuBottomSheet(.editFolderItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
@@ -358,9 +367,9 @@ public struct SearchFeature {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feed.feedId)) }
           ))
         }
-        
-      case let .routeFeedDetail(feedId):
-        state.link = .init(linkType: .feedDetail, feedId: feedId)
+                
+      case let .editLinkPresented(feedId):
+        state.editLink = .init(editLinkType: .home(feedId: feedId))
         return .none
         
       default:
