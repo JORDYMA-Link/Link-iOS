@@ -89,7 +89,7 @@ public struct BKTabFeature {
       case .home(.delegate(.routeSearchKeyword)), .storageBox(.delegate(.routeSearchKeyword)):
         state.path.append(.SearchKeyword(SearchFeature.State()))
         return .none
-        
+                
         /// - 상단 배너  `캘린더`  버튼 눌렀을 때
       case .home(.delegate(.routeCalendar)), .storageBox(.delegate(.routeCalendar)):
         state.path.append(.Calendar(CalendarViewFeature.State()))
@@ -100,10 +100,20 @@ public struct BKTabFeature {
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
         return .none
         
+        /// - 검색 -> `피드 디테일` 진입 시
+      case let .path(.element(id: _, action: .SearchKeyword(.delegate(.routeFeedDetail(feedId))))):
+        state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
+        return .none
+        
         /// - 피드 디테일 진입 후 `피드 삭제하기` 눌렀을 때
       case let .path(.element(id: _, action: .Link(.delegate(.deleteFeed(feed))))):
         state.path.removeAll()
         return .send(.home(.setDeleteFeed(feed.feedId)))
+        
+        /// - 피드 디테일 진입 후 `뒤로가기` 버튼  눌렀을 때
+      case .path(.element(id: _, action: .Link(.delegate(.feedDetailCloseButtonTapped)))):
+        state.path.removeLast()
+        return .none
         
         /// - 피드 디테일 진입 후 `WillDisappear` 됐을 때
       case let .feedDetailWillDisappear(feed):
