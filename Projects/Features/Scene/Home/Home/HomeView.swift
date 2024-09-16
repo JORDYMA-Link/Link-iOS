@@ -100,23 +100,16 @@ public struct HomeView: View {
           }
         }
       }
-    }
-    .padding(.bottom, 52)
-    .background(Color.bkColor(.white))
-    .fullScreenCover(
-      item: $store.scope(
-        state: \.editLink,
-        action: \.editLink)
-    ) { store in
-      EditLinkView(store: store)
-    }
-    .animation(.easeIn(duration: 0.2), value: isScrollDetected)
-    .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-      self.isScrollDetected = $0
-    }
-    .onViewDidLoad {
-      store.send(.onViewDidLoad)
-      UIScrollView.appearance().bounces = true
+      .padding(.bottom, 52)
+      .background(Color.bkColor(.white))
+      .animation(.easeIn(duration: 0.2), value: isScrollDetected)
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
+      }
+      .onViewDidLoad {
+        store.send(.onViewDidLoad)
+        UIScrollView.appearance().bounces = true
+      }
     }
   }
 }
