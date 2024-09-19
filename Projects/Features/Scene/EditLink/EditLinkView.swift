@@ -130,7 +130,7 @@ struct EditLinkView: View {
                 isPhotoError: $store.isPhotoError
               ) {
                 EditPhotoItem(
-                  currentImage: store.feed.thumnailImage,
+                  currentImage: store.feed.thumbnailImage,
                   selectedPhotoInfos: store.selectedPhotoInfos
                 )
               }

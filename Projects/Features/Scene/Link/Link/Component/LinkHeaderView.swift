@@ -38,7 +38,7 @@ struct LinkHeaderView: View {
       let isScrolling = minY > 0
       
       BKImageView(
-        imageURL: feed.thumnailImage,
+        imageURL: feed.thumbnailImage,
         downsamplingSize: .init(width: size.width, height: size.height),
         placeholder: CommonFeature.Images.icoEmptyThumnail
       )
