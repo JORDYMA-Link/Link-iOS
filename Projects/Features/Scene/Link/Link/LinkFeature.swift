@@ -32,7 +32,7 @@ public struct LinkFeature {
     /// init FeedId
     var feedId: Int
     /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
-    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
+    var feed: Feed = .init(feedId: 0, thumbnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
     /// 메모 타이틀

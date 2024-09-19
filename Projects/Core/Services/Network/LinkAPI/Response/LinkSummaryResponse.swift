@@ -25,7 +25,7 @@ extension LinkSummaryResponse {
   public func toDomain() -> Feed {
     return Feed(
       feedId: feedId,
-      thumnailImage: "",
+      thumbnailImage: "",
       platformImage: platformImage,
       title: subject,
       date: "",
