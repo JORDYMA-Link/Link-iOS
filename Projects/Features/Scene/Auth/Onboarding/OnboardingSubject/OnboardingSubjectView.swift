@@ -87,7 +87,7 @@ public struct OnboardingSubjectView: View {
       }
      
       HStack {
-        Text("3개를 선택해주시면 해당 폴더를 미리 만들어드릴게요!")
+        Text("관심 주제를 선택해주시면 해당 폴더를 미리 만들어드릴게요!")
           .font(.regular(size: ._14))
           .foregroundStyle(Color.bkColor(.gray700))
         
