@@ -30,12 +30,16 @@ struct SearchView: View {
         Divider()
           .foregroundStyle(Color.bkColor(.gray400))
         
-        if store.keyword.isEmpty {
-          RecentSearchView(store: store)
-        } else if store.feedSection.isEmpty {
-          EmptySearchView(store: store)
-        } else {
-          KeywordSearchView(store: store)
+        Group {
+          if store.query.isEmpty {
+            RecentSearchView(store: store)
+          } else {
+            if store.feedSection.isEmpty {
+              EmptySearchView(store: store)
+            } else {
+              KeywordSearchView(store: store)
+            }
+          }
         }
       }
       .searchKeywordBackground()
