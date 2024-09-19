@@ -62,6 +62,15 @@ public struct BKTabFeature {
     // MARK: Inner SetState Action
     case setSummaryToastPresented(SummaryType, Bool)
     
+    // MARK: Delegate Action
+    public enum Delegate {
+      case logout
+      case signout
+    }
+    
+    case delegate(Delegate)
+    
+    
     case path(StackAction<Path.State, Path.Action>)
     case storageBox(StorageBoxFeature.Action)
     case home(HomeFeature.Action)
@@ -157,6 +166,16 @@ public struct BKTabFeature {
         state.path.append(.Setting(SettingFeature.State()))
         return .none
         
+        /// - 세팅 -> `로그아웃` 했을 때
+      case .path(.element(id: _, action: .Setting(.delegate(.logout)))):
+        state.path.removeAll()
+        return .send(.delegate(.logout))
+        
+        /// - 세팅 -> `회원탈퇴` 했을 때
+      case .path(.element(id: _, action: .Setting(.delegate(.signout)))):
+        state.path.removeAll()
+        return .send(.delegate(.signout))
+        
         /// - 상단 배너 `콘텐츠를 찾아드립니다` 눌렀을 때
       case .home(.delegate(.routeSearchKeyword)), .storageBox(.delegate(.routeSearchKeyword)):
         state.path.append(.SearchKeyword(SearchFeature.State()))
@@ -236,8 +255,7 @@ public struct BKTabFeature {
         
         /// - 링크 요약 리스트 화면 -> `요약 리스트 아이템` 눌렀을 때 `요약 완료 화면`으로 이동
       case let .path(.element(id: _, action: .SummaryStatus(.delegate(.summaryStatusItemTapped(feedId))))):
-        state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
-        return .none
+        return .send(.routeSummaryCompleted(feedId))
         
         /// - 요약 완료 화면 ->  `확인` 버튼 눌렀을 때 `링크 요약 이후 저장 화면`으로 이동
       case let .path(.element(id: _, action: .Link(.delegate(.summaryCompletedSaveButtonTapped(feedId))))):
@@ -247,12 +265,15 @@ public struct BKTabFeature {
         /// - 요약 완료 화면 -> `확인` 버튼 누르지 않고 `뒤로가기` 버튼 눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.summaryCompletedCloseButtonTapped)))):
         state.path.removeAll()
-        /// - 링크 저장 독촉 모달 띄우기
         return .none
         
         /// - 링크 요약 이후 저장 화면 -> `뒤로가기` 버튼 눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
+        return .none
+        
+      case let .routeSummaryCompleted(feedId):
+        state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
         return .none
                 
       default:
