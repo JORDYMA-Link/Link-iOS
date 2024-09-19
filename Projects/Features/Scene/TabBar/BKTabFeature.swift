@@ -105,6 +105,11 @@ public struct BKTabFeature {
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
         return .none
         
+        /// - 폴더 별 피드 리스트 -> `피드 디테일` 진입 시
+      case let .path(.element(id: _, action: .StorageBoxFeedList(.delegate(.routeFeedDetail(feedId))))):
+        state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
+        return .none
+        
         /// - 피드 디테일 진입 후 `피드 삭제하기` 눌렀을 때
       case let .path(.element(id: _, action: .Link(.delegate(.deleteFeed(feed))))):
         state.path.removeLast()
