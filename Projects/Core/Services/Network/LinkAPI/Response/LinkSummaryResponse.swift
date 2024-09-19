@@ -19,6 +19,7 @@ struct LinkSummaryResponse: Decodable {
   let platformImage: String
   let recommendFolder: String
   let recommendFolders: [String]
+  let date: String
 }
 
 extension LinkSummaryResponse {
@@ -28,7 +29,7 @@ extension LinkSummaryResponse {
       thumbnailImage: "",
       platformImage: platformImage,
       title: subject,
-      date: "",
+      date: date,
       summary: summary,
       keywords: keywords,
       folderName: recommendFolder,
