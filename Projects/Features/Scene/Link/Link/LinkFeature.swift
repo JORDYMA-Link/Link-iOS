@@ -114,6 +114,7 @@ public struct LinkFeature {
   }
   
   @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
@@ -152,6 +153,8 @@ public struct LinkFeature {
           }
           
         case .summaryCompleted:
+          userDefaultsClient.set(state.feedId, .latestUnsavedSummaryFeedId)
+          
           return .run { [state] send in
             await send(.fetchLinkSummary(state.feedId))
           }
@@ -283,6 +286,7 @@ public struct LinkFeature {
             
             let feedId = try await feedIdResponse
             
+            userDefaultsClient.set(-1, .latestUnsavedSummaryFeedId)
             await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
           },
           catch: { error, send in

@@ -48,6 +48,7 @@ public struct BKTabFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case onViewDidLoad
     case onAppear
     case roundedTabIconTapped
     case saveLinkButtonTapped
@@ -64,8 +65,13 @@ public struct BKTabFeature {
     case path(StackAction<Path.State, Path.Action>)
     case storageBox(StorageBoxFeature.Action)
     case home(HomeFeature.Action)
+    
+    // MARK: Navigation Action
+    case routeSummaryCompleted(Int)
   }
   
+  @Dependency(\.alertClient) private var alertClient
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.linkClient) private var linkClient
   
   public var body: some ReducerOf<Self> {
@@ -78,6 +84,26 @@ public struct BKTabFeature {
       switch action {
       case .binding:
         return .none
+        
+      case .onViewDidLoad:
+        guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
+          return .none
+        }
+        
+        let feedId = userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1)
+        return .run { send in
+          await alertClient.present(.init(
+            title: "작업 미완료 알림",
+            description: """
+                          아직 저장중인 링크가 있어요!
+                          링크를 저장할 폴더를 지정해주세요
+                          """,
+            buttonType: .singleButton("저장하러 가기"),
+            rightButtonAction: {
+              await send(.routeSummaryCompleted(feedId))
+            }
+          ))
+        }
         
       case .onAppear:
         return .send(.fetchLinkProcessing)
