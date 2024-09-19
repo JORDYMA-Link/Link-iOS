@@ -10,8 +10,6 @@ import SwiftUI
 
 import Common
 
-import Kingfisher
-
 public struct BKCardCell: View {
   private var sourceTitle: String
   private var sourceImage: String
@@ -20,6 +18,7 @@ public struct BKCardCell: View {
   private var menuAction: () -> Void
   private var title: String
   private var description: String
+  private let highlightedWord: String?
   private var keyword: [String]
   private var isUncategorized: Bool
   private var recommendedFolders: [String]?
@@ -34,6 +33,7 @@ public struct BKCardCell: View {
     menuAction: @escaping () -> Void,
     title: String,
     description: String,
+    highlightedWord: String? = nil,
     keyword: [String],
     isUncategorized: Bool = false,
     recommendedFolders: [String]? = nil,
@@ -47,6 +47,7 @@ public struct BKCardCell: View {
     self.menuAction = menuAction
     self.title = title
     self.description = description
+    self.highlightedWord = highlightedWord
     self.keyword = keyword
     self.isUncategorized = isUncategorized
     self.recommendedFolders = recommendedFolders
@@ -66,6 +67,7 @@ public struct BKCardCell: View {
         
         BKChipView(
           keywords: .constant(keyword),
+          highlighted: highlightedWord,
           chipType: .default
         )
         
@@ -125,13 +127,14 @@ public struct BKCardCell: View {
     let titleFontHeight = UIFont.semiBold(size: ._16).lineHeight
     
     VStack(alignment: .leading, spacing: 4) {
-      Text(title)
+      
+      Text(highlightedString(fullText: title, highlightedWord: highlightedWord))
         .font(.semiBold(size: ._16))
         .foregroundStyle(Color.bkColor(.gray900))
         .padding(.vertical, (24 - titleFontHeight) / 2)
         .lineLimit(1)
       
-      Text(description)
+      Text(highlightedString(fullText: description, highlightedWord: highlightedWord))
         .font(.regular(size: ._14))
         .foregroundStyle(Color.bkColor(.gray700))
         .padding(.vertical, (20 - descriptionFontHeight) / 2)
@@ -203,10 +206,19 @@ public struct BKCardCell: View {
   }
 }
 
-// MARK: - BKCardCell Height
-
 extension BKCardCell {
-  private func calculateViewHeight(text: String, width: CGFloat) -> CGFloat {
-    return text.calculateHeight(font: UIFont.regular(size: ._14), width: width) <= 20 ? 146 : 166
+  private func highlightedString(fullText: String, highlightedWord: String?) -> AttributedString {
+    var attributedString = AttributedString(fullText)
+    
+    guard let highlightedWord else { return attributedString }
+        
+    if let range = attributedString.range(
+      of: highlightedWord.replacingOccurrences(of: " ", with: "").lowercased(),
+      options: [.caseInsensitive]
+    ) {
+      attributedString[range].foregroundColor = .bkColor(.main300)
+    }
+    
+    return attributedString
   }
 }
