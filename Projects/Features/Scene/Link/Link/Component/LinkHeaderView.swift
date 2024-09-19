@@ -45,10 +45,9 @@ struct LinkHeaderView: View {
       .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
       .clipped()
       .offset(y: isScrolling ? -minY : 0)
-      .overlay(alignment: .top) {
+      .overlay(alignment: .bottom) {
         VStack(spacing: 0) {
           titleView()
-          Spacer(minLength: 0)
           buttonView
         }
         .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
@@ -68,6 +67,7 @@ struct LinkHeaderView: View {
           placeholder: CommonFeature.Images.icoEmptyPlatform
         )
         .frame(width: 24, height: 24)
+        .clipShape(Circle())
         
         Text(feed.title)
           .font(.regular(size: ._28))
@@ -75,7 +75,7 @@ struct LinkHeaderView: View {
           .lineLimit(3)
           .multilineTextAlignment(.leading)
           .padding(.top, 4)
-          .frame(maxWidth: .infinity, minHeight: Size.titleMinHeight, alignment: .topLeading)
+          .frame(maxWidth: .infinity, minHeight: 38, alignment: .bottomLeading)
           .fixedSize(horizontal: false, vertical: true)
           .background(ViewHeightGeometry())
           .onPreferenceChange(ViewPreferenceKey.self) { height in
