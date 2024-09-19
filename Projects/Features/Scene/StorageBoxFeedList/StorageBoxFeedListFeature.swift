@@ -27,7 +27,6 @@ public struct StorageBoxFeedListFeature {
     var folderFeedList: [FeedCard] = []
     var selectedFeed: FeedCard?
     
-    @Presents var searchKeyword: SearchFeature.State?
     @Presents var calendarContent: CalendarViewFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
@@ -69,20 +68,19 @@ public struct StorageBoxFeedListFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
+      case routeSearchKeyword
       case routeFeedDetail(Int)
     }
     
     case delegate(Delegate)
     
     // MARK: Child Action
-    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Navigation Action
-    case routeSearchKeyword
     case routeCalendar
     
     // MARK: Present Action
@@ -122,7 +120,7 @@ public struct StorageBoxFeedListFeature {
         return .run { _ in await self.dismiss() }
         
       case .searchBannerSearchBarTapped:
-        return .send(.routeSearchKeyword)
+        return .send(.delegate(.routeSearchKeyword))
         
       case .searchBannerCalendarTapped:
         return .send(.routeCalendar)
@@ -290,11 +288,7 @@ public struct StorageBoxFeedListFeature {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
-        
-      case .routeSearchKeyword:
-        state.searchKeyword = .init()
-        return .none
-        
+                
       case .routeCalendar:
         state.calendarContent = .init()
         return .none
@@ -306,9 +300,6 @@ public struct StorageBoxFeedListFeature {
       default:
         return .none
       }
-    }
-    .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchFeature()
     }
     .ifLet(\.$calendarContent, action: \.calendarContent) {
       CalendarViewFeature()

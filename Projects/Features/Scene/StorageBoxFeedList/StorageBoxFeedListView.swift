@@ -76,14 +76,6 @@ struct StorageBoxFeedListView: View {
       .toolbar(.hidden, for: .navigationBar)
       .navigationDestination(
         item: $store.scope(
-          state: \.searchKeyword,
-          action: \.searchKeyword
-        )
-      ) { store in
-        SearchView(store: store)
-      }
-      .navigationDestination(
-        item: $store.scope(
           state: \.calendarContent,
           action: \.calendarContent
         )

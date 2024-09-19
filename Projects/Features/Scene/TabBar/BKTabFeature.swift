@@ -85,8 +85,13 @@ public struct BKTabFeature {
         state.path.append(.Setting(SettingFeature.State()))
         return .none
         
-        /// - 상단 배너  `콘텐츠를 찾아드립니다` 눌렀을 때
+        /// - 상단 배너 `콘텐츠를 찾아드립니다` 눌렀을 때
       case .home(.delegate(.routeSearchKeyword)), .storageBox(.delegate(.routeSearchKeyword)):
+        state.path.append(.SearchKeyword(SearchFeature.State()))
+        return .none
+        
+        /// - 폴더 별 피드 리스트 ->  상단 배너  `콘텐츠를 찾아드립니다` 눌렀을 때
+      case .path(.element(id: _, action: .StorageBoxFeedList(.delegate(.routeSearchKeyword)))):
         state.path.append(.SearchKeyword(SearchFeature.State()))
         return .none
                 
