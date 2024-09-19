@@ -15,19 +15,22 @@ import ComposableArchitecture
 struct HomeContainerView<Content: View>: View {
   private let store: StoreOf<HomeFeature>
   private let tabbar: () -> Content
-  @Binding var summaryToastIsPresented: Bool
+  @Binding private var isSummaryToastPresented: Bool
+  @Binding private var summaryType: SummaryType
   private let toastAction: () -> Void
   
   
   public init(
     store: StoreOf<HomeFeature>,
     tabbar: @autoclosure @escaping () -> Content,
-    summaryToastIsPresented: Binding<Bool>,
+    isSummaryToastPresented: Binding<Bool>,
+    summaryType: Binding<SummaryType>,
     toastAction: @escaping () -> Void
   ) {
     self.store = store
     self.tabbar = tabbar
-    self._summaryToastIsPresented = summaryToastIsPresented
+    self._isSummaryToastPresented = isSummaryToastPresented
+    self._summaryType = summaryType
     self.toastAction = toastAction
   }
   
@@ -36,11 +39,11 @@ struct HomeContainerView<Content: View>: View {
       ZStack(alignment: .bottom) {
         HomeView(store: store)
           .toast(
-            isPresented: $summaryToastIsPresented,
+            isPresented: $isSummaryToastPresented,
             toastType: .summary,
             toastContent: {
               BKSummaryToast(
-                summaryType: .summaryComplete,
+                summaryType: $summaryType,
                 action: { toastAction() }
               )
             }
