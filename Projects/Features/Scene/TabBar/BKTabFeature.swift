@@ -117,6 +117,9 @@ public struct BKTabFeature {
         switch lastPath {
         case .SearchKeyword:
           return .send(.path(.element(id: stackElementId, action: .SearchKeyword(.setDeleteFeed(feed.feedId)))))
+          
+        case .StorageBoxFeedList:
+          return .send(.path(.element(id: stackElementId, action: .StorageBoxFeedList(.setDeleteFeed(feed.feedId)))))
         default:
           return .none
         }
@@ -128,8 +131,22 @@ public struct BKTabFeature {
         
         /// - 피드 디테일 진입 후 `WillDisappear` 됐을 때
       case let .feedDetailWillDisappear(feed):
-        return .send(.home(.feedDetailWillDisappear(feed)))
+        guard let stackElementId = state.path.ids.last,
+              let lastPath = state.path.last else {
+          return .send(.home(.feedDetailWillDisappear(feed)))
+        }
         
+        switch lastPath {
+        case .SearchKeyword:
+          return .send(.path(.element(id: stackElementId, action: .SearchKeyword(.feedDetailWillDisappear(feed)))))
+          
+        case .StorageBoxFeedList:
+          return .send(.path(.element(id: stackElementId, action: .StorageBoxFeedList(.feedDetailWillDisappear(feed)))))
+          
+        default:
+          return .none
+        }
+                
         /// - 홈(미분류) -> `추천 폴더` 눌렀을 때  && 폴더함 -> `폴더` 진입 시
       case let .home(.delegate(.routeStorageBoxFeedList(folder))), let .storageBox(.delegate(.routeStorageBoxFeedList(folder))):
         state.path.append(.StorageBoxFeedList(StorageBoxFeedListFeature.State(folder: folder)))
