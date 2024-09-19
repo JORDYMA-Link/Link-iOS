@@ -90,17 +90,6 @@ struct StorageBoxFeedListView: View {
       ) { store in
         CalendarView(store: store)
       }
-      .navigationDestination(
-        item: $store.scope(
-          state: \.link,
-          action: \.link
-        )
-      ) { store in
-        LinkView(
-          store: store,
-          onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
-        )
-      }
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
         detents: [.height(192)],

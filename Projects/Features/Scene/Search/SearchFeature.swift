@@ -55,7 +55,7 @@ public struct SearchFeature {
     case keywordSearchItemSaveButtonTapped(sectionIndex: Int, index: Int, isMarked: Bool, feedId: Int)
     case keywordSearchMenuButtonTapped(sectionIndex: Int, index: Int, feed: FeedCard)
     case footerPaginationButtonTapped(Int)
-    case dismissCardDetail(Feed)
+    case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
     case resetPage
@@ -177,7 +177,7 @@ public struct SearchFeature {
         return .send(.updatePage)
       
       /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .dismissCardDetail(feed):
+      case let .feedDetailWillDisappear(feed):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         guard var section = state.feedSection[safe: selectedFeed.sectionIndex],
