@@ -33,7 +33,7 @@ extension LinkSummaryResponse {
       summary: summary,
       keywords: keywords,
       folderName: recommendFolder,
-      folders: folders,
+      folders: folders.filter { $0 != recommendFolder },
       memo: "",
       isMarked: false,
       originUrl: ""
