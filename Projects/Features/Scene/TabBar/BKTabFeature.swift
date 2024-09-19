@@ -8,6 +8,7 @@
 
 import Foundation
 
+import CommonFeature
 import Models
 
 import ComposableArchitecture
@@ -31,7 +32,11 @@ public struct BKTabFeature {
   public struct State: Equatable {
     var currentItem: BKTabViewType = .home
     var path = StackState<Path.State>()
+    
     var isSaveContentPresented = false
+    
+    var summaryType: SummaryType = .summarizing
+    var isSummaryToastPresented = false
     
     var home: HomeFeature.State = .init()
     var storageBox: StorageBoxFeature.State = .init()
@@ -41,17 +46,27 @@ public struct BKTabFeature {
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
+    
     // MARK: User Action
+    case onAppear
     case roundedTabIconTapped
     case saveLinkButtonTapped
     case routeSummaryStatusButtonTapped
     /// 피드 디테일 WillDisappear
     case feedDetailWillDisappear(Feed)
     
+    // MARK: Inner Business Action
+    case fetchLinkProcessing
+    
+    // MARK: Inner SetState Action
+    case setSummaryToastPresented(SummaryType, Bool)
+    
     case path(StackAction<Path.State, Path.Action>)
     case storageBox(StorageBoxFeature.Action)
     case home(HomeFeature.Action)
   }
+  
+  @Dependency(\.linkClient) private var linkClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.storageBox, action: \.storageBox) { StorageBoxFeature() }
@@ -63,6 +78,9 @@ public struct BKTabFeature {
       switch action {
       case .binding:
         return .none
+        
+      case .onAppear:
+        return .send(.fetchLinkProcessing)
         
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
@@ -78,6 +96,34 @@ public struct BKTabFeature {
         /// - 링크 요약 토스트 -> 보러가기 버튼 눌렀을 때
       case .routeSummaryStatusButtonTapped:
         state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
+        return .none
+        
+      case .fetchLinkProcessing:
+        return .run(
+          operation: { send in
+            async let linkProcessingResponse = try linkClient.getLinkProcessing()
+            
+            let linkProcessing = try await linkProcessingResponse.processingList
+            
+            guard !linkProcessing.isEmpty else {
+              await send(.setSummaryToastPresented(.summarizing, false))
+              return
+            }
+            
+            if linkProcessing.filter({ $0.status != .processing }).isEmpty {
+              await send(.setSummaryToastPresented(.summarizing, true))
+            } else {
+              await send(.setSummaryToastPresented(.summaryComplete, true))
+            }
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .setSummaryToastPresented(type, isPresented):
+        state.summaryType = type
+        state.isSummaryToastPresented = isPresented
         return .none
                 
         /// - 네비게이션 바 `세팅`버튼 눌렀을 때
