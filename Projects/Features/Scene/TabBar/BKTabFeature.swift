@@ -30,6 +30,7 @@ public struct BKTabFeature {
   
   @ObservableState
   public struct State: Equatable {
+    var viewDidLoad: Bool = false
     var currentItem: BKTabViewType = .home
     var path = StackState<Path.State>()
     
@@ -48,7 +49,6 @@ public struct BKTabFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
-    case onViewDidLoad
     case onAppear
     case roundedTabIconTapped
     case saveLinkButtonTapped
@@ -61,6 +61,7 @@ public struct BKTabFeature {
     
     // MARK: Inner SetState Action
     case setSummaryToastPresented(SummaryType, Bool)
+    case setUnsavedSummaryAlertPresented
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -94,28 +95,11 @@ public struct BKTabFeature {
       case .binding:
         return .none
         
-      case .onViewDidLoad:
-        guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
-          return .none
-        }
-        
-        let feedId = userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1)
-        return .run { send in
-          await alertClient.present(.init(
-            title: "작업 미완료 알림",
-            description: """
-                          아직 저장중인 링크가 있어요!
-                          링크를 저장할 폴더를 지정해주세요
-                          """,
-            buttonType: .singleButton("저장하러 가기"),
-            rightButtonAction: {
-              await send(.routeSummaryCompleted(feedId))
-            }
-          ))
-        }
-        
       case .onAppear:
-        return .send(.fetchLinkProcessing)
+        return .run { send in
+          await send(.fetchLinkProcessing)
+          await send(.setUnsavedSummaryAlertPresented)
+        }
         
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
@@ -160,6 +144,29 @@ public struct BKTabFeature {
         state.summaryType = type
         state.isSummaryToastPresented = isPresented
         return .none
+        
+      case .setUnsavedSummaryAlertPresented:
+        guard state.viewDidLoad == false else { return .none }
+        state.viewDidLoad = true
+        
+        guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
+          return .none
+        }
+        
+        let feedId = userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1)
+        return .run { send in
+          await alertClient.present(.init(
+            title: "작업 미완료 알림",
+            description: """
+                          아직 저장중인 링크가 있어요!
+                          링크를 저장할 폴더를 지정해주세요
+                          """,
+            buttonType: .singleButton("저장하러 가기"),
+            rightButtonAction: {
+              await send(.routeSummaryCompleted(feedId))
+            }
+          ))
+        }
                 
         /// - 네비게이션 바 `세팅`버튼 눌렀을 때
       case .home(.delegate(.routeSetting)):
