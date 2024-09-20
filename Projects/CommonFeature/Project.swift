@@ -12,7 +12,8 @@ let project = Project.make(
       resources: ["Resources/**"],
       dependencies: [
         .project(target: .common, projectPath: .core),
-        .external(externalDependency: .lottie)
+        .external(externalDependency: .lottie),
+        .external(externalDependency: .composableArchitecture)
       ],
       settings: .settings(base: DefaultSetting.baseProductSetting)
     )
