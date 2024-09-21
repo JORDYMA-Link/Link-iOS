@@ -28,7 +28,7 @@ struct HomeContainerView<Content: View>: View {
     WithPerceptionTracking {
       ZStack(alignment: .bottom) {
         HomeView(store: store)
-          .toast(
+          .summaryToast(store: store)
         
         tabbar()
       }

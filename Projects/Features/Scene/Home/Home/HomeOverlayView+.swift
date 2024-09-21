@@ -77,4 +77,21 @@ extension View {
         }
       }
   }
+  
+  @ViewBuilder
+  func summaryToast(store: StoreOf<HomeFeature>) -> some View {
+    @Perception.Bindable var store = store
+    
+    self
+      .toast(
+        isPresented: $store.isSummaryToastPresented,
+        toastType: .summary,
+        toastContent: {
+          BKSummaryToast(
+            summaryType: $store.summaryType,
+            action: { store.send(.summaryToastRouteButtonTapped) }
+          )
+        }
+      )
+  }
 }
