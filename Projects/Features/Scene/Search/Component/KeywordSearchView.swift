@@ -40,6 +40,7 @@ struct KeywordSearchView: View {
                       menuAction: { store.send(.keywordSearchMenuButtonTapped(sectionIndex: sectionIndex, index: index, feed: item)) },
                       title: item.title,
                       description: item.summary,
+                      highlightedWord: store.keyword,
                       keyword: item.keywords,
                       isUncategorized: false
                     )

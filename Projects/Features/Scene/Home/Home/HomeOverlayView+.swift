@@ -16,6 +16,7 @@ extension View {
   @ViewBuilder
   func cardSettingBottomSheet(store: StoreOf<HomeFeature>) -> some View {
     @Perception.Bindable var store = store
+    
     self
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
@@ -32,6 +33,7 @@ extension View {
   @ViewBuilder
   func editFolderBottomSheet(store: StoreOf<HomeFeature>) -> some View {
     @Perception.Bindable var store = store
+    
     self
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
@@ -57,6 +59,22 @@ extension View {
       ) {
         AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
           .interactiveDismissDisabled()
+      }
+  }
+  
+  @ViewBuilder
+  func editLinkFullScreenOver(store: StoreOf<HomeFeature>) -> some View {
+    @Perception.Bindable var store = store
+    
+    self
+      .fullScreenCover(
+        item: $store.scope(
+          state: \.editLink,
+          action: \.editLink)
+      ) { store in
+        WithPerceptionTracking {
+          EditLinkView(store: store)
+        }
       }
   }
 }

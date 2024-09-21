@@ -19,24 +19,26 @@ struct EditMemoBottomSheet: View {
   var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
-    WithPerceptionTracking {
-      GeometryReader { _ in
+    GeometryReader { _ in
+      WithPerceptionTracking {
         VStack(spacing: 0) {
-          BKTextField(
-            text: $store.memo,
-            isValidation: store.isValidation,
-            textIsFocused: _textIsFocused,
-            textFieldType: .addMemo,
-            textCount: 1000,
-            isMultiLine: true,
-            isClearButton: true,
-            errorMessage: "메모는 1000자까지 입력 가능해요.",
-            height: 126
-          )
-          .introspect(.textField, on: .iOS(.v17)) { textField in
-            textField.delegate = textFieldDelegate
+          WithPerceptionTracking {
+            BKTextField(
+              text: $store.memo,
+              isValidation: store.isValidation,
+              textIsFocused: _textIsFocused,
+              textFieldType: .addMemo,
+              textCount: 1000,
+              isMultiLine: true,
+              isClearButton: true,
+              errorMessage: "메모는 1000자까지 입력 가능해요.",
+              height: 126
+            )
+            .introspect(.textField, on: .iOS(.v17)) { textField in
+              textField.delegate = textFieldDelegate
+            }
+            .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           }
-          .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           
           Spacer(minLength: 0)
           
@@ -48,11 +50,11 @@ struct EditMemoBottomSheet: View {
           )
         }
       }
-      .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
-      .animation(.spring, value: textIsFocused)
-      .onAppear {
-        textIsFocused = true
-      }
+    }
+    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
+    .animation(.spring, value: textIsFocused)
+    .onAppear {
+      textIsFocused = true
     }
   }
 }

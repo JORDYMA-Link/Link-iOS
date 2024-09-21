@@ -32,7 +32,7 @@ public struct LinkFeature {
     /// init FeedId
     var feedId: Int
     /// 콘텐츠 디테일 & 링크 요약 동일하게 쓰이는 Domain Model
-    var feed: Feed = .init(feedId: 0, thumnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
+    var feed: Feed = .init(feedId: 0, thumbnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
     /// 메모 타이틀
@@ -92,6 +92,7 @@ public struct LinkFeature {
     // MARK: Delegate Action
     public enum Delegate {
       case summaryCompletedSaveButtonTapped(Int)
+      case feedDetailCloseButtonTapped
       case summaryCompletedCloseButtonTapped
       case summarySaveCloseButtonTapped
       case deleteFeed(Feed)
@@ -113,6 +114,7 @@ public struct LinkFeature {
   }
   
   @Dependency(\.dismiss) private var dismiss
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
@@ -151,6 +153,8 @@ public struct LinkFeature {
           }
           
         case .summaryCompleted:
+          userDefaultsClient.set(state.feedId, .latestUnsavedSummaryFeedId)
+          
           return .run { [state] send in
             await send(.fetchLinkSummary(state.feedId))
           }
@@ -159,7 +163,9 @@ public struct LinkFeature {
       case .closeButtonTapped:
         switch state.linkType {
         case .feedDetail:
-          return .run { _ in await self.dismiss() }
+          return .run { send in
+            await send(.delegate(.feedDetailCloseButtonTapped))
+          }
         case .summaryCompleted:
           return .run { send in
             await send(.delegate(.summaryCompletedCloseButtonTapped))
@@ -280,6 +286,7 @@ public struct LinkFeature {
             
             let feedId = try await feedIdResponse
             
+            userDefaultsClient.set(-1, .latestUnsavedSummaryFeedId)
             await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
           },
           catch: { error, send in
@@ -318,7 +325,10 @@ public struct LinkFeature {
         
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
-        return .send(.editLinkPresented)
+        return .run { send in
+            try? await Task.sleep(for: .seconds(0.1))
+            await send(.editLinkPresented)
+        }
         
       case .menuBottomSheet(.deleteLinkItemTapped):
         state.isMenuBottomSheetPresented = false

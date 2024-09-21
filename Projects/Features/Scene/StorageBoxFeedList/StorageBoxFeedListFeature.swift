@@ -27,9 +27,7 @@ public struct StorageBoxFeedListFeature {
     var folderFeedList: [FeedCard] = []
     var selectedFeed: FeedCard?
     
-    @Presents var searchKeyword: SearchFeature.State?
     @Presents var calendarContent: CalendarViewFeature.State?
-    @Presents var link: LinkFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
@@ -53,7 +51,7 @@ public struct StorageBoxFeedListFeature {
     case cardItemTapped(Int)
     case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
-    case dismissCardDetail(Feed)
+    case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
     case resetCursor
@@ -68,18 +66,25 @@ public struct StorageBoxFeedListFeature {
     case setMorePagingStatus(Bool)
     case setFetchedAllCardsStatus(Bool)
     
+    // MARK: Delegate Action
+    public enum Delegate {
+      case routeSearchKeyword
+      case routeFeedDetail(Int)
+    }
+    
+    case delegate(Delegate)
+    
     // MARK: Child Action
-    case searchKeyword(PresentationAction<SearchFeature.Action>)
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
-    case link(PresentationAction<LinkFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Navigation Action
-    case routeSearchKeyword
     case routeCalendar
-    case routeFeedDetail(Int)
+    
+    // MARK: Present Action
+    case editLinkPresented(Int)
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -115,7 +120,7 @@ public struct StorageBoxFeedListFeature {
         return .run { _ in await self.dismiss() }
         
       case .searchBannerSearchBarTapped:
-        return .send(.routeSearchKeyword)
+        return .send(.delegate(.routeSearchKeyword))
         
       case .searchBannerCalendarTapped:
         return .send(.routeCalendar)
@@ -132,7 +137,7 @@ public struct StorageBoxFeedListFeature {
         .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
         
       case let .cardItemTapped(feedId):
-        return .send(.routeFeedDetail(feedId))
+        return .send(.delegate(.routeFeedDetail(feedId)))
         
       case let .cardItemSaveButtonTapped(index, isMarked):
         guard var item = state.folderFeedList[safe: index] else { return .none }
@@ -148,7 +153,7 @@ public struct StorageBoxFeedListFeature {
         return .none
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-        case let .dismissCardDetail(feed):
+        case let .feedDetailWillDisappear(feed):
           guard let index = state.folderFeedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
             return .none
           }
@@ -233,11 +238,7 @@ public struct StorageBoxFeedListFeature {
       case let .setFetchedAllCardsStatus(isPaging):
         state.fetchedAllFeedCards = isPaging
         return .none
-        
-        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .link(.presented(.delegate(.deleteFeed(feed)))):
-        return .send(.setDeleteFeed(feed.feedId))
-        
+                
       case .editLink(.presented(.delegate(.didUpdateHome))):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
@@ -260,9 +261,11 @@ public struct StorageBoxFeedListFeature {
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .home(feedId: selectedFeed.feedId))
-        return .none
-        
+        return .run { send in
+          try? await Task.sleep(for: .seconds(0.1))
+          await send(.editLinkPresented(selectedFeed.feedId))
+        }
+                
       case .menuBottomSheet(.editFolderItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
@@ -285,31 +288,21 @@ public struct StorageBoxFeedListFeature {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
-        
-      case .routeSearchKeyword:
-        state.searchKeyword = .init()
-        return .none
-        
+                
       case .routeCalendar:
         state.calendarContent = .init()
         return .none
         
-      case let .routeFeedDetail(feedId):
-        state.link = .init(linkType: .feedDetail, feedId: feedId)
+      case let .editLinkPresented(feedId):
+        state.editLink = .init(editLinkType: .home(feedId: feedId))
         return .none
         
       default:
         return .none
       }
     }
-    .ifLet(\.$searchKeyword, action: \.searchKeyword) {
-      SearchFeature()
-    }
     .ifLet(\.$calendarContent, action: \.calendarContent) {
       CalendarViewFeature()
-    }
-    .ifLet(\.$link, action: \.link) {
-      LinkFeature()
     }
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()

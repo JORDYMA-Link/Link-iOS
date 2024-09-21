@@ -3,4 +3,4 @@
 
 ONLY_ACTIVE_ARCH=YES
 BUNDLE_NAME=Blink
-BASE_URL=http:/$()/link-server-test-env.eba-iwnxwgcm.ap-northeast-2.elasticbeanstalk.com
+BASE_URL=http:/$()/api.blink-archive.com

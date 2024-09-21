@@ -19,22 +19,24 @@ struct EditFolderNameBottomSheet: View {
   @State private var textFieldDelegate = TextFieldDelegate()
   
   var body: some View {
-    WithPerceptionTracking {
-      GeometryReader { _ in
+    GeometryReader { _ in
+      WithPerceptionTracking {
         VStack(spacing: 0) {
-          BKTextField(
-            text: $store.folder.name.sending(\.textChanged),
-            isValidation: store.isValidation,
-            textIsFocused: _textIsFocused,
-            textFieldType: .editFolderName,
-            textCount: 10,
-            isMultiLine: false, 
-            errorMessage: store.errorMessage
-          )
-          .introspect(.textField, on: .iOS(.v17)) { textField in
-            textField.delegate = textFieldDelegate
+          WithPerceptionTracking {
+            BKTextField(
+              text: $store.folder.name.sending(\.textChanged),
+              isValidation: store.isValidation,
+              textIsFocused: _textIsFocused,
+              textFieldType: .editFolderName,
+              textCount: 10,
+              isMultiLine: false,
+              errorMessage: store.errorMessage
+            )
+            .introspect(.textField, on: .iOS(.v17)) { textField in
+              textField.delegate = textFieldDelegate
+            }
+            .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           }
-          .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           
           Spacer(minLength: 0)
           
@@ -46,15 +48,15 @@ struct EditFolderNameBottomSheet: View {
           )
         }
       }
-      .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
-      .animation(.spring, value: textIsFocused)
-      .onAppear { textIsFocused = true }
     }
+    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
+    .animation(.spring, value: textIsFocused)
+    .onAppear { textIsFocused = true }
   }
 }
 
 final class TextFieldDelegate: NSObject, UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        return false
-    }
+  func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    return false
+  }
 }
