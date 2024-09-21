@@ -55,27 +55,24 @@ public struct BKTabView: View {
             case .home:
               HomeContainerView(
                 store: store.scope(state: \.home, action: \.home),
-                tabbar: tabbar,
-                isSummaryToastPresented: $store.isSummaryToastPresented,
-                summaryType: $store.summaryType,
-                toastAction: { store.send(.routeSummaryStatusButtonTapped) }
+                tabbar: tabbar
               )
               
             case .folder:
               StorageBoxContainerView(
                 store: store.scope(state: \.storageBox, action: \.storageBox),
-                tabbar: tabbar,
-                isSummaryToastPresented: $store.isSummaryToastPresented,
-                summaryType: $store.summaryType,
-                toastAction: { store.send(.routeSummaryStatusButtonTapped) }
+                tabbar: tabbar
               )
             }
           }
         }
         .toolbar(.hidden, for: .navigationBar)
         .popGestureEnabled()
-        .onViewDidLoad { UITabBar.appearance().isHidden = true }
-        .onAppear { store.send(.onAppear) }
+        .onViewDidLoad {
+          UITabBar.appearance().isHidden = true
+          UIScrollView.appearance().bounces = true
+          store.send(.onViewDidLoad)
+        }
       } destination: { store in
         WithPerceptionTracking {
           switch store.state {
