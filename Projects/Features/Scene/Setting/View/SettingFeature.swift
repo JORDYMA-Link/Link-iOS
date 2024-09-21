@@ -141,7 +141,7 @@ public struct SettingFeature {
         state.latestAppVersion = version ?? state.currentAppVersion
         return .none
         
-      //User Action
+        //User Action
       case .tappedNicknameEdit:
         state.showEditNicknameSheet = true
         return .none
@@ -187,14 +187,13 @@ public struct SettingFeature {
           let response = try await userClient.requestUserProfile(targetNickName)
           await send(.changeNickName(targetNickname: response.nickname))
         }
-      
+        
       case .postLogout:
         return .run(
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
             
-            // 500 에러 이후 수정
-//             _ = try await authClient.logout(refreshToken)
+            try await authClient.logout(refreshToken)
             
             await send(.setDeleteKeychain)
             await send(.delegate(.logout))
@@ -209,9 +208,8 @@ public struct SettingFeature {
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
             
-            // 500 에러 이후 수정
-//             _ = try await authClient.signout(refreshToken)
-
+            try await authClient.signout(refreshToken)
+            
             await send(.setDeleteKeychain)
             await send(.setDeleteUserDefaults)
             await send(.delegate(.signout))
