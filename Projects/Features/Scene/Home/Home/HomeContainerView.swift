@@ -15,23 +15,13 @@ import ComposableArchitecture
 struct HomeContainerView<Content: View>: View {
   private let store: StoreOf<HomeFeature>
   private let tabbar: () -> Content
-  @Binding private var isSummaryToastPresented: Bool
-  @Binding private var summaryType: SummaryType
-  private let toastAction: () -> Void
-  
-  
+    
   public init(
     store: StoreOf<HomeFeature>,
-    tabbar: @autoclosure @escaping () -> Content,
-    isSummaryToastPresented: Binding<Bool>,
-    summaryType: Binding<SummaryType>,
-    toastAction: @escaping () -> Void
+    tabbar: @autoclosure @escaping () -> Content
   ) {
     self.store = store
     self.tabbar = tabbar
-    self._isSummaryToastPresented = isSummaryToastPresented
-    self._summaryType = summaryType
-    self.toastAction = toastAction
   }
   
   var body: some View {
@@ -39,15 +29,6 @@ struct HomeContainerView<Content: View>: View {
       ZStack(alignment: .bottom) {
         HomeView(store: store)
           .toast(
-            isPresented: $isSummaryToastPresented,
-            toastType: .summary,
-            toastContent: {
-              BKSummaryToast(
-                summaryType: $summaryType,
-                action: { toastAction() }
-              )
-            }
-          )
         
         tabbar()
       }
