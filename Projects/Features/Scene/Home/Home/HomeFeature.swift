@@ -88,6 +88,7 @@ public struct HomeFeature: Reducer {
     // MARK: Navigation Action
     
     // MARK: Present Action
+    case editLinkPresented(Int)
   }
   
   @Dependency(\.feedClient) private var feedClient
@@ -127,7 +128,7 @@ public struct HomeFeature: Reducer {
         
       case .settingButtonTapped:
         return .send(.delegate(.routeSetting))
-                
+        
       case .searchBannerSearchBarTapped:
         return .send(.delegate(.routeSearchKeyword))
         
@@ -179,7 +180,7 @@ public struct HomeFeature: Reducer {
       case .cardItemAddFolderTapped:
         return .send(.addFolderBottomSheet(.addFolderTapped))
         
-      /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .feedDetailWillDisappear(feed):
         guard let index = state.feedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
           return .none
@@ -247,7 +248,7 @@ public struct HomeFeature: Reducer {
             print(error)
           }
         )
-                
+        
       case let .patchFeedFolder(feedId, name):
         return .run(
           operation: { send in
@@ -259,7 +260,7 @@ public struct HomeFeature: Reducer {
             print(error)
           }
         )
-                
+        
       case let .setFeedList(feedList):
         if state.page == 0 {
           state.feedList = feedList
@@ -295,10 +296,10 @@ public struct HomeFeature: Reducer {
           try await Task.sleep(for: .seconds(0.5))
           await send(.delegate(.routeStorageBoxFeedList(folder)))
         }
-                        
+        
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
         return .run { send in
-          try await Task.sleep(for: .seconds(0.7))
+          try await Task.sleep(for: .seconds(0.5))
           await send(.cardItemTapped(feed.feedId))
         }
         
@@ -306,8 +307,11 @@ public struct HomeFeature: Reducer {
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        state.editLink = .init(editLinkType: .home(feedId: selectedFeed.feedId))
-        return .none
+        return .run { send in
+          try? await Task.sleep(for: .seconds(0.1))
+          
+          await send(.editLinkPresented(selectedFeed.feedId))
+        }
         
       case .menuBottomSheet(.editFolderItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
@@ -331,7 +335,11 @@ public struct HomeFeature: Reducer {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
-
+        
+      case let .editLinkPresented(feedId):
+        state.editLink = .init(editLinkType: .home(feedId: feedId))
+        return .none
+        
       default:
         return .none
       }

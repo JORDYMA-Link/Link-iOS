@@ -11,7 +11,7 @@ import Foundation
 // 추후 요약하기 response 관련 수정 필요
 public struct Feed: Equatable {
   public let feedId: Int
-  public let thumnailImage: String
+  public let thumbnailImage: String
   public let platformImage: String?
   public var title: String
   public let date: String
@@ -25,7 +25,7 @@ public struct Feed: Equatable {
   
   public init(
     feedId: Int,
-    thumnailImage: String,
+    thumbnailImage: String,
     platformImage: String,
     title: String,
     date: String,
@@ -38,7 +38,7 @@ public struct Feed: Equatable {
     originUrl: String
   ) {
     self.feedId = feedId
-    self.thumnailImage = thumnailImage
+    self.thumbnailImage = thumbnailImage
     self.platformImage = platformImage
     self.title = title
     self.date = date

@@ -24,7 +24,7 @@ public struct AddFolderBottomSheetFeature {
   @ObservableState
   public struct State: Equatable {
     public var folderName: String = ""
-    public var isValidation: Bool = false
+    public var isValidation: Bool = true
     public var folderErrorType: FolderValidationError = .textcount
     public var errorMessage: String {
       switch folderErrorType {
@@ -45,6 +45,7 @@ public struct AddFolderBottomSheetFeature {
     // MARK: User Action
     case addFolderTapped
     case closeButtonTapped
+    case folderNameTextChanged(String)
     case confirmButtonTapped
     
     // MARK: Inner Business Action
@@ -52,6 +53,7 @@ public struct AddFolderBottomSheetFeature {
     
     // MARK: Inner SetState Action
     case setValidation(Bool)
+    case reset
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -71,7 +73,17 @@ public struct AddFolderBottomSheetFeature {
     
     Reduce { state, action in
       switch action {
-      case .binding(\.folderName):
+      case .addFolderTapped:
+        state.isAddFolderBottomSheetPresented = true
+        return .none
+        
+      case .closeButtonTapped:
+        state.isAddFolderBottomSheetPresented = false
+        return .send(.reset)
+        
+      case let .folderNameTextChanged(folderName):
+        state.folderName = folderName
+        
         if state.folderName.isEmpty || state.folderName.count > 10 {
           state.folderErrorType = .textcount
           return .send(.setValidation(false))
@@ -83,16 +95,6 @@ public struct AddFolderBottomSheetFeature {
         }
         
         return .send(.setValidation(true))
-        
-        
-      case .addFolderTapped:
-        state.isAddFolderBottomSheetPresented = true
-        return .none
-        
-      case .closeButtonTapped:
-        state.folderName = ""
-        state.isAddFolderBottomSheetPresented = false
-        return .none
         
       case .confirmButtonTapped:
         return .run(
@@ -110,12 +112,19 @@ public struct AddFolderBottomSheetFeature {
         .throttle(id: ThrottleId.confirmButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case let .successAddFolder(folder):
-        state.folderName = ""
         state.isAddFolderBottomSheetPresented = false
-        return .send(.delegate(.didUpdate(folder)))
+        return .run { send in
+          await send(.reset)
+          await send(.delegate(.didUpdate(folder)))
+        }
         
       case let .setValidation(isValidation):
         state.isValidation = isValidation
+        return .none
+        
+      case .reset:
+        state.folderName = ""
+        state.isValidation = true
         return .none
         
       default:

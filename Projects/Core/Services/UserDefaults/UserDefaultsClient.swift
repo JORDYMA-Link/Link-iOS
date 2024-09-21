@@ -15,6 +15,7 @@ public struct UserDefaultsClient {
         case fcmToken
         case isPopGestureEnabled
         case recentSearches
+        case latestUnsavedSummaryFeedId
     }
     
     public var string: @Sendable (_ forKey: UserDefaultsKey, _ default: String) -> String
