@@ -34,12 +34,16 @@ public struct HomeFeature: Reducer {
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     
     var isMenuBottomSheetPresented: Bool = false
+    
+    var summaryType: SummaryType = .summarizing
+    var isSummaryToastPresented = false
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     
     // MARK: User Action
+    case onAppear
     case onViewDidLoad
     case settingButtonTapped
     case searchBannerSearchBarTapped
@@ -53,6 +57,7 @@ public struct HomeFeature: Reducer {
     case cardItemRecommendedFolderTapped(Int, String)
     case cardItemAddFolderTapped
     case feedDetailWillDisappear(Feed)
+    case summaryToastRouteButtonTapped
     
     // MARK: Inner Business Action
     case resetPage
@@ -61,12 +66,14 @@ public struct HomeFeature: Reducer {
     case patchBookmark(Int, Bool)
     case deleteFeed(Int)
     case patchFeedFolder(Int, String)
+    case fetchLinkProcessing
     
     // MARK: Inner SetState Action
     case setFeedList([FeedCard])
     case setDeleteFeed(Int)
     case setMorePagingStatus(Bool)
     case setFetchedAllCardsStatus(Bool)
+    case setSummaryToastPresented(SummaryType, Bool)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -75,6 +82,7 @@ public struct HomeFeature: Reducer {
       case routeCalendar
       case routeFeedDetail(Int)
       case routeStorageBoxFeedList(Folder)
+      case routeSummaryStatusList
     }
     
     case delegate(Delegate)
@@ -93,6 +101,7 @@ public struct HomeFeature: Reducer {
   
   @Dependency(\.feedClient) private var feedClient
   @Dependency(\.folderClient) private var folderClient
+  @Dependency(\.linkClient) private var linkClient
   @Dependency(\.alertClient) private var alertClient
   
   private enum ThrottleId {
@@ -120,6 +129,12 @@ public struct HomeFeature: Reducer {
       switch action {
       case .binding:
         return .none
+        
+      case .onAppear:
+        return .run { send in
+          await send(.onViewDidLoad)
+          await send(.fetchLinkProcessing)
+        }
         
       case .onViewDidLoad:
         guard state.viewDidLoad == false else { return .none }
@@ -194,6 +209,9 @@ public struct HomeFeature: Reducer {
         }
         return .none
         
+      case .summaryToastRouteButtonTapped:
+        return .send(.delegate(.routeSummaryStatusList))
+        
       case .resetPage:
         state.morePagingNeeded = true
         state.fetchedAllFeedCards = false
@@ -261,6 +279,29 @@ public struct HomeFeature: Reducer {
           }
         )
         
+      case .fetchLinkProcessing:
+        return .run(
+          operation: { send in
+            async let linkProcessingResponse = try linkClient.getLinkProcessing()
+            
+            let linkProcessing = try await linkProcessingResponse.processingList
+            
+            guard !linkProcessing.isEmpty else {
+              await send(.setSummaryToastPresented(.summarizing, false))
+              return
+            }
+            
+            if linkProcessing.filter({ $0.status != .processing }).isEmpty {
+              await send(.setSummaryToastPresented(.summarizing, true))
+            } else {
+              await send(.setSummaryToastPresented(.summaryComplete, true))
+            }
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
       case let .setFeedList(feedList):
         if state.page == 0 {
           state.feedList = feedList
@@ -279,6 +320,11 @@ public struct HomeFeature: Reducer {
         
       case let .setFetchedAllCardsStatus(isPaging):
         state.fetchedAllFeedCards = isPaging
+        return .none
+        
+      case let .setSummaryToastPresented(type, isPresented):
+        state.summaryType = type
+        state.isSummaryToastPresented = isPresented
         return .none
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;

@@ -106,10 +106,7 @@ public struct HomeView: View {
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         self.isScrollDetected = $0
       }
-      .onViewDidLoad {
-        store.send(.onViewDidLoad)
-        UIScrollView.appearance().bounces = true
-      }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
