@@ -57,6 +57,7 @@ public struct SettingFeature {
     case postSignout
     
     case setDeleteKeychain
+    case setDeleteUserDefaults
     
     //binding
     case binding(BindingAction<State>)
@@ -108,6 +109,7 @@ public struct SettingFeature {
   
   //MARK: - Dependency
   @Dependency(\.alertClient) private var alertClient
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.userClient) private var userClient
   @Dependency(\.authClient) private var authClient
@@ -211,6 +213,7 @@ public struct SettingFeature {
 //             _ = try await authClient.signout(refreshToken)
 
             await send(.setDeleteKeychain)
+            await send(.setDeleteUserDefaults)
             await send(.delegate(.signout))
           },
           catch : { error, send in
@@ -223,6 +226,10 @@ public struct SettingFeature {
           try await keychainClient.delete(.accessToken)
           try await keychainClient.delete(.refreshToken)
         }
+        
+      case .setDeleteUserDefaults:
+        userDefaultsClient.reset()
+        return .none
         
       case .binding(\.targetNickname):
         let target = state.targetNickname
