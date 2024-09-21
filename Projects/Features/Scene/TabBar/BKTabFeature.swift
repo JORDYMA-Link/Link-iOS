@@ -70,7 +70,6 @@ public struct BKTabFeature {
     case home(HomeFeature.Action)
     
     // MARK: Navigation Action
-    case routeSummaryStatusList
     case routeSummaryCompleted(Int)
   }
   
@@ -85,12 +84,13 @@ public struct BKTabFeature {
     
     Reduce { state, action in
       switch action {
-      case .binding:
+      case .binding(\.currentItem):
+        state.isSaveContentPresented = false
         return .none
         
       case .onViewDidLoad:
         return .send(.setUnsavedSummaryAlertPresented)
-        
+                
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
         state.isSaveContentPresented.toggle()
@@ -99,7 +99,8 @@ public struct BKTabFeature {
         /// - 링크 저장 버튼 눌렀을 때
       case .saveLinkButtonTapped:
         state.isSaveContentPresented.toggle()
-        return .send(.routeSummaryStatusList)
+        state.path.append(.SaveLink(SaveLinkFeature.State()))
+        return .none
                         
       case .setUnsavedSummaryAlertPresented:
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
@@ -215,7 +216,8 @@ public struct BKTabFeature {
         
         /// - 홈 > 요약중 & 요약완료 토스트 -> `보러가기` 눌렀을 때
       case .home(.delegate(.routeSummaryStatusList)):
-        return .send(.routeSummaryStatusList)
+        state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
+        return .none
         
         /// - 링크 요약 리스트 화면 -> `요약 리스트 아이템` 눌렀을 때 `요약 완료 화면`으로 이동
       case let .path(.element(id: _, action: .SummaryStatus(.delegate(.summaryStatusItemTapped(feedId))))):
@@ -235,11 +237,7 @@ public struct BKTabFeature {
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
         return .none
-        
-      case .routeSummaryStatusList:
-        state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
-        return .none
-        
+                
       case let .routeSummaryCompleted(feedId):
         state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
         return .none
