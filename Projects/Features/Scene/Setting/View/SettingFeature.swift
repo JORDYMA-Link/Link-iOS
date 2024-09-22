@@ -19,7 +19,7 @@ public struct SettingFeature {
   public struct State: Equatable {
     var nickname: String = "블링크"
     var validationNoticeMessage: String = ""
-    var currentAppVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    var currentAppVersion: String = Bundle.currentAppVersion
     var latestAppVersion: String = "Unknown"
     var showEditNicknameSheet: Bool = false
     var showWithdrawModal: Bool = false
