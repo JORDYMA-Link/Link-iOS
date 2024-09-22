@@ -55,7 +55,7 @@ public struct HomeFeature: Reducer {
     case cardItemSaveButtonTapped(Int, Bool)
     case cardItemMenuButtonTapped(FeedCard)
     case cardItemRecommendedFolderTapped(Int, String)
-    case cardItemAddFolderTapped
+    case cardItemAddFolderTapped(FeedCard)
     case feedDetailWillDisappear(Feed)
     case summaryToastRouteButtonTapped
     
@@ -192,7 +192,8 @@ public struct HomeFeature: Reducer {
       case let .cardItemRecommendedFolderTapped(feedId, folderName):
         return .send(.patchFeedFolder(feedId, folderName))
         
-      case .cardItemAddFolderTapped:
+      case let .cardItemAddFolderTapped(selectedFeed):
+        state.selectedFeed = selectedFeed
         return .send(.addFolderBottomSheet(.addFolderTapped))
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
@@ -338,9 +339,10 @@ public struct HomeFeature: Reducer {
         return .none
         
       case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
+        guard let selectedFeed = state.selectedFeed else { return .none }
         return .run { send in
-          try await Task.sleep(for: .seconds(0.5))
-          await send(.delegate(.routeStorageBoxFeedList(folder)))
+          try? await Task.sleep(for: .seconds(0.5))
+          await send(.patchFeedFolder(selectedFeed.feedId, folder.name))
         }
         
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
@@ -355,7 +357,6 @@ public struct HomeFeature: Reducer {
         state.isMenuBottomSheetPresented = false
         return .run { send in
           try? await Task.sleep(for: .seconds(0.1))
-          
           await send(.editLinkPresented(selectedFeed.feedId))
         }
         
