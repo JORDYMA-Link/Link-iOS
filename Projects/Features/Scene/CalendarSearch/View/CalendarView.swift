@@ -47,7 +47,6 @@ public struct CalendarView: View {
         
         if store.calendar.changeCurrentPageSheet {
           selectionCurrentPageView
-            .padding(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
         }
       }
       .padding(.horizontal, 20)
@@ -63,26 +62,26 @@ public struct CalendarView: View {
               
               ScrollView(.horizontal) {
                 LazyHStack(spacing: 4) {
-                  Section {
-                    ForEach(store.article.displayArticle, id: \.self) { value in
-                      BKCardCell(sourceTitle: value.platform,
-                                 sourceImage: value.platformImage,
-                                 isMarked: value.isMarked,
-                                 saveAction: {}, //FIXME: 동작 수행
-                                 menuAction: {}, //FIXME: 동작 수행
-                                 title: value.title,
-                                 description: value.summary,
-                                 keyword: value.keywords,
-                                 isUncategorized: false
-                      )
-                      .onTapGesture{
-                        store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
-                      }
-                      .frame(width: 257)
-                    } // Foreach
-                  }// Section
-                  .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
-                }// LazyHStack
+                    Section {
+                      ForEach(store.article.displayArticle, id: \.self) { value in
+                        BKCardCell(sourceTitle: value.platform,
+                                   sourceImage: value.platformImage,
+                                   isMarked: value.isMarked,
+                                   saveAction: {}, //FIXME: 동작 수행
+                                   menuAction: {}, //FIXME: 동작 수행
+                                   title: value.title,
+                                   description: value.summary,
+                                   keyword: value.keywords,
+                                   isUncategorized: false
+                        )
+                        .onTapGesture{
+                          store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
+                        }
+                        .frame(width: 257)
+                      } // Foreach
+                    }// Section
+                    .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
+                  }// LazyHStack
               }// ScrollView
               .scrollIndicators(.hidden)
             }// VStack
@@ -137,7 +136,8 @@ public struct CalendarView: View {
         LazyVGrid(columns: columns, spacing: 20) {
           ForEach(months, id: \.self) { month in
             Text(month.toString)
-              .frame(minWidth: 0, maxWidth: .infinity)
+              .font(.regular(size: ._14))
+              .frame(maxWidth: .infinity)
               .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
               .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
               .onTapGesture {
@@ -150,7 +150,7 @@ public struct CalendarView: View {
       .padding(.all, 10)
       .background(Color.bkColor(.gray300))
       .clipShape(.rect(cornerRadius: 10))
-    .shadow(radius: 10, x: 0, y: 8)
+      .shadow(radius: 10, x: 0, y: 8)
     }
   }
   
