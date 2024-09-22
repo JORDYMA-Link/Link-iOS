@@ -53,11 +53,13 @@ struct LinkHeaderView: View {
       .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
       .clipped()
       .offset(y: isScrolling ? -minY : 0)
+      .opacity(0.56)
       .overlay(alignment: .bottom) {
         VStack(spacing: 0) {
           titleView()
           buttonView
         }
+        .opacity(1.0)
         .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
         .offset(y: isScrolling ? -minY : 0)
       }
