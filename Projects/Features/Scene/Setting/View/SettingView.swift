@@ -82,7 +82,7 @@ public struct SettingView: View {
         state: \.noticeContent,
         action: \.noticeContent
       ), destination: { store in
-        NoticeView(store: store )
+        NoticeView(store: store)
       })
       .signoutAlert(isPresented: $store.showWithdrawModal, buttonAction:  { store.send(.signoutButtonTapped) })
       .onAppear(perform: {
