@@ -28,12 +28,14 @@ public struct ClearableTextField: View {
         }
         .frame(height: 46)
         .padding(.leading, 10)
+        .padding(.trailing, -30)
         .background(Color.bkColor(.gray300))
         .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
             HStack {
                 Spacer()
                 if showClearButton && !text.isEmpty {
+                  ZStack{
                     Button(action: {
                         text = ""
                     }) {
@@ -41,6 +43,8 @@ public struct ClearableTextField: View {
                             .foregroundStyle(Color.gray)
                     }
                     .padding(.trailing, 10)
+                  }
+                  .background(Color.bkColor(.gray300))
                 }
             }
         )
