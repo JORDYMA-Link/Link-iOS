@@ -46,8 +46,16 @@ public struct SaveLinkFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.urlText):
-        state.saveButtonActive = !state.urlText.isEmpty && state.urlText.containsHTTPorHTTPS
-        state.isValidationURL = state.urlText.count != 1 && state.urlText.containsHTTPorHTTPS
+        if !state.urlText.isEmpty {
+          let valid = state.urlText.containsHTTPorHTTPS
+          
+          state.isValidationURL = valid
+          state.saveButtonActive = valid
+        } else {
+          state.isValidationURL = true
+          state.saveButtonActive = false
+        }
+        
         return .none
         
       case .onTapBackButton:
