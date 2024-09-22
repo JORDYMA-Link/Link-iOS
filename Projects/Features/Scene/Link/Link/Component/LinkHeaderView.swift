@@ -37,11 +37,19 @@ struct LinkHeaderView: View {
       let minY = proxy.frame(in: .global).minY
       let isScrolling = minY > 0
       
-      BKImageView(
-        imageURL: feed.thumbnailImage,
-        downsamplingSize: .init(width: size.width, height: size.height),
-        placeholder: CommonFeature.Images.icoEmptyThumnail
-      )
+      Group {
+        if !feed.thumbnailImage.isEmpty {
+          BKImageView(
+            imageURL: feed.thumbnailImage,
+            downsamplingSize: .init(width: size.width, height: size.height),
+            placeholder: CommonFeature.Images.icoEmptyThumnail
+          )
+        } else {
+          CommonFeature.Images.icoEmptyThumnail
+            .resizable()
+            .scaledToFill()
+        }
+      }
       .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
       .clipped()
       .offset(y: isScrolling ? -minY : 0)
