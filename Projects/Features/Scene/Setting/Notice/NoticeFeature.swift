@@ -18,7 +18,7 @@ public struct NoticeFeature {
   public struct State: Equatable {
     var expandedNoticeID: UUID?
     var noticeList: [NoticeModel] = []
-    var page: Int = 0
+    var nextPage: Int = 0
     var size: Int = 10
   }
   
@@ -44,14 +44,14 @@ public struct NoticeFeature {
         return .run { _ in await self.dismiss() }
         
       case .fetchNotice:
-        return .run { [page = state.page, size = state.size] send in
+        return .run { [page = state.nextPage, size = state.size] send in
           let response = try await noticeClient.getNotice(page, size)
           return await send(.setNoticeData(response))
         }
         
       case let .setNoticeData(noticeData):
         state.noticeList.append(contentsOf: noticeData)
-        state.page += 1
+        state.nextPage += 1
         return .none
         
       case let .expanding(target):
