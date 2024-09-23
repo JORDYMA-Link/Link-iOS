@@ -11,8 +11,7 @@ import ComposableArchitecture
 import CommonFeature
 
 public struct CalendarView: View {
-  @Environment(\.dismiss) private var dismiss
-  let store: StoreOf<CalendarViewFeature>
+  @Perception.Bindable var store: StoreOf<CalendarViewFeature>
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
@@ -20,23 +19,12 @@ public struct CalendarView: View {
   
   public var body: some View {
     WithPerceptionTracking{
-      VStack(alignment: .leading) {
-        HStack {
-          Button{
-            dismiss()
-          } label: {
-            HStack {
-              Image(systemName: "chevron.left")
-                .bold()
-              Text("저장 기록")
-                .font(.semiBold(size: ._16))
-            }
-            .foregroundStyle(Color.bkColor(.gray900))
-          }
-        }
-        .padding(.all, 16)
-        
-        
+      makeBKNavigationView(
+        leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
+        trailingType: .none
+      )
+      
+      HStack {
         Button{
           store.send(.calendarAction(.tappedCurrentSheetButton))
         } label: {
@@ -48,29 +36,32 @@ public struct CalendarView: View {
           .foregroundStyle(Color.bkColor(.gray900))
           .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
         }
+        .frame(alignment: .leading)
         .padding(.leading, 20)
         
-        ZStack(alignment: .top){
-          MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
-          
-          if store.calendar.changeCurrentPageSheet {
-            selectionCurrentPageView
-              .padding(EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24))
-          }
-        }
-        .padding(.horizontal, 20)
+        Spacer()
+      }
+      
+      ZStack(alignment: .top){
+        MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
         
-        ZStack{
-          Color.bkColor(.gray300)
-            .ignoresSafeArea()
-          
-          if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
-            GeometryReader { geometry in
-              VStack{
-                makeCategorySectionHeader
-                
-                ScrollView(.horizontal) {
-                  LazyHStack(spacing: 4) {
+        if store.calendar.changeCurrentPageSheet {
+          selectionCurrentPageView
+        }
+      }
+      .padding(.horizontal, 20)
+      
+      ZStack{
+        Color.bkColor(.gray300)
+          .ignoresSafeArea()
+        
+        if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
+          GeometryReader { geometry in
+            VStack{
+              makeCategorySectionHeader
+              
+              ScrollView(.horizontal) {
+                LazyHStack(spacing: 4) {
                     Section {
                       ForEach(store.article.displayArticle, id: \.self) { value in
                         BKCardCell(sourceTitle: value.platform,
@@ -83,81 +74,84 @@ public struct CalendarView: View {
                                    keyword: value.keywords,
                                    isUncategorized: false
                         )
-                          .onTapGesture{
-                            store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
-                          }
-                      }
-                    }
+                        .onTapGesture{
+                          store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
+                        }
+                        .frame(width: 257)
+                      } // Foreach
+                    }// Section
                     .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
-                  }
-                }
-                .scrollIndicators(.hidden)
-              }
-            }
-          } else {
-            noneContentsView
-          }
-        }
-      }
-      .onAppear(
-        perform: {
-          store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
-        })
-      .navigationBarBackButtonHidden(true)
+                  }// LazyHStack
+              }// ScrollView
+              .scrollIndicators(.hidden)
+            }// VStack
+          }// GeometryReader
+        } else {
+          noneContentsView
+        }// else
+      }// ZStack
     }
+    .onAppear(
+      perform: {
+        store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
+      })
+    .navigationBarBackButtonHidden(true)
   }
   
   //MARK: - ViewBuilder
   @ViewBuilder
   private var selectionCurrentPageView: some View {
-    VStack {
-      HStack {
-        Spacer()
-        
-        Button {
-          store.send(.calendarAction(.changeCurrentYear(dif: -1)))
-        } label: {
-          Image(systemName: "chevron.backward")
-            .tint(.bkColor(.black))
+    WithPerceptionTracking {
+      VStack {
+        HStack {
+          Spacer()
+          
+          Button {
+            store.send(.calendarAction(.changeCurrentYear(dif: -1)))
+          } label: {
+            Image(systemName: "chevron.backward")
+              .tint(.bkColor(.black))
+          }
+          
+          Text(store.calendar.currentSheetDate.toString(formatter: "yyyy년"))
+            .font(.regular(size: ._14))
+          
+          Button {
+            store.send(.calendarAction(.changeCurrentYear(dif: 1)))
+          } label: {
+            Image(systemName: "chevron.right")
+              .tint(.bkColor(.black))
+          }
+          
+          Spacer()
+          
+          Button {
+            store.send(.calendarAction(.tappedCurrentSheetButton))
+          } label: {
+            Image(systemName: "xmark")
+              .tint(.bkColor(.black))
+          }
         }
         
-        Text(store.calendar.currentSheetDate.toString(formatter: "yyyy년"))
-          .font(.regular(size: ._14))
-        
-        Button {
-          store.send(.calendarAction(.changeCurrentYear(dif: 1)))
-        } label: {
-          Image(systemName: "chevron.right")
-            .tint(.bkColor(.black))
-        }
-        
-        Spacer()
-        
-        Button {
-          store.send(.calendarAction(.tappedCurrentSheetButton))
-        } label: {
-          Image(systemName: "xmark")
-            .tint(.bkColor(.black))
+        LazyVGrid(columns: columns, spacing: 20) {
+          ForEach(months, id: \.self) { month in
+            Text(month.toString)
+              .font(.regular(size: ._14))
+              .frame(maxWidth: .infinity)
+              .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
+              .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
+              .onTapGesture {
+                guard !isPast(targetMonth: month.rawValue) else {return}
+                store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
+              }
+          }
         }
       }
-      
-      LazyVGrid(columns: columns, spacing: 20) {
-        ForEach(months, id: \.self) { month in
-          Text(month.toString)
-            .frame(minWidth: 0, maxWidth: .infinity)
-            .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
-            .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
-            .onTapGesture {
-              guard !isPast(targetMonth: month.rawValue) else {return}
-              store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
-            }
-        }
-      }
+      .padding(.all, 10)
+      .background(Color.bkColor(.gray300))
+      .clipShape(.rect(cornerRadius: 10))
+      .shadow(radius: 10, x: 0, y: 8)
     }
-    .padding(.all, 10)
-    .background(Color.bkColor(.gray300))
-    .clipShape(.rect(cornerRadius: 10))
-    .shadow(radius: 10, x: 0, y: 8)
   }
   
   @ViewBuilder
@@ -187,40 +181,42 @@ public struct CalendarView: View {
       
     }
   }
-
+  
   private var makeCategorySectionHeader: some View {
     let categories = store.article.folderList
     
-    return ScrollView(.horizontal) {
-      LazyHStack(spacing: 8) {
-        ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
-          let folder = store.article.folderList[key]
-          let folderName = folder?.folderName ?? ""
-          let feedCount = folder?.feedCount ?? 0
-          let isSelectedIndex = (store.article.categorySelectedIndex == key)
-          
-          Text("\(folderName) \(feedCount)")
-            .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
-            .foregroundColor(isSelectedIndex ? Color.white : Color.black)
-            .padding(.vertical, 10)
-            .padding(.horizontal, 14)
-            .background(
-              RoundedRectangle(cornerRadius: 100)
-                .fill(isSelectedIndex ? Color.black : Color.white)
-                .overlay(
-                  RoundedRectangle(cornerRadius: 100)
-                    .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
-                )
-            )
-            .onTapGesture {
-              store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
-            }
+    return WithPerceptionTracking {
+      ScrollView(.horizontal) {
+        LazyHStack(spacing: 8) {
+          ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
+            let folder = store.article.folderList[key]
+            let folderName = folder?.folderName ?? ""
+            let feedCount = folder?.feedCount ?? 0
+            let isSelectedIndex = (store.article.categorySelectedIndex == key)
+            
+            Text("\(folderName) \(feedCount)")
+              .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
+              .foregroundColor(isSelectedIndex ? Color.white : Color.black)
+              .padding(.vertical, 10)
+              .padding(.horizontal, 14)
+              .background(
+                RoundedRectangle(cornerRadius: 100)
+                  .fill(isSelectedIndex ? Color.black : Color.white)
+                  .overlay(
+                    RoundedRectangle(cornerRadius: 100)
+                      .stroke(isSelectedIndex ? Color.clear : Color.bkColor(.gray500), lineWidth: 1)
+                  )
+              )
+              .onTapGesture {
+                store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
+              }
+          }
         }
-      }
-    } //LazyHStack
-    .scrollDisabled(true)
-    .frame(height: 50)
-    .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
+      } //LazyHStack
+      .scrollDisabled(true)
+      .frame(height: 40)
+      .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
+    }
   }
 }
 
@@ -259,7 +255,7 @@ extension CalendarView {
     }
     
     return Color.bkColor(.gray900)
-
+    
   }
   
   ///선택 가능한지 불가한지를 판단한다.
@@ -273,7 +269,7 @@ extension CalendarView {
     return  targetMonthTimeInterval <= currentDate.timeIntervalSince1970
   }
   
-
+  
   
   //year와 month를 조합하여 새로운 Date 만드는 기능 Extension으로 빼서 CalendarFeature에서 공통으로 사용하면 좋을 듯 하나 일단 나중에
   /// 현재 SheetPage의 연도와 month를 조합하여 새로운 Date를 반환한다.
@@ -285,11 +281,11 @@ extension CalendarView {
   }
   
   private struct CategorySectionHeaderPreferenceKey: PreferenceKey {
-      static var defaultValue: CGFloat = .zero
-      
-      static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-          value = max(value, nextValue())
-      }
+    static var defaultValue: CGFloat = .zero
+    
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+      value = max(value, nextValue())
+    }
   }
   
   private func isPast(targetMonth: Int) -> Bool {
@@ -306,6 +302,7 @@ extension CalendarView {
     }
   }
 }
+
 
 #Preview {
   CalendarView(store: Store(initialState: CalendarViewFeature.State(), reducer: {

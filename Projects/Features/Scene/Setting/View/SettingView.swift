@@ -20,18 +20,16 @@ public struct SettingView: View {
   
   public var body: some View {
     WithPerceptionTracking {
+      makeBKNavigationView(
+        leadingType: .dismiss("설정", { store.send(.tappedNaviBackButton) }),
+        trailingType: .none
+      )
+      
       ZStack {
         settingView
         
         Spacer()
           .navigationBarBackButtonHidden(true)
-          .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-              LeadingItem(type: .dismiss("설정", {
-                dismiss()
-              }))
-            }
-          }
       }
       .bottomSheet(isPresented: $store.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
         VStack(alignment: .center) {
@@ -84,7 +82,7 @@ public struct SettingView: View {
         state: \.noticeContent,
         action: \.noticeContent
       ), destination: { store in
-        NoticeView(store: store )
+        NoticeView(store: store)
       })
       .signoutAlert(isPresented: $store.showWithdrawModal, buttonAction:  { store.send(.signoutButtonTapped) })
       .onAppear(perform: {
@@ -97,120 +95,122 @@ public struct SettingView: View {
 extension SettingView {
   @ViewBuilder
   private var settingView: some View {
-    VStack(alignment: .leading) {
-      HStack {
-        HStack {
-          Text(store.nickname)
-            .font(.semiBold(size: ._18))
-            .padding(.trailing, -10)
-          Text("님")
-            .font(.regular(size: ._18))
-        }
-        Spacer()
-        Button(action: {
-          store.send(.tappedNicknameEdit)
-        }, label: {
-          BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
-        })
-      }
-      .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
-      
-      Color.bkColor(.gray400)
-        .frame(height: 8)
-      
-      VStack(alignment: .leading, content: {
-        Text("공지")
-          .font(.regular(size: ._12))
-          .foregroundStyle(Color.bkColor(.gray700))
-        Button(action: {
-          store.send(.tappedNotice)
-        }, label: {
-          Text("공지사항")
-            .font(.regular(size: ._15))
-            .foregroundStyle(Color.bkColor(.gray900))
-        })
-        .padding(.top, 16)
-      })
-      .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
-      
-      Color.bkColor(.gray400)
-        .frame(height: 4)
-      
-      VStack(alignment: .leading, content: {
-        Text("서비스 정보")
-          .font(.regular(size: ._12))
-          .foregroundStyle(Color.bkColor(.gray700))
-        
-        
-        Link(destination: SettingFeature.PolicyType.privacy.url!) {
-          Text("개인정보 처리 방침")
-            .font(.regular(size: ._15))
-        }
-        .tint(.bkColor(.gray900))
-        .padding(.top, 16)
-        
-        Link(destination: SettingFeature.PolicyType.termOfUse.url!) {
-          Text("서비스 이용약관")
-            .font(.regular(size: ._15))
-        }
-        .tint(.bkColor(.gray900))
-        .padding(.top, 32)
-        
-        Button(action: {}, label: {
-          HStack {
-            Text("버전 정보")
-              .font(.regular(size: ._15))
-            Spacer()
-            Text("최신 \(store.currentAppVersion)")
-              .font(.regular(size: ._12))
-              .foregroundStyle(Color.bkColor(.gray700))
-            Text("현재 \(store.currentAppVersion)")
-              .font(.semiBold(size: ._12))
-              .foregroundStyle(Color.bkColor(.gray700))
-          }
-        })
-        .tint(.bkColor(.gray900))
-        .padding(.top, 32)
-        
-        
-      })
-      .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
-      
-      Color.bkColor(.gray400)
-        .frame(height: 4)
-      
+    WithPerceptionTracking{
       VStack(alignment: .leading) {
-        Text("도움말")
-          .font(.regular(size: ._12))
-          .foregroundStyle(Color.bkColor(.gray700))
-        
-        Link(destination: SettingFeature.PolicyType.introduceService.url!) {
-          Text("서비스 이용방법")
+        HStack {
+          HStack {
+            Text(store.nickname)
+              .font(.semiBold(size: ._18))
+              .padding(.trailing, -10)
+            Text("님")
+              .font(.regular(size: ._18))
+          }
+          Spacer()
+          Button(action: {
+            store.send(.tappedNicknameEdit)
+          }, label: {
+            BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
+          })
         }
-        .font(.regular(size: ._15))
-        .tint(.bkColor(.gray900))
-        .padding(.top, 16)
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
         
-        Button(action: {
-          store.send(.tappedLogOut)
-        }, label: {
-          Text("로그아웃")
-            .font(.regular(size: ._15))
-        })
-        .tint(.bkColor(.gray900))
-        .padding(.top, 32)
+        Color.bkColor(.gray400)
+          .frame(height: 8)
         
-        Button(action: {
-          store.send(.tappedWithdrawCell)
-        }, label: {
-          Text("회원탈퇴")
+        VStack(alignment: .leading, content: {
+          Text("공지")
             .font(.regular(size: ._12))
-            .underline()
+            .foregroundStyle(Color.bkColor(.gray700))
+          Button(action: {
+            store.send(.tappedNotice)
+          }, label: {
+            Text("공지사항")
+              .font(.regular(size: ._15))
+              .foregroundStyle(Color.bkColor(.gray900))
+          })
+          .padding(.top, 16)
         })
-        .tint(.bkColor(.gray700))
-        .padding(.top, 32)
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
+        
+        Color.bkColor(.gray400)
+          .frame(height: 4)
+        
+        VStack(alignment: .leading, content: {
+          Text("서비스 정보")
+            .font(.regular(size: ._12))
+            .foregroundStyle(Color.bkColor(.gray700))
+          
+          
+          Link(destination: SettingFeature.PolicyType.privacy.url!) {
+            Text("개인정보 처리 방침")
+              .font(.regular(size: ._15))
+          }
+          .tint(.bkColor(.gray900))
+          .padding(.top, 16)
+          
+          Link(destination: SettingFeature.PolicyType.termOfUse.url!) {
+            Text("서비스 이용약관")
+              .font(.regular(size: ._15))
+          }
+          .tint(.bkColor(.gray900))
+          .padding(.top, 32)
+          
+          Button(action: {}, label: {
+            HStack {
+              Text("버전 정보")
+                .font(.regular(size: ._15))
+              Spacer()
+              Text("최신 \(store.currentAppVersion)")
+                .font(.regular(size: ._12))
+                .foregroundStyle(Color.bkColor(.gray700))
+              Text("현재 \(store.currentAppVersion)")
+                .font(.semiBold(size: ._12))
+                .foregroundStyle(Color.bkColor(.gray700))
+            }
+          })
+          .tint(.bkColor(.gray900))
+          .padding(.top, 32)
+          
+          
+        })
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
+        
+        Color.bkColor(.gray400)
+          .frame(height: 4)
+        
+        VStack(alignment: .leading) {
+          Text("도움말")
+            .font(.regular(size: ._12))
+            .foregroundStyle(Color.bkColor(.gray700))
+          
+          Link(destination: SettingFeature.PolicyType.introduceService.url!) {
+            Text("서비스 이용방법")
+          }
+          .font(.regular(size: ._15))
+          .tint(.bkColor(.gray900))
+          .padding(.top, 16)
+          
+          Button(action: {
+            store.send(.tappedLogOut)
+          }, label: {
+            Text("로그아웃")
+              .font(.regular(size: ._15))
+          })
+          .tint(.bkColor(.gray900))
+          .padding(.top, 32)
+          
+          Button(action: {
+            store.send(.tappedWithdrawCell)
+          }, label: {
+            Text("회원탈퇴")
+              .font(.regular(size: ._12))
+              .underline()
+          })
+          .tint(.bkColor(.gray700))
+          .padding(.top, 32)
+        }
+        .padding(EdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16))
       }
-      .padding(EdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16))
     }
   }
   
@@ -232,60 +232,63 @@ extension SettingView {
   //MARK: - modalView
   @ViewBuilder
   public var modalView: some View {
-    VStack {
-      HStack {
-        Spacer()
+    WithPerceptionTracking{
+      VStack {
+        HStack {
+          Spacer()
+          
+          Button {
+            store.send(.changeConfirmWithdrawModal)
+          } label: {
+            BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
+          }
+        }
+        
+        Text(BKModalType.withdrawNotice.modalTitle)
+          .font(.semiBold(size: ._14))
+          .padding(.bottom, 8)
+        
+        Text(BKModalType.withdrawNotice.modalDescription)
+          .font(.regular(size: ._14))
+          .multilineTextAlignment(.leading)
+          .foregroundStyle(BKColor.gray700.swiftUIColor)
+          .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
         
         Button {
-          store.send(.changeConfirmWithdrawModal)
+          store.send(.confirmedWithdrawWarning)
         } label: {
-          BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
-        }
-      }
-      
-      Text(BKModalType.withdrawNotice.modalTitle)
-        .font(.semiBold(size: ._14))
-        .padding(.bottom, 8)
-      
-      Text(BKModalType.withdrawNotice.modalDescription)
-        .font(.regular(size: ._14))
-        .multilineTextAlignment(.leading)
-        .foregroundStyle(BKColor.gray700.swiftUIColor)
-        .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 0))
-      
-      Button {
-        store.send(.confirmedWithdrawWarning)
-      } label: {
-        HStack {
-          if store.isConfirmedWithdrawWarning {
-            Image(systemName: "square" )
-              .foregroundStyle(Color.bkColor(.gray700))
-          } else {
-            CommonFeature.Images.icoCheckBox
+          HStack {
+            if store.isConfirmedWithdrawWarning {
+              Image(systemName: "square" )
+                .foregroundStyle(Color.bkColor(.gray700))
+            } else {
+              CommonFeature.Images.icoCheckBox
+            }
+            
+            Text("안내사항을 확인하였으며, 이에 동의합니다")
+              .font(.regular(size: ._13))
+              .foregroundStyle(Color.bkColor(.gray900))
           }
           
-          Text("안내사항을 확인하였으며, 이에 동의합니다")
-            .font(.regular(size: ._13))
-            .foregroundStyle(Color.bkColor(.gray900))
         }
         
+        Button {
+          
+        } label: {
+          Text(BKModalType.withdrawNotice.okText)
+            .foregroundStyle(store.isConfirmedWithdrawWarning ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
+            .frame(maxWidth: 140, maxHeight: 48)
+        }
+        .disabled(store.isConfirmedWithdrawWarning)
+        .frame(maxWidth: .infinity, maxHeight: 48)
+        .background(store.isConfirmedWithdrawWarning ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
+        .clipShape(RoundedRectangle(cornerRadius: 10))
       }
-      
-      Button {
-        
-      } label: {
-        Text(BKModalType.withdrawNotice.okText)
-          .foregroundStyle(store.isConfirmedWithdrawWarning ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
-          .frame(maxWidth: 140, maxHeight: 48)
-      }
-      .disabled(store.isConfirmedWithdrawWarning)
-      .frame(maxWidth: .infinity, maxHeight: 48)
-      .background(store.isConfirmedWithdrawWarning ? BKColor.gray400.swiftUIColor : BKColor.gray900.swiftUIColor)
-      .clipShape(RoundedRectangle(cornerRadius: 10))
+      .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
+      .ignoresSafeArea()
+      .background(RoundedRectangle(cornerRadius: 10).fill(BKColor.white.swiftUIColor))
     }
-    .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
-    .ignoresSafeArea()
-    .background(RoundedRectangle(cornerRadius: 10).fill(BKColor.white.swiftUIColor))
+    
   }
 }
 
