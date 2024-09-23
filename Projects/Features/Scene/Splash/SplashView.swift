@@ -49,7 +49,7 @@ public struct SplashView: View {
   
   @ViewBuilder
   private func makeTitle() -> some View {
-    Text("눈 깜짝할 새 저장되는\nAI 링크 아카이빙, 블링크")
+    Text("정보 욕심러의 똑똑한\n콘텐츠 수집 생활, 블링크")
       .font(.semiBold(size: ._20))
       .foregroundStyle(Color.bkColor(.gray900))
       .multilineTextAlignment(.center)
