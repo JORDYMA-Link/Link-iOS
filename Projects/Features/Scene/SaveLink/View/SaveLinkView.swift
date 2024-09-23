@@ -36,16 +36,16 @@ public struct SaveLinkView: View {
             .foregroundStyle(Color.bkColor(.gray700))
             .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
           
-          HStack(alignment: .top) {
-            
+          HStack(alignment: .top, spacing: 12) {
             VStack(alignment: .leading) {
               ClearableTextField(
                 text: $store.urlText,
-                placeholder: "링크를 붙여주세요")
+                placeholder: "링크를 붙여주세요"
+              )
               .background(Color.bkColor(.white))
               .overlay(
                 RoundedRectangle(cornerRadius: 10)
-                  .stroke(!store.isValidationURL ? Color.bkColor(.red) : Color.clear, lineWidth: 1)
+                  .stroke(!store.isValidationURL ? Color.bkColor(.red) : Color.bkColor(.gray500), lineWidth: 1)
               )
               
               if !store.state.isValidationURL {

@@ -14,11 +14,23 @@ extension String {
   }
   
   public var containsOtherLanguage: Bool {
-    let koreanRange = Unicode.Scalar("\u{AC00}")...Unicode.Scalar("\u{D7A3}") // 한글 유니코드 범위
-    let nonKoreanCharacterSet = CharacterSet(charactersIn: koreanRange)
+    // 한글 조합형 문자 (음절) 유니코드 범위
+    let koreanSyllablesRange = Unicode.Scalar("\u{AC00}")...Unicode.Scalar("\u{D7A3}")
+    // 한글 자모 유니코드 범위
+    let koreanJamoRange = Unicode.Scalar("\u{1100}")...Unicode.Scalar("\u{11FF}")
+    // 한글 자음 유니코드 범위
+    let koreanConsonantsRange = Unicode.Scalar("\u{3131}")...Unicode.Scalar("\u{314E}")
+    // 한글 모음 유니코드 범위
+    let koreanVowelsRange = Unicode.Scalar("\u{314F}")...Unicode.Scalar("\u{3163}")
     
-    // 문자열이 한글 이외의 문자를 포함하고 있는지 확인
-    return self.unicodeScalars.contains(where: { !nonKoreanCharacterSet.contains($0) })
+    // 위 범위들을 포함하는 문자 집합 생성
+    let koreanCharacterSet = CharacterSet(charactersIn: koreanSyllablesRange)
+      .union(CharacterSet(charactersIn: koreanJamoRange))
+      .union(CharacterSet(charactersIn: koreanConsonantsRange))
+      .union(CharacterSet(charactersIn: koreanVowelsRange))
+    
+    // 문자열이 한글만 포함하고 있는지 확인 (한글 이외의 문자를 포함하면 false 반환)
+    return !self.unicodeScalars.allSatisfy { koreanCharacterSet.contains($0) }
   }
   
   public var containsEmoji: Bool {
