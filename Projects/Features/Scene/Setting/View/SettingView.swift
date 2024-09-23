@@ -25,11 +25,13 @@ public struct SettingView: View {
         trailingType: .none
       )
       
-      ZStack {
-        settingView
-        
-        Spacer()
-          .navigationBarBackButtonHidden(true)
+      ScrollView {
+        ZStack {
+          settingView
+          
+          Spacer()
+            .navigationBarBackButtonHidden(true)
+        }
       }
       .bottomSheet(isPresented: $store.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
         VStack(alignment: .center) {
