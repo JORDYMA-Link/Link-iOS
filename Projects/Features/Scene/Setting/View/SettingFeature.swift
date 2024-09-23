@@ -57,6 +57,7 @@ public struct SettingFeature {
     case postSignout
     
     case setDeleteKeychain
+    case setDeleteUserDefaults
     
     //binding
     case binding(BindingAction<State>)
@@ -108,6 +109,7 @@ public struct SettingFeature {
   
   //MARK: - Dependency
   @Dependency(\.alertClient) private var alertClient
+  @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.userClient) private var userClient
   @Dependency(\.authClient) private var authClient
@@ -139,7 +141,7 @@ public struct SettingFeature {
         state.latestAppVersion = version ?? state.currentAppVersion
         return .none
         
-      //User Action
+        //User Action
       case .tappedNicknameEdit:
         state.showEditNicknameSheet = true
         return .none
@@ -185,14 +187,13 @@ public struct SettingFeature {
           let response = try await userClient.requestUserProfile(targetNickName)
           await send(.changeNickName(targetNickname: response.nickname))
         }
-      
+        
       case .postLogout:
         return .run(
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
             
-            // 500 에러 이후 수정
-//             _ = try await authClient.logout(refreshToken)
+            try await authClient.logout(refreshToken)
             
             await send(.setDeleteKeychain)
             await send(.delegate(.logout))
@@ -207,10 +208,10 @@ public struct SettingFeature {
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
             
-            // 500 에러 이후 수정
-//             _ = try await authClient.signout(refreshToken)
-
+            try await authClient.signout(refreshToken)
+            
             await send(.setDeleteKeychain)
+            await send(.setDeleteUserDefaults)
             await send(.delegate(.signout))
           },
           catch : { error, send in
@@ -223,6 +224,10 @@ public struct SettingFeature {
           try await keychainClient.delete(.accessToken)
           try await keychainClient.delete(.refreshToken)
         }
+        
+      case .setDeleteUserDefaults:
+        userDefaultsClient.reset()
+        return .none
         
       case .binding(\.targetNickname):
         let target = state.targetNickname

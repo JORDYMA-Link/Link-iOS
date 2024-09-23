@@ -15,39 +15,20 @@ import ComposableArchitecture
 struct StorageBoxContainerView<Content: View>: View {
   private let store: StoreOf<StorageBoxFeature>
   private let tabbar: () -> Content
-  @Binding private var isSummaryToastPresented: Bool
-  @Binding private var summaryType: SummaryType
-  private let toastAction: () -> Void
   
   
   public init(
     store: StoreOf<StorageBoxFeature>,
-    tabbar: @autoclosure @escaping () -> Content,
-    isSummaryToastPresented: Binding<Bool>,
-    summaryType: Binding<SummaryType>,
-    toastAction: @escaping () -> Void
+    tabbar: @autoclosure @escaping () -> Content
   ) {
     self.store = store
     self.tabbar = tabbar
-    self._isSummaryToastPresented = isSummaryToastPresented
-    self._summaryType = summaryType
-    self.toastAction = toastAction
   }
   
   var body: some View {
     WithPerceptionTracking {
       ZStack(alignment: .bottom) {
         StorageBoxView(store: store)
-          .toast(
-            isPresented: $isSummaryToastPresented,
-            toastType: .summary,
-            toastContent: {
-              BKSummaryToast(
-                summaryType: $summaryType,
-                action: { toastAction() }
-              )
-            }
-          )
         
         tabbar()
       }

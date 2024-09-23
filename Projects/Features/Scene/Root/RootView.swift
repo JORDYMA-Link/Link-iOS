@@ -47,7 +47,7 @@ public struct RootView: View {
         store.send(.onOpenURL(url))
       }
       .onReceive(NotificationCenter.default.publisher(for: .tokenExpired)) { _ in
-        #warning("재로그인 구현")
+        store.send(.changeScreen(.login()))
       }
       .animation(.easeInOut(duration: 0.5), value: store.state)
       .task {
