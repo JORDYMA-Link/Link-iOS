@@ -21,14 +21,14 @@ public struct SaveLinkView: View {
         SaveLinkNavigationBar(store: store)
         
         VStack(alignment: .leading, spacing: 0) {
-          HStack {
+          HStack(spacing: 0) {
             Text("링크")
               .foregroundStyle(Color.bkColor(.main300))
             Text("를 입력해주세요")
               .foregroundStyle(Color.bkColor(.gray900))
           }
           .font(.semiBold(size: ._24))
-          .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 0))
+          .padding(.bottom, 4)
           
           Text("블링크가 무엇이든 요약해줍니다")
             .frame(alignment: .leading)

@@ -33,11 +33,16 @@ public struct CalendarViewFeature {
     //MARK: Business Logic
     case fetchCalendarData(yearMonth: String)
     case spreadEachReducer(_ searchCalendar: SearchCalendar)
+    
+    //MARK: User Action
+    case tappedNaviBackButton
   }
 
   //MARK: - Dependency
+  @Dependency(\.dismiss) private var dismiss
   @Dependency(\.feedClient) private var feedClient
   
+  //MARK: - Body
   public var body: some ReducerOf<Self> {
     Scope(state: \.calendar, action: \.calendarAction) {
       CalendarFeature()
@@ -50,6 +55,9 @@ public struct CalendarViewFeature {
       state,
       action in
       switch action {
+      case .tappedNaviBackButton:
+        return .run { _ in await self.dismiss() }
+        
       case let .fetchCalendarData(yearMonth):
         return .run { send in
           let responseDTO = try await feedClient.getFeedCalendarSearch(yearMonth)

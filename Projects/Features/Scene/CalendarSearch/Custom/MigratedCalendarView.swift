@@ -59,6 +59,10 @@ struct MigratedCalendarView: UIViewRepresentable {
     }
     
     //MARK: - Delegate
+    func calendar(_ calendar: FSCalendar, shouldSelect date: Date, at monthPosition: FSCalendarMonthPosition) -> Bool {
+      return monthPosition == .current
+    }
+    
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
       calendarStore.send(.tappedDate(selectedDate: date))
     }

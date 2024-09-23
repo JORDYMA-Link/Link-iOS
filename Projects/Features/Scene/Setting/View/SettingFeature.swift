@@ -19,7 +19,7 @@ public struct SettingFeature {
   public struct State: Equatable {
     var nickname: String = "블링크"
     var validationNoticeMessage: String = ""
-    var currentAppVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    var currentAppVersion: String = Bundle.currentAppVersion
     var latestAppVersion: String = "Unknown"
     var showEditNicknameSheet: Bool = false
     var showWithdrawModal: Bool = false
@@ -39,6 +39,7 @@ public struct SettingFeature {
     case openExternalURL(type: PolicyType)
     
     //user Action
+    case tappedNaviBackButton
     case tappedNicknameEdit
     case tappedNotice
     case tappedPersonal
@@ -82,7 +83,7 @@ public struct SettingFeature {
       case .termOfUse:
         return URL(string:"https://www.notion.so/ea068d8517af4ca0a719916f7d23dee2?pvs=4")
       case .introduceService:
-        return URL(string:"https://www.naver.com")
+        return URL(string:"https://www.notion.so/100-5d76361912514364864547cbc1600531?pvs=4")
       }
     }
   }
@@ -108,11 +109,13 @@ public struct SettingFeature {
   }
   
   //MARK: - Dependency
+  @Dependency(\.dismiss) private var dismiss
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.userClient) private var userClient
   @Dependency(\.authClient) private var authClient
+
   
   private enum ThrottleId {
     case logoutButton
@@ -123,7 +126,7 @@ public struct SettingFeature {
     
     Reduce { state, action in
       switch action {
-        //Programical Action
+      //MARK: Programical Action
       case .requestSettingInfo:
         return .run { send in
           let response = try await userClient.getUserProfile()
@@ -141,7 +144,11 @@ public struct SettingFeature {
         state.latestAppVersion = version ?? state.currentAppVersion
         return .none
         
-        //User Action
+
+      //User Action
+      case .tappedNaviBackButton:
+        return .run { _ in await self.dismiss() }
+
       case .tappedNicknameEdit:
         state.showEditNicknameSheet = true
         return .none
