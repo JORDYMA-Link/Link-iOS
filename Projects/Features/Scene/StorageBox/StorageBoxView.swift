@@ -66,7 +66,7 @@ public struct StorageBoxView: View {
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         isScrollDetected = $0
       }
-      .onViewDidLoad { store.send(.onViewDidLoad) }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }

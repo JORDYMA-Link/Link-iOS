@@ -19,20 +19,21 @@ struct LinkSummaryResponse: Decodable {
   let platformImage: String
   let recommendFolder: String
   let recommendFolders: [String]
+  let date: String
 }
 
 extension LinkSummaryResponse {
   public func toDomain() -> Feed {
     return Feed(
       feedId: feedId,
-      thumnailImage: "",
+      thumbnailImage: "",
       platformImage: platformImage,
       title: subject,
-      date: "",
+      date: date,
       summary: summary,
       keywords: keywords,
       folderName: recommendFolder,
-      folders: folders,
+      folders: folders.filter { $0 != recommendFolder },
       memo: "",
       isMarked: false,
       originUrl: ""

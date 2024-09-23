@@ -12,13 +12,28 @@ import ComposableArchitecture
 
 @Reducer
 public struct AddKewordBottomSheetFeature {
+  public enum KeywordErrorType {
+    case textCount
+    case keywordCount
+  }
+  
   @ObservableState
   public struct State: Equatable {
     var keywords: [String] = []
     var text: String = ""
-    var isValidation: Bool = false
+    var isValidation: Bool = true
     
     var isAddKewordBottomSheetPresented: Bool = false
+    
+    var keywordErrorType: KeywordErrorType = .keywordCount
+    var errorMessage: String {
+      switch keywordErrorType {
+      case .textCount:
+        return "키워드는 20자까지 입력 가능해요"
+      case .keywordCount:
+        return "키워드는 최대 3개까지 지정할 수 있습니다."
+      }
+    }
   }
   
   public enum Action: BindableAction {
@@ -26,6 +41,7 @@ public struct AddKewordBottomSheetFeature {
     // MARK: User Action
     case addKeywordTapped([String])
     case closeButtonTapped
+    case textChanged(String)
     case textFieldSubmitButtonTapped
     case chipItemDeleteButtonTapped(String)
     case confirmButtonTapped
@@ -40,7 +56,7 @@ public struct AddKewordBottomSheetFeature {
     }
     case delegate(Delegate)
   }
-    
+  
   public var body: some ReducerOf<Self> {
     BindingReducer()
     
@@ -51,13 +67,19 @@ public struct AddKewordBottomSheetFeature {
         
       case let .addKeywordTapped(keywords):
         state.keywords = keywords
-        state.isValidation = state.keywords.count <= 2
-        return .run { send in await send(.setPresented(true)) }
+        return .run { send in
+          await send(.setValidation)
+          await send(.setPresented(true))
+        }
         
       case .closeButtonTapped, .confirmButtonTapped:
         state.text = ""
         state.isAddKewordBottomSheetPresented = false
         return .send(.delegate(.updateKeywords(state.keywords)))
+        
+      case let .textChanged(text):
+        state.text = text
+        return .send(.setValidation)
         
       case .textFieldSubmitButtonTapped:
         guard state.isValidation else { return .none }
@@ -72,9 +94,17 @@ public struct AddKewordBottomSheetFeature {
         }
         
         return .run { send in await send(.setValidation) }
-                
+        
       case .setValidation:
-        state.isValidation = state.keywords.count <= 2
+        if state.keywords.count == 3 {
+          state.keywordErrorType = .keywordCount
+          state.isValidation = false
+        } else if state.text.count > 20 {
+          state.keywordErrorType = .textCount
+          state.isValidation = false
+        } else {
+          state.isValidation = true
+        }
         return .none
         
       case let.setPresented(isPresented):

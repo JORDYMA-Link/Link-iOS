@@ -63,5 +63,6 @@ private struct SummaryStatusNavigationBar: View {
       leadingType: .dismiss("요약 중인 링크", { store.send(.closeButtonTapped) }),
       trailingType: .none
     )
+    .padding(.horizontal, 16)
   }
 }

@@ -114,8 +114,8 @@ public struct RootFeature: Reducer {
         return .none
         
         /// - MainTab Delegate
-      case .mainTab(.path(.element(id: _, action: .Setting(.delegate(.logout))))), .mainTab(.path(.element(id: _, action: .Setting(.delegate(.signout))))):
-        return .send(.changeScreen(.login()))
+      case .mainTab(.delegate(.logout)), .mainTab(.delegate(.signout)):
+        return .run { send in await send(.changeScreen(.login())) }
         
         /// - Login Delegate
       case .login(.delegate(.moveToOnboarding)):

@@ -109,9 +109,6 @@ public struct LoginFeature {
             guard let tokenInfo else { return }
             
             await send(.setSaveKeychain(tokenInfo))
-            await send(.putFcmPushToken)
-            /// 폴더 유무로 첫 가입 유저 확인
-            await send(.fetchFolderList)
           },
           catch: { error, send in
             debugPrint(error)
@@ -155,9 +152,13 @@ public struct LoginFeature {
         return .none
         
       case let .setSaveKeychain(token):
-        return .run { _ in
+        return .run { send in
           try await keychainClient.save(.accessToken, token.accessToken)
           try await keychainClient.save(.refreshToken, token.refreshToken)
+          
+          await send(.putFcmPushToken)
+          /// 폴더 유무로 첫 가입 유저 확인
+          await send(.fetchFolderList)
         }
         
       default:
