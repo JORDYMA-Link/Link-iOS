@@ -10,9 +10,11 @@ import Foundation
 
 import Models
 
+
+
 struct FeedResponse: Decodable {
   let feedId: Int
-  let thumnailImage: String
+  let thumbnailImage: String
   let platformImage: String
   let title: String
   let date: String
@@ -29,7 +31,7 @@ extension FeedResponse {
   func toDomain() -> Feed {
     Feed(
       feedId: feedId,
-      thumnailImage: thumnailImage,
+      thumbnailImage: thumbnailImage,
       platformImage: platformImage,
       title: title,
       date: date,
@@ -43,3 +45,5 @@ extension FeedResponse {
     )
   }
 }
+
+

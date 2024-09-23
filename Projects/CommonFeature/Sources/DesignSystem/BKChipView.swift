@@ -19,17 +19,20 @@ public enum ChipType {
 
 public struct BKChipView: View {
   @Binding var keywords: [String]
+  private let highlighted: String?
   private let chipType: ChipType
   private let deleteAction: ((String) -> Void)?
   private let addAction: (() -> Void)?
   
   public init(
     keywords: Binding<[String]>,
+    highlighted: String? = nil,
     chipType: ChipType,
     deleteAction: ((String) -> Void)? = nil,
     addAction: (() -> Void)? = nil
   ) {
     self._keywords = keywords
+    self.highlighted = highlighted
     self.chipType = chipType
     self.deleteAction = deleteAction
     self.addAction = addAction
@@ -41,6 +44,7 @@ public struct BKChipView: View {
         ForEach(keywords, id: \.self) { keyword in
           ChipItem(
             title: keyword,
+            highlighted: highlighted,
             type: chipType,
             isAdd: false,
             deleteAction: deleteAction,
@@ -65,6 +69,7 @@ public struct BKChipView: View {
 
 private struct ChipItem: View {
   private let title: String
+  private let highlighted: String?
   private let type: ChipType
   private var isAdd: Bool
   private let deleteAction: ((String) -> Void)?
@@ -72,12 +77,14 @@ private struct ChipItem: View {
   
   init(
     title: String,
+    highlighted: String? = nil,
     type: ChipType,
     isAdd: Bool,
     deleteAction: ((String) -> Void)?,
     addAction: (() -> Void)?
   ) {
     self.title = title
+    self.highlighted = highlighted
     self.type = type
     self.isAdd = isAdd
     self.deleteAction = deleteAction
@@ -91,7 +98,7 @@ private struct ChipItem: View {
         font: .semiBold,
         size: ._11,
         lineHeight: 16,
-        color: .bkColor(.gray700)
+        color: .bkColor(highlighted?.highlighted() == title.highlighted() ? .main300 : .gray700)
       )
       .lineLimit(1)
       
@@ -114,5 +121,11 @@ private struct ChipItem: View {
         .stroke(Color.bkColor(.gray500), lineWidth: 1)
         .padding(1)
     }
+  }
+}
+
+private extension String {
+  func highlighted() -> String {
+    return self.lowercased().replacingOccurrences(of: " ", with: "")
   }
 }

@@ -32,8 +32,10 @@ struct EditFolderBottomSheet: View {
       }
       .ignoresSafeArea(edges: .bottom)
       .sheet(isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented) {
-        makeAddFolderBottomSheet()
-          .presentationDetents([.height(202)])
+        WithPerceptionTracking {
+          makeAddFolderBottomSheet()
+            .presentationDetents([.height(202)])
+        }
       }
     }
   }

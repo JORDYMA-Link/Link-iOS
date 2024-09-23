@@ -70,7 +70,7 @@ public struct SaveLinkFeature {
       case .postLinkSummary:
         return .run(
           operation: { [state] send in
-            let feedId: Int = try await linkClient.postLinkSummary(state.urlText, "안드로이드에서의 빌드는 아앙아아 안드로이드에서의 빌드를 이해하기 위해서는 먼저 컴파일 과정부터 다시 살펴보는 것이 좋습니다. 리눅스 컴파일과의 차이점은 안드로이드에는 리소스(Resource)라는 개념이 있다는 점입니다. 안드로이드는 2단계로 컴파일을 나눌 수 있습니다.1단계는 바이트코드 단계입니다. 다음 그림과 같이 소스 코드와 리소스(이미지 파일, 음악 파일 등), 라이브러리까지 한 번에 컴파일해줍니다. 이때 생성된 파일은 안드로이드 플랫폼에서 인식할 수 있는 바이트코드로 컴파일됩니다. 이 파일은 스마트폰에서 바로 실행할 수 없습니다.")
+            let feedId: Int = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
             
             // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
             try? await Task.sleep(for: .seconds(2))

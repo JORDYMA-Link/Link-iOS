@@ -19,22 +19,27 @@ struct AddFolderBottomSheet: View {
   @FocusState private var textIsFocused: Bool
   
   var body: some View {
-    WithPerceptionTracking {
-      GeometryReader { _ in
+    GeometryReader { _ in
+      WithPerceptionTracking {
         VStack(spacing: 0) {
-          BKTextField(
-            text: $store.folderName,
-            isValidation: store.isValidation,
-            textIsFocused: _textIsFocused,
-            textFieldType: .addFolder,
-            textCount: 10,
-            isMultiLine: false, 
-            errorMessage: store.errorMessage
-          )
-          .introspect(.textField, on: .iOS(.v17)) { textField in
-            textField.delegate = textFieldDelegate
+          WithPerceptionTracking {
+            BKTextField(
+              text: $store.folderName,
+              isValidation: store.isValidation,
+              textIsFocused: _textIsFocused,
+              textFieldType: .addFolder,
+              textCount: 10,
+              isMultiLine: false,
+              errorMessage: store.errorMessage
+            )
+            .onChange(of: store.folderName) { newValue in
+              store.send(.folderNameTextChanged(newValue))
+            }
+            .introspect(.textField, on: .iOS(.v17)) { textField in
+              textField.delegate = textFieldDelegate
+            }
+            .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           }
-          .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
           
           Spacer(minLength: 0)
           
@@ -46,9 +51,9 @@ struct AddFolderBottomSheet: View {
           )
         }
       }
-      .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
-      .animation(.spring, value: textIsFocused)
-      .onAppear { textIsFocused = true }
     }
+    .ignoresSafeArea(.keyboard, edges: textIsFocused ? .top : .bottom)
+    .animation(.spring, value: textIsFocused)
+    .onAppear { textIsFocused = true }
   }
 }

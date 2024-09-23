@@ -15,6 +15,7 @@ public struct UserDefaultsClient {
         case fcmToken
         case isPopGestureEnabled
         case recentSearches
+        case latestUnsavedSummaryFeedId
     }
     
     public var string: @Sendable (_ forKey: UserDefaultsKey, _ default: String) -> String
@@ -27,6 +28,7 @@ public struct UserDefaultsClient {
     public var object: @Sendable (_ forKey: UserDefaultsKey, _ default: Any) -> Any
     public var set: @Sendable (_ value: Any, _ forKey: UserDefaultsKey) -> Void
     public var removeObject: @Sendable (_ forKey: UserDefaultsKey) -> Void
+    public var reset: @Sendable () -> Void
     
     public func codableObject<T: Codable>(_ type: T.Type, forKey key: String, defaultValue: T) -> T {
         guard let data = UserDefaults.standard.data(forKey: key) else {
@@ -102,6 +104,11 @@ extension UserDefaultsClient: DependencyKey {
             },
             removeObject: { key in
                 UserDefaults.standard.removeObject(forKey: key.rawValue)
+            },
+            reset: {
+              for key in UserDefaults.standard.dictionaryRepresentation().keys {
+                UserDefaults.standard.removeObject(forKey: key.description)
+              }
             }
         )
     }

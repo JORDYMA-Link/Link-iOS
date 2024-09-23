@@ -37,20 +37,29 @@ struct LinkHeaderView: View {
       let minY = proxy.frame(in: .global).minY
       let isScrolling = minY > 0
       
-      BKImageView(
-        imageURL: feed.thumnailImage,
-        downsamplingSize: .init(width: size.width, height: size.height),
-        placeholder: CommonFeature.Images.icoEmptyThumnail
-      )
+      Group {
+        if !feed.thumbnailImage.isEmpty {
+          BKImageView(
+            imageURL: feed.thumbnailImage,
+            downsamplingSize: .init(width: size.width, height: size.height),
+            placeholder: CommonFeature.Images.icoEmptyThumnail
+          )
+        } else {
+          CommonFeature.Images.icoEmptyThumnail
+            .resizable()
+            .scaledToFill()
+        }
+      }
       .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
       .clipped()
       .offset(y: isScrolling ? -minY : 0)
-      .overlay(alignment: .top) {
+      .opacity(0.56)
+      .overlay(alignment: .bottom) {
         VStack(spacing: 0) {
           titleView()
-          Spacer(minLength: 0)
           buttonView
         }
+        .opacity(1.0)
         .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
         .offset(y: isScrolling ? -minY : 0)
       }
@@ -68,6 +77,7 @@ struct LinkHeaderView: View {
           placeholder: CommonFeature.Images.icoEmptyPlatform
         )
         .frame(width: 24, height: 24)
+        .clipShape(Circle())
         
         Text(feed.title)
           .font(.regular(size: ._28))
@@ -75,7 +85,7 @@ struct LinkHeaderView: View {
           .lineLimit(3)
           .multilineTextAlignment(.leading)
           .padding(.top, 4)
-          .frame(maxWidth: .infinity, minHeight: Size.titleMinHeight, alignment: .topLeading)
+          .frame(maxWidth: .infinity, minHeight: 38, alignment: .bottomLeading)
           .fixedSize(horizontal: false, vertical: true)
           .background(ViewHeightGeometry())
           .onPreferenceChange(ViewPreferenceKey.self) { height in

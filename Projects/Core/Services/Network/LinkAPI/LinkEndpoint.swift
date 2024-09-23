@@ -11,7 +11,7 @@ import Foundation
 import Moya
 
 enum LinkEndpoint {
-  case postLinkSummary(link: String, content: String)
+  case postLinkSummary(link: String)
   case postLinkImage(feedId: Int, thumbnailImage: Data)
   case patchLink(feedId: Int, folderName: String, title: String, summary: String, keywords: [String], memo: String)
   case getLinkSummary(feedId: Int)
@@ -54,10 +54,9 @@ extension LinkEndpoint: BaseTargetType {
   
   var task: Moya.Task {
     switch self {
-    case let .postLinkSummary(link, content):
+    case let .postLinkSummary(link):
       return .requestParameters(parameters: [
-        "link": link,
-        "content": content
+        "link": link
       ], encoding: JSONEncoding.default)
       
     case let .postLinkImage(feedId, thumbnailImage):

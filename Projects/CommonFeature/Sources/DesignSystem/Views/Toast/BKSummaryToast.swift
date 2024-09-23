@@ -14,14 +14,14 @@ public enum SummaryType {
 }
 
 public struct BKSummaryToast: View {
-  private let summaryType: SummaryType
+  @Binding private var summaryType: SummaryType
   private let action: () -> Void
   
   public init(
-    summaryType: SummaryType,
+    summaryType: Binding<SummaryType>,
     action: @escaping () -> Void
   ) {
-    self.summaryType = summaryType
+    self._summaryType = summaryType
     self.action = action
   }
   

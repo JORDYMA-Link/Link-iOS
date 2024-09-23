@@ -15,42 +15,27 @@ import ComposableArchitecture
 struct HomeContainerView<Content: View>: View {
   private let store: StoreOf<HomeFeature>
   private let tabbar: () -> Content
-  @Binding var summaryToastIsPresented: Bool
-  private let toastAction: () -> Void
-  
-  
+    
   public init(
     store: StoreOf<HomeFeature>,
-    tabbar: @autoclosure @escaping () -> Content,
-    summaryToastIsPresented: Binding<Bool>,
-    toastAction: @escaping () -> Void
+    tabbar: @autoclosure @escaping () -> Content
   ) {
     self.store = store
     self.tabbar = tabbar
-    self._summaryToastIsPresented = summaryToastIsPresented
-    self.toastAction = toastAction
   }
   
   var body: some View {
     WithPerceptionTracking {
       ZStack(alignment: .bottom) {
         HomeView(store: store)
-          .toast(
-            isPresented: $summaryToastIsPresented,
-            toastType: .summary,
-            toastContent: {
-              BKSummaryToast(
-                summaryType: .summaryComplete,
-                action: { toastAction() }
-              )
-            }
-          )
+          .summaryToast(store: store)
         
         tabbar()
       }
       .cardSettingBottomSheet(store: store)
       .editFolderBottomSheet(store: store)
       .addFolderBottomSheet(store: store)
+      .editLinkFullScreenOver(store: store)
       .toolbar(.hidden, for: .navigationBar)
     }
   }

@@ -100,23 +100,13 @@ public struct HomeView: View {
           }
         }
       }
-    }
-    .padding(.bottom, 52)
-    .background(Color.bkColor(.white))
-    .fullScreenCover(
-      item: $store.scope(
-        state: \.editLink,
-        action: \.editLink)
-    ) { store in
-      EditLinkView(store: store)
-    }
-    .animation(.easeIn(duration: 0.2), value: isScrollDetected)
-    .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-      self.isScrollDetected = $0
-    }
-    .onViewDidLoad {
-      store.send(.onViewDidLoad)
-      UIScrollView.appearance().bounces = true
+      .padding(.bottom, 52)
+      .background(Color.bkColor(.white))
+      .animation(.easeIn(duration: 0.2), value: isScrollDetected)
+      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+        self.isScrollDetected = $0
+      }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
@@ -161,7 +151,11 @@ private struct HomeBanner: View {
   var body: some View {
     WithPerceptionTracking {
       VStack(spacing: 12) {
-        BKInstructionBanner()
+        Link(destination:
+              URL(string: "https://daffy-sandal-6ef.notion.site/100-5d76361912514364864547cbc1600531?pvs=4")!
+        ) {
+          BKInstructionBanner()
+        }
         
         BKSearchBanner(
           searchAction: { store.send(.searchBannerSearchBarTapped) },
@@ -189,14 +183,16 @@ private struct CategoryHeaderView: View {
     WithPerceptionTracking {
       HStack(spacing: 8) {
         ForEach(CategoryType.allCases, id: \.self) { type in
-          BKCategoryButton(
-            title: type.title,
-            isSelected: store.category == type,
-            action: {
-              scrollAction()
-              store.send(.categoryButtonTapped(type))
-            }
-          )
+          WithPerceptionTracking {
+            BKCategoryButton(
+              title: type.title,
+              isSelected: store.category == type,
+              action: {
+                scrollAction()
+                store.send(.categoryButtonTapped(type))
+              }
+            )
+          }
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)

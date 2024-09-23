@@ -30,27 +30,20 @@ struct SearchView: View {
         Divider()
           .foregroundStyle(Color.bkColor(.gray400))
         
-        if store.keyword.isEmpty {
-          RecentSearchView(store: store)
-        } else if store.feedSection.isEmpty {
-          EmptySearchView(store: store)
-        } else {
-          KeywordSearchView(store: store)
+        Group {
+          if store.query.isEmpty {
+            RecentSearchView(store: store)
+          } else {
+            if store.feedSection.isEmpty {
+              EmptySearchView(store: store)
+            } else {
+              KeywordSearchView(store: store)
+            }
+          }
         }
       }
       .searchKeywordBackground()
       .toolbar(.hidden, for: .navigationBar)
-      .navigationDestination(
-        item: $store.scope(
-          state: \.link,
-          action: \.link
-        )
-      ) { store in
-        LinkView(
-          store: store,
-          onWillDisappear: { self.store.send(.dismissCardDetail($0)) }
-        )
-      }
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
         detents: [.height(192)],
