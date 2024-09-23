@@ -14,39 +14,37 @@ public struct ClearableTextField: View {
     var showClearButton: Bool
     
     
-    public init(text: Binding<String>, placeholder: String, showClearButton: Bool = true) {
+  public init(
+    text: Binding<String>,
+    placeholder: String,
+    showClearButton: Bool = true
+  ) {
       self._text = text
       self.placeholder = placeholder
       self.showClearButton = showClearButton
     }
     
     public var body: some View {
+      HStack(spacing: 0) {
         TextField(text: $text) {
             Text("링크를 붙여주세요")
                 .font(.regular(size: ._14))
                 .foregroundStyle(Color.bkColor(.gray800))
         }
         .frame(height: 46)
-        .padding(.leading, 10)
-        .padding(.trailing, -30)
-        .background(Color.bkColor(.gray300))
-        .clipShape(RoundedRectangle(cornerRadius: 10))
-        .overlay(
-            HStack {
-                Spacer()
-                if showClearButton && !text.isEmpty {
-                  ZStack{
-                    Button(action: {
-                        text = ""
-                    }) {
-                        Image(systemName: "multiply.circle.fill")
-                            .foregroundStyle(Color.gray)
-                    }
-                    .padding(.trailing, 10)
-                  }
-                  .background(Color.bkColor(.gray300))
-                }
-            }
-        )
+        .padding(.leading, 16)
+        
+        if showClearButton && !text.isEmpty {
+          Button {
+            text = ""
+          } label: {
+            Image(systemName: "multiply.circle.fill")
+              .foregroundStyle(Color.gray)
+          } //Button - Label
+          .padding(EdgeInsets(top: 14, leading: 6, bottom: 14, trailing: 14))
+        } //if
+      } //HStack
+      .background(Color.bkColor(.gray300))
+      .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 }
