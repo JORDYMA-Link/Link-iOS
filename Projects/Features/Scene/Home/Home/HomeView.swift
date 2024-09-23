@@ -106,10 +106,7 @@ public struct HomeView: View {
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
         self.isScrollDetected = $0
       }
-      .onViewDidLoad {
-        store.send(.onViewDidLoad)
-        UIScrollView.appearance().bounces = true
-      }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
@@ -154,7 +151,11 @@ private struct HomeBanner: View {
   var body: some View {
     WithPerceptionTracking {
       VStack(spacing: 12) {
-        BKInstructionBanner()
+        Link(destination:
+              URL(string: "https://daffy-sandal-6ef.notion.site/100-5d76361912514364864547cbc1600531?pvs=4")!
+        ) {
+          BKInstructionBanner()
+        }
         
         BKSearchBanner(
           searchAction: { store.send(.searchBannerSearchBarTapped) },

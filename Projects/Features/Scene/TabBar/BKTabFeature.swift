@@ -30,15 +30,11 @@ public struct BKTabFeature {
   
   @ObservableState
   public struct State: Equatable {
-    var viewDidLoad: Bool = false
     var currentItem: BKTabViewType = .home
     var path = StackState<Path.State>()
     
     var isSaveContentPresented = false
-    
-    var summaryType: SummaryType = .summarizing
-    var isSummaryToastPresented = false
-    
+        
     var home: HomeFeature.State = .init()
     var storageBox: StorageBoxFeature.State = .init()
     
@@ -49,18 +45,15 @@ public struct BKTabFeature {
     case binding(BindingAction<State>)
     
     // MARK: User Action
-    case onAppear
+    case onViewDidLoad
     case roundedTabIconTapped
     case saveLinkButtonTapped
-    case routeSummaryStatusButtonTapped
     /// 피드 디테일 WillDisappear
     case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
-    case fetchLinkProcessing
     
     // MARK: Inner SetState Action
-    case setSummaryToastPresented(SummaryType, Bool)
     case setUnsavedSummaryAlertPresented
     
     // MARK: Delegate Action
@@ -82,7 +75,6 @@ public struct BKTabFeature {
   
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
-  @Dependency(\.linkClient) private var linkClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.storageBox, action: \.storageBox) { StorageBoxFeature() }
@@ -92,15 +84,13 @@ public struct BKTabFeature {
     
     Reduce { state, action in
       switch action {
-      case .binding:
+      case .binding(\.currentItem):
+        state.isSaveContentPresented = false
         return .none
         
-      case .onAppear:
-        return .run { send in
-          await send(.fetchLinkProcessing)
-          await send(.setUnsavedSummaryAlertPresented)
-        }
-        
+      case .onViewDidLoad:
+        return .send(.setUnsavedSummaryAlertPresented)
+                
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
         state.isSaveContentPresented.toggle()
@@ -111,44 +101,8 @@ public struct BKTabFeature {
         state.isSaveContentPresented.toggle()
         state.path.append(.SaveLink(SaveLinkFeature.State()))
         return .none
-        
-        /// - 링크 요약 토스트 -> 보러가기 버튼 눌렀을 때
-      case .routeSummaryStatusButtonTapped:
-        state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
-        return .none
-        
-      case .fetchLinkProcessing:
-        return .run(
-          operation: { send in
-            async let linkProcessingResponse = try linkClient.getLinkProcessing()
-            
-            let linkProcessing = try await linkProcessingResponse.processingList
-            
-            guard !linkProcessing.isEmpty else {
-              await send(.setSummaryToastPresented(.summarizing, false))
-              return
-            }
-            
-            if linkProcessing.filter({ $0.status != .processing }).isEmpty {
-              await send(.setSummaryToastPresented(.summarizing, true))
-            } else {
-              await send(.setSummaryToastPresented(.summaryComplete, true))
-            }
-          },
-          catch: { error, send in
-            print(error)
-          }
-        )
-        
-      case let .setSummaryToastPresented(type, isPresented):
-        state.summaryType = type
-        state.isSummaryToastPresented = isPresented
-        return .none
-        
+                        
       case .setUnsavedSummaryAlertPresented:
-        guard state.viewDidLoad == false else { return .none }
-        state.viewDidLoad = true
-        
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
           return .none
         }
@@ -260,6 +214,11 @@ public struct BKTabFeature {
         state.path.append(.StorageBoxFeedList(StorageBoxFeedListFeature.State(folder: folder)))
         return .none
         
+        /// - 홈 > 요약중 & 요약완료 토스트 -> `보러가기` 눌렀을 때
+      case .home(.delegate(.routeSummaryStatusList)):
+        state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
+        return .none
+        
         /// - 링크 요약 리스트 화면 -> `요약 리스트 아이템` 눌렀을 때 `요약 완료 화면`으로 이동
       case let .path(.element(id: _, action: .SummaryStatus(.delegate(.summaryStatusItemTapped(feedId))))):
         return .send(.routeSummaryCompleted(feedId))
@@ -278,7 +237,7 @@ public struct BKTabFeature {
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
         return .none
-        
+                
       case let .routeSummaryCompleted(feedId):
         state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
         return .none
