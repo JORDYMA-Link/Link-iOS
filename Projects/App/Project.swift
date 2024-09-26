@@ -14,6 +14,7 @@ let project = Project.make(
                         "Resources/GoogleService-Info.plist"
                        ],
             entitlements: .file(path: .relativeToRoot("Projects/App/Blink.entitlements")),
+            scripts: [.firebaseCrashlytics],
             dependencies: [
                 .project(target: .features, projectPath: .features),
                 .project(target: .commonFeature, projectPath: .commonFeature),
