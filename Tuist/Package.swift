@@ -8,8 +8,8 @@ let packageSettings = PackageSettings(
     productTypes: [
         "ComposableArchitecture": .framework,
         "Moya": .framework,
-        "FirebaseMessaging": .framework,
-        "FirebaseAnalytics": .framework,
+        "FirebaseMessaging": .staticLibrary,
+        "FirebaseAnalytics": .staticLibrary,
         "Lottie": .framework,
         "Kingfisher": .framework,
         "SwiftUIIntrospect": .framework,
@@ -22,7 +22,7 @@ let packageSettings = PackageSettings(
 let package = Package(
     name: "blink",
     dependencies: [
-//        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "10.27.0"),
+        .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "10.27.0"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1"),
         .package(url: "https://github.com/airbnb/lottie-ios.git", from: "4.4.3"),
         .package(url: "https://github.com/siteline/swiftui-introspect", branch: "main"),

@@ -3,11 +3,6 @@ import ProjectDescriptionHelpers
 
 let project = Project.make(
     name: "App",
-    packages: [
-        .remote(
-            url: "https://github.com/firebase/firebase-ios-sdk",
-            requirement: .exact("10.27.0"))
-    ],
     targets: [
         .make(
             name: "Blink",
@@ -24,7 +19,8 @@ let project = Project.make(
                 .project(target: .commonFeature, projectPath: .commonFeature),
                 .project(target: .services, projectPath: .core),
                 .external(externalDependency: .composableArchitecture),
-                .package(product: "FirebaseMessaging")
+                .external(externalDependency: .firebaseAnalytics),
+                .external(externalDependency: .firebaseMessaging)
             ],
             settings: .settings(
                 base: [
