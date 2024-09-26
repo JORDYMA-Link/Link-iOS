@@ -12,13 +12,13 @@ import Features
 import CommonFeature
 
 import ComposableArchitecture
-import Firebase
+import FirebaseCore
 import FirebaseMessaging
 
 @main
 struct BlinkApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-  
+
   init() {
     setupNavigationBarAppearance()
   }
