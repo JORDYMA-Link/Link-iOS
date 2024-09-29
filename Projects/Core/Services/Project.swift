@@ -8,17 +8,17 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
+
 let project = Project.make(
-    name: ModulePath.Core.name,
+    name: ModulePath.Core.Services.rawValue,
     targets: [
-        .core(factory: .init(
-            product: .staticFramework,
-            sources: nil,
+        .core(implements: .Services, factory: .init(
             dependencies: [
+                .shared(implements: .ThirdParty),
                 .core(implements: .Models),
-                .core(implements: .Services),
                 .shared
             ]
         ))
     ]
 )
+

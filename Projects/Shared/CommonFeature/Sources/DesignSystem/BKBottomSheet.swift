@@ -8,8 +8,6 @@
 
 import SwiftUI
 
-import Common
-
 import ComposableArchitecture
 
 public extension View {

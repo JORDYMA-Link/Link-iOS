@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommonFeature
 
 public struct Folder: Identifiable, Equatable {
   public var id: Int
@@ -33,3 +34,11 @@ extension Folder {
     ]
   }
 }
+
+
+extension Folder: FolderItem {
+  public var folderName: String {
+    return self.name
+  }
+}
+
