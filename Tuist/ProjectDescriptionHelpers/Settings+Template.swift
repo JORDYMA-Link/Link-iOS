@@ -28,7 +28,10 @@ public extension ProjectDescription.Settings {
     
     static var projectSettings: Self {
         return .settings(
-            base: ["OTHER_LDFLAGS": "$(inherited) -ObjC",],
+            base: ["OTHER_LDFLAGS": "$(inherited) -ObjC",
+                   "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                   "ENABLE_BITCODE": "NO"
+                  ],
             configurations: [
                 .release(name: .release,xcconfig: "./xcconfigs/Blink.release.xcconfig"),
                 .debug(name: .debug, xcconfig: "./xcconfigs/Blink.debug.xcconfig")
