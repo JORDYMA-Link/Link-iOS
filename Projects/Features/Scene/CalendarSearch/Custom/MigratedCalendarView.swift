@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-import FSCalendar
 import ComposableArchitecture
+import FSCalendar
 
 ///FSCalendar를 SwiftUI에서 사용할 수 있도록 UIViewRepresentable로 마이그레이션 진행한 View
 ///
@@ -43,7 +43,7 @@ struct MigratedCalendarView: UIViewRepresentable {
   }
   
   func updateUIView(_ uiView: FSCalendar, context: Context) {
-    if calendarStore.state.currentPage != uiView.currentPage {
+    if calendarStore.state.currentPage + 32400 != uiView.currentPage {
       uiView.setCurrentPage(calendarStore.state.currentPage, animated: true)
     }
   }
