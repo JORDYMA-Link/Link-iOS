@@ -23,15 +23,16 @@ public struct CalendarView: View {
         leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
         trailingType: .none
       )
+      .padding(.leading, 20)
       
       HStack {
         Button{
           store.send(.calendarAction(.tappedCurrentSheetButton))
         } label: {
           HStack {
-            Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
+            Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
               .font(.semiBold(size: ._20))
-            Image(systemName: "chevron.down")
+            CommonFeature.Images.icoChevronDown
           }
           .foregroundStyle(Color.bkColor(.gray900))
           .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
@@ -43,7 +44,12 @@ public struct CalendarView: View {
       }
       
       ZStack(alignment: .top){
-        MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
+        MigratedCalendarView(
+          calendarStore: store.scope(
+            state: \.calendar,
+            action: \.calendarAction
+          )
+        )
         
         if store.calendar.changeCurrentPageSheet {
           selectionCurrentPageView
@@ -57,44 +63,48 @@ public struct CalendarView: View {
         
         if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
           GeometryReader { geometry in
-            VStack{
-              makeCategorySectionHeader
-              
-              ScrollView(.horizontal) {
-                LazyHStack(spacing: 4) {
-                    Section {
-                      ForEach(store.article.displayArticle, id: \.self) { value in
-                        BKCardCell(sourceTitle: value.platform,
-                                   sourceImage: value.platformImage,
-                                   isMarked: value.isMarked,
-                                   saveAction: {}, //FIXME: 동작 수행
-                                   menuAction: {}, //FIXME: 동작 수행
-                                   title: value.title,
-                                   description: value.summary,
-                                   keyword: value.keywords,
-                                   isUncategorized: false
-                        )
-                        .onTapGesture{
-                          store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
-                        }
-                        .frame(width: 257)
-                      } // Foreach
-                    }// Section
-                    .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
+            WithPerceptionTracking {
+              VStack{
+                makeCategorySectionHeader
+                
+                ScrollView(.horizontal) {
+                  LazyHStack(spacing: 4) {
+                    WithPerceptionTracking {
+                      Section {
+                        ForEach(store.article.displayArticle, id: \.self) { value in
+                          BKCardCell(
+                            sourceTitle: value.platform,
+                            sourceImage: value.platformImage,
+                            isMarked: value.isMarked,
+                            saveAction: { store.send(.cardItemSaveButtonTapped(index, !item.isMarked), animation: .default) },
+                            menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
+                            title: value.title,
+                            description: value.summary,
+                            keyword: value.keywords,
+                            isUncategorized: false
+                          )
+                          .onTapGesture {
+                            store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
+                          }
+                          .frame(width: 257)
+                        } // Foreach
+                      }// Section
+                      .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 0))
+                    }
                   }// LazyHStack
-              }// ScrollView
-              .scrollIndicators(.hidden)
-            }// VStack
+                }// ScrollView
+                .scrollIndicators(.hidden)
+              }// VStack
+            }
           }// GeometryReader
         } else {
           noneContentsView
         }// else
       }// ZStack
     }
-    .onAppear(
-      perform: {
-        store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
-      })
+    .onAppear(perform: {
+      store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
+    })
     .navigationBarBackButtonHidden(true)
   }
   
@@ -210,13 +220,13 @@ public struct CalendarView: View {
               .onTapGesture {
                 store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
               }
-          }
+          }// Foreach
         }
       } //LazyHStack
       .scrollDisabled(true)
       .frame(height: 40)
       .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
-    }
+    }// WithPerceptionTracking
   }
 }
 

@@ -21,6 +21,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
     return button
   } ()
   
+  private let currentPageTitleStringFormatter = "YYYY. MM"
   
   //MARK: - initialization
   init(frame: CGRect, calendar: FSCalendar) {
@@ -35,7 +36,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
   //MARK: - FScalendar Method
   override func configureAppearance() {
     self.addSubview(monthButton)
-    setCurrentPageTitle(currentPage: calendar.currentPage.toStringOnlyYearAndMonth)
+    setCurrentPageTitle(currentPage: calendar.currentPage.toString(formatter: currentPageTitleStringFormatter))
 
     monthButton.translatesAutoresizingMaskIntoConstraints = true
     
@@ -51,7 +52,7 @@ final class CustomCalendarHeaderView: FSCalendarHeaderView {
     
     guard let currentPage = calendar?.currentPage else { return }
     
-    self.monthButton.setTitle(currentPage.toStringOnlyYearAndMonth, for: .normal)
+    self.monthButton.setTitle(currentPage.toString(formatter: "currentPageTitleStringFormatter"), for: .normal)
   }
   
   //MARK: - Helpe

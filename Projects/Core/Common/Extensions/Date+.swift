@@ -9,13 +9,6 @@
 import Foundation
 
 extension Date {
-  public var toStringOnlyYearAndMonth: String {
-    let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "ko_KR")
-    formatter.dateFormat = "YYYY. MM."
-    return formatter.string(from: self)
-  }
-  
   public func toString(formatter: String) -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = formatter
