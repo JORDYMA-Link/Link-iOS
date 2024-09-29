@@ -42,6 +42,28 @@ public extension TargetDependency {
 }
 
 public extension TargetDependency {
+    static var domain: Self {
+        return .project(target: ModulePath.Domain.name, path: .domain)
+    }
+    
+    static func domain(implements module: ModulePath.Domain) -> Self {
+        return .project(target: ModulePath.Domain.name + module.rawValue, path: .domain(implementation: module))
+    }
+    
+    static func domain(interface module: ModulePath.Domain) -> Self {
+        return .project(target: ModulePath.Domain.name + module.rawValue + "Interface", path: .domain(implementation: module))
+    }
+    
+    static func domain(tests module: ModulePath.Domain) -> Self {
+        return .project(target: ModulePath.Domain.name + module.rawValue + "Tests", path: .domain(implementation: module))
+    }
+    
+    static func domain(testing module: ModulePath.Domain) -> Self {
+        return .project(target: ModulePath.Domain.name + module.rawValue + "Testing", path: .domain(implementation: module))
+    }
+}
+
+public extension TargetDependency {
     static var core: Self {
         return .project(target: ModulePath.Core.name, path: .core)
     }
@@ -62,6 +84,7 @@ public extension TargetDependency {
     
 //    static func shared(implements module: ModulePath.Shared) -> Self {
 //        return .project(target: ModulePath.Shared.name + module.rawValue, path: .shared(module: module))
+    
     static func shared(implements module: ModulePath.Shared) -> Self {
         return .project(target: module.rawValue, path: .shared(module: module))
     }
