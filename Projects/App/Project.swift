@@ -1,12 +1,13 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
+import DependencyPlugin
 
 let project = Project.make(
     name: "Blink",
     targets: [
         .app(factory: .init(
             dependencies: [
-                .project(target: .features, projectPath: .features)
+                .feature
             ]
         ))
     ],

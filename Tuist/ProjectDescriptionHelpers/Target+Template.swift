@@ -7,6 +7,7 @@
 
 import Foundation
 import ProjectDescription
+import DependencyPlugin
 
 // MARK: Target + Template
 
@@ -112,6 +113,58 @@ public extension Target {
         newFactory.entitlements = .file(path: .relativeToRoot("Projects/App/Blink.entitlements"))
         newFactory.scripts = [.firebaseCrashlytics]
         newFactory.settings = .appSettings
+        
+        return make(factory: newFactory)
+    }
+}
+
+// MARK: Target + Feature
+
+public extension Target {
+    static func feature(factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Feature.name
+        
+        return make(factory: newFactory)
+    }
+    
+    static func feature(implements module: ModulePath.Feature, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Feature.name + module.rawValue
+        
+        return make(factory: newFactory)
+    }
+    
+    static func feature(tests module: ModulePath.Feature, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Feature.name + module.rawValue + "Tests"
+        newFactory.sources = .tests
+        newFactory.product = .unitTests
+        
+        return make(factory: newFactory)
+    }
+    
+    static func feature(testing module: ModulePath.Feature, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Feature.name + module.rawValue + "Testing"
+        newFactory.sources = .testing
+        
+        return make(factory: newFactory)
+    }
+    
+    static func feature(interface module: ModulePath.Feature, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Feature.name + module.rawValue + "Interface"
+        newFactory.sources = .interface
+        
+        return make(factory: newFactory)
+    }
+    
+    static func feature(example module: ModulePath.Feature, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Feature.name + module.rawValue + "Example"
+        newFactory.sources = .exampleSources
+        newFactory.product = .app
         
         return make(factory: newFactory)
     }

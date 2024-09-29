@@ -7,6 +7,7 @@
 
 import ProjectDescription
 import ProjectDescriptionHelpers
+import DependencyPlugin
 
 let project = Project.make(
     name: ModulePath.Shared.ThirdParty.rawValue,
