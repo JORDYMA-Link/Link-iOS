@@ -31,7 +31,7 @@ struct SearchView: View {
           .foregroundStyle(Color.bkColor(.gray400))
         
         Group {
-          if store.query.isEmpty || !store.isSearchble {
+          if store.query.isEmpty || !store.isSearchable {
             RecentSearchView(store: store)
           } else {
             if store.feedSection.isEmpty {
