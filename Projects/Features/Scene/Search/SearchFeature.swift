@@ -24,8 +24,9 @@ public struct SearchFeature {
       let feed: FeedCard
     }
     
-    var query = ""
-    var keyword = ""
+    var query: String = ""
+    var keyword: String = ""
+    var isSearchable: Bool = false
     
     var page: Int = 0
     
@@ -106,7 +107,10 @@ public struct SearchFeature {
     
     Reduce { state, action in
       switch action {
-      case .binding:
+      case .binding(\.query):
+        if state.query.isEmpty {
+          state.isSearchable = false
+        }
         return .none
         
       case .onTask:
@@ -245,6 +249,7 @@ public struct SearchFeature {
         )
         
       case let .setSearchFeedSection(feedSection):
+        state.isSearchable = true
         state.keyword = feedSection.query
         
         if state.page == 0 && feedSection.result.isEmpty {
@@ -279,13 +284,14 @@ public struct SearchFeature {
       case let .setRecentSearches(query):
         var recentSearches = userDefault.stringArray(.recentSearches, [])
         
-        if let index = recentSearches.firstIndex(where: { $0 == query }) {
+        if let index = recentSearches.firstIndex(where: { $0.lowercased() == query.lowercased() }) {
           recentSearches.remove(at: index)
         }
         
         recentSearches.insert(query, at: 0)
         let prefixRecentSearches = recentSearches.prefix(6).map { $0 }
         userDefault.set(prefixRecentSearches, .recentSearches)
+        state.recentSearches = prefixRecentSearches
         return .none
         
       case .setRemoveAllRecentSearches:
