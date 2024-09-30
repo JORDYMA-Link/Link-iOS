@@ -62,15 +62,14 @@ public struct SaveLinkFeature {
         return .run { _ in await self.dismiss() }
         
       case .onTapNextButton:
-        return .run { send in
-          await send(.linkSummaryLoadingAlertPresented)
-          await send(.postLinkSummary)
-        }
+        return .run { send in await send(.postLinkSummary) }
         
       case .postLinkSummary:
         return .run(
           operation: { [state] send in
-            let feedId: Int = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
+            _ = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
+            
+            await send(.linkSummaryLoadingAlertPresented)
             
             // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
             try? await Task.sleep(for: .seconds(2))
