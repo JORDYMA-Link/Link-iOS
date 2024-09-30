@@ -29,7 +29,7 @@ extension LinkSummaryResponse {
       thumbnailImage: "",
       platformImage: platformImage,
       title: subject,
-      date: date,
+      date: date.replacingOccurrences(of: "-", with: "."),
       summary: summary,
       keywords: keywords,
       folderName: recommendFolder,

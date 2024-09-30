@@ -22,6 +22,7 @@ struct BKAlertRootView: View {
         BKAlert(
           isLoadingType: property.isLoadingType,
           title: property.title,
+          imageType: property.imageType,
           description: property.description,
           buttonType: property.buttonType,
           leftAction: {

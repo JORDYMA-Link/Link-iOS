@@ -96,7 +96,7 @@ private extension HomeCardSection {
     case .bookmarked:
       return "북마크된 콘텐츠가 없습니다\n중요한 링크는 북마크하여 바로 확인해보세요"
     case .unclassified:
-      return "미분류된 콘텐츠가 없습니다\n분류에 고민이 된다면 미분류의 추천폴더 도움을 받아보세요"
+      return "미분류된 콘텐츠가 없습니다\n분류가 고민일 땐 추천폴더를 받아보세요"
     }
   }
 }
