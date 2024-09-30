@@ -34,6 +34,7 @@ public struct SaveLinkFeature {
             
     // MARK: Present Action
     case linkSummaryLoadingAlertPresented
+    case linkSummaryFailAlertPresented
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -79,6 +80,7 @@ public struct SaveLinkFeature {
           },
           catch: { error, send in
             print(error)
+            await send(.linkSummaryFailAlertPresented)
           }
         )
         
@@ -92,6 +94,17 @@ public struct SaveLinkFeature {
             rightButtonAction: { await send(.onTapBackButton) }
           ))
         }
+        
+      case .linkSummaryFailAlertPresented:
+      return .run { send in
+        await alertClient.present(.init(
+          title: "요약 불가",
+          imageType: .link,
+          description: "링크 요약에 실패했습니다",
+          buttonType: .singleButton("메인으로"),
+          rightButtonAction: { await send(.onTapBackButton) }
+        ))
+      }
                 
       default:
         return .none
