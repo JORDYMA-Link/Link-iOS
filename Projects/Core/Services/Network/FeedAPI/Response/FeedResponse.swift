@@ -34,7 +34,7 @@ extension FeedResponse {
       thumbnailImage: thumbnailImage,
       platformImage: platformImage,
       title: title,
-      date: date,
+      date: date.replacingOccurrences(of: "-", with: "."),
       summary: summary,
       keywords: keywords,
       folderName: folderName,

@@ -34,6 +34,7 @@ public struct SaveLinkFeature {
             
     // MARK: Present Action
     case linkSummaryLoadingAlertPresented
+    case linkSummaryFailAlertPresented
   }
   
   @Dependency(\.dismiss) private var dismiss
@@ -62,15 +63,14 @@ public struct SaveLinkFeature {
         return .run { _ in await self.dismiss() }
         
       case .onTapNextButton:
-        return .run { send in
-          await send(.linkSummaryLoadingAlertPresented)
-          await send(.postLinkSummary)
-        }
+        return .run { send in await send(.postLinkSummary) }
         
       case .postLinkSummary:
         return .run(
           operation: { [state] send in
-            let feedId: Int = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
+            _ = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
+            
+            await send(.linkSummaryLoadingAlertPresented)
             
             // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
             try? await Task.sleep(for: .seconds(2))
@@ -80,6 +80,7 @@ public struct SaveLinkFeature {
           },
           catch: { error, send in
             print(error)
+            await send(.linkSummaryFailAlertPresented)
           }
         )
         
@@ -93,6 +94,17 @@ public struct SaveLinkFeature {
             rightButtonAction: { await send(.onTapBackButton) }
           ))
         }
+        
+      case .linkSummaryFailAlertPresented:
+      return .run { send in
+        await alertClient.present(.init(
+          title: "요약 불가",
+          imageType: .link,
+          description: "링크 요약에 실패했습니다",
+          buttonType: .singleButton("메인으로"),
+          rightButtonAction: { await send(.onTapBackButton) }
+        ))
+      }
                 
       default:
         return .none
