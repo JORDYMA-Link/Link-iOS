@@ -8,6 +8,16 @@
 
 import SwiftUI
 
+
+public extension View {
+  @ViewBuilder 
+  func filled(_ content: () -> some View) -> some View {
+    self.overlay {
+      content().mask { self }
+    }
+  }
+}
+
 public extension View {
   /// 특정 Bool 값이 true일 때, apply 클로저를 적용하는 modifier
   @ViewBuilder
