@@ -21,78 +21,106 @@ public struct CalendarView: View {
   
   public var body: some View {
     WithPerceptionTracking {
-      makeBKNavigationView(
-        leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
-        trailingType: .none
-      )
-      .padding(.leading, 20)
-      
-      HStack {
-        Button{
-          store.send(.calendarAction(.tappedCurrentSheetButton))
-        } label: {
-          HStack {
-            Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
-              .font(.semiBold(size: ._20))
-            CommonFeature.Images.icoChevronDown
-          }
-          .foregroundStyle(Color.bkColor(.gray900))
-          .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
-        }
-        .frame(alignment: .leading)
+      VStack {
+        makeBKNavigationView(
+          leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
+          trailingType: .none
+        )
         .padding(.leading, 20)
         
-        Spacer()
-      }
-      
-      ZStack(alignment: .top){
-        MigratedCalendarView(
-          calendarStore: store.scope(
-            state: \.calendar,
-            action: \.calendarAction
-          )
-        )
-        
-        if store.calendar.changeCurrentPageSheet {
-          selectionCurrentPageView
-        }
-      }
-      .padding(.horizontal, 20)
-      
-      ZStack{
-        Color.bkColor(.gray300)
-          .ignoresSafeArea()
-        
-        if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
-          GeometryReader { geometry in
-            WithPerceptionTracking {
-              VStack{
-                makeCategorySectionHeader
-                
-                ScrollView(.horizontal) {
-                  LazyHStack(spacing: 4) {
-                    WithPerceptionTracking {
-                      Section {
-                        cardCellView
-                      }// Section
-                      .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 0))
-                    }
-                  }// LazyHStack
-                }// ScrollView
-                .scrollIndicators(.hidden)
-              }// VStack
+        HStack {
+          Button{
+            store.send(.calendarAction(.tappedCurrentSheetButton))
+          } label: {
+            HStack {
+              Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
+                .font(.semiBold(size: ._20))
+              CommonFeature.Images.icoChevronDown
             }
-          }// GeometryReader
-        } else {
-          noneContentsView
-        }// else
-      }// ZStack
-    } //WithPerceptionTracking
-    .navigationBarBackButtonHidden(true)
-    .onAppear(perform: {
-      store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
-    })
-    
+            .foregroundStyle(Color.bkColor(.gray900))
+            .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
+          }
+          .frame(alignment: .leading)
+          .padding(.leading, 20)
+          
+          Spacer()
+        }
+        
+        ZStack(alignment: .top){
+          MigratedCalendarView(
+            calendarStore: store.scope(
+              state: \.calendar,
+              action: \.calendarAction
+            )
+          )
+          
+          if store.calendar.changeCurrentPageSheet {
+            selectionCurrentPageView
+          }
+        }
+        .padding(.horizontal, 20)
+        
+        ZStack{
+          Color.bkColor(.gray300)
+            .ignoresSafeArea()
+          
+          if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
+            GeometryReader { geometry in
+              WithPerceptionTracking {
+                VStack{
+                  makeCategorySectionHeader
+                  
+                  ScrollView(.horizontal) {
+                    LazyHStack(spacing: 4) {
+                      WithPerceptionTracking {
+                        Section {
+                          cardCellView
+                        }// Section
+                        .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 0))
+                      }
+                    }// LazyHStack
+                  }// ScrollView
+                  .scrollIndicators(.hidden)
+                }// VStack
+              }
+            }// GeometryReader
+          } else {
+            noneContentsView
+          }// else
+        }// ZStack
+      } //WithPerceptionTracking
+      .navigationBarBackButtonHidden(true)
+      .onAppear(perform: {
+        store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
+        store.send(.calendarAction(.tappedDate(selectedDate: Date()+32400)))
+      })
+      .bottomSheet(
+        isPresented: $store.isMenuBottomSheetPresented,
+        detents: [.height(192)],
+        leadingTitle: "설정"
+      ) {
+        BKMenuBottomSheet(
+          menuItems: [.editLink, .editFolder, .deleteLink],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
+      }
+      .bottomSheet(
+        isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+        detents: [.height(132)],
+        leadingTitle: "폴더 수정",
+        closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+      .fullScreenCover(
+        item: $store.scope(
+          state: \.editLink,
+          action: \.editLink)
+      ) { store in
+        EditLinkView(store: store)
+      }
+    }
   }
   
   //MARK: - ViewBuilder
@@ -236,21 +264,6 @@ public struct CalendarView: View {
         .frame(width: 257)
       }
     } // Foreach
-  }
-  
-  @ViewBuilder
-  private func feedCardBottomSheet() -> some View {
-    self
-      .bottomSheet(
-        isPresented: $store.isMenuBottomSheetPresented,
-        detents: [.height(192)],
-        leadingTitle: "설정"
-      ) {
-        BKMenuBottomSheet(
-          menuItems: [.editLink, .editFolder, .deleteLink],
-          action: { _ in /*store.send(.menuBottomSheet($0))*/ }
-        )
-      }
   }
 }
 
