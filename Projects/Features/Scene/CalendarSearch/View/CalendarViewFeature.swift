@@ -17,15 +17,22 @@ public struct CalendarViewFeature {
   //MARK: - State
   @ObservableState
   public struct State: Equatable {
+    //MARK: main State
+    var isMenuBottomSheetPresented: Bool = false
+    var calendarSearchData: SearchCalendar?
+    
     //MARK: Child State
     var calendar = CalendarFeature.State()
     var article = CalendarArticleFeature.State()
     
-    var calendarSearchData: SearchCalendar?
+    //MARK: FeedCard
+    var selectedFeed: CalendarFeed?
   }
   
   //MARK: - Action
-  public enum Action {
+  public enum Action: BindableAction {
+    case binding(BindingAction<State>)
+    
     //MARK: Child Action
     case calendarAction(CalendarFeature.Action)
     case articleAction(CalendarArticleFeature.Action)
@@ -36,6 +43,14 @@ public struct CalendarViewFeature {
     
     //MARK: User Action
     case tappedNaviBackButton
+    case tappedSaveLinkButton
+    
+    //MARK: Delegate
+    case delegate(CalendarViewFeature.Delegate)
+  }
+  
+  public enum Delegate {
+    case routeFeedDetail(Int)
   }
 
   //MARK: - Dependency
@@ -51,11 +66,13 @@ public struct CalendarViewFeature {
       CalendarArticleFeature()
     }
     
-    Reduce {
-      state,
-      action in
+    Reduce { state, action in
       switch action {
+        //MARK: User Aciton
       case .tappedNaviBackButton:
+        return .run { _ in await self.dismiss() }
+        
+      case .tappedSaveLinkButton:
         return .run { _ in await self.dismiss() }
         
       case let .fetchCalendarData(yearMonth):
@@ -88,6 +105,14 @@ public struct CalendarViewFeature {
         return .run { send in
           await send(.articleAction(.filteringFolder))
         }
+        
+      case let .articleAction(.delegate(.shouldPresentsBottomSheet(selectedFeed))):
+        state.selectedFeed = selectedFeed
+//        state.isMenuBottomSheetPresented = true
+        return .none
+        
+      case let .articleAction(.delegate(.tappedFeedCard(feedID))):
+        return .send(.delegate(.routeFeedDetail(feedID)))
         
       default:
         return .none

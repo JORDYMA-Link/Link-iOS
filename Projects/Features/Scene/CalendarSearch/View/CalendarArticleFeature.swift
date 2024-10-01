@@ -34,11 +34,21 @@ public struct CalendarArticleFeature {
   }
   
   public enum Action {
-    //MARK: - Business Action
+    //MARK: Business Action
     case filteringFolder
     case allFolderCountUp
-    //MARK: - User Action
+    
+    //MARK: User Action
     case changeCategorySelectedIndex(targetIndex: Int)
+    case tappedCardItemSaveButton(Int, Bool)
+    case tappedCardItemMenuButton(CalendarFeed)
+    case tappedCardItem(Int)
+    
+    //MARK: Inner Business Logic
+    case patchBookmark(Int, Bool)
+    
+    //MARK: Delegate
+    case delegate(CalendarArticleFeature.Delegate)
   }
   
   struct FolderInfo: Hashable {
@@ -52,7 +62,20 @@ public struct CalendarArticleFeature {
       self.folderName = folderName
       self.feedCount = feedCount
     }
-    
+  }
+  
+  //MARK: - Dependency
+  @Dependency(\.feedClient) private var feedClient
+  
+  //MARK: - ThrottleId
+  private enum ThrottleId {
+    case categoryButton
+    case saveButton
+  }
+  
+  public enum Delegate {
+    case shouldPresentsBottomSheet(CalendarFeed)
+    case tappedFeedCard(Int)
   }
   
   public var body: some ReducerOf<Self> {
@@ -83,6 +106,37 @@ public struct CalendarArticleFeature {
         } else {
           state.displayArticle = state.allArticle.filter({ $0.folderID == folderId})
         }
+        return .none
+        
+      case let .tappedCardItemSaveButton(feedID, isMarked):
+        guard var indexOfAllArticle = state.allArticle.firstIndex(where: { $0.feedID == feedID }),
+              var indexOfDisplayArticle = state.displayArticle.firstIndex(where: { $0.feedID == feedID }) else { return .none }
+        
+        state.allArticle[indexOfAllArticle].isMarked = isMarked
+        state.displayArticle[indexOfDisplayArticle].isMarked = isMarked
+        
+        return .send(.patchBookmark(feedID, isMarked))
+          .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
+      case let.tappedCardItemMenuButton(selectedFeed):
+        return .send(.delegate(.shouldPresentsBottomSheet(selectedFeed)))
+        
+      case let .tappedCardItem(feedID):
+        return .send(.delegate(.tappedFeedCard(feedID)))
+        
+      case let .patchBookmark(feedId, isMarked):
+        return .run(
+          operation: { send in
+            let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
+            
+            print(feedBookmark)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      default:
         return .none
       }
     }
