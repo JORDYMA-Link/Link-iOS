@@ -7,8 +7,10 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+
 import CommonFeature
+
+import ComposableArchitecture
 
 public struct CalendarView: View {
   @Perception.Bindable var store: StoreOf<CalendarViewFeature>
@@ -18,7 +20,7 @@ public struct CalendarView: View {
   private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
   
   public var body: some View {
-    WithPerceptionTracking{
+    WithPerceptionTracking {
       makeBKNavigationView(
         leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
         trailingType: .none
@@ -71,23 +73,7 @@ public struct CalendarView: View {
                   LazyHStack(spacing: 4) {
                     WithPerceptionTracking {
                       Section {
-                        ForEach(store.article.displayArticle, id: \.self) { value in
-                          BKCardCell(
-                            sourceTitle: value.platform,
-                            sourceImage: value.platformImage,
-                            isMarked: value.isMarked,
-                            saveAction: { store.send(.cardItemSaveButtonTapped(index, !item.isMarked), animation: .default) },
-                            menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
-                            title: value.title,
-                            description: value.summary,
-                            keyword: value.keywords,
-                            isUncategorized: false
-                          )
-                          .onTapGesture {
-                            store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
-                          }
-                          .frame(width: 257)
-                        } // Foreach
+                        cardCellView
                       }// Section
                       .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 0))
                     }
@@ -101,11 +87,12 @@ public struct CalendarView: View {
           noneContentsView
         }// else
       }// ZStack
-    }
+    } //WithPerceptionTracking
+    .navigationBarBackButtonHidden(true)
     .onAppear(perform: {
       store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
     })
-    .navigationBarBackButtonHidden(true)
+    
   }
   
   //MARK: - ViewBuilder
@@ -179,7 +166,7 @@ public struct CalendarView: View {
         .padding(.bottom, 16)
       
       Button {
-        
+        store.send(.tappedSaveLinkButton)
       } label: {
         Text("저장하러 가기")
           .font(.semiBold(size: ._13))
@@ -188,7 +175,6 @@ public struct CalendarView: View {
       .frame(width: 134, height: 32)
       .background(Color.bkColor(.gray500))
       .clipShape(.rect(cornerRadius: 6))
-      
     }
   }
   
@@ -227,6 +213,44 @@ public struct CalendarView: View {
       .frame(height: 40)
       .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
     }// WithPerceptionTracking
+  }
+  
+  @ViewBuilder
+  private var cardCellView: some View {
+    ForEach(store.article.displayArticle, id: \.self) { value in
+      WithPerceptionTracking {
+        BKCardCell(
+          sourceTitle: value.platform,
+          sourceImage: value.platformImage,
+          isMarked: value.isMarked,
+          saveAction: { store.send(.articleAction(.tappedCardItemSaveButton(value.feedID, !value.isMarked)), animation: .default) },
+          menuAction: { store.send(.articleAction(.tappedCardItemMenuButton(value))) },
+          title: value.title,
+          description: value.summary,
+          keyword: value.keywords,
+          isUncategorized: false
+        )
+        .onTapGesture {
+          store.send(.articleAction(.tappedCardItem(value.feedID)))
+        }
+        .frame(width: 257)
+      }
+    } // Foreach
+  }
+  
+  @ViewBuilder
+  private func feedCardBottomSheet() -> some View {
+    self
+      .bottomSheet(
+        isPresented: $store.isMenuBottomSheetPresented,
+        detents: [.height(192)],
+        leadingTitle: "설정"
+      ) {
+        BKMenuBottomSheet(
+          menuItems: [.editLink, .editFolder, .deleteLink],
+          action: { _ in /*store.send(.menuBottomSheet($0))*/ }
+        )
+      }
   }
 }
 
@@ -311,11 +335,4 @@ extension CalendarView {
       return false
     }
   }
-}
-
-
-#Preview {
-  CalendarView(store: Store(initialState: CalendarViewFeature.State(), reducer: {
-    CalendarViewFeature()
-  }))
 }

@@ -162,6 +162,11 @@ public struct BKTabFeature {
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
         return .none
         
+        ///  - 캘린더 검색 -> `피드 디테일` 진입 시
+      case let .path(.element(id: _, action: .Calendar(.delegate(.routeFeedDetail(feedId))))):
+        state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
+        return .none
+        
         /// - 폴더 별 피드 리스트 -> `피드 디테일` 진입 시
       case let .path(.element(id: _, action: .StorageBoxFeedList(.delegate(.routeFeedDetail(feedId))))):
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
