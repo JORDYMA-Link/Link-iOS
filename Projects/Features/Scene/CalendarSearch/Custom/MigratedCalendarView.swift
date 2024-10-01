@@ -35,6 +35,8 @@ struct MigratedCalendarView: UIViewRepresentable {
     calendar.delegate = context.coordinator
     calendar.dataSource = context.coordinator
     
+    updateCalendar()
+    
     return calendar
   }
   
@@ -46,6 +48,7 @@ struct MigratedCalendarView: UIViewRepresentable {
     if calendarStore.state.currentPage + 32400 != uiView.currentPage {
       uiView.setCurrentPage(calendarStore.state.currentPage, animated: true)
     }
+    
   }
   
   //MARK: - Coordinator
@@ -106,5 +109,11 @@ struct MigratedCalendarView: UIViewRepresentable {
     
     calendar.locale = Locale(identifier: "ko_KR")
     calendar.scope = .month
+  }
+  
+  private func updateCalendar() {
+    DispatchQueue.main.asyncAfter(deadline: .now()+2) {
+      calendar.reloadData()
+    }
   }
 }
