@@ -21,39 +21,51 @@ public struct SplashView: View {
   
   public var body: some View {
     WithPerceptionTracking {
-      ZStack {
-        Color.bkColor(.white).ignoresSafeArea()
-        
-        VStack(spacing: 0) {
+      GeometryReader { proxy in
+        VStack {
+          Spacer()
           Spacer()
           
-          makeLogo()
-          makeTitle()
+          logo
           
           Spacer()
+          
+          bottomImage(width: proxy.size.width)
         }
+        .ignoresSafeArea(edges: .bottom)
       }
     }
   }
   
-  @ViewBuilder
-  private func makeLogo() -> some View {
-    ZStack {
-      RoundedRectangle(cornerRadius: 25, style: .continuous)
-        .fill(Color.bkColor(.main300))
-        .frame(width: 135, height: 135)
+  private var logo: some View {
+    VStack(spacing: 16) {
+      BKText(
+        text: "정보 욕심러의 필수 앱",
+        font: .semiBold,
+        size: ._24,
+        lineHeight: 34,
+        color: .bkColor(.main900)
+      )
+      .frame(maxWidth: .infinity, alignment: .center)
       
-      BKIcon(image: CommonFeature.Images.logoWhite, color: .white, size: CGSize(width: 64, height: 70))
+      CommonFeature.Images.icoSplashLogo
     }
   }
   
-  @ViewBuilder
-  private func makeTitle() -> some View {
-    Text("정보 욕심러의 똑똑한\n콘텐츠 수집 생활, 블링크")
-      .font(.semiBold(size: ._20))
-      .foregroundStyle(Color.bkColor(.gray900))
-      .multilineTextAlignment(.center)
-      .padding(.top, 16)
-      .frame(alignment: .center)
+  private func bottomImage(width: CGFloat) -> some View {
+    CommonFeature.Images.splash
+      .resizable()
+      .scaledToFit()
+      .frame(width: width)
+      .filled {
+        LinearGradient(
+          stops: [
+            Gradient.Stop(color: .white, location: 0.00),
+            Gradient.Stop(color: .white.opacity(0), location: 1.00),
+          ],
+          startPoint: UnitPoint(x: 0.48, y: 0.03),
+          endPoint: UnitPoint(x: 0.48, y: 0.94)
+        )
+      }
   }
 }
