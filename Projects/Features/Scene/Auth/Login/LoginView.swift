@@ -28,10 +28,13 @@ public struct LoginView: View {
           
           VStack(alignment: .center, spacing: 0) {
             Spacer()
+            Spacer()
             
-            makeLogo()
-            makeTitle()
+            logo
+            title
             
+            Spacer()
+            Spacer()
             Spacer()
             
             VStack(spacing: 12) {
@@ -54,25 +57,33 @@ public struct LoginView: View {
     }
   }
   
-  @ViewBuilder
-  private func makeLogo() -> some View {
-    ZStack {
-      RoundedRectangle(cornerRadius: 25, style: .continuous)
-        .fill(Color.bkColor(.main300))
-        .frame(width: 135, height: 135)
-      
-      BKIcon(image: CommonFeature.Images.logoWhite, color: .white, size: CGSize(width: 64, height: 70))
-    }
+  private var logo: some View {
+    CommonFeature.Images.icoAppLogo
+      .resizable()
+      .scaledToFit()
+      .frame(width: 100, height: 100)
   }
   
-  @ViewBuilder
-  private func makeTitle() -> some View {
-    Text("눈 깜짝할 새 저장되는\nAI 링크 아카이빙, 블링크")
-      .font(.semiBold(size: ._20))
-      .foregroundStyle(Color.bkColor(.gray900))
-      .multilineTextAlignment(.center)
-      .padding(.top, 16)
-      .frame(alignment: .center)
+  private var title: some View {
+    VStack(alignment: .center, spacing: 0) {
+      BKText(
+        text: "혹시 필요할까? 일단 저장해!",
+        font: .regular,
+        size: ._18,
+        lineHeight: 26,
+        color: .bkColor(.main900)
+      )
+      
+      BKText(
+        text: "정보 욕심러의 필수 앱",
+        font: .semiBold,
+        size: ._24,
+        lineHeight: 34,
+        color: .bkColor(.main900)
+      )
+    }
+    .frame(maxWidth: .infinity)
+    .padding(.top, 22)
   }
   
   @ViewBuilder
@@ -97,7 +108,7 @@ public struct LoginView: View {
       }
       .padding(.top)
       .padding(.horizontal, 16)
-      .frame(height: 48)
+      .frame(height: 52)
     }
   }
   
@@ -106,7 +117,8 @@ public struct LoginView: View {
     Text("가입을 진행할 경우\n \(serviceTerms) 및 \(privacyPolicy)에 동의한 것으로 간주합니다. ")
       .font(.regular(size: ._12))
       .foregroundStyle(Color.bkColor(.gray600))
-      .padding(.top, 16)
+      .padding(.top, 4)
+      .padding(.bottom, 16)
       .lineLimit(2)
       .multilineTextAlignment(.center)
       .environment(\.openURL, OpenURLAction { url in
