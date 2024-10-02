@@ -79,6 +79,7 @@ public struct CalendarArticleFeature {
     case shouldPresentsBottomSheet(CalendarFeed)
     case tappedFeedCard(Int)
     case changeFolderOfParent(CalendarFeed)
+    case removeFeedOfParent(Int)
   }
   
   public var body: some ReducerOf<Self> {
@@ -149,11 +150,13 @@ public struct CalendarArticleFeature {
           return feed.feedID == feedID
         }),
               let indexOfDisplay = state.displayArticle.firstIndex(where: { feed in
-          return feed.feedID == feedID
-        }) else { return .none }
+                return feed.feedID == feedID
+              }) else { return .none }
         
+        var needChangeFolder = false
         if state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount == 1 {
           state.folderList.removeValue(forKey: state.displayArticle[indexOfDisplay].folderID)
+          needChangeFolder = true
         } else {
           state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount -= 1
         }
@@ -161,8 +164,9 @@ public struct CalendarArticleFeature {
         state.allArticle.remove(at: indexOfAll)
         state.displayArticle.remove(at: indexOfDisplay)
         
-        return .none
-                
+        guard needChangeFolder else { return .none }
+        return .send(.changeCategorySelectedIndex(targetIndex: 0))
+        
         
         //MARK: User Action
       case let .tappedCardItemSaveButton(feedID, isMarked):

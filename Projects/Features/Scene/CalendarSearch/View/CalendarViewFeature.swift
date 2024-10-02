@@ -48,6 +48,9 @@ public struct CalendarViewFeature {
     case editLinkPresented(Int)
     case deleteFeed(Int)
     
+    //MARK: Network
+    case patchDeleteFeed(Int)
+    
     //MARK: User Action
     case tappedNaviBackButton
     case tappedSaveLinkButton
@@ -95,7 +98,6 @@ public struct CalendarViewFeature {
         }
         
 
-        
         //MARK: Business Action
       case let .spreadEachReducer(searchCalendar):
         state.calendarSearchData = searchCalendar
@@ -137,16 +139,25 @@ public struct CalendarViewFeature {
             그래도 삭제하시겠습니까?
             """,
             buttonType: .doubleButton(left: "취소", right: "확인"),
-            rightButtonAction: { await send(.deleteFeed(selectedFeed.feedID)) }
+            rightButtonAction: { await send(.patchDeleteFeed(selectedFeed.feedID)) }
           ))
         }
         
+      case let .deleteFeed(feedID):
+        let selectedDate = state.calendar.selectedDate
+        guard let index = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == feedID }) else { return .none }
+        
+        state.calendarSearchData?.existedFeedData[selectedDate]?.list.remove(at: index)
+        
+        return .none
+        
         //MARK: Network
-      case let .deleteFeed(feedId):
+      case let .patchDeleteFeed(feedId):
         return .run(
           operation: { send in
             _ = try await feedClient.deleteFeed(feedId)
             
+            await send(.deleteFeed(feedId))
             await send(.articleAction(.deleteFeedCard(feedId)), animation: .default)
           },
           catch: { error, send in
