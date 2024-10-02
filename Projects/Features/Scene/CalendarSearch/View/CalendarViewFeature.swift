@@ -182,6 +182,16 @@ public struct CalendarViewFeature {
       case let .articleAction(.delegate(.tappedFeedCard(feedID))):
         return .send(.delegate(.routeFeedDetail(feedID)))
         
+      case let .articleAction(.delegate(.changeFolderOfParent(feed))):
+        let selectedDate = state.calendar.selectedDate
+        
+        guard let feedIndex = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == feed.feedID}) else { return .none }
+        
+        state.calendarSearchData?.existedFeedData[selectedDate]?.list[feedIndex].folderID = feed.folderID
+        state.calendarSearchData?.existedFeedData[selectedDate]?.list[feedIndex].folderName = feed.folderName
+        
+        return .none
+        
         //BottomSheet
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard let selectedFeed = state.selectedFeed else { return .none }
