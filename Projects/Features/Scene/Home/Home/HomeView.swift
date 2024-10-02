@@ -94,7 +94,7 @@ public struct HomeView: View {
             }
             .refreshable { store.send(.pullToRefresh) }
             .background(Color.bkColor(.gray300))
-            .introspect(.scrollView, on: .iOS(.v16, .v17)) { scrollView in
+            .introspect(.scrollView, on: .iOS(.v16, .v17, .v18)) { scrollView in
               scrollView.delegate = scrollViewDelegate
             }
           }
@@ -220,7 +220,7 @@ final class ScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     DispatchQueue.main.async {
-      self.isScrollDetected = scrollView.contentOffset.y >  self.headerMaxY
+      self.isScrollDetected = scrollView.contentOffset.y > self.headerMaxY
     }
   }
 }
