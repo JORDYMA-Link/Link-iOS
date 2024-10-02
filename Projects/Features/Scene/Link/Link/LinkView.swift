@@ -100,7 +100,7 @@ struct LinkView: View {
           }
         }
       }
-      .introspect(.scrollView, on: .iOS(.v17)) { scrollView in
+      .introspect(.scrollView, on: .iOS(.v16, .v17, .v18)) { scrollView in
         scrollView.delegate = scrollViewDelegate
       }
       .safeAreaInset(edge: .bottom, spacing: 0) {

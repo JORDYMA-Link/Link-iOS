@@ -32,7 +32,7 @@ struct EditFolderNameBottomSheet: View {
               isMultiLine: false,
               errorMessage: store.errorMessage
             )
-            .introspect(.textField, on: .iOS(.v17)) { textField in
+            .introspect(.textField, on: .iOS(.v16, .v17, .v18)) { textField in
               textField.delegate = textFieldDelegate
             }
             .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
