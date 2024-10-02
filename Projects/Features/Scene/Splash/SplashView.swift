@@ -24,15 +24,19 @@ public struct SplashView: View {
       GeometryReader { proxy in
         VStack {
           Spacer()
-          Spacer()
           
           logo
           
           Spacer()
-          
-          bottomImage(width: proxy.size.width)
+          Spacer()
         }
-        .ignoresSafeArea(edges: .bottom)
+        .ignoresSafeArea()
+        .background(
+          CommonFeature.Images.splash
+            .resizable()
+            .scaledToFill()
+            .frame(width: proxy.size.width, height: proxy.size.height)
+        )
       }
     }
   }
@@ -50,22 +54,5 @@ public struct SplashView: View {
       
       CommonFeature.Images.icoSplashLogo
     }
-  }
-  
-  private func bottomImage(width: CGFloat) -> some View {
-    CommonFeature.Images.splash
-      .resizable()
-      .scaledToFit()
-      .frame(width: width)
-      .filled {
-        LinearGradient(
-          stops: [
-            Gradient.Stop(color: .white, location: 0.00),
-            Gradient.Stop(color: .white.opacity(0), location: 1.00),
-          ],
-          startPoint: UnitPoint(x: 0.48, y: 0.03),
-          endPoint: UnitPoint(x: 0.48, y: 0.94)
-        )
-      }
   }
 }
