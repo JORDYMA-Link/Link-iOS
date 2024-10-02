@@ -34,11 +34,23 @@ public struct CalendarArticleFeature {
   }
   
   public enum Action {
-    //MARK: - Business Action
+    //MARK: Business Action
     case filteringFolder
     case allFolderCountUp
-    //MARK: - User Action
+    case changedFeedCardFolder(CalendarFeed, Folder)
+    case deleteFeedCard(Int)
+    
+    //MARK: User Action
     case changeCategorySelectedIndex(targetIndex: Int)
+    case tappedCardItemSaveButton(Int, Bool)
+    case tappedCardItemMenuButton(CalendarFeed)
+    case tappedCardItem(Int)
+    
+    //MARK: Inner Business Logic
+    case patchBookmark(Int, Bool)
+    
+    //MARK: Delegate
+    case delegate(CalendarArticleFeature.Delegate)
   }
   
   struct FolderInfo: Hashable {
@@ -52,12 +64,28 @@ public struct CalendarArticleFeature {
       self.folderName = folderName
       self.feedCount = feedCount
     }
-    
+  }
+  
+  //MARK: - Dependency
+  @Dependency(\.feedClient) private var feedClient
+  
+  //MARK: - ThrottleId
+  private enum ThrottleId {
+    case categoryButton
+    case saveButton
+  }
+  
+  public enum Delegate {
+    case shouldPresentsBottomSheet(CalendarFeed)
+    case tappedFeedCard(Int)
   }
   
   public var body: some ReducerOf<Self> {
-    Reduce { state, action in
+    Reduce {
+      state,
+      action in
       switch action {
+        //MARK: Business Action
       case .filteringFolder:
         for element in state.allArticle {
           if let _ = state.folderList[element.folderID] {
@@ -83,6 +111,84 @@ public struct CalendarArticleFeature {
         } else {
           state.displayArticle = state.allArticle.filter({ $0.folderID == folderId})
         }
+        return .none
+        
+      case let .changedFeedCardFolder(selectedFeed, folder):
+        let previousFolderID = selectedFeed.folderID
+        
+        state.folderList[previousFolderID]?.feedCount -= 1
+        
+        if state.folderList[previousFolderID]?.feedCount == 0 {
+          state.folderList.removeValue(forKey: previousFolderID)
+        }
+        
+        if let _ = state.folderList[folder.id] {
+          state.folderList[folder.id]?.feedCount += 1
+        } else {
+          state.folderList[folder.id] = FolderInfo(folderName: folder.name, feedCount: folder.feedCount)
+        }
+        
+        guard let indexOfAll = state.allArticle.firstIndex(of: selectedFeed),
+              let indexOfDisplay = state.displayArticle.firstIndex(of: selectedFeed) else { return .none } //FIXME: 에러 대응 수정 필요
+        
+        state.allArticle[indexOfAll].folderID = folder.id
+        state.allArticle[indexOfAll].folderName = folder.name
+        state.displayArticle[indexOfDisplay].folderID = folder.id
+        state.displayArticle[indexOfDisplay].folderName = folder.name
+        
+        return .none
+        
+      case let .deleteFeedCard(feedID):
+        guard let indexOfAll = state.allArticle.firstIndex(where: { feed in
+          return feed.feedID == feedID
+        }),
+              let indexOfDisplay = state.displayArticle.firstIndex(where: { feed in
+          return feed.feedID == feedID
+        }) else { return .none }
+        
+        if state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount == 1 {
+          state.folderList.removeValue(forKey: state.displayArticle[indexOfDisplay].folderID)
+        } else {
+          state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount -= 1
+        }
+        
+        state.allArticle.remove(at: indexOfAll)
+        state.displayArticle.remove(at: indexOfDisplay)
+        
+        return .none
+                
+        
+        //MARK: User Action
+      case let .tappedCardItemSaveButton(feedID, isMarked):
+        guard let indexOfAllArticle = state.allArticle.firstIndex(where: { $0.feedID == feedID }),
+              let indexOfDisplayArticle = state.displayArticle.firstIndex(where: { $0.feedID == feedID }) else { return .none }
+        
+        state.allArticle[indexOfAllArticle].isMarked = isMarked
+        state.displayArticle[indexOfDisplayArticle].isMarked = isMarked
+        
+        return .send(.patchBookmark(feedID, isMarked))
+          .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
+      case let.tappedCardItemMenuButton(selectedFeed):
+        return .send(.delegate(.shouldPresentsBottomSheet(selectedFeed)))
+        
+      case let .tappedCardItem(feedID):
+        return .send(.delegate(.tappedFeedCard(feedID)))
+        
+        //MARK: Inner Business Logic - Network
+      case let .patchBookmark(feedId, isMarked):
+        return .run(
+          operation: { send in
+            let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
+            
+            print(feedBookmark)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      default:
         return .none
       }
     }
