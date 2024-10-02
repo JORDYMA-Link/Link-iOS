@@ -252,7 +252,7 @@ public struct CalendarView: View {
           sourceImage: value.platformImage,
           isMarked: value.isMarked,
           saveAction: { store.send(.articleAction(.tappedCardItemSaveButton(value.feedID, !value.isMarked)), animation: .default) },
-          menuAction: { store.send(.articleAction(.tappedCardItemMenuButton(value))) },
+          menuAction: { /*store.send(.articleAction(.tappedCardItemMenuButton(value)))*/ },
           title: value.title,
           description: value.summary,
           keyword: value.keywords,
