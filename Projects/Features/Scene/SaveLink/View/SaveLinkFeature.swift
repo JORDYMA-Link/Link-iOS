@@ -20,6 +20,7 @@ public struct SaveLinkFeature {
     var saveButtonActive = false
     var isValidationURL = true
     var validationReasonText = "URL 형식이 올바르지 않아요. 다시 입력해주세요."
+    var isLoading: Bool = false
   }
   
   public enum Action: BindableAction {
@@ -31,6 +32,9 @@ public struct SaveLinkFeature {
     
     // MARK: Inner Business Action
     case postLinkSummary
+    
+    // MARK: Inner SetState Action
+    case setLoading(Bool)
             
     // MARK: Present Action
     case linkSummaryLoadingAlertPresented
@@ -68,8 +72,11 @@ public struct SaveLinkFeature {
       case .postLinkSummary:
         return .run(
           operation: { [state] send in
+            await send(.setLoading(true))
+            
             _ = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
             
+            await send(.setLoading(false))
             await send(.linkSummaryLoadingAlertPresented)
             
             // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
@@ -79,10 +86,14 @@ public struct SaveLinkFeature {
             await send(.onTapBackButton)
           },
           catch: { error, send in
-            print(error)
+            await send(.setLoading(false))
             await send(.linkSummaryFailAlertPresented)
           }
         )
+        
+      case let .setLoading(isLoading):
+        state.isLoading = isLoading
+        return .none
         
         case .linkSummaryLoadingAlertPresented:
         return .run { send in

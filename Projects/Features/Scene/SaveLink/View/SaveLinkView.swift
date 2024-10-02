@@ -75,6 +75,9 @@ public struct SaveLinkView: View {
       .saveLinkBackground()
       .navigationBarBackButtonHidden()
       .toolbar(.hidden, for: .navigationBar)
+      .if(store.isLoading) { view in
+        view.progressBackground()
+      }
     }
   }
 }
@@ -92,6 +95,20 @@ private struct SaveLinkNavigationBar: View {
   }
 }
 
+private struct SaveLinkLodingView: View {
+  var body: some View {
+    ZStack {
+      Color.black.opacity(0.1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
+      
+      ProgressView()
+        .controlSize(.large)
+        .tint(.bkColor(.gray700))
+        .progressViewStyle(.circular)
+    }
+  }
+}
 
 private extension View {
   @ViewBuilder
@@ -99,6 +116,15 @@ private extension View {
     VStack(spacing: 0) {
       self
       Spacer()
+    }
+  }
+  
+  @ViewBuilder
+  func progressBackground() -> some View {
+    ZStack {
+      self
+      
+      SaveLinkLodingView()
     }
   }
 }
