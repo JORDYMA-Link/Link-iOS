@@ -7,8 +7,10 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+
 import CommonFeature
+
+import ComposableArchitecture
 
 public struct CalendarView: View {
   @Perception.Bindable var store: StoreOf<CalendarViewFeature>
@@ -18,84 +20,107 @@ public struct CalendarView: View {
   private let columns: [GridItem] = Array(repeating: .init(.flexible()), count: 4)
   
   public var body: some View {
-    WithPerceptionTracking{
-      makeBKNavigationView(
-        leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
-        trailingType: .none
-      )
-      
-      HStack {
-        Button{
-          store.send(.calendarAction(.tappedCurrentSheetButton))
-        } label: {
-          HStack {
-            Text(store.state.calendar.currentPage.toStringOnlyYearAndMonth)
-              .font(.semiBold(size: ._20))
-            Image(systemName: "chevron.down")
-          }
-          .foregroundStyle(Color.bkColor(.gray900))
-          .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
-        }
-        .frame(alignment: .leading)
+    WithPerceptionTracking {
+      VStack {
+        makeBKNavigationView(
+          leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
+          trailingType: .none
+        )
         .padding(.leading, 20)
         
-        Spacer()
-      }
-      
-      ZStack(alignment: .top){
-        MigratedCalendarView(calendarStore: store.scope(state: \.calendar, action: \.calendarAction))
-        
-        if store.calendar.changeCurrentPageSheet {
-          selectionCurrentPageView
+        HStack {
+          Button{
+            store.send(.calendarAction(.tappedCurrentSheetButton))
+          } label: {
+            HStack {
+              Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
+                .font(.semiBold(size: ._20))
+              CommonFeature.Images.icoChevronDown
+            }
+            .foregroundStyle(Color.bkColor(.gray900))
+            .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
+          }
+          .frame(alignment: .leading)
+          .padding(.leading, 20)
+          
+          Spacer()
         }
-      }
-      .padding(.horizontal, 20)
-      
-      ZStack{
-        Color.bkColor(.gray300)
-          .ignoresSafeArea()
         
-        if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
-          GeometryReader { geometry in
-            VStack{
-              makeCategorySectionHeader
-              
-              ScrollView(.horizontal) {
-                LazyHStack(spacing: 4) {
-                    Section {
-                      ForEach(store.article.displayArticle, id: \.self) { value in
-                        BKCardCell(sourceTitle: value.platform,
-                                   sourceImage: value.platformImage,
-                                   isMarked: value.isMarked,
-                                   saveAction: {}, //FIXME: 동작 수행
-                                   menuAction: {}, //FIXME: 동작 수행
-                                   title: value.title,
-                                   description: value.summary,
-                                   keyword: value.keywords,
-                                   isUncategorized: false
-                        )
-                        .onTapGesture{
-                          store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: value.feedID)))
-                        }
-                        .frame(width: 257)
-                      } // Foreach
-                    }// Section
-                    .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 16))
-                  }// LazyHStack
-              }// ScrollView
-              .scrollIndicators(.hidden)
-            }// VStack
-          }// GeometryReader
-        } else {
-          noneContentsView
-        }// else
-      }// ZStack
-    }
-    .onAppear(
-      perform: {
+        ZStack(alignment: .top){
+          MigratedCalendarView(
+            calendarStore: store.scope(
+              state: \.calendar,
+              action: \.calendarAction
+            )
+          )
+          
+          if store.calendar.changeCurrentPageSheet {
+            selectionCurrentPageView
+          }
+        }
+        .padding(.horizontal, 20)
+        
+        ZStack{
+          Color.bkColor(.gray300)
+            .ignoresSafeArea()
+          
+          if store.state.calendar.existEventSelectedDate { // contents에 대한 조건식
+            GeometryReader { geometry in
+              WithPerceptionTracking {
+                VStack{
+                  makeCategorySectionHeader
+                  
+                  ScrollView(.horizontal) {
+                    LazyHStack(spacing: 4) {
+                      WithPerceptionTracking {
+                        Section {
+                          cardCellView
+                        }// Section
+                        .padding(.init(top: 0, leading: 16, bottom: 60, trailing: 0))
+                      }
+                    }// LazyHStack
+                  }// ScrollView
+                  .scrollIndicators(.hidden)
+                }// VStack
+              }
+            }// GeometryReader
+          } else {
+            noneContentsView
+          }// else
+        }// ZStack
+      } //WithPerceptionTracking
+      .navigationBarBackButtonHidden(true)
+      .onAppear(perform: {
         store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
+        store.send(.calendarAction(.tappedDate(selectedDate: Date()+32400)))
       })
-    .navigationBarBackButtonHidden(true)
+      .bottomSheet(
+        isPresented: $store.isMenuBottomSheetPresented,
+        detents: [.height(192)],
+        leadingTitle: "설정"
+      ) {
+        BKMenuBottomSheet(
+          menuItems: [.editLink, .editFolder, .deleteLink],
+          action: { store.send(.menuBottomSheet($0)) }
+        )
+      }
+      .bottomSheet(
+        isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+        detents: [.height(132)],
+        leadingTitle: "폴더 수정",
+        closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+      ) {
+        EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
+          .interactiveDismissDisabled()
+      }
+      .fullScreenCover(
+        item: $store.scope(
+          state: \.editLink,
+          action: \.editLink)
+      ) { store in
+        EditLinkView(store: store)
+      }
+    }
   }
   
   //MARK: - ViewBuilder
@@ -169,7 +194,7 @@ public struct CalendarView: View {
         .padding(.bottom, 16)
       
       Button {
-        
+        store.send(.tappedSaveLinkButton)
       } label: {
         Text("저장하러 가기")
           .font(.semiBold(size: ._13))
@@ -178,7 +203,6 @@ public struct CalendarView: View {
       .frame(width: 134, height: 32)
       .background(Color.bkColor(.gray500))
       .clipShape(.rect(cornerRadius: 6))
-      
     }
   }
   
@@ -210,13 +234,36 @@ public struct CalendarView: View {
               .onTapGesture {
                 store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
               }
-          }
+          }// Foreach
         }
       } //LazyHStack
       .scrollDisabled(true)
       .frame(height: 40)
       .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
-    }
+    }// WithPerceptionTracking
+  }
+  
+  @ViewBuilder
+  private var cardCellView: some View {
+    ForEach(store.article.displayArticle, id: \.self) { value in
+      WithPerceptionTracking {
+        BKCardCell(
+          sourceTitle: value.platform,
+          sourceImage: value.platformImage,
+          isMarked: value.isMarked,
+          saveAction: { store.send(.articleAction(.tappedCardItemSaveButton(value.feedID, !value.isMarked)), animation: .default) },
+          menuAction: { store.send(.articleAction(.tappedCardItemMenuButton(value))) },
+          title: value.title,
+          description: value.summary,
+          keyword: value.keywords,
+          isUncategorized: false
+        )
+        .onTapGesture {
+          store.send(.articleAction(.tappedCardItem(value.feedID)))
+        }
+        .frame(width: 257)
+      }
+    } // Foreach
   }
 }
 
@@ -301,11 +348,4 @@ extension CalendarView {
       return false
     }
   }
-}
-
-
-#Preview {
-  CalendarView(store: Store(initialState: CalendarViewFeature.State(), reducer: {
-    CalendarViewFeature()
-  }))
 }

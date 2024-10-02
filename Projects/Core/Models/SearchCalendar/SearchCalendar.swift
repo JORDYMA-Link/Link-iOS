@@ -35,12 +35,12 @@ public struct DaysInfo: Equatable {
 
 // MARK: - List
 public struct CalendarFeed: Hashable {
-  public let folderID: Int
-  public let folderName: String
+  public var folderID: Int
+  public var folderName: String
   public let feedID: Int
-  public let title, summary, platform, platformImage: String
-  public let isMarked: Bool
-  public let keywords: [String]
+  public var title, summary, platform, platformImage: String
+  public var isMarked: Bool
+  public var keywords: [String]
   
   public init(
     folderID: Int,
