@@ -78,6 +78,8 @@ public struct CalendarArticleFeature {
   public enum Delegate {
     case shouldPresentsBottomSheet(CalendarFeed)
     case tappedFeedCard(Int)
+    case changeFolderOfParent(CalendarFeed)
+    case removeFeedOfParent(Int)
   }
   
   public var body: some ReducerOf<Self> {
@@ -105,6 +107,8 @@ public struct CalendarArticleFeature {
         return .none
         
       case let .changeCategorySelectedIndex(folderId):
+        guard state.folderList[folderId] != nil else { return .none }
+        
         state.categorySelectedIndex = folderId
         if folderId == 0 {
           state.displayArticle = state.allArticle
@@ -125,7 +129,7 @@ public struct CalendarArticleFeature {
         if let _ = state.folderList[folder.id] {
           state.folderList[folder.id]?.feedCount += 1
         } else {
-          state.folderList[folder.id] = FolderInfo(folderName: folder.name, feedCount: folder.feedCount)
+          state.folderList[folder.id] = FolderInfo(folderName: folder.name, feedCount: 1)
         }
         
         guard let indexOfAll = state.allArticle.firstIndex(of: selectedFeed),
@@ -136,18 +140,23 @@ public struct CalendarArticleFeature {
         state.displayArticle[indexOfDisplay].folderID = folder.id
         state.displayArticle[indexOfDisplay].folderName = folder.name
         
-        return .none
+        return .run { [feed = state.allArticle[indexOfAll]] send in
+          await send(.changeCategorySelectedIndex(targetIndex: folder.id))
+          await send(.delegate(.changeFolderOfParent(feed)))
+        }
         
       case let .deleteFeedCard(feedID):
         guard let indexOfAll = state.allArticle.firstIndex(where: { feed in
           return feed.feedID == feedID
         }),
               let indexOfDisplay = state.displayArticle.firstIndex(where: { feed in
-          return feed.feedID == feedID
-        }) else { return .none }
+                return feed.feedID == feedID
+              }) else { return .none }
         
+        var needChangeFolder = false
         if state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount == 1 {
           state.folderList.removeValue(forKey: state.displayArticle[indexOfDisplay].folderID)
+          needChangeFolder = true
         } else {
           state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount -= 1
         }
@@ -155,8 +164,9 @@ public struct CalendarArticleFeature {
         state.allArticle.remove(at: indexOfAll)
         state.displayArticle.remove(at: indexOfDisplay)
         
-        return .none
-                
+        guard needChangeFolder else { return .none }
+        return .send(.changeCategorySelectedIndex(targetIndex: 0))
+        
         
         //MARK: User Action
       case let .tappedCardItemSaveButton(feedID, isMarked):

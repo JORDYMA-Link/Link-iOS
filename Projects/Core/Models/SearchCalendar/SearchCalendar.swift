@@ -10,7 +10,7 @@ import Foundation
 
 // MARK: - FeedCalendarSearchResponse
 public struct SearchCalendar: Equatable {
-  public let existedFeedData: [Date: DaysInfo]
+  public var existedFeedData: [Date: DaysInfo]
   
   public init(
     currentMonthData: [Date : DaysInfo]
@@ -22,7 +22,7 @@ public struct SearchCalendar: Equatable {
 // MARK: - DaysInfo
 public struct DaysInfo: Equatable {
   public let isArchived: Bool
-  public let list: [CalendarFeed]
+  public var list: [CalendarFeed]
   
   public init(
     isArchived: Bool,
