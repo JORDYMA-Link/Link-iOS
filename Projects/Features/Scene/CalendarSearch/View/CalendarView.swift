@@ -104,6 +104,7 @@ public struct CalendarView: View {
           menuItems: [.editLink, .editFolder, .deleteLink],
           action: { store.send(.menuBottomSheet($0)) }
         )
+        .interactiveDismissDisabled()
       }
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,

@@ -91,7 +91,6 @@ public struct CalendarViewFeature {
       case .saveLinkButtonTapped:
         return .run { _ in await self.dismiss() }
         
-
         
       case .menuBottomSheetCloseButtonTapped:
         state.isMenuBottomSheetPresented = false
