@@ -131,16 +131,16 @@ public struct CalendarViewFeature {
         
         state.isMenuBottomSheetPresented = false
         return .run { send in
-//          await alertClient.present(.init(
-//            title: "삭제",
-//            description:
-//            """
-//            콘텐츠를 삭제하시면 복원이 어렵습니다.
-//            그래도 삭제하시겠습니까?
-//            """,
-//            buttonType: .doubleButton(left: "취소", right: "확인"),
-//            rightButtonAction: { await send(.patchDeleteFeed(selectedFeed.feedID)) }
-//          ))
+          await alertClient.present(.init(
+            title: "삭제",
+            description:
+            """
+            콘텐츠를 삭제하시면 복원이 어렵습니다.
+            그래도 삭제하시겠습니까?
+            """,
+            buttonType: .doubleButton(left: "취소", right: "확인"),
+            rightButtonAction: { await send(.patchDeleteFeed(selectedFeed.feedID)) }
+          ))
           await send(.patchDeleteFeed(selectedFeed.feedID))
         }
         
