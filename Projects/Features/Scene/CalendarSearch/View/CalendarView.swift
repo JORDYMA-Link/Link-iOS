@@ -54,12 +54,6 @@ public struct CalendarView: View {
             didSelectDateAction: { store.send(.calendarAction(.tappedDate(selectedDate: $0))) },
             calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.swipeCurrentPage(currentPage: $0)))}
           )
-//          MigratedFSCalendarView(
-//            calendarStore: store.scope(
-//              state: \.calendar,
-//              action: \.calendarAction
-//            )
-//          )
           
           if store.calendar.changeCurrentPageSheet {
             selectionCurrentPageView
@@ -252,7 +246,7 @@ public struct CalendarView: View {
   
   @ViewBuilder
   private var cardCellView: some View {
-    ForEach(store.article.displayArticle, id: \.self) { value in
+    ForEach(store.article.selectedDaterArticle, id: \.self) { value in
       WithPerceptionTracking {
         BKCardCell(
           sourceTitle: value.platform,
