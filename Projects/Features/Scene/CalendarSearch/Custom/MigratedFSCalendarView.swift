@@ -22,7 +22,6 @@ struct MigratedFSCalendarView: UIViewRepresentable {
   
   //MARK: - Properties
   private let calendar = FSCalendar()
-  private var cancellable = Set<AnyCancellable>()
   
   //MARK: - Binidng Properties
   @Binding var selectedDate: Date
@@ -73,19 +72,25 @@ struct MigratedFSCalendarView: UIViewRepresentable {
     }
     
     if !eventDate.isEmpty && (context.coordinator.lastEventDate != eventDate){
-      for event in eventDate {
-        if let cell = uiView.cell(for: event-32400, at: .current){
-          cell.numberOfEvents = 1
-        }
-      }
-      
-      if !context.coordinator.isFirstAppear {
-        self.didSelectDateAction?(selectedDate)
-        context.coordinator.isFirstAppear = true
-      }
       context.coordinator.lastEventDate = eventDate
       
       uiView.collectionView.reloadData()
+      
+      if !context.coordinator.isFirstOnAppear {
+        //FSCalendar 형식의 Date 형성
+        var defaultDateComponents = Date().getDateComponents()
+        defaultDateComponents.day = (defaultDateComponents.day ?? 2) // 혹시 모를 실패의 경우 1일을 select 하도록
+        defaultDateComponents.hour = 9
+        defaultDateComponents.minute = 0
+        defaultDateComponents.second = 0
+        
+        if let defaultDate = Calendar.current.date(from: defaultDateComponents) {
+          DispatchQueue.main.async {
+            self.didSelectDateAction?(defaultDate)
+          }
+        }
+        context.coordinator.isFirstOnAppear = true
+      }
     }
   }
   
@@ -98,7 +103,7 @@ struct MigratedFSCalendarView: UIViewRepresentable {
     var calendarCurrentPageDidChangeAction: ((Date) -> Void)?
     
     var lastEventDate: [Date] //eventDate가 업데이트 되었을 때만 reloadData()를 할 수 있도록
-    var isFirstAppear: Bool = false
+    var isFirstOnAppear: Bool = false
     
     private let differenceTimeOfFSCalendar: TimeInterval = 60*60*9 //fscalendr의 로직 내부 Date와 실제 달력 날짜와의 차이: 달력 날짜와 9시간의 차이
     
@@ -120,14 +125,11 @@ struct MigratedFSCalendarView: UIViewRepresentable {
     }
     
     func calendar(_ calendar: FSCalendar, didSelect date: Date, at monthPosition: FSCalendarMonthPosition) {
-      debugPrint(date)
       didSelectDateAction?(date+differenceTimeOfFSCalendar)
-//      calendarStore.send(.tappedDate(selectedDate: date+differenceTimeOfFSCalendar))
     }
     
     func calendarCurrentPageDidChange(_ calendar: FSCalendar) {
       calendarCurrentPageDidChangeAction?(calendar.currentPage)
-//      calendarStore.send(.swipeCurrentPage(currentPage: calendar.currentPage))
     }
     
     //MARK: - DataSource
@@ -166,32 +168,6 @@ struct MigratedFSCalendarView: UIViewRepresentable {
     
     calendar.locale = Locale(identifier: "ko_KR")
     calendar.scope = .month
-  }
-  
-  private mutating func calendarCombine() {
-    self.eventDate.publisher
-      .removeDuplicates()
-      .sink { [self] dates in
-        
-        debugPrint("publisher", dates)
-        
-        if let cell = self.calendar.cell(for: dates-32400, at: .current) {
-          DispatchQueue.main.async {
-            cell.numberOfEvents = 1
-            self.calendar.reloadData()
-          }
-        }
-      }
-      .store(in: &cancellable)
-    
-    self.eventDate.publisher
-      .prefix(1)
-      .sink { [self] dates in
-        
-        self.didSelectDateAction?(self.selectedDate)
-        
-      }
-      .store(in: &cancellable)
   }
   
   private func configureDefaultSelectedDate() {

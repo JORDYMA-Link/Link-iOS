@@ -198,7 +198,7 @@ public struct CalendarViewFeature {
         state.isMenuBottomSheetPresented = true
         return .none
         
-      case let .articleAction(.delegate(.tappedFeedCard(feedID))):
+      case let .articleAction(.delegate(.feedCardTapped(feedID))):
         return .send(.delegate(.routeFeedDetail(feedID)))
         
       case let .articleAction(.delegate(.changeFolderOfParent(feed))):
