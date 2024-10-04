@@ -51,6 +51,7 @@ public struct CalendarView: View {
             selectedDate: $store.calendar.selectedDate,
             currentPage: $store.calendar.currentPage,
             eventDate: $store.calendar.eventDate,
+            reload: $store.reloadSelectedData,
             didSelectDateAction: { store.send(.calendarAction(.tappedDate(selectedDate: $0))) },
             calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.swipeCurrentPage(currentPage: $0)))}
           )
@@ -102,7 +103,7 @@ public struct CalendarView: View {
       ) {
         BKMenuBottomSheet(
           menuItems: [.editLink, .editFolder, .deleteLink],
-          action: { store.send(.menuBottomSheet($0)) }
+          action: { store.send(.menuBottomSheetDelegate($0)) }
         )
         .interactiveDismissDisabled()
       }
@@ -247,7 +248,7 @@ public struct CalendarView: View {
   
   @ViewBuilder
   private var cardCellView: some View {
-    ForEach(store.article.selectedDaterArticle, id: \.self) { value in
+    ForEach(store.article.filteredArticle, id: \.self) { value in
       WithPerceptionTracking {
         BKCardCell(
           sourceTitle: value.platform,

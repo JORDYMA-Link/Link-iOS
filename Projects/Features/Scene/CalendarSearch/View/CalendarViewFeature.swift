@@ -21,6 +21,7 @@ public struct CalendarViewFeature {
     //MARK: main State
     var isMenuBottomSheetPresented: Bool = false
     var calendarSearchData: SearchCalendar?
+    var reloadSelectedData: Bool = false
     
     //MARK: Child State
     var calendar = CalendarFeature.State()
@@ -47,6 +48,8 @@ public struct CalendarViewFeature {
     case spreadEachReducer(_ searchCalendar: SearchCalendar)
     case editLinkPresented(Int)
     case deleteFeed(Int)
+    case feedDetailWillDisappear(Feed)
+    case reloadSelectedFeed
     
     //MARK: Network
     case patchDeleteFeed(Int)
@@ -55,14 +58,18 @@ public struct CalendarViewFeature {
     case naviBackButtonTapped
     case saveLinkButtonTapped
     case menuBottomSheetCloseButtonTapped
-    case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     //MARK: Delegate
     case delegate(CalendarViewFeature.Delegate)
+    case menuBottomSheetDelegate(BKMenuBottomSheet.Delegate)
   }
   
   public enum Delegate {
     case routeFeedDetail(Int)
+  }
+  
+  private enum ThrottleId {
+    case updateFromServer
   }
 
   //MARK: - Dependency
@@ -92,23 +99,7 @@ public struct CalendarViewFeature {
         return .run { _ in await self.dismiss() }
         
         
-      case .menuBottomSheetCloseButtonTapped:
-        state.isMenuBottomSheetPresented = false
-        return .none
-        
-
-        //MARK: Business Action
-      case let .spreadEachReducer(searchCalendar):
-        state.calendarSearchData = searchCalendar
-        return .run { send in
-          await send(.calendarAction(.updatingEventDate(searchCalendar.existedFeedData.map{ $0.key })))
-        }
-        
-      case let .editLinkPresented(feedId):
-        state.editLink = .init(editLinkType: .home(feedId: feedId))
-        return .none
-        
-      case .menuBottomSheet(.editLinkItemTapped):
+      case .menuBottomSheetDelegate(.editLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
@@ -118,14 +109,14 @@ public struct CalendarViewFeature {
           await send(.editLinkPresented(selectedFeed.feedID))
         }
         
-      case .menuBottomSheet(.editFolderItemTapped):
+      case .menuBottomSheetDelegate(.editFolderItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
         return .run { send in
           await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedID, selectedFeed.folderName))) }
         
-      case .menuBottomSheet(.deleteLinkItemTapped):
+      case .menuBottomSheetDelegate(.deleteLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
@@ -140,8 +131,25 @@ public struct CalendarViewFeature {
             buttonType: .doubleButton(left: "취소", right: "확인"),
             rightButtonAction: { await send(.patchDeleteFeed(selectedFeed.feedID)) }
           ))
-          await send(.patchDeleteFeed(selectedFeed.feedID))
         }
+        
+      case .menuBottomSheetCloseButtonTapped:
+        state.isMenuBottomSheetPresented = false
+        return .none
+        
+
+        //MARK: Business Action
+      case let .spreadEachReducer(searchCalendar):
+        state.calendarSearchData = searchCalendar
+        return .run { send in
+          await send(.calendarAction(.updatingEventDate(searchCalendar.existedFeedData.map{ $0.key })))
+        }
+        
+        
+      case let .editLinkPresented(feedId):
+        state.editLink = .init(editLinkType: .home(feedId: feedId))
+        return .none
+        
         
       case let .deleteFeed(feedID):
         let selectedDate = state.calendar.selectedDate
@@ -150,6 +158,16 @@ public struct CalendarViewFeature {
         state.calendarSearchData?.existedFeedData[selectedDate]?.list.remove(at: index)
         
         return .none
+        
+      case let.feedDetailWillDisappear(_):
+        state.reloadSelectedData = true
+        return .send(.reloadSelectedFeed)
+          .throttle(id: ThrottleId.updateFromServer, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
+      case .reloadSelectedFeed:
+        state.reloadSelectedData = false
+        return .none
+        
         
         //MARK: Network
       case let .fetchCalendarData(yearMonth):
@@ -210,11 +228,39 @@ public struct CalendarViewFeature {
         
         return .none
         
+      case .articleAction(.delegate(.reloadSelectedDateFeedCard)):
+        return .send(.calendarAction(.tappedDate(selectedDate: state.calendar.selectedDate)))
+        
+      case let .articleAction(.delegate(.removeFeedOfParent(targetFeedID))):
+        let selectedDate = state.calendar.selectedDate
+        
+        guard let feedIndex = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == targetFeedID }) else { return .none }
+        
+        state.calendarSearchData?.existedFeedData[selectedDate]?.list.remove(at: feedIndex)
+        
+        return .none
+        
+      case let .articleAction(.delegate(.bookmarkedFeedCard(targetFeedID, isMarked))):
+        let selectedDate = state.calendar.selectedDate
+        
+        guard let feedIndex = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == targetFeedID }) else { return .none }
+        
+        state.calendarSearchData?.existedFeedData[selectedDate]?.list[feedIndex].isMarked = isMarked
+        
+        return .none
         //BottomSheet
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         return .send(.articleAction(.changedFeedCardFolder(selectedFeed, folder)))
+        
+      case .editLink(.presented(.delegate(.didUpdateHome))):
+        guard let selectedFeed = state.selectedFeed else { return .none }
+        
+        return .run { send in
+          try await Task.sleep(for: .seconds(0.7))
+          await send(.articleAction(.tappedCardItem(selectedFeed.feedID)))
+        }
         
       default:
         return .none
