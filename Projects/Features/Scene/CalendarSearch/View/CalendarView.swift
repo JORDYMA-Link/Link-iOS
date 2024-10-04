@@ -23,7 +23,7 @@ public struct CalendarView: View {
     WithPerceptionTracking {
       VStack {
         makeBKNavigationView(
-          leadingType: .dismiss("저장기록", { store.send(.tappedNaviBackButton) }),
+          leadingType: .dismiss("저장기록", { store.send(.naviBackButtonTapped) }),
           trailingType: .none
         )
         .padding(.leading, 20)
@@ -47,12 +47,19 @@ public struct CalendarView: View {
         }
         
         ZStack(alignment: .top){
-          MigratedCalendarView(
-            calendarStore: store.scope(
-              state: \.calendar,
-              action: \.calendarAction
-            )
+          MigratedFSCalendarView(
+            selectedDate: $store.calendar.selectedDate,
+            currentPage: $store.calendar.currentPage,
+            eventDate: $store.calendar.eventDate,
+            didSelectDateAction: { store.send(.calendarAction(.tappedDate(selectedDate: $0))) },
+            calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.swipeCurrentPage(currentPage: $0)))}
           )
+//          MigratedFSCalendarView(
+//            calendarStore: store.scope(
+//              state: \.calendar,
+//              action: \.calendarAction
+//            )
+//          )
           
           if store.calendar.changeCurrentPageSheet {
             selectionCurrentPageView
@@ -60,7 +67,7 @@ public struct CalendarView: View {
         }
         .padding(.horizontal, 20)
         
-        ZStack{
+        ZStack {
           Color.bkColor(.gray300)
             .ignoresSafeArea()
           
@@ -88,16 +95,16 @@ public struct CalendarView: View {
             noneContentsView
           }// else
         }// ZStack
-      } //WithPerceptionTracking
+      } //VStack
       .navigationBarBackButtonHidden(true)
       .onAppear(perform: {
         store.send(.fetchCalendarData(yearMonth: store.calendar.currentPage.toString(formatter: "YYYY-MM")))
-        store.send(.calendarAction(.tappedDate(selectedDate: Date()+32400)))
       })
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
         detents: [.height(192)],
-        leadingTitle: "설정"
+        leadingTitle: "설정",
+        closeButtonAction: { store.send(.menuBottomSheetCloseButtonTapped) }
       ) {
         BKMenuBottomSheet(
           menuItems: [.editLink, .editFolder, .deleteLink],
@@ -120,7 +127,7 @@ public struct CalendarView: View {
       ) { store in
         EditLinkView(store: store)
       }
-    }
+    } //WithPerceptionTracking
   }
   
   //MARK: - ViewBuilder
@@ -194,7 +201,7 @@ public struct CalendarView: View {
         .padding(.bottom, 16)
       
       Button {
-        store.send(.tappedSaveLinkButton)
+        store.send(.saveLinkButtonTapped)
       } label: {
         Text("저장하러 가기")
           .font(.semiBold(size: ._13))
@@ -252,7 +259,7 @@ public struct CalendarView: View {
           sourceImage: value.platformImage,
           isMarked: value.isMarked,
           saveAction: { store.send(.articleAction(.tappedCardItemSaveButton(value.feedID, !value.isMarked)), animation: .default) },
-          menuAction: { /*store.send(.articleAction(.tappedCardItemMenuButton(value)))*/ },
+          menuAction: { store.send(.articleAction(.tappedCardItemMenuButton(value))) },
           title: value.title,
           description: value.summary,
           keyword: value.keywords,
