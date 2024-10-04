@@ -52,8 +52,9 @@ public struct CalendarViewFeature {
     case patchDeleteFeed(Int)
     
     //MARK: User Action
-    case tappedNaviBackButton
-    case tappedSaveLinkButton
+    case naviBackButtonTapped
+    case saveLinkButtonTapped
+    case menuBottomSheetCloseButtonTapped
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     //MARK: Delegate
@@ -84,18 +85,17 @@ public struct CalendarViewFeature {
     Reduce { state, action in
       switch action {
         //MARK: User Aciton
-      case .tappedNaviBackButton:
+      case .naviBackButtonTapped:
         return .run { _ in await self.dismiss() }
         
-      case .tappedSaveLinkButton:
+      case .saveLinkButtonTapped:
         return .run { _ in await self.dismiss() }
         
-      case let .fetchCalendarData(yearMonth):
-        return .run { send in
-          let responseDTO = try await feedClient.getFeedCalendarSearch(yearMonth)
-          
-          await send(.spreadEachReducer(responseDTO))
-        }
+
+        
+      case .menuBottomSheetCloseButtonTapped:
+        state.isMenuBottomSheetPresented = false
+        return .none
         
 
         //MARK: Business Action
@@ -131,16 +131,17 @@ public struct CalendarViewFeature {
         
         state.isMenuBottomSheetPresented = false
         return .run { send in
-          await alertClient.present(.init(
-            title: "삭제",
-            description:
-            """
-            콘텐츠를 삭제하시면 복원이 어렵습니다.
-            그래도 삭제하시겠습니까?
-            """,
-            buttonType: .doubleButton(left: "취소", right: "확인"),
-            rightButtonAction: { await send(.patchDeleteFeed(selectedFeed.feedID)) }
-          ))
+//          await alertClient.present(.init(
+//            title: "삭제",
+//            description:
+//            """
+//            콘텐츠를 삭제하시면 복원이 어렵습니다.
+//            그래도 삭제하시겠습니까?
+//            """,
+//            buttonType: .doubleButton(left: "취소", right: "확인"),
+//            rightButtonAction: { await send(.patchDeleteFeed(selectedFeed.feedID)) }
+//          ))
+          await send(.patchDeleteFeed(selectedFeed.feedID))
         }
         
       case let .deleteFeed(feedID):
@@ -152,6 +153,13 @@ public struct CalendarViewFeature {
         return .none
         
         //MARK: Network
+      case let .fetchCalendarData(yearMonth):
+        return .run { send in
+          let responseDTO = try await feedClient.getFeedCalendarSearch(yearMonth)
+          
+          await send(.spreadEachReducer(responseDTO))
+        }
+        
       case let .patchDeleteFeed(feedId):
         return .run(
           operation: { send in

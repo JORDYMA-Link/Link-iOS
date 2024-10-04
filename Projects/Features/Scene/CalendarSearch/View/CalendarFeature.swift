@@ -13,7 +13,7 @@ import ComposableArchitecture
 public struct CalendarFeature {
   @ObservableState
   public struct State: Equatable {
-    var selectedDate = Date()
+    var selectedDate = Date() + TimeInterval(TimeZone.current.secondsFromGMT())
     var existEventSelectedDate = false
     var currentPage = Date()
     var currentSheetDate = Date()
@@ -45,13 +45,12 @@ public struct CalendarFeature {
   @Dependency(\.mainQueue) private var mainQueue
   
   //MARK: - Helper
-  private let dayToSecond: TimeInterval = 32400 //FSCalendar의 Time은 UTC 기준이기에 한국 기준 9시간 시차가 발생함. 수정을 위한 변수
   
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
       case let .tappedDate(selectedDate):
-        state.selectedDate = selectedDate + dayToSecond
+        state.selectedDate = selectedDate
         
         state.existEventSelectedDate = (state.eventDate.contains(state.selectedDate))
         
@@ -99,6 +98,7 @@ public struct CalendarFeature {
       case let .updatingEventDate(eventDate):
         state.eventDate = eventDate
         return .none
+//        return .send(.tappedDate(selectedDate: state.selectedDate))
         
       default:
         return .none
