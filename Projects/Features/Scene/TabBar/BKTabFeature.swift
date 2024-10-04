@@ -121,6 +121,7 @@ public struct BKTabFeature {
             }
           ))
         }
+        return .none
                 
         /// - 네비게이션 바 `세팅`버튼 눌렀을 때
       case .home(.delegate(.routeSetting)):
@@ -209,6 +210,9 @@ public struct BKTabFeature {
           
         case .StorageBoxFeedList:
           return .send(.path(.element(id: stackElementId, action: .StorageBoxFeedList(.feedDetailWillDisappear(feed)))))
+          
+        case .Calendar:
+          return .send(.path(.element(id: stackElementId, action: .Calendar(.feedDetailWillDisappear(feed)))))
           
         default:
           return .none
