@@ -98,7 +98,6 @@ public struct CalendarFeature {
       case let .updatingEventDate(eventDate):
         state.eventDate = eventDate
         return .none
-//        return .send(.tappedDate(selectedDate: state.selectedDate))
         
       default:
         return .none
