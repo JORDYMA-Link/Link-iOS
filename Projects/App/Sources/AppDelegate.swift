@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import Features
+import Feature
 
 import ComposableArchitecture
 import FirebaseCore
