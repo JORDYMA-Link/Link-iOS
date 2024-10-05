@@ -18,18 +18,18 @@ public struct CalendarArticleFeature {
   public struct State: Equatable {
     var categorySelectedIndex: Int = 0
     var folderList: [Int: FolderInfo] = [0: FolderInfo()]
-    var allArticle: [CalendarFeed] = []
-    var displayArticle: [CalendarFeed] = []
+    var selectedDateArticle: [CalendarFeed] = []
+    var filteredArticle: [CalendarFeed] = []
     
     init(
       categorySelectedIndex: Int = 0,
-      folerList: [Int: FolderInfo] = [0: FolderInfo()],
+      folderList: [Int: FolderInfo] = [0: FolderInfo()],
       article: [CalendarFeed] = []
     ) {
       self.categorySelectedIndex = categorySelectedIndex
-      self.folderList = folerList
-      self.allArticle = article
-      self.displayArticle = self.allArticle
+      self.folderList = folderList
+      self.selectedDateArticle = article
+      self.filteredArticle = self.selectedDateArticle
     }
   }
   
@@ -39,6 +39,12 @@ public struct CalendarArticleFeature {
     case allFolderCountUp
     case changedFeedCardFolder(CalendarFeed, Folder)
     case deleteFeedCard(Int)
+    case deleteSelectedFeedCard(Int)
+    case deleteFilteredFeedCard(Int)
+    case categoryStateModified(Int)
+    case feedCardUpdate(Feed)
+    case allOfSelectedDateFeedCardUpdate(Feed)
+    case finallyFilteredFeedCardUpdate(Feed)
     
     //MARK: User Action
     case changeCategorySelectedIndex(targetIndex: Int)
@@ -77,9 +83,11 @@ public struct CalendarArticleFeature {
   
   public enum Delegate {
     case shouldPresentsBottomSheet(CalendarFeed)
-    case tappedFeedCard(Int)
+    case bookmarkedFeedCard(Int, Bool)
+    case feedCardTapped(Int)
     case changeFolderOfParent(CalendarFeed)
     case removeFeedOfParent(Int)
+    case reloadSelectedDateFeedCard
   }
   
   public var body: some ReducerOf<Self> {
@@ -89,7 +97,7 @@ public struct CalendarArticleFeature {
       switch action {
         //MARK: Business Action
       case .filteringFolder:
-        for element in state.allArticle {
+        for element in state.selectedDateArticle {
           if let _ = state.folderList[element.folderID] {
             state.folderList[element.folderID]?.feedCount += 1
           } else {
@@ -102,7 +110,7 @@ public struct CalendarArticleFeature {
         }
         
       case .allFolderCountUp:
-        let contentsCount = state.allArticle.count
+        let contentsCount = state.selectedDateArticle.count
         state.folderList[0]?.feedCount = contentsCount
         return .none
         
@@ -111,9 +119,9 @@ public struct CalendarArticleFeature {
         
         state.categorySelectedIndex = folderId
         if folderId == 0 {
-          state.displayArticle = state.allArticle
+          state.filteredArticle = state.selectedDateArticle
         } else {
-          state.displayArticle = state.allArticle.filter({ $0.folderID == folderId})
+          state.filteredArticle = state.selectedDateArticle.filter({ $0.folderID == folderId})
         }
         return .none
         
@@ -132,49 +140,110 @@ public struct CalendarArticleFeature {
           state.folderList[folder.id] = FolderInfo(folderName: folder.name, feedCount: 1)
         }
         
-        guard let indexOfAll = state.allArticle.firstIndex(of: selectedFeed),
-              let indexOfDisplay = state.displayArticle.firstIndex(of: selectedFeed) else { return .none } //FIXME: 에러 대응 수정 필요
+        guard let indexOfAll = state.selectedDateArticle.firstIndex(of: selectedFeed),
+              let indexOfDisplay = state.filteredArticle.firstIndex(of: selectedFeed) else { return .none } //FIXME: 에러 대응 수정 필요
         
-        state.allArticle[indexOfAll].folderID = folder.id
-        state.allArticle[indexOfAll].folderName = folder.name
-        state.displayArticle[indexOfDisplay].folderID = folder.id
-        state.displayArticle[indexOfDisplay].folderName = folder.name
+        state.selectedDateArticle[indexOfAll].folderID = folder.id
+        state.selectedDateArticle[indexOfAll].folderName = folder.name
+        state.filteredArticle[indexOfDisplay].folderID = folder.id
+        state.filteredArticle[indexOfDisplay].folderName = folder.name
         
-        return .run { [feed = state.allArticle[indexOfAll]] send in
+        return .run { [feed = state.selectedDateArticle[indexOfAll]] send in
           await send(.changeCategorySelectedIndex(targetIndex: folder.id))
           await send(.delegate(.changeFolderOfParent(feed)))
         }
         
-      case let .deleteFeedCard(feedID):
-        guard let indexOfAll = state.allArticle.firstIndex(where: { feed in
-          return feed.feedID == feedID
-        }),
-              let indexOfDisplay = state.displayArticle.firstIndex(where: { feed in
-                return feed.feedID == feedID
-              }) else { return .none }
+      case let .deleteFeedCard(targetFeedID):
+        return .run { send in
+          await send(.categoryStateModified(targetFeedID))
+          await send(.deleteSelectedFeedCard(targetFeedID))
+          await send(.deleteFilteredFeedCard(targetFeedID))
+          await send(.delegate(.removeFeedOfParent(targetFeedID)))
+        }
+  
+
+        
+      case let .categoryStateModified(targetFeedID):
+        guard let indexOfCurrentFeedCard = state.filteredArticle.firstIndex(where: { $0.feedID == targetFeedID }) else { return .none }
+        let folderID = state.filteredArticle[indexOfCurrentFeedCard].folderID
         
         var needChangeFolder = false
-        if state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount == 1 {
-          state.folderList.removeValue(forKey: state.displayArticle[indexOfDisplay].folderID)
+        
+        if state.folderList[folderID]?.feedCount == 1 {
+          state.folderList.removeValue(forKey: state.filteredArticle[indexOfCurrentFeedCard].folderID)
           needChangeFolder = true
         } else {
-          state.folderList[state.displayArticle[indexOfDisplay].folderID]?.feedCount -= 1
+          state.folderList[state.filteredArticle[indexOfCurrentFeedCard].folderID]?.feedCount -= 1
         }
         
-        state.allArticle.remove(at: indexOfAll)
-        state.displayArticle.remove(at: indexOfDisplay)
+        guard let totalFolder = state.folderList[0], totalFolder.feedCount > 1 else { return .send(.delegate(.reloadSelectedDateFeedCard)) }
         
-        guard needChangeFolder else { return .none }
-        return .send(.changeCategorySelectedIndex(targetIndex: 0))
+        return needChangeFolder ? .send(.changeCategorySelectedIndex(targetIndex: 0)) : .none
         
+      case let .deleteSelectedFeedCard(targetFeedID):
+        if let indexOfAll = state.selectedDateArticle.firstIndex(where: { $0.feedID == targetFeedID }) {
+          state.selectedDateArticle.remove(at: indexOfAll)
+        }
+        
+        return .none
+        
+      case let .deleteFilteredFeedCard(targetFeedID):
+        if let indexOfDisplay = state.filteredArticle.firstIndex(where: { $0.feedID == targetFeedID }) {
+          state.filteredArticle.remove(at: indexOfDisplay)
+        }
+        
+        return .none
+        
+      case let .feedCardUpdate(modifiedFeed):
+        return .run { send in
+          await send(.finallyFilteredFeedCardUpdate(modifiedFeed))
+          await send(.allOfSelectedDateFeedCardUpdate(modifiedFeed))
+          await send(.filteringFolder)
+        }
+        
+      case let .finallyFilteredFeedCardUpdate(modifiedFeed):
+        guard let targetFeedIndex = state.filteredArticle.firstIndex(where: { $0.feedID == modifiedFeed.feedId }) else { return .none }
+        let originData = state.filteredArticle[targetFeedIndex]
+        
+        state.filteredArticle[targetFeedIndex] = CalendarFeed(
+          folderID: originData.folderID,
+          folderName: modifiedFeed.folderName,
+          feedID: modifiedFeed.feedId,
+          title: modifiedFeed.title,
+          summary: modifiedFeed.summary,
+          platform: originData.platform,
+          platformImage: modifiedFeed.thumbnailImage,
+          isMarked: modifiedFeed.isMarked,
+          keywords: modifiedFeed.keywords
+        )
+        
+        return .none
+        
+      case let .allOfSelectedDateFeedCardUpdate(modifiedFeed):
+        guard let targetFeedIndex = state.selectedDateArticle.firstIndex(where: { $0.feedID == modifiedFeed.feedId }) else { return .none }
+        let originData = state.selectedDateArticle[targetFeedIndex]
+        
+        state.selectedDateArticle[targetFeedIndex] = CalendarFeed(
+          folderID: originData.folderID,
+          folderName: modifiedFeed.folderName,
+          feedID: modifiedFeed.feedId,
+          title: modifiedFeed.title,
+          summary: modifiedFeed.summary,
+          platform: originData.platform,
+          platformImage: modifiedFeed.thumbnailImage,
+          isMarked: modifiedFeed.isMarked,
+          keywords: modifiedFeed.keywords
+        )
+        
+        return .none
         
         //MARK: User Action
       case let .tappedCardItemSaveButton(feedID, isMarked):
-        guard let indexOfAllArticle = state.allArticle.firstIndex(where: { $0.feedID == feedID }),
-              let indexOfDisplayArticle = state.displayArticle.firstIndex(where: { $0.feedID == feedID }) else { return .none }
+        guard let indexOfAllArticle = state.selectedDateArticle.firstIndex(where: { $0.feedID == feedID }),
+              let indexOfDisplayArticle = state.filteredArticle.firstIndex(where: { $0.feedID == feedID }) else { return .none }
         
-        state.allArticle[indexOfAllArticle].isMarked = isMarked
-        state.displayArticle[indexOfDisplayArticle].isMarked = isMarked
+        state.selectedDateArticle[indexOfAllArticle].isMarked = isMarked
+        state.filteredArticle[indexOfDisplayArticle].isMarked = isMarked
         
         return .send(.patchBookmark(feedID, isMarked))
           .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
@@ -183,7 +252,7 @@ public struct CalendarArticleFeature {
         return .send(.delegate(.shouldPresentsBottomSheet(selectedFeed)))
         
       case let .tappedCardItem(feedID):
-        return .send(.delegate(.tappedFeedCard(feedID)))
+        return .send(.delegate(.feedCardTapped(feedID)))
         
         //MARK: Inner Business Logic - Network
       case let .patchBookmark(feedId, isMarked):
@@ -192,6 +261,7 @@ public struct CalendarArticleFeature {
             let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
             
             print(feedBookmark)
+            await send(.delegate(.bookmarkedFeedCard(feedId, isMarked)))
           },
           catch: { error, send in
             print(error)
