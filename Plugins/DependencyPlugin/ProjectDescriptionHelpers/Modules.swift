@@ -22,7 +22,7 @@ public extension ModulePath {
     enum App: String, CaseIterable {
         case iOS
         
-        public static let name: String = "App"
+        public static let name: String = "Blink"
     }
 }
 
