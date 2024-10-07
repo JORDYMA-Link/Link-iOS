@@ -10,14 +10,10 @@ import ProjectDescriptionHelpers
 import DependencyPlugin
 
 let project = Project.make(
-    name: ModulePath.Core.name,
+    name: ModulePath.Core.Models.rawValue,
     targets: [
-        .core(factory: .init(
-            product: .staticFramework,
-            sources: nil,
+        .core(implements: .Models, factory: .init(
             dependencies: [
-                .core(implements: .Models),
-                .core(implements: .Services),
                 .shared
             ]
         ))
