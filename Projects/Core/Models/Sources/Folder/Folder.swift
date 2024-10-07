@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CommonFeature
 
 public struct Folder: Identifiable, Equatable {
   public var id: Int
@@ -21,6 +22,12 @@ public struct Folder: Identifiable, Equatable {
     self.id = id
     self.name = name
     self.feedCount = feedCount
+  }
+}
+
+extension Folder: FolderItem {
+  public var folderName: String {
+    return self.name
   }
 }
 

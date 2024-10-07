@@ -6,14 +6,11 @@
 //
 
 import SwiftUI
-import UserNotifications
 
-import Features
+import Feature
 import CommonFeature
 
 import ComposableArchitecture
-import FirebaseCore
-import FirebaseMessaging
 
 @main
 struct BlinkApp: App {
