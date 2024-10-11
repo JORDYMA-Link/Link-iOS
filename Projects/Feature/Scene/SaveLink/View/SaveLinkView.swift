@@ -68,6 +68,7 @@ public struct SaveLinkView: View {
             .background(store.saveButtonActive ?
                         Color.bkColor(.main300) : Color.bkColor(.gray300))
             .clipShape(RoundedRectangle(cornerRadius: 10))
+            .disabled(!store.saveButtonActive)
           }
         }
         .padding(EdgeInsets(top: 28, leading: 16, bottom: 0, trailing: 16))
