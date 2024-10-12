@@ -114,6 +114,7 @@ public struct CalendarViewFeature {
         
         state.isMenuBottomSheetPresented = false
         return .run { send in
+          try? await Task.sleep(for: .seconds(0.5))
           await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedID, selectedFeed.folderName))) }
         
       case .menuBottomSheetDelegate(.deleteLinkItemTapped):
