@@ -47,8 +47,8 @@ public struct LoginView: View {
               }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
               
               makeTerms(
-                serviceTerms:makeTermsText("서비스 약관", url: "https://daffy-sandal-6ef.notion.site/ea068d8517af4ca0a719916f7d23dee2?pvs=4"),
-                privacyPolicy: makeTermsText("개인정보 처리방침", url: "https://daffy-sandal-6ef.notion.site/4df567ac571948f0a2b7d782bde3767a?pvs=4")
+                serviceTerms:makeTermsText("서비스 약관", url: BKExternalURL.termOfUse.urlString),
+                privacyPolicy: makeTermsText("개인정보 처리방침", url: BKExternalURL.privacy.urlString)
               )
             }
           }

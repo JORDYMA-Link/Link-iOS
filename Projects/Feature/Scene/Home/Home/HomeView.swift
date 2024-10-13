@@ -152,7 +152,7 @@ private struct HomeBanner: View {
     WithPerceptionTracking {
       VStack(spacing: 12) {
         Link(destination:
-              URL(string: "https://daffy-sandal-6ef.notion.site/100-5d76361912514364864547cbc1600531?pvs=4")!
+              BKExternalURL.introduceService.url
         ) {
           BKInstructionBanner()
         }

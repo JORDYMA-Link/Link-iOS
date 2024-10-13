@@ -143,14 +143,14 @@ extension SettingView {
             .foregroundStyle(Color.bkColor(.gray700))
           
           
-          Link(destination: SettingFeature.PolicyType.privacy.url!) {
+          Link(destination: BKExternalURL.privacy.url) {
             Text("개인정보 처리 방침")
               .font(.regular(size: ._15))
           }
           .tint(.bkColor(.gray900))
           .padding(.top, 16)
           
-          Link(destination: SettingFeature.PolicyType.termOfUse.url!) {
+          Link(destination: BKExternalURL.termOfUse.url) {
             Text("서비스 이용약관")
               .font(.regular(size: ._15))
           }
@@ -185,7 +185,7 @@ extension SettingView {
             .font(.regular(size: ._12))
             .foregroundStyle(Color.bkColor(.gray700))
           
-          Link(destination: SettingFeature.PolicyType.introduceService.url!) {
+          Link(destination: BKExternalURL.introduceService.url) {
             Text("서비스 이용방법")
           }
           .font(.regular(size: ._15))
