@@ -24,61 +24,20 @@ public struct SettingView: View {
         leadingType: .dismiss("설정", { store.send(.tappedNaviBackButton) }),
         trailingType: .none
       )
+      .padding(.leading, 16)
       
       ScrollView {
-        ZStack {
-          settingView
-          
-          Spacer()
-            .navigationBarBackButtonHidden(true)
-        }
+        settingView
+        
+        Spacer()
+          .navigationBarBackButtonHidden(true)
       }
-      .bottomSheet(isPresented: $store.showEditNicknameSheet, detents: .init(arrayLiteral: .height(200)), leadingTitle: "닉네임 변경하기") {
-        VStack(alignment: .center) {
-          VStack(alignment: .leading) {
-            TextField(text: $store.targetNickname) {
-              Text("변경할 닉네임을 입력해주세요.")
-                .font(.regular(size: ._14))
-                .foregroundStyle(Color.bkColor(.gray800))
-            }
-            .frame(height: 46)
-            .padding(.leading, 10)
-            .background(Color.bkColor(store.targetNicknameValidation ? .gray300 : .white))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .overlay(
-              RoundedRectangle(cornerRadius: 10)
-                .stroke(Color.bkColor(.red), lineWidth: 1)
-                .opacity(store.targetNicknameValidation ? 0 : 1)
-            )
-            
-            HStack(alignment: .center) {
-              if !store.targetNicknameValidation {
-                Text(store.validationNoticeMessage)
-                  .foregroundStyle(Color.bkColor(.red))
-                  .font(.regular(size: ._12))
-              }
-              
-              Spacer()
-              
-              Text("\(store.targetNickname.count)/10")
-                .font(.regular(size: ._13))
-                .foregroundStyle(Color.bkColor(.gray600))
-            }
-            
-          }
-          .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
-          
-          Spacer()
-          
-          Button(action: {
-            store.send(.tappedCompletedEditingNickname)
-          }, label: {
-            Text("완료")
-              .foregroundStyle(Color.bkColor(.white))
-          })
-          .frame(maxWidth: .infinity, maxHeight: 52)
-          .background(Color.bkColor(.main300))
-        }
+      .bottomSheet(
+        isPresented: $store.showEditNicknameSheet,
+        detents: .init(arrayLiteral: .height(200)),
+        leadingTitle: "닉네임 변경하기"
+      ) {
+        ChangeNicknameBottomSheetContent(store: store)
       }
       .navigationDestination(item: $store.scope(
         state: \.noticeContent,
@@ -104,16 +63,19 @@ extension SettingView {
             Text(store.nickname)
               .font(.semiBold(size: ._18))
               .padding(.trailing, -10)
+            
             Text("님")
               .font(.regular(size: ._18))
-          }
+          } //HStack
+          
           Spacer()
+          
           Button(action: {
             store.send(.tappedNicknameEdit)
           }, label: {
             BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
-          })
-        }
+          }) //Button
+        } //HStack
         .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
         
         Color.bkColor(.gray400)
@@ -290,6 +252,68 @@ extension SettingView {
   }
 }
 
+fileprivate struct ChangeNicknameBottomSheetContent: View {
+  
+  @Perception.Bindable var store: StoreOf<SettingFeature>
+  
+  init(
+    store: StoreOf<SettingFeature>
+  ) {
+    self.store = store
+  }
+  
+  var body: some View {
+    WithPerceptionTracking {
+      VStack(alignment: .center) {
+        VStack(alignment: .leading) {
+          TextField(text: $store.targetNickname) {
+            Text("변경할 닉네임을 입력해주세요.")
+              .font(.regular(size: ._14))
+              .foregroundStyle(Color.bkColor(.gray800))
+          }
+          .frame(height: 46)
+          .padding(.leading, 10)
+          .background(Color.bkColor(store.targetNicknameValidation ? .gray300 : .white))
+          .clipShape(RoundedRectangle(cornerRadius: 10))
+          .overlay(
+            RoundedRectangle(cornerRadius: 10)
+              .stroke(Color.bkColor(.red), lineWidth: 1)
+              .opacity(store.targetNicknameValidation ? 0 : 1)
+          )
+          
+          HStack(alignment: .center) {
+            if !store.targetNicknameValidation {
+              Text(store.validationNoticeMessage)
+                .foregroundStyle(Color.bkColor(.red))
+                .font(.regular(size: ._12))
+            }
+            
+            Spacer()
+            
+            Text("\(store.targetNickname.count)/10")
+              .font(.regular(size: ._13))
+              .foregroundStyle(Color.bkColor(.gray600))
+          }
+          
+        }
+        .padding(EdgeInsets(top: 10, leading: 10, bottom: 10, trailing: 10))
+        
+        Spacer()
+        
+        Button(action: {
+          store.send(.tappedCompletedEditingNickname)
+        }, label: {
+          Text("완료")
+            .foregroundStyle(Color.bkColor(.white))
+        })
+        .frame(maxWidth: .infinity, maxHeight: 52)
+        .background(Color.bkColor(.main300))
+      }
+    }
+  }
+}
+
+//MARK: - SignoutAlert Struct View
 fileprivate struct SignoutAlert: View {
   @State private var isAnimating = false
   @State private var opacity = 0.6
