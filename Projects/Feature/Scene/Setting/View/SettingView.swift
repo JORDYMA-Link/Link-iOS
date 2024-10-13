@@ -157,23 +157,19 @@ extension SettingView {
           .tint(.bkColor(.gray900))
           .padding(.top, 32)
           
-          Button(action: {}, label: {
-            HStack {
-              Text("버전 정보")
-                .font(.regular(size: ._15))
-              Spacer()
-              Text("최신 \(store.currentAppVersion)")
-                .font(.regular(size: ._12))
-                .foregroundStyle(Color.bkColor(.gray700))
-              Text("현재 \(store.currentAppVersion)")
-                .font(.semiBold(size: ._12))
-                .foregroundStyle(Color.bkColor(.gray700))
-            }
-          })
-          .tint(.bkColor(.gray900))
+          HStack {
+            Text("버전 정보")
+              .font(.regular(size: ._15))
+              .foregroundStyle(Color.bkColor(.gray900))
+            Spacer()
+            Text("최신 \(store.currentAppVersion)")
+              .font(.regular(size: ._12))
+              .foregroundStyle(Color.bkColor(.gray700))
+            Text("현재 \(store.currentAppVersion)")
+              .font(.semiBold(size: ._12))
+              .foregroundStyle(Color.bkColor(.gray700))
+          }
           .padding(.top, 32)
-          
-          
         })
         .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
         
