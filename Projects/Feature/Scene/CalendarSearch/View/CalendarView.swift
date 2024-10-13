@@ -26,7 +26,7 @@ public struct CalendarView: View {
           leadingType: .dismiss("저장기록", { store.send(.naviBackButtonTapped) }),
           trailingType: .none
         )
-        .padding(.leading, 20)
+        .padding(.leading, 16)
         
         HStack {
           Button{
@@ -38,7 +38,6 @@ public struct CalendarView: View {
               CommonFeature.Images.icoChevronDown
             }
             .foregroundStyle(Color.bkColor(.gray900))
-            .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
           }
           .frame(alignment: .leading)
           .padding(.leading, 20)
