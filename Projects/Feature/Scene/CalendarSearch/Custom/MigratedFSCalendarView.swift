@@ -27,7 +27,6 @@ struct MigratedFSCalendarView: UIViewRepresentable {
   @Binding var selectedDate: Date
   @Binding var currentPage: Date
   @Binding var eventDate: [Date]
-  @Binding var reload: Bool
   
   //MARK: - Delegate Closure Properties
   var didSelectDateAction: ((Date) -> Void)?
@@ -37,14 +36,12 @@ struct MigratedFSCalendarView: UIViewRepresentable {
     selectedDate: Binding<Date>,
     currentPage: Binding<Date>,
     eventDate: Binding<[Date]>,
-    reload: Binding<Bool>,
     didSelectDateAction: ((Date) -> Void)? = nil,
     calendarCurrentPageDidChangeAction: ((Date) -> Void)? = nil
   ) {
     self._selectedDate = selectedDate
     self._currentPage = currentPage
     self._eventDate = eventDate
-    self._reload = reload
     self.didSelectDateAction = didSelectDateAction
     self.calendarCurrentPageDidChangeAction = calendarCurrentPageDidChangeAction
   }
@@ -93,20 +90,6 @@ struct MigratedFSCalendarView: UIViewRepresentable {
           }
         }
         context.coordinator.isFirstOnAppear = true
-      }
-    }
-    
-    if reload {
-      var defaultDateComponents = selectedDate.getDateComponents()
-      defaultDateComponents.day = (defaultDateComponents.day ?? 2) // 혹시 모를 실패의 경우 1일을 select 하도록
-      defaultDateComponents.hour = 9
-      defaultDateComponents.minute = 0
-      defaultDateComponents.second = 0
-      
-      if let defaultDate = Calendar.current.date(from: defaultDateComponents) {
-        DispatchQueue.main.async {
-          self.didSelectDateAction?(defaultDate)
-        }
       }
     }
   }

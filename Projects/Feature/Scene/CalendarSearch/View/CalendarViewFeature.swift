@@ -21,7 +21,6 @@ public struct CalendarViewFeature {
     //MARK: main State
     var isMenuBottomSheetPresented: Bool = false
     var calendarSearchData: SearchCalendar?
-    var reloadSelectedData: Bool = false
     
     //MARK: Child State
     var calendar = CalendarFeature.State()
@@ -159,14 +158,12 @@ public struct CalendarViewFeature {
         
         return .none
         
-      case let.feedDetailWillDisappear(_):
-        state.reloadSelectedData = true
+      case let.feedDetailWillDisappear(feed):
         return .send(.reloadSelectedFeed)
-          .throttle(id: ThrottleId.updateFromServer, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case .reloadSelectedFeed:
-        state.reloadSelectedData = false
-        return .none
+        return .send(.calendarAction(.didSelectedDate(selectedDate: state.calendar.selectedDate)))
+          .throttle(id: ThrottleId.updateFromServer, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
         
         //MARK: Network
@@ -218,7 +215,7 @@ public struct CalendarViewFeature {
       case let .articleAction(.delegate(.feedCardTapped(feedID))):
         return .send(.delegate(.routeFeedDetail(feedID)))
         
-      case let .articleAction(.delegate(.changeFolderOfParent(feed))):
+      case let .articleAction(.delegate(.willChangeFolderOfParent(feed))):
         let selectedDate = state.calendar.selectedDate
         
         guard let feedIndex = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == feed.feedID}) else { return .none }
@@ -229,9 +226,9 @@ public struct CalendarViewFeature {
         return .none
         
       case .articleAction(.delegate(.reloadSelectedDateFeedCard)):
-        return .send(.calendarAction(.tappedDate(selectedDate: state.calendar.selectedDate)))
+        return .send(.calendarAction(.didSelectedDate(selectedDate: state.calendar.selectedDate)))
         
-      case let .articleAction(.delegate(.removeFeedOfParent(targetFeedID))):
+      case let .articleAction(.delegate(.willRemoveFeedOfParent(targetFeedID))):
         let selectedDate = state.calendar.selectedDate
         
         guard let feedIndex = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == targetFeedID }) else { return .none }
@@ -240,7 +237,7 @@ public struct CalendarViewFeature {
         
         return .none
         
-      case let .articleAction(.delegate(.bookmarkedFeedCard(targetFeedID, isMarked))):
+      case let .articleAction(.delegate(.willBookmarkFeedCard(targetFeedID, isMarked))):
         let selectedDate = state.calendar.selectedDate
         
         guard let feedIndex = state.calendarSearchData?.existedFeedData[selectedDate]?.list.firstIndex(where: { $0.feedID == targetFeedID }) else { return .none }
@@ -259,7 +256,7 @@ public struct CalendarViewFeature {
         
         return .run { send in
           try await Task.sleep(for: .seconds(0.7))
-          await send(.articleAction(.tappedCardItem(selectedFeed.feedID)))
+          await send(.articleAction(.cardItemTapped(selectedFeed.feedID)))
         }
         
       default:

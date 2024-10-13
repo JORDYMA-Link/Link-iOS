@@ -44,13 +44,13 @@ public struct CalendarArticleFeature {
     case categoryStateModified(Int)
     case feedCardUpdate(Feed)
     case allOfSelectedDateFeedCardUpdate(Feed)
-    case finallyFilteredFeedCardUpdate(Feed)
+    case filteredFeedCardUpdate(Feed)
     
     //MARK: User Action
     case changeCategorySelectedIndex(targetIndex: Int)
-    case tappedCardItemSaveButton(Int, Bool)
-    case tappedCardItemMenuButton(CalendarFeed)
-    case tappedCardItem(Int)
+    case cardItemSaveButtonTapped(Int, Bool)
+    case cardItemMenuButtonTapped(CalendarFeed)
+    case cardItemTapped(Int)
     
     //MARK: Inner Business Logic
     case patchBookmark(Int, Bool)
@@ -83,10 +83,10 @@ public struct CalendarArticleFeature {
   
   public enum Delegate {
     case shouldPresentsBottomSheet(CalendarFeed)
-    case bookmarkedFeedCard(Int, Bool)
+    case willBookmarkFeedCard(Int, Bool)
     case feedCardTapped(Int)
-    case changeFolderOfParent(CalendarFeed)
-    case removeFeedOfParent(Int)
+    case willChangeFolderOfParent(CalendarFeed)
+    case willRemoveFeedOfParent(Int)
     case reloadSelectedDateFeedCard
   }
   
@@ -150,7 +150,7 @@ public struct CalendarArticleFeature {
         
         return .run { [feed = state.selectedDateArticle[indexOfAll]] send in
           await send(.changeCategorySelectedIndex(targetIndex: folder.id))
-          await send(.delegate(.changeFolderOfParent(feed)))
+          await send(.delegate(.willChangeFolderOfParent(feed)))
         }
         
       case let .deleteFeedCard(targetFeedID):
@@ -158,7 +158,7 @@ public struct CalendarArticleFeature {
           await send(.categoryStateModified(targetFeedID))
           await send(.deleteSelectedFeedCard(targetFeedID))
           await send(.deleteFilteredFeedCard(targetFeedID))
-          await send(.delegate(.removeFeedOfParent(targetFeedID)))
+          await send(.delegate(.willRemoveFeedOfParent(targetFeedID)))
         }
   
 
@@ -196,12 +196,12 @@ public struct CalendarArticleFeature {
         
       case let .feedCardUpdate(modifiedFeed):
         return .run { send in
-          await send(.finallyFilteredFeedCardUpdate(modifiedFeed))
+          await send(.filteredFeedCardUpdate(modifiedFeed))
           await send(.allOfSelectedDateFeedCardUpdate(modifiedFeed))
           await send(.filteringFolder)
         }
         
-      case let .finallyFilteredFeedCardUpdate(modifiedFeed):
+      case let .filteredFeedCardUpdate(modifiedFeed):
         guard let targetFeedIndex = state.filteredArticle.firstIndex(where: { $0.feedID == modifiedFeed.feedId }) else { return .none }
         let originData = state.filteredArticle[targetFeedIndex]
         
@@ -238,7 +238,7 @@ public struct CalendarArticleFeature {
         return .none
         
         //MARK: User Action
-      case let .tappedCardItemSaveButton(feedID, isMarked):
+      case let .cardItemSaveButtonTapped(feedID, isMarked):
         guard let indexOfAllArticle = state.selectedDateArticle.firstIndex(where: { $0.feedID == feedID }),
               let indexOfDisplayArticle = state.filteredArticle.firstIndex(where: { $0.feedID == feedID }) else { return .none }
         
@@ -248,10 +248,10 @@ public struct CalendarArticleFeature {
         return .send(.patchBookmark(feedID, isMarked))
           .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
-      case let.tappedCardItemMenuButton(selectedFeed):
+      case let.cardItemMenuButtonTapped(selectedFeed):
         return .send(.delegate(.shouldPresentsBottomSheet(selectedFeed)))
         
-      case let .tappedCardItem(feedID):
+      case let .cardItemTapped(feedID):
         return .send(.delegate(.feedCardTapped(feedID)))
         
         //MARK: Inner Business Logic - Network
@@ -261,7 +261,7 @@ public struct CalendarArticleFeature {
             let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
             
             print(feedBookmark)
-            await send(.delegate(.bookmarkedFeedCard(feedId, isMarked)))
+            await send(.delegate(.willBookmarkFeedCard(feedId, isMarked)))
           },
           catch: { error, send in
             print(error)
@@ -274,5 +274,4 @@ public struct CalendarArticleFeature {
     }
   }
 }
-
 
