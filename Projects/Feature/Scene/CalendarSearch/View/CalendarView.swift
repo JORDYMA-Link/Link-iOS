@@ -30,7 +30,7 @@ public struct CalendarView: View {
         
         HStack {
           Button{
-            store.send(.calendarAction(.tappedCurrentSheetButton))
+            store.send(.calendarAction(.currentSheetButtonTapped))
           } label: {
             HStack {
               Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
@@ -51,9 +51,8 @@ public struct CalendarView: View {
             selectedDate: $store.calendar.selectedDate,
             currentPage: $store.calendar.currentPage,
             eventDate: $store.calendar.eventDate,
-            reload: $store.reloadSelectedData,
-            didSelectDateAction: { store.send(.calendarAction(.tappedDate(selectedDate: $0))) },
-            calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.swipeCurrentPage(currentPage: $0)))}
+            didSelectDateAction: { store.send(.calendarAction(.didSelectedDate(selectedDate: $0))) },
+            calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.didSwipeCurrentPage(currentPage: $0)))}
           )
           
           if store.calendar.changeCurrentPageSheet {
@@ -154,7 +153,7 @@ public struct CalendarView: View {
           Spacer()
           
           Button {
-            store.send(.calendarAction(.tappedCurrentSheetButton))
+            store.send(.calendarAction(.currentSheetButtonTapped))
           } label: {
             Image(systemName: "xmark")
               .tint(.bkColor(.black))
@@ -170,7 +169,7 @@ public struct CalendarView: View {
               .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
               .onTapGesture {
                 guard !isPast(targetMonth: month.rawValue) else {return}
-                store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
+                store.send(.calendarAction(.currentSheetMonthTapped(selectedMonth: month.rawValue)))
               }
           }
         }
@@ -254,15 +253,15 @@ public struct CalendarView: View {
           sourceTitle: value.platform,
           sourceImage: value.platformImage,
           isMarked: value.isMarked,
-          saveAction: { store.send(.articleAction(.tappedCardItemSaveButton(value.feedID, !value.isMarked)), animation: .default) },
-          menuAction: { store.send(.articleAction(.tappedCardItemMenuButton(value))) },
+          saveAction: { store.send(.articleAction(.cardItemSaveButtonTapped(value.feedID, !value.isMarked)), animation: .default) },
+          menuAction: { store.send(.articleAction(.cardItemMenuButtonTapped(value))) },
           title: value.title,
           description: value.summary,
           keyword: value.keywords,
           isUncategorized: false
         )
         .onTapGesture {
-          store.send(.articleAction(.tappedCardItem(value.feedID)))
+          store.send(.articleAction(.cardItemTapped(value.feedID)))
         }
         .frame(width: 257)
       }
