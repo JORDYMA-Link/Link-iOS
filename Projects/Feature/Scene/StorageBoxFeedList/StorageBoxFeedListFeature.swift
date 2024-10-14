@@ -19,7 +19,7 @@ public struct StorageBoxFeedListFeature {
   @ObservableState
   public struct State: Equatable {
     var folderInput: Folder
-        
+    
     var selectedFeed: FeedCard?
     var feeds: BKCardFeature.State?
     
@@ -84,7 +84,7 @@ public struct StorageBoxFeedListFeature {
   @Dependency(\.feedClient) private var feedClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.dismiss) private var dismiss
-    
+  
   private enum DebounceId {
     case pullToRefresh
   }
@@ -105,7 +105,7 @@ public struct StorageBoxFeedListFeature {
         return .run(
           operation: { [state] send in
             let folderFeedList = try await folderClient.getFolderFeeds(state.folderInput.id, 0)
-          
+            
             await send(.setFeeds(folderFeedList))
           },
           catch: { error, send in
@@ -128,11 +128,11 @@ public struct StorageBoxFeedListFeature {
           await send(.feeds(.resetPage))
         }
         .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
-                        
+        
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .feedDetailWillDisappear(feed):
         return .send(.feeds(.feedDetailWillDisappear(feed)))
-                
+        
       case let .fetchFolderFeeds(folderId, cursor):
         return .run(
           operation: { [state] send in
@@ -169,14 +169,14 @@ public struct StorageBoxFeedListFeature {
       case let .setFeeds(feedList):
         state.feeds = .init(feedList: feedList)
         return .none
-                
+        
       case let .setMorePagingStatus(isPaging):
         state.morePagingNeeded = isPaging
         return .none
         
       case let .feeds(.cardItemTapped(feedId)):
         return .send(.delegate(.routeFeedDetail(feedId)))
-                
+        
       case let .feeds(.cardItemMenuButtonTapped(selectedFeed)):
         state.selectedFeed = selectedFeed
         state.isMenuBottomSheetPresented = true
@@ -193,7 +193,7 @@ public struct StorageBoxFeedListFeature {
           try? await Task.sleep(for: .seconds(0.1))
           await send(.editLinkPresented(selectedFeed.feedId))
         }
-                
+        
       case .menuBottomSheet(.editFolderItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
@@ -219,7 +219,7 @@ public struct StorageBoxFeedListFeature {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
-                        
+        
       case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
         return .run { send in
           try await Task.sleep(for: .seconds(0.5))
@@ -229,7 +229,7 @@ public struct StorageBoxFeedListFeature {
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
         return .send(.feeds(.setFeedFolder(feedId, folder)))
-                        
+        
       case .routeCalendar:
         state.calendarContent = .init()
         return .none
