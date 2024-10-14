@@ -48,7 +48,7 @@ public struct BKCardFeature {
     case fetchFeedList(Int)
     case patchBookmark(Int, Bool)
     
-    
+    // MARK: Inner SetState Action
     case setAddFeeds([FeedCard])
     case setFetchedAllCardsStatus(Bool)
     case setFeedFolder(Int, Folder)
