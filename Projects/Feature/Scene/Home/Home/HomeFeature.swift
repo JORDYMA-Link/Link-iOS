@@ -97,6 +97,7 @@ public struct HomeFeature: Reducer {
     
     // MARK: Present Action
     case editLinkPresented(Int)
+    case editFolderPresented(Int, String)
   }
   
   @Dependency(\.feedClient) private var feedClient
@@ -364,7 +365,10 @@ public struct HomeFeature: Reducer {
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         state.isMenuBottomSheetPresented = false
-        return .run { send in await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedId, selectedFeed.folderName))) }
+        return .run { send in
+          try? await Task.sleep(for: .seconds(0.5))
+          await send(.editFolderPresented(selectedFeed.feedId, selectedFeed.folderName))
+        }
         
       case .menuBottomSheet(.deleteLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
@@ -386,6 +390,9 @@ public struct HomeFeature: Reducer {
       case let .editLinkPresented(feedId):
         state.editLink = .init(editLinkType: .home(feedId: feedId))
         return .none
+        
+      case let .editFolderPresented(feedId, folderName):
+        return .send(.editFolderBottomSheet(.editFolderTapped(feedId, folderName)))
         
       default:
         return .none
