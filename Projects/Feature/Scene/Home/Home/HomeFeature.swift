@@ -22,12 +22,19 @@ public struct HomeFeature: Reducer {
     var viewDidLoad: Bool = false
     var category: CategoryType = .bookmarked
     
-    var page: Int = 0
-    var morePagingNeeded: Bool = true
-    var fetchedAllFeedCards: Bool = false
-    
-    var feedList: [FeedCard] = []
     var selectedFeed: FeedCard?
+    var feeds: BKCardFeature.State?
+    
+    var morePagingNeeded: Bool = true
+    
+    var emptyTitle: String {
+      switch category {
+      case .bookmarked:
+        return "북마크된 콘텐츠가 없습니다\n중요한 링크는 북마크하여 바로 확인해보세요"
+      case .unclassified:
+        return "미분류된 콘텐츠가 없습니다\n분류가 고민일 땐 추천폴더를 받아보세요"
+      }
+    }
     
     @Presents var editLink: EditLinkFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
@@ -49,30 +56,19 @@ public struct HomeFeature: Reducer {
     case searchBannerSearchBarTapped
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
-    case pagination
     case pullToRefresh
-    case cardItemTapped(Int)
-    case cardItemSaveButtonTapped(Int, Bool)
-    case cardItemMenuButtonTapped(FeedCard)
-    case cardItemRecommendedFolderTapped(Int, String)
-    case cardItemAddFolderTapped(FeedCard)
     case feedDetailWillDisappear(Feed)
     case summaryToastRouteButtonTapped
     
     // MARK: Inner Business Action
-    case resetPage
-    case updatePage
     case fetchFeedList(CategoryType, Int)
-    case patchBookmark(Int, Bool)
     case deleteFeed(Int)
     case patchFeedFolder(Int, String)
     case fetchLinkProcessing
     
     // MARK: Inner SetState Action
-    case setFeedList([FeedCard])
-    case setDeleteFeed(Int)
+    case setFeeds([FeedCard])
     case setMorePagingStatus(Bool)
-    case setFetchedAllCardsStatus(Bool)
     case setSummaryToastPresented(SummaryType, Bool)
     
     // MARK: Delegate Action
@@ -88,12 +84,11 @@ public struct HomeFeature: Reducer {
     case delegate(Delegate)
     
     // MARK: Child Action
+    case feeds(BKCardFeature.Action)
+    case menuBottomSheet(BKMenuBottomSheet.Delegate)
+    case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
-    case editLink(PresentationAction<EditLinkFeature.Action>)
-    case menuBottomSheet(BKMenuBottomSheet.Delegate)
-    
-    // MARK: Navigation Action
     
     // MARK: Present Action
     case editLinkPresented(Int)
@@ -107,11 +102,9 @@ public struct HomeFeature: Reducer {
   
   private enum ThrottleId {
     case categoryButton
-    case saveButton
   }
   
   private enum DebounceId {
-    case pagination
     case pullToRefresh
   }
   
@@ -140,7 +133,16 @@ public struct HomeFeature: Reducer {
       case .onViewDidLoad:
         guard state.viewDidLoad == false else { return .none }
         state.viewDidLoad = true
-        return .send(.fetchFeedList(.bookmarked, state.page))
+        return .run(
+          operation: { [state] send in
+            let feedList = try await feedClient.postFeedByType(state.category.rawValue, 0)
+            
+            await send(.setFeeds(feedList))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       case .settingButtonTapped:
         return .send(.delegate(.routeSetting))
@@ -156,101 +158,42 @@ public struct HomeFeature: Reducer {
           return .none
         } else {
           state.category = categoryType
-          return .run { [state] send in
-            await send(.resetPage)
-            await send(.fetchFeedList(state.category, 0))
+          return .run { send in
+            await send(.setMorePagingStatus(true))
+            await send(.feeds(.resetPage))
           }
           .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
         }
         
-      case .pagination:
-        return .send(.updatePage)
-          .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
-        
       case .pullToRefresh:
-        return .run { [state] send in
-          await send(.resetPage)
-          await send(.fetchFeedList(state.category, 0))
+        return .run { send in
+          await send(.setMorePagingStatus(true))
+          await send(.feeds(.resetPage))
         }
-        .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
-        
-      case let .cardItemTapped(feedId):
-        return .send(.delegate(.routeFeedDetail(feedId)))
-        
-      case let .cardItemSaveButtonTapped(index, isMarked):
-        guard var item = state.feedList[safe: index] else { return .none }
-        
-        item.isMarked = isMarked
-        state.feedList[index] = item
-        return .send(.patchBookmark(item.feedId, isMarked))
-          .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
-        
-      case let .cardItemMenuButtonTapped(selectedFeed):
-        state.selectedFeed = selectedFeed
-        state.isMenuBottomSheetPresented = true
-        return .none
-        
-      case let .cardItemRecommendedFolderTapped(feedId, folderName):
-        return .send(.patchFeedFolder(feedId, folderName))
-        
-      case let .cardItemAddFolderTapped(selectedFeed):
-        state.selectedFeed = selectedFeed
-        return .send(.addFolderBottomSheet(.addFolderTapped))
+        .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .feedDetailWillDisappear(feed):
-        guard let index = state.feedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
-          return .none
-        }
-        
-        let feedCard = state.feedList[index]
-        let updateFeedCard = feed.toFeedCard(feedCard)
-        
-        if feedCard != updateFeedCard {
-          state.feedList[index] = updateFeedCard
-        }
-        return .none
+        return .send(.feeds(.feedDetailWillDisappear(feed)))
         
       case .summaryToastRouteButtonTapped:
         return .send(.delegate(.routeSummaryStatusList))
         
-      case .resetPage:
-        state.morePagingNeeded = true
-        state.fetchedAllFeedCards = false
-        state.page = 0
-        return .none
-        
-      case .updatePage:
-        state.page += 1
-        return .send(.fetchFeedList(state.category, state.page))
-        
-      case let .fetchFeedList(categoryType, page):
+      case let .fetchFeedList(category, page):
         return .run(
           operation: { [state] send in
             if state.morePagingNeeded {
-              async let feedListResponse = try feedClient.postFeedByType(categoryType.rawValue, page)
+              async let feedListResponse = try feedClient.postFeedByType(category.rawValue, page)
               
               let feedList = try await feedListResponse
               
               if feedList.count == 0 {
                 await send(.setMorePagingStatus(false))
-                await send(.setFetchedAllCardsStatus(true))
+                await send(.feeds(.setFetchedAllCardsStatus(true)))
               }
               
-              await send(.setFeedList(feedList), animation: .default)
+              await send(.feeds(.setAddFeeds(feedList)), animation: .default)
             }
-          },
-          catch: { error, send in
-            print(error)
-          }
-        )
-        
-      case let .patchBookmark(feedId, isMarked):
-        return .run(
-          operation: { send in
-            let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
-            
-            print(feedBookmark)
           },
           catch: { error, send in
             print(error)
@@ -262,7 +205,7 @@ public struct HomeFeature: Reducer {
           operation: { send in
             _ = try await feedClient.deleteFeed(feedId)
             
-            await send(.setDeleteFeed(feedId), animation: .default)
+            await send(.feeds(.setDeleteFeed(feedId)), animation: .default)
           },
           catch: { error, send in
             print(error)
@@ -304,24 +247,12 @@ public struct HomeFeature: Reducer {
           }
         )
         
-      case let .setFeedList(feedList):
-        if state.page == 0 {
-          state.feedList = feedList
-        } else {
-          state.feedList.append(contentsOf: feedList)
-        }
-        return .none
-        
-      case let .setDeleteFeed(feedId):
-        state.feedList.removeAll { $0.feedId == feedId }
+      case let .setFeeds(feedList):
+        state.feeds = .init(feedList: feedList)
         return .none
         
       case let .setMorePagingStatus(isPaging):
         state.morePagingNeeded = isPaging
-        return .none
-        
-      case let .setFetchedAllCardsStatus(isPaging):
-        state.fetchedAllFeedCards = isPaging
         return .none
         
       case let .setSummaryToastPresented(type, isPresented):
@@ -329,28 +260,23 @@ public struct HomeFeature: Reducer {
         state.isSummaryToastPresented = isPresented
         return .none
         
-        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
-        guard let index = state.feedList.firstIndex(where: { $0.feedId == feedId }) else {
-          return .none
-        }
+      case let .feeds(.cardItemTapped(feedId)):
+        return .send(.delegate(.routeFeedDetail(feedId)))
         
-        state.feedList[index].folderName = folder.name
-        state.feedList[index].folderId = folder.id
+      case let .feeds(.cardItemMenuButtonTapped(selectedFeed)):
+        state.selectedFeed = selectedFeed
+        state.isMenuBottomSheetPresented = true
         return .none
         
-      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
-        guard let selectedFeed = state.selectedFeed else { return .none }
-        return .run { send in
-          try? await Task.sleep(for: .seconds(0.5))
-          await send(.patchFeedFolder(selectedFeed.feedId, folder.name))
-        }
+      case let .feeds(.cardItemRecommendedFolderTapped(feedId, folderName)):
+        return .send(.patchFeedFolder(feedId, folderName))
         
-      case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
-        return .run { send in
-          try await Task.sleep(for: .seconds(0.5))
-          await send(.cardItemTapped(feed.feedId))
-        }
+      case let .feeds(.cardItemAddFolderTapped(selectedFeed)):
+        state.selectedFeed = selectedFeed
+        return .send(.addFolderBottomSheet(.addFolderTapped))
+        
+      case let .feeds(.fetchFeedList(page)):
+        return .send(.fetchFeedList(state.category, page))
         
       case .menuBottomSheet(.editLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
@@ -387,6 +313,23 @@ public struct HomeFeature: Reducer {
           ))
         }
         
+      case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
+        return .run { send in
+          try await Task.sleep(for: .seconds(0.5))
+          await send(.feeds(.cardItemTapped(feed.feedId)))
+        }
+        
+        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
+        return .send(.feeds(.setFeedFolder(feedId, folder)))
+        
+      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
+        guard let selectedFeed = state.selectedFeed else { return .none }
+        return .run { send in
+          try? await Task.sleep(for: .seconds(0.5))
+          await send(.patchFeedFolder(selectedFeed.feedId, folder.name))
+        }
+        
       case let .editLinkPresented(feedId):
         state.editLink = .init(editLinkType: .home(feedId: feedId))
         return .none
@@ -397,6 +340,9 @@ public struct HomeFeature: Reducer {
       default:
         return .none
       }
+    }
+    .ifLet(\.feeds, action: \.feeds) {
+      BKCardFeature()
     }
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
