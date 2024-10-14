@@ -53,12 +53,13 @@ public struct CalendarView: View {
             didSelectDateAction: { store.send(.calendarAction(.didSelectedDate(selectedDate: $0))) },
             calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.didSwipeCurrentPage(currentPage: $0)))}
           )
+          .padding(.horizontal, 5)
           
           if store.calendar.changeCurrentPageSheet {
             selectionCurrentPageView
+              .padding(.horizontal, 20)
           }
         }
-        .padding(.horizontal, 20)
         
         ZStack {
           Color.bkColor(.gray300)
@@ -154,10 +155,10 @@ public struct CalendarView: View {
           Button {
             store.send(.calendarAction(.currentSheetButtonTapped))
           } label: {
-            Image(systemName: "xmark")
-              .tint(.bkColor(.black))
+            BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.black), size: .init(width: 16, height: 16))
           }
         }
+        .padding(.horizontal, 28)
         
         LazyVGrid(columns: columns, spacing: 20) {
           ForEach(months, id: \.self) { month in
