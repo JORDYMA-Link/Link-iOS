@@ -50,11 +50,14 @@ public struct HomeView: View {
                 
                 LazyVStack(spacing: 4, pinnedViews: [.sectionHeaders]) {
                   Section {
-                    HomeCardSection(
-                      store: store,
-                      emptyHeight: proxy.size.height - bannerHeight - categoryHeaderHeight
-                    )
-                    .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+                    if let feedsStore = store.scope(state: \.feeds, action: \.feeds) {
+                      BKCardView(
+                        store: feedsStore,
+                        emptyTitle: store.emptyTitle,
+                        emptyHeight: proxy.size.height - bannerHeight - categoryHeaderHeight
+                      )
+                      .padding(.init(top: 0, leading: 16, bottom: 16, trailing: 16))
+                    }
                   } header: {
                     VStack(spacing: 0) {
                       CategoryHeaderView(
