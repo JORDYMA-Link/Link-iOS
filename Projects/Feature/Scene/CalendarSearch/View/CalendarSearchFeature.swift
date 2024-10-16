@@ -14,7 +14,7 @@ import CommonFeature
 import ComposableArchitecture
 
 @Reducer
-public struct CalendarViewFeature {
+public struct CalendarSearchFeature {
   //MARK: - State
   @ObservableState
   public struct State: Equatable {
@@ -59,7 +59,7 @@ public struct CalendarViewFeature {
     case menuBottomSheetCloseButtonTapped
     
     //MARK: Delegate
-    case delegate(CalendarViewFeature.Delegate)
+    case delegate(CalendarSearchFeature.Delegate)
     case menuBottomSheetDelegate(BKMenuBottomSheet.Delegate)
   }
   

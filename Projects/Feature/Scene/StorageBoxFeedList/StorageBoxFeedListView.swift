@@ -80,7 +80,7 @@ struct StorageBoxFeedListView: View {
           action: \.calendarContent
         )
       ) { store in
-        CalendarView(store: store)
+        CalendarSearchView(store: store)
       }
       .bottomSheet(
         isPresented: $store.isMenuBottomSheetPresented,
