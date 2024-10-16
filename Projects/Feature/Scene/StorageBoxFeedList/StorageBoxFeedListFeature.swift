@@ -27,7 +27,7 @@ public struct StorageBoxFeedListFeature {
     var folderFeedList: [FeedCard] = []
     var selectedFeed: FeedCard?
     
-    @Presents var calendarContent: CalendarViewFeature.State?
+    @Presents var calendarContent: CalendarSearchFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
@@ -75,7 +75,7 @@ public struct StorageBoxFeedListFeature {
     case delegate(Delegate)
     
     // MARK: Child Action
-    case calendarContent(PresentationAction<CalendarViewFeature.Action>)
+    case calendarContent(PresentationAction<CalendarSearchFeature.Action>)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -302,7 +302,7 @@ public struct StorageBoxFeedListFeature {
       }
     }
     .ifLet(\.$calendarContent, action: \.calendarContent) {
-      CalendarViewFeature()
+      CalendarSearchFeature()
     }
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()

@@ -12,8 +12,8 @@ import CommonFeature
 
 import ComposableArchitecture
 
-public struct CalendarView: View {
-  @Perception.Bindable var store: StoreOf<CalendarViewFeature>
+public struct CalendarSearchView: View {
+  @Perception.Bindable var store: StoreOf<CalendarSearchFeature>
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
@@ -46,7 +46,7 @@ public struct CalendarView: View {
         }
         
         ZStack(alignment: .top){
-          MigratedFSCalendarView(
+          FSCalendarView(
             selectedDate: $store.calendar.selectedDate,
             currentPage: $store.calendar.currentPage,
             eventDate: $store.calendar.eventDate,
@@ -270,7 +270,7 @@ public struct CalendarView: View {
 }
 
 //MARK: - Calculating Date Part
-extension CalendarView {
+extension CalendarSearchView {
   private enum Month: Int, CaseIterable {
     case jan = 1, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
     
