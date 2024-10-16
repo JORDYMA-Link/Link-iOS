@@ -236,7 +236,7 @@ public struct HomeFeature: Reducer {
               return
             }
             
-            if linkProcessing.filter({ $0.status != .processing }).isEmpty {
+            if linkProcessing.contains(where: { $0.status == .requested || $0.status == .processing }) {
               await send(.setSummaryToastPresented(.summarizing, true))
             } else {
               await send(.setSummaryToastPresented(.summaryComplete, true))
