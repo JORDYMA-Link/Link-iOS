@@ -19,7 +19,6 @@ public struct BKCardFeature {
   @ObservableState
   public struct State: Equatable {
     var feedList: [FeedCard] = []
-    var selectedFeed: FeedCard?
     
     var page: Int
     var fetchedAllFeedCards: Bool = false
