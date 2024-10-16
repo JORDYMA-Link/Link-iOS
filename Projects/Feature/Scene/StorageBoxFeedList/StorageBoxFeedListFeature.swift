@@ -20,12 +20,12 @@ public struct StorageBoxFeedListFeature {
   public struct State: Equatable {
     var folderInput: Folder
     
-    var cursor: Int = 0
-    var morePagingNeeded: Bool = true
-    var fetchedAllFeedCards: Bool = false
-    
-    var folderFeedList: [FeedCard] = []
     var selectedFeed: FeedCard?
+    var feeds: BKCardFeature.State?
+    
+    var morePagingNeeded: Bool = true
+    
+    var emptyTitle: String = "아직 저장된 글이 없어요"
     
     @Presents var calendarContent: CalendarViewFeature.State?
     @Presents var editLink: EditLinkFeature.State?
@@ -46,25 +46,16 @@ public struct StorageBoxFeedListFeature {
     case closeButtonTapped
     case searchBannerSearchBarTapped
     case searchBannerCalendarTapped
-    case pagination
     case pullToRefresh
-    case cardItemTapped(Int)
-    case cardItemSaveButtonTapped(Int, Bool)
-    case cardItemMenuButtonTapped(FeedCard)
     case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
-    case resetCursor
-    case updateCursor
     case fetchFolderFeeds(folderId: Int, cursor: Int)
-    case patchBookmark(Int, Bool)
     case deleteFeed(Int)
     
     // MARK: Inner SetState Action
-    case setFeedList([FeedCard])
-    case setDeleteFeed(Int)
+    case setFeeds([FeedCard])
     case setMorePagingStatus(Bool)
-    case setFetchedAllCardsStatus(Bool)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -76,9 +67,10 @@ public struct StorageBoxFeedListFeature {
     
     // MARK: Child Action
     case calendarContent(PresentationAction<CalendarViewFeature.Action>)
+    case feeds(BKCardFeature.Action)
+    case menuBottomSheet(BKMenuBottomSheet.Delegate)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
-    case menuBottomSheet(BKMenuBottomSheet.Delegate)
     
     // MARK: Navigation Action
     case routeCalendar
@@ -88,17 +80,12 @@ public struct StorageBoxFeedListFeature {
     case editFolderPresented(Int, String)
   }
   
-  @Dependency(\.dismiss) private var dismiss
-  @Dependency(\.alertClient) private var alertClient
   @Dependency(\.folderClient) private var folderClient
   @Dependency(\.feedClient) private var feedClient
-  
-  private enum ThrottleId {
-    case saveButton
-  }
+  @Dependency(\.alertClient) private var alertClient
+  @Dependency(\.dismiss) private var dismiss
   
   private enum DebounceId {
-    case pagination
     case pullToRefresh
   }
   
@@ -115,7 +102,16 @@ public struct StorageBoxFeedListFeature {
         return .none
         
       case .onViewDidLoad:
-        return .send(.fetchFolderFeeds(folderId: state.folderInput.id, cursor: state.cursor))
+        return .run(
+          operation: { [state] send in
+            let folderFeedList = try await folderClient.getFolderFeeds(state.folderInput.id, 0)
+            
+            await send(.setFeeds(folderFeedList))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       case .closeButtonTapped:
         return .run { _ in await self.dismiss() }
@@ -126,82 +122,32 @@ public struct StorageBoxFeedListFeature {
       case .searchBannerCalendarTapped:
         return .send(.routeCalendar)
         
-      case .pagination:
-        return .send(.updateCursor)
-          .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
-        
       case .pullToRefresh:
-        return .run { [state] send in
-          await send(.resetCursor)
-          await send(.fetchFolderFeeds(folderId: state.folderInput.id, cursor: 0))
+        return .run { send in
+          await send(.setMorePagingStatus(true))
+          await send(.feeds(.resetPage))
         }
-        .debounce(id: DebounceId.pagination, for: .seconds(0.3), scheduler: DispatchQueue.main)
-        
-      case let .cardItemTapped(feedId):
-        return .send(.delegate(.routeFeedDetail(feedId)))
-        
-      case let .cardItemSaveButtonTapped(index, isMarked):
-        guard var item = state.folderFeedList[safe: index] else { return .none }
-        
-        item.isMarked = isMarked
-        state.folderFeedList[index] = item
-        return .send(.patchBookmark(item.feedId, isMarked))
-          .throttle(id: ThrottleId.saveButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
-        
-      case let .cardItemMenuButtonTapped(selectedFeed):
-        state.selectedFeed = selectedFeed
-        state.isMenuBottomSheetPresented = true
-        return .none
+        .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-        case let .feedDetailWillDisappear(feed):
-          guard let index = state.folderFeedList.firstIndex(where: { $0.feedId == feed.feedId }) else {
-            return .none
-          }
-          
-          let feedCard = state.folderFeedList[index]
-          let updateFeedCard = feed.toFeedCard(feedCard)
-          
-          if feedCard != updateFeedCard {
-            state.folderFeedList[index] = updateFeedCard
-          }
-          return .none
-        
-      case .resetCursor:
-        state.cursor = 0
-        state.morePagingNeeded = true
-        state.fetchedAllFeedCards = false
-        return .none
-        
-      case .updateCursor:
-        state.cursor += 1
-        return .send(.fetchFolderFeeds(folderId: state.folderInput.id, cursor: state.cursor))
+      case let .feedDetailWillDisappear(feed):
+        return .send(.feeds(.feedDetailWillDisappear(feed)))
         
       case let .fetchFolderFeeds(folderId, cursor):
         return .run(
-          operation: { send in
-            async let folderFeedListResponse = try folderClient.getFolderFeeds(folderId, cursor)
-            
-            let folderFeedList = try await folderFeedListResponse
-            
-            if folderFeedList.count == 0 {
-              await send(.setMorePagingStatus(false))
-              await send(.setFetchedAllCardsStatus(true))
+          operation: { [state] send in
+            if state.morePagingNeeded {
+              async let feedListResponse = try folderClient.getFolderFeeds(folderId, cursor)
+              
+              let feedList = try await feedListResponse
+              
+              if feedList.count == 0 {
+                await send(.setMorePagingStatus(false))
+                await send(.feeds(.setFetchedAllCardsStatus(true)))
+              }
+              
+              await send(.feeds(.setAddFeeds(feedList)), animation: .default)
             }
-            
-            await send(.setFeedList(folderFeedList), animation: .default)
-          },
-          catch: { error, send in
-            print(error)
-          }
-        )
-        
-      case let .patchBookmark(feedId, isMarked):
-        return .run(
-          operation: { send in
-            let feedBookmark = try await feedClient.patchBookmark(feedId, isMarked)
-            
-            print(feedBookmark)
           },
           catch: { error, send in
             print(error)
@@ -213,50 +159,31 @@ public struct StorageBoxFeedListFeature {
           operation: { send in
             _ = try await feedClient.deleteFeed(feedId)
             
-            await send(.setDeleteFeed(feedId), animation: .default)
+            await send(.feeds(.setDeleteFeed(feedId)), animation: .default)
           },
           catch: { error, send in
             print(error)
           }
         )
         
-      case let .setFeedList(feedList):
-        if state.cursor == 0 {
-          state.folderFeedList = feedList
-        } else {
-          state.folderFeedList.append(contentsOf: feedList)
-        }
-        return .none
-        
-      case let .setDeleteFeed(feedId):
-        state.folderFeedList.removeAll { $0.feedId == feedId }
+      case let .setFeeds(feedList):
+        state.feeds = .init(feedList: feedList)
         return .none
         
       case let .setMorePagingStatus(isPaging):
         state.morePagingNeeded = isPaging
         return .none
         
-      case let .setFetchedAllCardsStatus(isPaging):
-        state.fetchedAllFeedCards = isPaging
+      case let .feeds(.cardItemTapped(feedId)):
+        return .send(.delegate(.routeFeedDetail(feedId)))
+        
+      case let .feeds(.cardItemMenuButtonTapped(selectedFeed)):
+        state.selectedFeed = selectedFeed
+        state.isMenuBottomSheetPresented = true
         return .none
-                
-      case .editLink(.presented(.delegate(.didUpdateHome))):
-        guard let selectedFeed = state.selectedFeed else { return .none }
         
-        return .run { send in
-          try await Task.sleep(for: .seconds(0.7))
-          await send(.cardItemTapped(selectedFeed.feedId))
-        }
-        
-        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
-      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
-        guard let index = state.folderFeedList.firstIndex(where: { $0.feedId == feedId }) else {
-          return .none
-        }
-        
-        state.folderFeedList[index].folderName = folder.name
-        state.folderFeedList[index].folderId = folder.id
-        return .none
+      case let .feeds(.fetchFeedList(cursor)):
+        return .send(.fetchFolderFeeds(folderId: state.folderInput.id, cursor: cursor))
         
       case .menuBottomSheet(.editLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
@@ -266,7 +193,7 @@ public struct StorageBoxFeedListFeature {
           try? await Task.sleep(for: .seconds(0.1))
           await send(.editLinkPresented(selectedFeed.feedId))
         }
-                
+        
       case .menuBottomSheet(.editFolderItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
         
@@ -292,7 +219,17 @@ public struct StorageBoxFeedListFeature {
             rightButtonAction: { await send(.deleteFeed(selectedFeed.feedId)) }
           ))
         }
-                
+        
+      case let .editLink(.presented(.delegate(.didUpdateHome(feed)))):
+        return .run { send in
+          try await Task.sleep(for: .seconds(0.5))
+          await send(.feeds(.cardItemTapped(feed.feedId)))
+        }
+        
+        /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
+      case let .editFolderBottomSheet(.delegate(.didUpdateFolder(feedId, folder))):
+        return .send(.feeds(.setFeedFolder(feedId, folder)))
+        
       case .routeCalendar:
         state.calendarContent = .init()
         return .none
@@ -307,6 +244,9 @@ public struct StorageBoxFeedListFeature {
       default:
         return .none
       }
+    }
+    .ifLet(\.feeds, action: \.feeds) {
+      BKCardFeature()
     }
     .ifLet(\.$calendarContent, action: \.calendarContent) {
       CalendarViewFeature()

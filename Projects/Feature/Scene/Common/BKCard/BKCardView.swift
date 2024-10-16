@@ -1,8 +1,8 @@
 //
-//  HomeCardSection.swift
-//  Features
+//  BKCardView.swift
+//  Feature
 //
-//  Created by kyuchul on 8/30/24.
+//  Created by kyuchul on 10/14/24.
 //  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
@@ -14,15 +14,18 @@ import CommonFeature
 
 import ComposableArchitecture
 
-struct HomeCardSection: View {
-  @Perception.Bindable private var store: StoreOf<HomeFeature>
+struct BKCardView: View {
+  @Perception.Bindable private var store: StoreOf<BKCardFeature>
+  private let emptyTitle: String
   private let emptyHeight: CGFloat
   
   init(
-    store: StoreOf<HomeFeature>,
+    store: StoreOf<BKCardFeature>,
+    emptyTitle: String,
     emptyHeight: CGFloat
   ) {
     self.store = store
+    self.emptyTitle = emptyTitle
     self.emptyHeight = emptyHeight
   }
   
@@ -86,17 +89,6 @@ struct HomeCardSection: View {
           }
         }
       }
-    }
-  }
-}
-
-private extension HomeCardSection {
-  var emptyTitle: String {
-    switch store.category {
-    case .bookmarked:
-      return "북마크된 콘텐츠가 없습니다\n중요한 링크는 북마크하여 바로 확인해보세요"
-    case .unclassified:
-      return "미분류된 콘텐츠가 없습니다\n분류가 고민일 땐 추천폴더를 받아보세요"
     }
   }
 }
