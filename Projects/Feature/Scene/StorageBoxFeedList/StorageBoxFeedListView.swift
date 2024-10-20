@@ -60,10 +60,16 @@ struct StorageBoxFeedListView: View {
                   }
                 }
               
-              StorageBoxFeedListCardView(
-                store: store,
-                emptyHeight: proxy.size.height - bannerHeight - 44
-              )
+              LazyVStack(spacing: 20) {
+                if let feedsStore = store.scope(state: \.feeds, action: \.feeds) {
+                  BKCardView(
+                    store: feedsStore,
+                    emptyTitle: store.emptyTitle,
+                    emptyHeight: proxy.size.height - bannerHeight - 44
+                  )
+                  .padding(.horizontal, 16)
+                }
+              }
             }
           }
           .refreshable { store.send(.pullToRefresh) }
