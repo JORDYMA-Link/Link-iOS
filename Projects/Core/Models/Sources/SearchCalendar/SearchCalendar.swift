@@ -8,25 +8,28 @@
 
 import Foundation
 
-// MARK: - FeedCalendarSearchResponse
+// MARK: - CalendarSearch
+/// 앱 내에서 사용하는 CalendarSearch Model입니다.
+///
+/// 현재 Network Response는 피드가 존재하지 않는 날짜의 데이터들도 전송하기  때문에 피드가 피드가 존재하는 날짜만 필터링하여 해당 Model을 사용합니다.
 public struct SearchCalendar: Equatable {
-  public var existedFeedData: [Date: DaysInfo]
+  public var existedFeedData: [Date: DayInfo]
   
   public init(
-    currentMonthData: [Date : DaysInfo]
+    currentMonthData: [Date : DayInfo]
   ) {
     self.existedFeedData = currentMonthData
   }
 }
 
 // MARK: - DaysInfo
-public struct DaysInfo: Equatable {
+public struct DayInfo: Equatable {
   public let isArchived: Bool
-  public var list: [CalendarFeed]
+  public var list: [FeedCard]
   
   public init(
     isArchived: Bool,
-    list: [CalendarFeed]
+    list: [FeedCard]
   ) {
     self.isArchived = isArchived
     self.list = list
@@ -35,17 +38,17 @@ public struct DaysInfo: Equatable {
 
 // MARK: - List
 public struct CalendarFeed: Hashable {
-  public var folderID: Int
+  public var folderId: Int
   public var folderName: String
-  public let feedID: Int
+  public let feedId: Int
   public var title, summary, platform, platformImage: String
   public var isMarked: Bool
   public var keywords: [String]
   
   public init(
-    folderID: Int,
+    folderId: Int,
     folderName: String,
-    feedID: Int,
+    feedId: Int,
     title: String,
     summary: String,
     platform: String,
@@ -53,9 +56,9 @@ public struct CalendarFeed: Hashable {
     isMarked: Bool,
     keywords: [String]
   ) {
-    self.folderID = folderID
+    self.folderId = folderId
     self.folderName = folderName
-    self.feedID = feedID
+    self.feedId = feedId
     self.title = title
     self.summary = summary
     self.platform = platform
