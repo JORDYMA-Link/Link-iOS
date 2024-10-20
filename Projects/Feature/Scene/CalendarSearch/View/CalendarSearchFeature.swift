@@ -121,7 +121,9 @@ public struct CalendarSearchFeature {
         
         state.isMenuBottomSheetPresented = false
         return .run { send in
-          await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedId, selectedFeed.folderName))) }
+          try? await Task.sleep(for: .seconds(0.5))
+          await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedId, selectedFeed.folderName))) 
+          }
         
       case .menuBottomSheetDelegate(.deleteLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }

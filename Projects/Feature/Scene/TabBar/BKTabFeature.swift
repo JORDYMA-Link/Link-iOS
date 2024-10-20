@@ -178,7 +178,7 @@ public struct BKTabFeature {
         
         guard let stackElementId = state.path.ids.last,
               let lastPath = state.path.last else {
-          return .send(.home(.setDeleteFeed(feed.feedId)))
+          return .send(.home(.feeds(.setDeleteFeed(feed.feedId))))
         }
         
         switch lastPath {
@@ -186,7 +186,7 @@ public struct BKTabFeature {
           return .send(.path(.element(id: stackElementId, action: .SearchKeyword(.setDeleteFeed(feed.feedId)))))
           
         case .StorageBoxFeedList:
-          return .send(.path(.element(id: stackElementId, action: .StorageBoxFeedList(.setDeleteFeed(feed.feedId)))))
+          return .send(.path(.element(id: stackElementId, action: .StorageBoxFeedList(.feeds(.setDeleteFeed(feed.feedId))))))
         default:
           return .none
         }
