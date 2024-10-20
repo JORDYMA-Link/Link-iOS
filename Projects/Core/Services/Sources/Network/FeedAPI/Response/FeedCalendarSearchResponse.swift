@@ -51,8 +51,8 @@ extension FeedCalendarSearchResponse {
 }
 
 extension DaysInfoResponse {
-  func toDomain() -> DaysInfo {
-    DaysInfo(
+  func toDomain() -> DayInfo {
+    DayInfo(
       isArchived: self.isArchived,
       list: self.list.map({ $0.toDomain() })
     )
@@ -60,17 +60,19 @@ extension DaysInfoResponse {
 }
 
 extension ListResponse {
-  func toDomain() -> CalendarFeed {
-    CalendarFeed(
-      folderID: self.folderID,
-      folderName: self.folderName,
-      feedID: self.feedID,
+  func toDomain() -> FeedCard {
+    FeedCard(
+      feedId: self.feedID,
       title: self.title,
       summary: self.summary,
       platform: self.platform,
       platformImage: self.platformImage,
       isMarked: self.isMarked,
-      keywords: self.keywords
+      isUnclassified: false,
+      keywords: self.keywords,
+      recommendedFolder: [],
+      folderId: self.folderID,
+      folderName: self.folderName
     )
   }
 }

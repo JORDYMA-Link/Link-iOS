@@ -253,7 +253,7 @@ public struct CalendarSearchView: View {
           sourceTitle: value.platform,
           sourceImage: value.platformImage,
           isMarked: value.isMarked,
-          saveAction: { store.send(.articleAction(.cardItemSaveButtonTapped(value.feedID, !value.isMarked)), animation: .default) },
+          saveAction: { store.send(.articleAction(.cardItemSaveButtonTapped(value.feedId, !value.isMarked)), animation: .default) },
           menuAction: { store.send(.articleAction(.cardItemMenuButtonTapped(value))) },
           title: value.title,
           description: value.summary,
@@ -261,7 +261,7 @@ public struct CalendarSearchView: View {
           isUncategorized: false
         )
         .onTapGesture {
-          store.send(.articleAction(.cardItemTapped(value.feedID)))
+          store.send(.articleAction(.cardItemTapped(value.feedId)))
         }
         .frame(width: 257)
       }
