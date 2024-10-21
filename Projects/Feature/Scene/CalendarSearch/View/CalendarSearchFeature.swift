@@ -12,7 +12,6 @@ import Models
 import CommonFeature
 
 import ComposableArchitecture
-import Moya
 
 @Reducer
 public struct CalendarSearchFeature {
@@ -111,7 +110,7 @@ public struct CalendarSearchFeature {
         
         state.isMenuBottomSheetPresented = false
         return .run { send in
-          try? await _Concurrency.Task.sleep(for: .seconds(0.1))
+          try? await Task.sleep(for: .seconds(0.1))
           
           await send(.editLinkPresented(selectedFeed.feedId))
         }
@@ -122,7 +121,7 @@ public struct CalendarSearchFeature {
         state.isMenuBottomSheetPresented = false
         return .run { send in
           try? await Task.sleep(for: .seconds(0.5))
-          await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedId, selectedFeed.folderName))) 
+          await send(.editFolderBottomSheet(.editFolderTapped(selectedFeed.feedId, selectedFeed.folderName)))
           }
         
       case .menuBottomSheetDelegate(.deleteLinkItemTapped):
@@ -195,16 +194,7 @@ public struct CalendarSearchFeature {
         
       case let .catchNetworkError(error):
         //FIXME: 에러 토스트 로직 구현 -> 토스트 로직만 구현하면 될 듯함.
-        if let moyaError = error as? MoyaError {
-          if case let .statusCode(code) = moyaError{
-            switch code.statusCode {
-            case 500:
-              debugPrint("server Internal Error", moyaError)
-            default:
-              debugPrint(moyaError)
-            }
-          }
-        }
+        debugPrint(error)
         return .none
         
         //MARK: Network
@@ -277,7 +267,7 @@ public struct CalendarSearchFeature {
         guard let selectedFeed = state.selectedFeed else { return .none }
         
         return .run { send in
-          try await _Concurrency.Task.sleep(for: .seconds(0.7))
+          try await Task.sleep(for: .seconds(0.7))
           await send(.delegate(.routeFeedDetail(selectedFeed.feedId)))
         }
         
