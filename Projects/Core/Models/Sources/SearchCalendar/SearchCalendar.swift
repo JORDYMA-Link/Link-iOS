@@ -11,7 +11,7 @@ import Foundation
 // MARK: - CalendarSearch
 /// 앱 내에서 사용하는 CalendarSearch Model입니다.
 ///
-/// 현재 Network Response는 피드가 존재하지 않는 날짜의 데이터들도 전송하기  때문에 피드가 피드가 존재하는 날짜만 필터링하여 해당 Model을 사용합니다.
+/// 현재 Network Response는 피드가 존재하지 않는 날짜의 데이터들도 전송하기  때문에 피드가 존재하는 날짜만 필터링하여 해당 Model을 사용합니다.
 public struct SearchCalendar: Equatable {
   public var existedFeedData: [Date: DayInfo]
   
