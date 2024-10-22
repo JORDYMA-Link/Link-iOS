@@ -11,6 +11,8 @@ import OSLog
 import Combine
 
 import Moya
+import Dependencies
+import DependenciesMacros
 
 protocol Providable<APIType> {
   associatedtype APIType: BaseTargetType
@@ -23,11 +25,12 @@ protocol Providable<APIType> {
   func requestPublisher<D: Decodable> (_ api: APIType, modelType: D.Type) -> AnyPublisher<D, Error>
 }
 
-struct Provider<APIType: BaseTargetType>: Providable {
+@DependencyClient
+public struct Provider<APIType: BaseTargetType>: Providable {
   private let moyaProvider: MoyaProvider<APIType>
   private let isRetry: Bool
   
-  init(isRetry: Bool = true) {
+  public init(isRetry: Bool = true) {
     self.isRetry = isRetry
     
     let session = isRetry ? HTTPSession.shared.sessionWithInterceptor : HTTPSession.shared.session
@@ -36,7 +39,7 @@ struct Provider<APIType: BaseTargetType>: Providable {
   }
 }
 
-extension Provider {
+public extension Provider {
   func request<D: Decodable> (_ api: APIType, modelType: D.Type) async throws -> D {
     return try await withCheckedThrowingContinuation { continuation in
       moyaProvider.request(api) { result in
