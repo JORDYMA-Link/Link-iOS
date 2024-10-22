@@ -11,8 +11,6 @@ import OSLog
 import Combine
 
 import Moya
-import Dependencies
-import DependenciesMacros
 
 protocol Providable<APIType> {
   associatedtype APIType: BaseTargetType
@@ -25,7 +23,6 @@ protocol Providable<APIType> {
   func requestPublisher<D: Decodable> (_ api: APIType, modelType: D.Type) -> AnyPublisher<D, Error>
 }
 
-@DependencyClient
 public struct Provider<APIType: BaseTargetType>: Providable {
   private let moyaProvider: MoyaProvider<APIType>
   private let isRetry: Bool
