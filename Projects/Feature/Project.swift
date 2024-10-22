@@ -9,7 +9,7 @@ let project = Project.make(
             product: .framework,
             sources: ["Scene/**"],
             dependencies: [
-                .core
+                .domain
             ]
         ))
     ]
