@@ -213,6 +213,49 @@ public extension Target {
     }
 }
 
+// MARK: Target + Data
+
+public extension Target {
+    static func data(factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Data.name
+        
+        return make(factory: newFactory)
+    }
+    
+    static func data(implements module: ModulePath.Data, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Data.name + module.rawValue
+        
+        return make(factory: newFactory)
+    }
+    
+    static func data(tests module: ModulePath.Data, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Data.name + module.rawValue + "Tests"
+        newFactory.product = .unitTests
+        newFactory.sources = .tests
+        
+        return make(factory: newFactory)
+    }
+    
+    static func data(testing module: ModulePath.Data, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Data.name + module.rawValue + "Testing"
+        newFactory.sources = .testing
+        
+        return make(factory: newFactory)
+    }
+    
+    static func data(interface module: ModulePath.Data, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = ModulePath.Data.name + module.rawValue + "Interface"
+        newFactory.sources = .interface
+        
+        return make(factory: newFactory)
+    }
+}
+
 // MARK: Target + Core
 
 public extension Target {
