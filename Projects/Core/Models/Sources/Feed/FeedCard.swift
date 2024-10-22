@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct FeedCard: Equatable {
+public struct FeedCard: Hashable {
   public let feedId: Int
   public var title: String
   public let summary: String

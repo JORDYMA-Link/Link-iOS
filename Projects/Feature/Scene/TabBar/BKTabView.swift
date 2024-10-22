@@ -94,7 +94,7 @@ public struct BKTabView: View {
             if let store = store.scope(
               state: \.Calendar,
               action: \.Calendar) {
-              CalendarView(store: store)
+              CalendarSearchView(store: store)
             }
             
           case .StorageBoxFeedList:

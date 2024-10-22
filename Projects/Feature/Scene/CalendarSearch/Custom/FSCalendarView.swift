@@ -15,7 +15,7 @@ import FSCalendar
 ///FSCalendar를 SwiftUI에서 사용할 수 있도록 UIViewRepresentable로 마이그레이션 진행한 View
 ///
 ///본 클래스는 TCA를 사용하는 것을 기준으로 만든 뷰로서 CalendarFeature의 Store를 구조체 생성시 추가해야합니다.
-struct MigratedFSCalendarView: UIViewRepresentable {
+struct FSCalendarView: UIViewRepresentable {
   
   //MARK: - typealias
   typealias UIViewType = FSCalendar
@@ -27,7 +27,6 @@ struct MigratedFSCalendarView: UIViewRepresentable {
   @Binding var selectedDate: Date
   @Binding var currentPage: Date
   @Binding var eventDate: [Date]
-  @Binding var reload: Bool
   
   //MARK: - Delegate Closure Properties
   var didSelectDateAction: ((Date) -> Void)?
@@ -37,14 +36,12 @@ struct MigratedFSCalendarView: UIViewRepresentable {
     selectedDate: Binding<Date>,
     currentPage: Binding<Date>,
     eventDate: Binding<[Date]>,
-    reload: Binding<Bool>,
     didSelectDateAction: ((Date) -> Void)? = nil,
     calendarCurrentPageDidChangeAction: ((Date) -> Void)? = nil
   ) {
     self._selectedDate = selectedDate
     self._currentPage = currentPage
     self._eventDate = eventDate
-    self._reload = reload
     self.didSelectDateAction = didSelectDateAction
     self.calendarCurrentPageDidChangeAction = calendarCurrentPageDidChangeAction
   }
@@ -93,20 +90,6 @@ struct MigratedFSCalendarView: UIViewRepresentable {
           }
         }
         context.coordinator.isFirstOnAppear = true
-      }
-    }
-    
-    if reload {
-      var defaultDateComponents = selectedDate.getDateComponents()
-      defaultDateComponents.day = (defaultDateComponents.day ?? 2) // 혹시 모를 실패의 경우 1일을 select 하도록
-      defaultDateComponents.hour = 9
-      defaultDateComponents.minute = 0
-      defaultDateComponents.second = 0
-      
-      if let defaultDate = Calendar.current.date(from: defaultDateComponents) {
-        DispatchQueue.main.async {
-          self.didSelectDateAction?(defaultDate)
-        }
       }
     }
   }
