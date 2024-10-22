@@ -27,7 +27,7 @@ public struct StorageBoxFeedListFeature {
     
     var emptyTitle: String = "아직 저장된 글이 없어요"
     
-    @Presents var calendarContent: CalendarViewFeature.State?
+    @Presents var calendarContent: CalendarSearchFeature.State?
     @Presents var editLink: EditLinkFeature.State?
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     
@@ -66,7 +66,7 @@ public struct StorageBoxFeedListFeature {
     case delegate(Delegate)
     
     // MARK: Child Action
-    case calendarContent(PresentationAction<CalendarViewFeature.Action>)
+    case calendarContent(PresentationAction<CalendarSearchFeature.Action>)
     case feeds(BKCardFeature.Action)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
     case editLink(PresentationAction<EditLinkFeature.Action>)
@@ -249,7 +249,7 @@ public struct StorageBoxFeedListFeature {
       BKCardFeature()
     }
     .ifLet(\.$calendarContent, action: \.calendarContent) {
-      CalendarViewFeature()
+      CalendarSearchFeature()
     }
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()

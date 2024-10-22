@@ -36,7 +36,6 @@ public struct SettingFeature {
     case requestSettingInfo
     case changeNickName(targetNickname: String)
     case fetchLatestVersion(version: String?)
-    case openExternalURL(type: PolicyType)
     
     //user Action
     case tappedNaviBackButton
@@ -71,22 +70,6 @@ public struct SettingFeature {
     case delegate(Delegate)
   }
   
-  public enum PolicyType {
-    case privacy
-    case termOfUse
-    case introduceService
-    
-    var url: URL? {
-      switch self {
-      case .privacy:
-        return URL(string:"https://www.notion.so/4df567ac571948f0a2b7d782bde3767a?pvs=4")
-      case .termOfUse:
-        return URL(string:"https://www.notion.so/ea068d8517af4ca0a719916f7d23dee2?pvs=4")
-      case .introduceService:
-        return URL(string:"https://www.notion.so/100-5d76361912514364864547cbc1600531?pvs=4")
-      }
-    }
-  }
   
   private enum NicknameValidationNotice {
     case notAllowOthreLanguage

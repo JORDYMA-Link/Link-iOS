@@ -28,10 +28,10 @@ public struct CalendarFeature {
     case updatingEventDate(_ eventDate: [Date])
     
     //MARK: User Action
-    case tappedDate(selectedDate: Date)
-    case swipeCurrentPage(currentPage: Date)
-    case tappedCurrentSheetButton
-    case tappedCurrentSheetMonth(selectedMonth: Int)
+    case didSelectedDate(selectedDate: Date)
+    case didSwipeCurrentPage(currentPage: Date)
+    case currentSheetButtonTapped
+    case currentSheetMonthTapped(selectedMonth: Int)
     
     //MARK: Delegate
     case delegate(CalendarFeatureDelegate)
@@ -49,7 +49,7 @@ public struct CalendarFeature {
   public var body: some ReducerOf<Self> {
     Reduce { state, action in
       switch action {
-      case let .tappedDate(selectedDate):
+      case let .didSelectedDate(selectedDate):
         state.selectedDate = selectedDate
         
         state.existEventSelectedDate = (state.eventDate.contains(state.selectedDate))
@@ -58,13 +58,13 @@ public struct CalendarFeature {
           await send(.delegate(.changeSelectedDateFeedCard(date: state)))
         }
         
-      case let .swipeCurrentPage(currentPage):
+      case let .didSwipeCurrentPage(currentPage):
         debugPrint("swipe", state.currentPage, state.currentSheetDate)
         return .run { send in
           await send(.changeCurrentPage(currentPage: currentPage))
         }
         
-      case .tappedCurrentSheetButton:
+      case .currentSheetButtonTapped:
         state.changeCurrentPageSheet.toggle()
         return .none
         
@@ -83,7 +83,7 @@ public struct CalendarFeature {
 
         return .none
         
-      case let .tappedCurrentSheetMonth(selectedMonth):
+      case let .currentSheetMonthTapped(selectedMonth):
         let calendar = Calendar.current
         let year = calendar.component(.year, from: state.currentSheetDate)
         
@@ -91,7 +91,7 @@ public struct CalendarFeature {
         
         return .run { send in
           await send(.changeCurrentPage(currentPage: date))
-          await send(.tappedCurrentSheetButton)
+          await send(.currentSheetButtonTapped)
         }
         
         //MARK: Delegate Action

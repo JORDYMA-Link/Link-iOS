@@ -12,8 +12,8 @@ import CommonFeature
 
 import ComposableArchitecture
 
-public struct CalendarView: View {
-  @Perception.Bindable var store: StoreOf<CalendarViewFeature>
+public struct CalendarSearchView: View {
+  @Perception.Bindable var store: StoreOf<CalendarSearchFeature>
   
   private let months: [Month] = Month.allCases
   private let calendar = Calendar.current
@@ -26,11 +26,11 @@ public struct CalendarView: View {
           leadingType: .dismiss("저장기록", { store.send(.naviBackButtonTapped) }),
           trailingType: .none
         )
-        .padding(.leading, 20)
+        .padding(.leading, 16)
         
         HStack {
           Button{
-            store.send(.calendarAction(.tappedCurrentSheetButton))
+            store.send(.calendarAction(.currentSheetButtonTapped))
           } label: {
             HStack {
               Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
@@ -38,7 +38,6 @@ public struct CalendarView: View {
               CommonFeature.Images.icoChevronDown
             }
             .foregroundStyle(Color.bkColor(.gray900))
-            .padding(EdgeInsets(top: 0, leading: 20, bottom: 8, trailing: 0))
           }
           .frame(alignment: .leading)
           .padding(.leading, 20)
@@ -47,20 +46,20 @@ public struct CalendarView: View {
         }
         
         ZStack(alignment: .top){
-          MigratedFSCalendarView(
+          FSCalendarView(
             selectedDate: $store.calendar.selectedDate,
             currentPage: $store.calendar.currentPage,
             eventDate: $store.calendar.eventDate,
-            reload: $store.reloadSelectedData,
-            didSelectDateAction: { store.send(.calendarAction(.tappedDate(selectedDate: $0))) },
-            calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.swipeCurrentPage(currentPage: $0)))}
+            didSelectDateAction: { store.send(.calendarAction(.didSelectedDate(selectedDate: $0))) },
+            calendarCurrentPageDidChangeAction:{ store.send(.calendarAction(.didSwipeCurrentPage(currentPage: $0)))}
           )
+          .padding(.horizontal, 5)
           
           if store.calendar.changeCurrentPageSheet {
             selectionCurrentPageView
+              .padding(.horizontal, 20)
           }
         }
-        .padding(.horizontal, 20)
         
         ZStack {
           Color.bkColor(.gray300)
@@ -154,12 +153,12 @@ public struct CalendarView: View {
           Spacer()
           
           Button {
-            store.send(.calendarAction(.tappedCurrentSheetButton))
+            store.send(.calendarAction(.currentSheetButtonTapped))
           } label: {
-            Image(systemName: "xmark")
-              .tint(.bkColor(.black))
+            BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.black), size: .init(width: 16, height: 16))
           }
         }
+        .padding(.horizontal, 28)
         
         LazyVGrid(columns: columns, spacing: 20) {
           ForEach(months, id: \.self) { month in
@@ -170,7 +169,7 @@ public struct CalendarView: View {
               .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
               .onTapGesture {
                 guard !isPast(targetMonth: month.rawValue) else {return}
-                store.send(.calendarAction(.tappedCurrentSheetMonth(selectedMonth: month.rawValue)))
+                store.send(.calendarAction(.currentSheetMonthTapped(selectedMonth: month.rawValue)))
               }
           }
         }
@@ -254,15 +253,15 @@ public struct CalendarView: View {
           sourceTitle: value.platform,
           sourceImage: value.platformImage,
           isMarked: value.isMarked,
-          saveAction: { store.send(.articleAction(.tappedCardItemSaveButton(value.feedID, !value.isMarked)), animation: .default) },
-          menuAction: { store.send(.articleAction(.tappedCardItemMenuButton(value))) },
+          saveAction: { store.send(.articleAction(.cardItemSaveButtonTapped(value.feedId, !value.isMarked)), animation: .default) },
+          menuAction: { store.send(.articleAction(.cardItemMenuButtonTapped(value))) },
           title: value.title,
           description: value.summary,
           keyword: value.keywords,
           isUncategorized: false
         )
         .onTapGesture {
-          store.send(.articleAction(.tappedCardItem(value.feedID)))
+          store.send(.articleAction(.cardItemTapped(value.feedId)))
         }
         .frame(width: 257)
       }
@@ -271,7 +270,7 @@ public struct CalendarView: View {
 }
 
 //MARK: - Calculating Date Part
-extension CalendarView {
+extension CalendarSearchView {
   private enum Month: Int, CaseIterable {
     case jan = 1, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec
     

@@ -21,7 +21,7 @@ public struct BKTabFeature {
   public enum Path {
     case Setting(SettingFeature)
     case SearchKeyword(SearchFeature)
-    case Calendar(CalendarViewFeature)
+    case Calendar(CalendarSearchFeature)
     case StorageBoxFeedList(StorageBoxFeedListFeature)
     case SaveLink(SaveLinkFeature)
     case SummaryStatus(SummaryStatusFeature)
@@ -121,7 +121,6 @@ public struct BKTabFeature {
             }
           ))
         }
-        return .none
                 
         /// - 네비게이션 바 `세팅`버튼 눌렀을 때
       case .home(.delegate(.routeSetting)):
@@ -150,7 +149,7 @@ public struct BKTabFeature {
                 
         /// - 상단 배너  `캘린더`  버튼 눌렀을 때
       case .home(.delegate(.routeCalendar)), .storageBox(.delegate(.routeCalendar)):
-        state.path.append(.Calendar(CalendarViewFeature.State()))
+        state.path.append(.Calendar(CalendarSearchFeature.State()))
         return .none
         
         /// - 홈 ->  `피드 디테일` 진입 시
