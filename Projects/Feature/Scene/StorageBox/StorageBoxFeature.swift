@@ -8,6 +8,7 @@
 
 import Foundation
 
+import DomainFolderInterface
 import CommonFeature
 import Services
 import Models
@@ -68,7 +69,7 @@ public struct StorageBoxFeature: Reducer {
     case deleteFolderAlertPresented
   }
   
-  @Dependency(\.folderClient) private var folderClient
+  @Dependency(DomainFolderClient.self) private var folderClient
   @Dependency(\.alertClient) private var alertClient
   
   private enum DebounceId {
@@ -115,9 +116,11 @@ public struct StorageBoxFeature: Reducer {
       case .fetchFolderList:
         return .run(
           operation: { send in
-            let folderList = try await folderClient.getFolders()
+            async let folderList = folderClient.getFolders()
             
-            await send(.setFolderList(folderList), animation: .default)
+            let list = try await folderList.map { Folder(id: $0.id, name: $0.name, feedCount: $0.feedCount) }
+            
+            await send(.setFolderList(list), animation: .default)
           },
           catch: { error, send in
             print(error)
