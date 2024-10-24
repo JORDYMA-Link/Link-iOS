@@ -13,6 +13,7 @@ import Models
 import Dependencies
 import Moya
 
+@available(*, deprecated, message: "Domain 모듈로 이관하여 사용 예정")
 public struct FolderClient {
   /// 보관함 폴더 리스트 조회
   public var getFolders: @Sendable () async throws -> [Folder]
