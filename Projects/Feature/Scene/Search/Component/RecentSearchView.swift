@@ -9,6 +9,7 @@
 import SwiftUI
 
 import CommonFeature
+import Common
 
 import ComposableArchitecture
 
@@ -48,7 +49,10 @@ struct RecentSearchView: View {
                     color: .bkColor(.gray700),
                     size: .init(width: 16, height: 16)
                   )
-                  .onTapGesture { store.send(.removeRecentSearchButtonTapped(searche), animation: .spring) }
+                  .onTapGesture {
+                    HapticFeedbackManager.shared.impact(style: .light)
+                    store.send(.removeRecentSearchButtonTapped(searche), animation: .spring)
+                  }
                 }
                 .padding(16)
                 
@@ -57,6 +61,7 @@ struct RecentSearchView: View {
               }
               .contentShape(Rectangle())
               .onTapGesture {
+                HapticFeedbackManager.shared.impact(style: .light)
                 hideKeyboard()
                 store.send(.recentSearchItemTapped(searche), animation: .spring)
               }

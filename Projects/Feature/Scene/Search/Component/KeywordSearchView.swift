@@ -9,6 +9,7 @@
 import SwiftUI
 
 import Models
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -36,15 +37,24 @@ struct KeywordSearchView: View {
                       sourceTitle: item.platform,
                       sourceImage: item.platformImage,
                       isMarked: item.isMarked,
-                      saveAction: { store.send(.keywordSearchItemSaveButtonTapped(sectionIndex: sectionIndex, index: index, isMarked: !item.isMarked, feedId: item.feedId)) },
-                      menuAction: { store.send(.keywordSearchMenuButtonTapped(sectionIndex: sectionIndex, index: index, feed: item)) },
+                      saveAction: {
+                        HapticFeedbackManager.shared.impact(style: .light)
+                        store.send(.keywordSearchItemSaveButtonTapped(sectionIndex: sectionIndex, index: index, isMarked: !item.isMarked, feedId: item.feedId))
+                      },
+                      menuAction: {
+                        HapticFeedbackManager.shared.selection()
+                        store.send(.keywordSearchMenuButtonTapped(sectionIndex: sectionIndex, index: index, feed: item))
+                      },
                       title: item.title,
                       description: item.summary,
                       highlightedWord: store.keyword,
                       keyword: item.keywords,
                       isUncategorized: false
                     )
-                    .onTapGesture { store.send(.keywordSearchItemTapped(sectionIndex: sectionIndex, index: index, feed: item)) }
+                    .onTapGesture {
+                      HapticFeedbackManager.shared.selection()
+                      store.send(.keywordSearchItemTapped(sectionIndex: sectionIndex, index: index, feed: item))
+                    }
                   }
                 }
                 
@@ -52,7 +62,9 @@ struct KeywordSearchView: View {
                   KeywordSearchListFooterView(
                     keyword: store.keyword,
                     section: section,
-                    footerMoreAction: { section in store.send(.footerPaginationButtonTapped(sectionIndex), animation: .spring)
+                    footerMoreAction: { section in 
+                      HapticFeedbackManager.shared.impact(style: .light)
+                      store.send(.footerPaginationButtonTapped(sectionIndex), animation: .spring)
                     }
                   )
                 }

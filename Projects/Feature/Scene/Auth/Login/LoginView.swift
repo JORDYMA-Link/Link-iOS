@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -39,10 +40,12 @@ public struct LoginView: View {
             
             VStack(spacing: 12) {
               makeLoginButton(action: {
+                HapticFeedbackManager.shared.impact(style: .light)
                 store.send(.kakaoLoginButtonTapped)
               }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
               
               makeLoginButton(action: {
+                HapticFeedbackManager.shared.impact(style: .light)
                 store.send(.appleLoginButtonTapped)
               }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
               
