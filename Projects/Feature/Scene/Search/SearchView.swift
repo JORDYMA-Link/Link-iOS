@@ -8,8 +8,9 @@
 
 import SwiftUI
 
-import CommonFeature
 import Models
+import Common
+import CommonFeature
 
 import ComposableArchitecture
 
@@ -23,7 +24,10 @@ struct SearchView: View {
         SearchNavigationBar(
           text: $store.query,
           textIsFocused: _textIsFocused,
-          searchAction: { store.send(.searchButtonTapped(store.query)) },
+          searchAction: {
+            HapticFeedbackManager.shared.impact(style: .light)
+            store.send(.searchButtonTapped(store.query))
+          },
           dismiss: { store.send(.closeButtonTapped) }
         )
         
@@ -51,7 +55,10 @@ struct SearchView: View {
       ) {
         BKMenuBottomSheet(
           menuItems: [.editLink, .editFolder, .deleteLink],
-          action: { store.send(.menuBottomSheet($0)) }
+          action: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.menuBottomSheet($0))
+          }
         )
       }
       .bottomSheet(
