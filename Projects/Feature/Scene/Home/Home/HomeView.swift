@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+import Common
 import CommonFeature
 import Models
 
@@ -161,8 +162,14 @@ private struct HomeBanner: View {
         }
         
         BKSearchBanner(
-          searchAction: { store.send(.searchBannerSearchBarTapped) },
-          calendarAction: { store.send(.searchBannerCalendarTapped) }
+          searchAction: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.searchBannerSearchBarTapped)
+          },
+          calendarAction: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.searchBannerCalendarTapped)
+          }
         )
       }
       .homeBannerBackgroundView()
@@ -191,6 +198,7 @@ private struct CategoryHeaderView: View {
               title: type.title,
               isSelected: store.category == type,
               action: {
+                HapticFeedbackManager.shared.selection()
                 scrollAction()
                 store.send(.categoryButtonTapped(type))
               }

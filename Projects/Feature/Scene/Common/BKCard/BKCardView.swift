@@ -10,6 +10,7 @@ import SwiftUI
 
 import Services
 import Models
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -82,7 +83,10 @@ struct BKCardView: View {
           recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped(item.feedId, $0)) },
           addFolderAction: { store.send(.cardItemAddFolderTapped(item)) }
         )
-        .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
+        .onTapGesture {
+          HapticFeedbackManager.shared.selection()
+          store.send(.cardItemTapped(item.feedId))
+        }
         .onAppear {
           if index != 0 && item == store.feedList.last && !store.fetchedAllFeedCards {
             store.send(.pagination)

@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -152,6 +153,7 @@ extension BKTabView {
           }
           .frame(maxWidth: .infinity)
           .onTapGesture {
+            HapticFeedbackManager.shared.selection()
             store.send(.binding(.set(\.currentItem, tab)))
           }
         }
@@ -163,6 +165,7 @@ extension BKTabView {
     .overlay {
       BKRoundedTabIcon(isPresented: $store.isSaveContentPresented)
         .onTapGesture {
+          HapticFeedbackManager.shared.selection()
           store.send(.roundedTabIconTapped, animation: .default)
         }
     }

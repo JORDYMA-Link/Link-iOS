@@ -8,8 +8,9 @@
 
 import SwiftUI
 
-import CommonFeature
 import Models
+import Common
+import CommonFeature
 
 import ComposableArchitecture
 import SwiftUIIntrospect
@@ -27,8 +28,14 @@ public struct StorageBoxView: View {
         ScrollView(showsIndicators: false) {
           VStack(spacing: 0) {
             BKSearchBanner(
-              searchAction: { store.send(.searchBannerTapped) },
-              calendarAction: { store.send(.searchBannerCalendarTapped) }
+              searchAction: {
+                HapticFeedbackManager.shared.selection()
+                store.send(.searchBannerTapped)
+              },
+              calendarAction: {
+                HapticFeedbackManager.shared.selection()
+                store.send(.searchBannerCalendarTapped)
+              }
             )
             .storageBoxBannerBackgroundView()
             
@@ -47,8 +54,14 @@ public struct StorageBoxView: View {
                 StorageBoxItem(
                   count: item.feedCount,
                   name: item.name,
-                  menuAction: { store.send(.storageBoxMenuTapped(item)) },
-                  itemAction: { store.send(.storageBoxTapped(item)) }
+                  menuAction: {
+                    HapticFeedbackManager.shared.selection()
+                    store.send(.storageBoxMenuTapped(item))
+                  },
+                  itemAction: {
+                    HapticFeedbackManager.shared.selection()
+                    store.send(.storageBoxTapped(item))
+                  }
                 )
               }
             }
