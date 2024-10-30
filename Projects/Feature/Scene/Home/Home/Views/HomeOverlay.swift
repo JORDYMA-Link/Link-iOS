@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -89,7 +90,10 @@ extension View {
         toastContent: {
           BKSummaryToast(
             summaryType: $store.summaryType,
-            action: { store.send(.summaryToastRouteButtonTapped) }
+            action: {
+              HapticFeedbackManager.shared.selection()
+              store.send(.summaryToastRouteButtonTapped)
+            }
           )
         }
       )

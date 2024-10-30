@@ -10,6 +10,7 @@ import SwiftUI
 
 import Models
 import Services
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -33,6 +34,7 @@ struct SummaryStatusView: View {
               )
               .onTapGesture {
                 if item.status == .completed {
+                  HapticFeedbackManager.shared.selection()
                   store.send(.summaryStatusItemTapped(item.feedId))
                 }
               }
