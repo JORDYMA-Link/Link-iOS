@@ -153,7 +153,7 @@ extension BKTabView {
           }
           .frame(maxWidth: .infinity)
           .onTapGesture {
-            HapticFeedbackManager.shared.selection()
+            HapticFeedbackManager.shared.impact(style: .light)
             store.send(.binding(.set(\.currentItem, tab)))
           }
         }
@@ -165,10 +165,13 @@ extension BKTabView {
     .overlay {
       BKRoundedTabIcon(isPresented: $store.isSaveContentPresented)
         .onTapGesture {
-          HapticFeedbackManager.shared.selection()
+          HapticFeedbackManager.shared.impact(style: .medium)
           store.send(.roundedTabIconTapped, animation: .default)
         }
     }
-    .presentSaveContent($store.isSaveContentPresented, action: { store.send(.saveLinkButtonTapped) })
+    .presentSaveContent($store.isSaveContentPresented, action: {
+      HapticFeedbackManager.shared.impact(style: .medium)
+      store.send(.saveLinkButtonTapped)
+    })
   }
 }

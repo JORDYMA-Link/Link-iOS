@@ -34,8 +34,14 @@ struct LinkView: View {
         VStack(spacing: 0) {
           LinkHeaderView(
             feed: store.feed,
-            saveAction: { store.send(.saveButtonTapped($0)) },
-            shareAction: { store.send(.shareButtonTapped) }
+            saveAction: {
+              HapticFeedbackManager.shared.impact(style: .light)
+              store.send(.saveButtonTapped($0))
+            },
+            shareAction: {
+              HapticFeedbackManager.shared.impact(style: .light)
+              store.send(.shareButtonTapped)
+            }
           )
           .background(ViewMaxYGeometry())
           .onPreferenceChange(ViewPreferenceKey.self) { maxY in
@@ -95,7 +101,10 @@ struct LinkView: View {
               isScrollDetected: $isScrollDetected,
               title: store.feed.title,
               leftAction: { store.send(.closeButtonTapped) },
-              rightAction: { store.send(.menuButtonTapped) }
+              rightAction: {
+                HapticFeedbackManager.shared.selection()
+                store.send(.menuButtonTapped)
+              }
             )
             .offset(y: -minY)
           }
