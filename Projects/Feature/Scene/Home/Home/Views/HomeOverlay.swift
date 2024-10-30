@@ -91,7 +91,6 @@ extension View {
           BKSummaryToast(
             summaryType: $store.summaryType,
             action: {
-              HapticFeedbackManager.shared.selection()
               store.send(.summaryToastRouteButtonTapped)
             }
           )
