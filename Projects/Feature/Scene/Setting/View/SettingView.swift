@@ -151,6 +151,7 @@ extension SettingView {
           .padding(.top, 16)
           
           Button(action: {
+            HapticFeedbackManager.shared.notification(type: .error)
             store.send(.tappedLogOut)
           }, label: {
             Text("로그아웃")
@@ -160,6 +161,7 @@ extension SettingView {
           .padding(.top, 32)
           
           Button(action: {
+            HapticFeedbackManager.shared.notification(type: .error)
             store.send(.tappedWithdrawCell)
           }, label: {
             Text("회원탈퇴")

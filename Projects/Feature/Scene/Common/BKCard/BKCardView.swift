@@ -10,6 +10,7 @@ import SwiftUI
 
 import Services
 import Models
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -72,8 +73,14 @@ struct BKCardView: View {
           sourceTitle: item.platform,
           sourceImage: item.platformImage,
           isMarked: item.isMarked,
-          saveAction: { store.send(.cardItemSaveButtonTapped(index, !item.isMarked), animation: .default) },
-          menuAction: { store.send(.cardItemMenuButtonTapped(item)) },
+          saveAction: {
+            HapticFeedbackManager.shared.impact(style: .light)
+            store.send(.cardItemSaveButtonTapped(index, !item.isMarked), animation: .default)
+          },
+          menuAction: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.cardItemMenuButtonTapped(item))
+          },
           title: item.title,
           description: item.summary,
           keyword: item.keywords,
@@ -82,7 +89,10 @@ struct BKCardView: View {
           recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped(item.feedId, $0)) },
           addFolderAction: { store.send(.cardItemAddFolderTapped(item)) }
         )
-        .onTapGesture { store.send(.cardItemTapped(item.feedId)) }
+        .onTapGesture {
+          HapticFeedbackManager.shared.selection()
+          store.send(.cardItemTapped(item.feedId))
+        }
         .onAppear {
           if index != 0 && item == store.feedList.last && !store.fetchedAllFeedCards {
             store.send(.pagination)

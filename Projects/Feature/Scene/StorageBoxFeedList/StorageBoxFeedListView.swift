@@ -8,8 +8,10 @@
 
 import SwiftUI
 
-import CommonFeature
+
 import Models
+import Common
+import CommonFeature
 
 import ComposableArchitecture
 import SwiftUIIntrospect
@@ -34,8 +36,14 @@ struct StorageBoxFeedListView: View {
           ScrollView(showsIndicators: false) {
             VStack(spacing: 0) {
               BKSearchBanner(
-                searchAction: { store.send(.searchBannerSearchBarTapped) },
-                calendarAction: { store.send(.searchBannerCalendarTapped) }
+                searchAction: {
+                  HapticFeedbackManager.shared.selection()
+                  store.send(.searchBannerSearchBarTapped)
+                },
+                calendarAction: {
+                  HapticFeedbackManager.shared.selection()
+                  store.send(.searchBannerCalendarTapped)
+                }
               )
               .storageBoxBannerBackgroundView()
               .background(ViewHeightGeometry())
