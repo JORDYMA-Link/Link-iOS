@@ -47,10 +47,7 @@ public struct StorageBoxView: View {
               spacing: 16
             ) {
               if store.isAddFolder {
-                AddStorageBoxItem(action: {
-                  HapticFeedbackManager.shared.impact(style: .light)
-                  store.send(.addStorageBoxTapped)
-                })
+                AddStorageBoxItem(action: { store.send(.addStorageBoxTapped) })
               }
               
               ForEach(store.folderList) { item in
@@ -61,10 +58,7 @@ public struct StorageBoxView: View {
                     HapticFeedbackManager.shared.selection()
                     store.send(.storageBoxMenuTapped(item))
                   },
-                  itemAction: {
-                    HapticFeedbackManager.shared.selection()
-                    store.send(.storageBoxTapped(item))
-                  }
+                  itemAction: { store.send(.storageBoxTapped(item)) }
                 )
               }
             }

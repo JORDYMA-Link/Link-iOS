@@ -164,13 +164,11 @@ extension BKTabView {
     .background(Color.white)
     .overlay {
       BKRoundedTabIcon(isPresented: $store.isSaveContentPresented)
-        .onTapGesture {
-          HapticFeedbackManager.shared.impact(style: .medium)
+        .hapticTapGesture {
           store.send(.roundedTabIconTapped, animation: .default)
         }
     }
     .presentSaveContent($store.isSaveContentPresented, action: {
-      HapticFeedbackManager.shared.impact(style: .medium)
       store.send(.saveLinkButtonTapped)
     })
   }
