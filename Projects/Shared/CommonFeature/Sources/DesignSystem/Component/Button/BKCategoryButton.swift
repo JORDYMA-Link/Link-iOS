@@ -54,6 +54,6 @@ public struct BKCategoryButton: View {
       RoundedRectangle(cornerRadius: 100)
         .stroke(Color.bkColor(.gray500), lineWidth: isSelected ? 0 : 1)
     }
-    .onTapGesture { action() }
+    .hapticTapGesture(.selection) { action() }
   }
 }

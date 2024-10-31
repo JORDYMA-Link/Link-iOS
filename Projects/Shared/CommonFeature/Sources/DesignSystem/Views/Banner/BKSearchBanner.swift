@@ -36,7 +36,7 @@ public struct BKSearchBanner: View {
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 20, height: 20)
-        .onTapGesture { calendarAction() }
+        .hapticTapGesture(.selection) { calendarAction() }
     }
     .padding(.vertical, 13)
     .padding(.horizontal, 16)
@@ -44,7 +44,7 @@ public struct BKSearchBanner: View {
     .background(Color.bkColor(.gray300))
     .clipShape(RoundedRectangle(cornerRadius: 10))
     .contentShape(Rectangle())
-    .onTapGesture { searchAction() }
+    .hapticTapGesture(.selection) { searchAction() }
   }
   
   private var searchBar: some View {

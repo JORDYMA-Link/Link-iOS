@@ -25,7 +25,7 @@ struct BKSaveContentModifier: ViewModifier {
   func body(content: Content) -> some View {
     if isPresented {
       Color.black.opacity(0.6).ignoresSafeArea()
-        .onTapGesture {
+        .hapticTapGesture {
           withAnimation {
             isPresented = false
           }
