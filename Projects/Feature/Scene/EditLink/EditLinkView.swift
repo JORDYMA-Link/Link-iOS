@@ -8,8 +8,9 @@
 
 import SwiftUI
 
-import CommonFeature
 import Models
+import Common
+import CommonFeature
 
 import ComposableArchitecture
 import Kingfisher
@@ -23,7 +24,10 @@ struct EditLinkView: View {
         VStack(spacing: 0) {
           makeBKNavigationView(
             leadingType: .pop("내용수정"),
-            trailingType: .pop(action: { store.send(.closeButtonTapped) })
+            trailingType: .pop(action: {
+              HapticFeedbackManager.shared.notification(type: .error)
+              store.send(.closeButtonTapped)
+            })
           )
           
           VStack(alignment: .leading, spacing: 0) {
@@ -97,8 +101,14 @@ struct EditLinkView: View {
               BKChipView(
                 keywords: $store.feed.keywords,
                 chipType: .addWithDelete,
-                deleteAction: { store.send(.chipItemDeleteButtonTapped($0)) },
-                addAction: { store.send(.chipItemAddButtonTapped) }
+                deleteAction: {
+                  HapticFeedbackManager.shared.impact(style: .light)
+                  store.send(.chipItemDeleteButtonTapped($0))
+                },
+                addAction: {
+                  HapticFeedbackManager.shared.impact(style: .light)
+                  store.send(.chipItemAddButtonTapped)
+                }
               )
               .padding(.top, 12)
             }
@@ -143,7 +153,10 @@ struct EditLinkView: View {
               BKRoundedButton(
                 title: "수정 완료",
                 isDisabled: !store.isTitleValidation || !store.isDescriptionValidation,
-                confirmAction: { store.send(.editConfirmButtonTapped) }
+                confirmAction: {
+                  HapticFeedbackManager.shared.impact(style: .medium)
+                  store.send(.editConfirmButtonTapped)
+                }
               )
               .padding(.bottom, 14)
             }

@@ -34,8 +34,14 @@ struct LinkView: View {
         VStack(spacing: 0) {
           LinkHeaderView(
             feed: store.feed,
-            saveAction: { store.send(.saveButtonTapped($0)) },
-            shareAction: { store.send(.shareButtonTapped) }
+            saveAction: {
+              HapticFeedbackManager.shared.impact(style: .light)
+              store.send(.saveButtonTapped($0))
+            },
+            shareAction: {
+              HapticFeedbackManager.shared.impact(style: .light)
+              store.send(.shareButtonTapped)
+            }
           )
           .background(ViewMaxYGeometry())
           .onPreferenceChange(ViewPreferenceKey.self) { maxY in
@@ -74,6 +80,7 @@ struct LinkView: View {
               title: "메모",
               buttonTitle: store.memoButtonTitle,
               action: {
+                HapticFeedbackManager.shared.selection()
                 store.send(.editMemoButtonTapeed)
               }
             )
@@ -94,7 +101,10 @@ struct LinkView: View {
               isScrollDetected: $isScrollDetected,
               title: store.feed.title,
               leftAction: { store.send(.closeButtonTapped) },
-              rightAction: { store.send(.menuButtonTapped) }
+              rightAction: {
+                HapticFeedbackManager.shared.selection()
+                store.send(.menuButtonTapped)
+              }
             )
             .offset(y: -minY)
           }
@@ -115,7 +125,10 @@ struct LinkView: View {
       .clipboardPopup(
         isPresented: $store.isClipboardPopupPresented,
         urlString: store.feed.originUrl,
-        saveAction: { store.send(.clipboardPopupSaveButtonTapped) }
+        saveAction: {
+          HapticFeedbackManager.shared.notification(type: .success)
+          store.send(.clipboardPopupSaveButtonTapped)
+        }
       )
       .toast(
         isPresented: $store.isClipboardToastPresented,
@@ -169,7 +182,10 @@ struct LinkView: View {
       ) {
         BKMenuBottomSheet(
           menuItems: [.editLink, .deleteLink],
-          action: { store.send(.menuBottomSheet($0)) }
+          action: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.menuBottomSheet($0))
+          }
         )
       }
       .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
@@ -192,7 +208,10 @@ struct LinkView: View {
       LinkTitleButton(
         title: "폴더",
         buttonTitle: "수정",
-        action: { store.send(.editFolderButtonTapped) }
+        action: {
+          HapticFeedbackManager.shared.selection()
+          store.send(.editFolderButtonTapped)
+        }
       )
     case .summaryCompleted:
       HStack(spacing: 0) {
@@ -226,15 +245,24 @@ struct LinkView: View {
           folderItemType: .default,
           title: store.feed.folderName,
           isSeleted: store.feed.folderName == store.selectedFolder,
-          action: { store.send(.recommendFolderItemTapped, animation: .default) }
+          action: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.recommendFolderItemTapped, animation: .default)
+          }
         )
         
         BKAddFolderList(
           folderItemType: .default,
           folderList: store.feed.folders ?? [],
           selectedFolder: store.selectedFolder,
-          itemAction: { store.send(.folderItemTapped($0), animation: .default) },
-          addAction: { store.send(.addFolderItemTapped, animation: .default) }
+          itemAction: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.folderItemTapped($0), animation: .default)
+          },
+          addAction: {
+            HapticFeedbackManager.shared.selection()
+            store.send(.addFolderItemTapped, animation: .default)
+          }
         )
         .padding(.horizontal, -16)
       }
@@ -245,11 +273,21 @@ struct LinkView: View {
   private var bottomSafeAreaButton: some View {
     switch store.linkType {
     case .feedDetail, .summarySave:
-      BKRoundedButton(title: "원문 보기", confirmAction: { store.send(.showURLButtonTapped) })
+      BKRoundedButton(title: "원문 보기", confirmAction: {
+        HapticFeedbackManager.shared.impact(style: .light)
+        store.send(.showURLButtonTapped)
+      })
     case .summaryCompleted:
       HStack(spacing: 8) {
-        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: { store.send(.summaryEditButtonTapped) })
-        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: { store.send(.summarySaveButtonTapped) })
+        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {
+          HapticFeedbackManager.shared.impact(style: .medium)
+          store.send(.summaryEditButtonTapped)
+        })
+        
+        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: {
+          HapticFeedbackManager.shared.impact(style: .medium)
+          store.send(.summarySaveButtonTapped)
+        })
       }
     }
   }

@@ -7,6 +7,8 @@
 //
 
 import SwiftUI
+
+import Common
 import CommonFeature
 
 import ComposableArchitecture
@@ -56,6 +58,7 @@ public struct SaveLinkView: View {
             }
             
             Button {
+              HapticFeedbackManager.shared.impact(style: .medium)
               store.send(.onTapNextButton, animation: .default)
               hideKeyboard()
             } label: {
