@@ -16,7 +16,7 @@ public struct AnalyticsLogEvent {
   public init(
     screen: AnalyticsScreenName,
     name: AnalyticsScreenName,
-    extraParameters: [AnalyticsParameterName : Any]?
+    extraParameters: [AnalyticsParameterName : Any]? = nil
   ) {
     self.screen = screen
     self.name = name
