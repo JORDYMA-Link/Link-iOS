@@ -9,6 +9,6 @@
 import Foundation
 
 public enum AnalyticsParameterName: String {
-  case feedId = "feed_Id"
-  case folderId = "folder_Id"
+  case feedId = "feed_id"
+  case folderId = "folder_id"
 }

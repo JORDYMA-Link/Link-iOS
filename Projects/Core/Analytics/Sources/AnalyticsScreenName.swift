@@ -10,4 +10,13 @@ import Foundation
 
 public enum AnalyticsScreenName: String {
   case login
+  case onboarding_subject
+  case onboarding
+  case home
+  case feed_summary
+  case summaring_feed
+  case feed_save
+  case feed_detail
+  case search_feed
+  case calender
 }
