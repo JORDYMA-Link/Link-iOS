@@ -89,8 +89,7 @@ struct BKCardView: View {
           recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped(item.feedId, $0)) },
           addFolderAction: { store.send(.cardItemAddFolderTapped(item)) }
         )
-        .onTapGesture {
-          HapticFeedbackManager.shared.selection()
+        .hapticTapGesture(.selection) {
           store.send(.cardItemTapped(item.feedId))
         }
         .onAppear {

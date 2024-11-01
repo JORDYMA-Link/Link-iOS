@@ -162,14 +162,8 @@ private struct HomeBanner: View {
         }
         
         BKSearchBanner(
-          searchAction: {
-            HapticFeedbackManager.shared.selection()
-            store.send(.searchBannerSearchBarTapped)
-          },
-          calendarAction: {
-            HapticFeedbackManager.shared.selection()
-            store.send(.searchBannerCalendarTapped)
-          }
+          searchAction: { store.send(.searchBannerSearchBarTapped) },
+          calendarAction: { store.send(.searchBannerCalendarTapped) }
         )
       }
       .homeBannerBackgroundView()
@@ -198,7 +192,6 @@ private struct CategoryHeaderView: View {
               title: type.title,
               isSelected: store.category == type,
               action: {
-                HapticFeedbackManager.shared.selection()
                 scrollAction()
                 store.send(.categoryButtonTapped(type))
               }
