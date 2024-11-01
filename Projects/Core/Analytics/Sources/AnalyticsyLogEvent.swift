@@ -9,17 +9,17 @@
 import Foundation
 
 public struct AnalyticsLogEvent {
+  public let name: AnalyticsEventName
   public let screen: AnalyticsScreenName
-  public let name: AnalyticsScreenName
   public let extraParameters: [AnalyticsParameterName: Any]?
   
   public init(
+    name: AnalyticsEventName,
     screen: AnalyticsScreenName,
-    name: AnalyticsScreenName,
     extraParameters: [AnalyticsParameterName : Any]? = nil
   ) {
-    self.screen = screen
     self.name = name
+    self.screen = screen
     self.extraParameters = extraParameters
   }
   
