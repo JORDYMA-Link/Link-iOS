@@ -11,7 +11,6 @@ import Foundation
 import Dependencies
 import DependenciesMacros
 
-
 @DependencyClient
 public struct AnalyticsClient {
   public var logEvent: @Sendable (_ event: AnalyticsLogEvent) -> Void
