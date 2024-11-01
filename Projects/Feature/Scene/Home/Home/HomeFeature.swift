@@ -12,6 +12,7 @@ import CommonFeature
 import Common
 import Services
 import Models
+import Analytics
 
 import ComposableArchitecture
 
@@ -99,6 +100,7 @@ public struct HomeFeature: Reducer {
   @Dependency(\.folderClient) private var folderClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.alertClient) private var alertClient
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   
   private enum ThrottleId {
     case categoryButton
@@ -177,6 +179,7 @@ public struct HomeFeature: Reducer {
         return .send(.feeds(.feedDetailWillDisappear(feed)))
         
       case .summaryToastRouteButtonTapped:
+        summaryToastRouteButtonTappedLog()
         return .send(.delegate(.routeSummaryStatusList))
         
       case let .fetchFeedList(category, page):
@@ -347,5 +350,13 @@ public struct HomeFeature: Reducer {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension HomeFeature {
+  private func summaryToastRouteButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .homeSummaringFeedClicked, screen: .home))
   }
 }
