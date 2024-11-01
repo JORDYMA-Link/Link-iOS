@@ -66,6 +66,6 @@ struct StorageBoxItem: View {
     .background(Color.bkColor(.white))
     .clipShape(RoundedRectangle(cornerRadius: 12))
     .shadow(color: .bkColor(.gray900).opacity(0.08), radius: 5, x: 0, y: 4)
-    .onTapGesture { itemAction() }
+    .hapticTapGesture(.selection) { itemAction() }
   }
 }
