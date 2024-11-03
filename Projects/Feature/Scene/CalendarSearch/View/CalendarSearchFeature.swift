@@ -10,6 +10,7 @@ import Foundation
 
 import Models
 import CommonFeature
+import Analytics
 
 import ComposableArchitecture
 
@@ -58,6 +59,7 @@ public struct CalendarSearchFeature {
     //MARK: Network
     case fetchCalendarData(yearMonth: String)
     case patchDeleteFeed(Int)
+    case sendCalendarFeedTappedLog
     
     //MARK: User Action
     case naviBackButtonTapped
@@ -82,6 +84,7 @@ public struct CalendarSearchFeature {
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.feedClient) private var feedClient
   @Dependency(\.alertClient) private var alertClient
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   
   //MARK: - Body
   public var body: some ReducerOf<Self> {
@@ -103,7 +106,6 @@ public struct CalendarSearchFeature {
         
       case .saveLinkButtonTapped:
         return .run { _ in await self.dismiss() }
-        
         
       case .menuBottomSheetDelegate(.editLinkItemTapped):
         guard let selectedFeed = state.selectedFeed else { return .none }
@@ -219,10 +221,13 @@ public struct CalendarSearchFeature {
             await send(.catchNetworkError(error))
           }
         )
-
+        
+      case .sendCalendarFeedTappedLog:
+        calendarFeedTappedLog()
+        return .none
         
         //MARK: Delegate Action
-        //Calendar
+        //FSCalendar
       case let .calendarAction(.delegate(.requestFetch(yearMonth))):
         return .run { send in
           await send(.fetchCalendarData(yearMonth: yearMonth))
@@ -244,7 +249,10 @@ public struct CalendarSearchFeature {
         return .none
         
       case let .articleAction(.delegate(.feedCardTapped(feedID))):
-        return .send(.delegate(.routeFeedDetail(feedID)))
+        return .run { send in
+          await send(.delegate(.routeFeedDetail(feedID)))
+          await send(.sendCalendarFeedTappedLog)
+        }
         
       case let .articleAction(.delegate(.willChangeFolderOfParent(feed))):
         return .send(.changeFolderSelectedFeedCard(feed))
@@ -294,5 +302,12 @@ public struct CalendarSearchFeature {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+
+extension CalendarSearchFeature {
+  private func calendarFeedTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .calenderFeedClicked, screen: .calender))
   }
 }
