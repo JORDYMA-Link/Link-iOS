@@ -78,7 +78,7 @@ public struct CalendarFeature {
         .throttle(id: "changeCurrentPage", for: 0.5, scheduler: mainQueue, latest: false)
         
       case let .changeCurrentYear(dif):
-        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif), !targetDate.lessThan2024 else { return .none }
+        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif), !lessThan2024(targetDate) else { return .none }
         state.currentSheetDate = targetDate
 
         return .none
@@ -103,5 +103,11 @@ public struct CalendarFeature {
         return .none
       }
     }
+  }
+  
+  ///우리 서비스는 2024년을 기준으로 그 이상만을 제공합니다. 그렇기에 2024년을 기준점으로 잡아 해당 날짜가 작다면 True를 반환합니다.
+  private func lessThan2024(_ date: Date) -> Bool {
+    let dateComponents = date.getDateComponents()
+    return dateComponents.year ?? 2024 < 2024
   }
 }
