@@ -105,7 +105,10 @@ public struct CalendarFeature {
     }
   }
   
-  ///우리 서비스는 2024년을 기준으로 그 이상만을 제공합니다. 그렇기에 2024년을 기준점으로 잡아 해당 날짜가 작다면 True를 반환합니다.
+  ///넘겨진 Date의 연도가 2024년 미만인지 판단합니다.
+  ///
+  ///우리 서비스는 2024년을 기준으로 그 이상만을 조회할 수 있습니다.
+  ///파라미터로 넘겨진 날짜의 연도가 2024년 미만이라면 True를 반환합니다.
   private func lessThan2024(_ date: Date) -> Bool {
     let dateComponents = date.getDateComponents()
     return dateComponents.year ?? 2024 < 2024
