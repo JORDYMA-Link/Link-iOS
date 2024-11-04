@@ -18,5 +18,5 @@ public enum AnalyticsScreenName: String {
   case feed_save
   case feed_detail
   case search_feed
-  case calender
+  case calendar = "calender"
 }
