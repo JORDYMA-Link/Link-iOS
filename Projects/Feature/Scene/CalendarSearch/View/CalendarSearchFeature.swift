@@ -308,6 +308,6 @@ public struct CalendarSearchFeature {
 
 extension CalendarSearchFeature {
   private func calendarFeedTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .calenderFeedClicked, screen: .calender, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(event: .init(name: .calendarFeedClicked, screen: .calendar, extraParameters: [.feedId: feedId]))
   }
 }

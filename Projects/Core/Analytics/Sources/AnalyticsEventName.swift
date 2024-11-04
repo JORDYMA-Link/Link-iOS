@@ -51,5 +51,5 @@ public enum AnalyticsEventName: String {
   case storageboxFeedListFeedClicked = "storagebox_feed_list_feed_clicked"
   
   // 캘린더
-  case calenderFeedClicked = "calender_feed_clicked"
+  case calendarFeedClicked = "calender_feed_clicked"
 }
