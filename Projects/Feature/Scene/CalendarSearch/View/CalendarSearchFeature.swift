@@ -59,7 +59,7 @@ public struct CalendarSearchFeature {
     //MARK: Network
     case fetchCalendarData(yearMonth: String)
     case patchDeleteFeed(Int)
-    case sendCalendarFeedTappedLog
+    case sendCalendarFeedTappedLog(Int)
     
     //MARK: User Action
     case naviBackButtonTapped
@@ -222,8 +222,8 @@ public struct CalendarSearchFeature {
           }
         )
         
-      case .sendCalendarFeedTappedLog:
-        calendarFeedTappedLog()
+      case let .sendCalendarFeedTappedLog(feedId):
+        calendarFeedTappedLog(feedId: feedId)
         return .none
         
         //MARK: Delegate Action
@@ -251,7 +251,7 @@ public struct CalendarSearchFeature {
       case let .articleAction(.delegate(.feedCardTapped(feedID))):
         return .run { send in
           await send(.delegate(.routeFeedDetail(feedID)))
-          await send(.sendCalendarFeedTappedLog)
+          await send(.sendCalendarFeedTappedLog(feedID))
         }
         
       case let .articleAction(.delegate(.willChangeFolderOfParent(feed))):
@@ -307,7 +307,7 @@ public struct CalendarSearchFeature {
 
 
 extension CalendarSearchFeature {
-  private func calendarFeedTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .calenderFeedClicked, screen: .calender))
+  private func calendarFeedTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .calenderFeedClicked, screen: .calender, extraParameters: [.feedId: feedId]))
   }
 }
