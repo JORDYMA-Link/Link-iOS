@@ -32,10 +32,4 @@ extension Date {
     
     return components
   }
-  
-  ///우리 서비스는 2024년을 기준으로 그 이상만을 제공합니다. 그렇기에 2024년을 기준점으로 잡아 해당 날짜가 작다면 True를 반환합니다.
-  public var lessThan2024: Bool {
-    let dateComponents = getDateComponents()
-    return dateComponents.year ?? 2024 < 2024
-  }
 }

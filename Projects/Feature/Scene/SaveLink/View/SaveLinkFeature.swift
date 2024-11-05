@@ -9,6 +9,7 @@
 import Foundation
 
 import Services
+import Analytics
 
 import ComposableArchitecture
 
@@ -32,6 +33,7 @@ public struct SaveLinkFeature {
     
     // MARK: Inner Business Action
     case postLinkSummary
+    case sendAnalyticsLog
     
     // MARK: Inner SetState Action
     case setLoading(Bool)
@@ -44,6 +46,7 @@ public struct SaveLinkFeature {
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -67,7 +70,10 @@ public struct SaveLinkFeature {
         return .run { _ in await self.dismiss() }
         
       case .onTapNextButton:
-        return .run { send in await send(.postLinkSummary) }
+        return .run { send in
+          await send(.postLinkSummary)
+          await send(.sendAnalyticsLog)
+        }
         
       case .postLinkSummary:
         return .run(
@@ -90,6 +96,10 @@ public struct SaveLinkFeature {
             await send(.linkSummaryFailAlertPresented)
           }
         )
+        
+      case .sendAnalyticsLog:
+        feedSummaryButtonTappedLog()
+        return .none
         
       case let .setLoading(isLoading):
         state.isLoading = isLoading
@@ -121,5 +131,11 @@ public struct SaveLinkFeature {
         return .none
       }
     }
+  }
+}
+
+extension SaveLinkFeature {
+  private func feedSummaryButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .feedSummaryClicked, screen: .feed_summary))
   }
 }
