@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Analytics
 import Common
 import Models
 import Services
@@ -41,6 +42,7 @@ public struct RootFeature: Reducer {
     // MARK: Inner SetState Action
     case changeScreen(State)
     case setUpdateToken(TokenInfo)
+    case setSaveAnalyticsUserId(String)
     case setPopGestureEnabled(Bool)
     
     // MARK: Child Action
@@ -51,6 +53,7 @@ public struct RootFeature: Reducer {
     case mainTab(BKTabFeature.Action)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.socialLogin) private var socialLogin
@@ -80,6 +83,7 @@ public struct RootFeature: Reducer {
       case let .refreshToken(.success(token)):
         return .run { send in
           await send(.setUpdateToken(token))
+          await send(.setSaveAnalyticsUserId(token.accessToken))
 
           guard !userDefaultsClient.string(.fcmToken, "").isEmpty else {
             await send(.changeScreen(.mainTab()))
@@ -107,6 +111,12 @@ public struct RootFeature: Reducer {
         return .run { _ in
           try await keychainClient.update(.accessToken, token.accessToken)
           try await keychainClient.update(.refreshToken, token.refreshToken)
+        }
+        
+      case let .setSaveAnalyticsUserId(accessToken):
+        return .run { send in
+          let userId = try await authClient.decodeUserId(accessToken)
+          analyticsClient.setUserId(userID: userId)
         }
         
       case let .setPopGestureEnabled(isEnabled):
