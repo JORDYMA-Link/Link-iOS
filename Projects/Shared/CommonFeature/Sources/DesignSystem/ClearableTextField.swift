@@ -31,6 +31,8 @@ public struct ClearableTextField: View {
                 .font(.regular(size: ._14))
                 .foregroundStyle(Color.bkColor(.gray800))
         }
+        .font(.regular(size: ._14))
+        .foregroundStyle(Color.bkColor(.gray900))
         .frame(height: 46)
         .padding(.leading, 16)
         
