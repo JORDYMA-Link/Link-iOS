@@ -24,6 +24,7 @@ public struct NoticeView: View {
         leadingType: .dismiss("공지사항", { store.send(.tappedNaviBackButton) }),
         trailingType: .none
       )
+      .padding(.leading, 16)
       
       ScrollView(.vertical) {
         LazyVStack {

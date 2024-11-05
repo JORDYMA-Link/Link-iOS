@@ -44,14 +44,24 @@ public struct NoticeFeature {
         return .run { _ in await self.dismiss() }
         
       case .fetchNotice:
+        guard state.nextPage > -1 else { return .none }
+        
         return .run { [page = state.nextPage, size = state.size] send in
           let response = try await noticeClient.getNotice(page, size)
           return await send(.setNoticeData(response))
         }
         
       case let .setNoticeData(noticeData):
-        state.noticeList.append(contentsOf: noticeData)
-        state.nextPage += 1
+        if noticeData.isEmpty {
+          if state.nextPage == 0 {
+            let emptyNotice = NoticeModel(date: "Blink", title: "공지사항이 없어요", content: "아직 공지사항이 없어요!")
+            state.noticeList.append(emptyNotice)
+          }
+          state.nextPage = -1
+        } else {
+          state.noticeList.append(contentsOf: noticeData)
+          state.nextPage += 1
+        }
         return .none
         
       case let .expanding(target):
