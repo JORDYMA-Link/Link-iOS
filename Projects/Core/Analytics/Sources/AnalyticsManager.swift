@@ -30,11 +30,19 @@ final class AnalyticsManager {
     Analytics.logEvent(log.name.rawValue, parameters: log.parameters)
     
     if isEnableDebug {
-      debugLog(log)
+      eventDebugLog(log)
     }
   }
   
-  private func debugLog(
+  func setUserId(_ userID: String?) {
+    Analytics.setUserID(userID)
+    
+    if isEnableDebug {
+      setUserIdDebugLog(userID)
+    }
+  }
+  
+  private func eventDebugLog(
           _ log: AnalyticsLogEvent,
           file: String = #file,
           line: Int = #line,
@@ -45,6 +53,21 @@ final class AnalyticsManager {
           [\(fileName):\(line)] \(function)
           Event: \(log.name.rawValue)
           Parameters: \(log.parameters.prettyString)
+          """
+    
+    logger.debug("\(message)")
+  }
+  
+  private func setUserIdDebugLog(
+          _ userID: String?,
+          file: String = #file,
+          line: Int = #line,
+          function: String = #function
+  ) {
+    let fileName = (file as NSString).lastPathComponent
+    let message = """
+          [\(fileName):\(line)] \(function)
+          setUserId: \(userID ?? "")
           """
     
     logger.debug("\(message)")
