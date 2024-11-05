@@ -193,7 +193,7 @@ private struct CategoryHeaderView: View {
               isSelected: store.category == type,
               action: {
                 scrollAction()
-                store.send(.categoryButtonTapped(type))
+                store.send(.categoryButtonTapped(type), animation: .default)
               }
             )
           }
