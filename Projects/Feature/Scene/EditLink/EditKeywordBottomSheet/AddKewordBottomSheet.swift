@@ -35,15 +35,12 @@ struct AddKewordBottomSheet: View {
                 .onChange(of: store.text) { newValue in
                   store.send(.textChanged(newValue))
                 }
-                .onSubmit {
-                  store.send(.textFieldSubmitButtonTapped)
-                }
               }
               
               BKChipView(
                 keywords: $store.keywords,
                 chipType: .delete,
-                deleteAction: { store.send(.chipItemDeleteButtonTapped($0)) }
+                deleteAction: { store.send(.chipItemDeleteButtonTapped($0), animation: .default) }
               )
             }
             .padding(EdgeInsets(top: 12, leading: 20, bottom: 20, trailing: 20))
