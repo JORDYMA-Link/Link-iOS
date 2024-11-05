@@ -78,7 +78,7 @@ public struct CalendarFeature {
         .throttle(id: "changeCurrentPage", for: 0.5, scheduler: mainQueue, latest: false)
         
       case let .changeCurrentYear(dif):
-        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif), !targetDate.lessThan2024 else { return .none }
+        guard let targetDate = try? state.currentSheetDate.calculatingByAddingDate(byAdding: .year, value: dif), !lessThan2024(targetDate) else { return .none }
         state.currentSheetDate = targetDate
 
         return .none
@@ -103,5 +103,14 @@ public struct CalendarFeature {
         return .none
       }
     }
+  }
+  
+  ///넘겨진 Date의 연도가 2024년 미만인지 판단합니다.
+  ///
+  ///우리 서비스는 2024년을 기준으로 그 이상만을 조회할 수 있습니다.
+  ///파라미터로 넘겨진 날짜의 연도가 2024년 미만이라면 True를 반환합니다.
+  private func lessThan2024(_ date: Date) -> Bool {
+    let dateComponents = date.getDateComponents()
+    return dateComponents.year ?? 2024 < 2024
   }
 }
