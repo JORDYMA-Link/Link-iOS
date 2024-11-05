@@ -42,9 +42,11 @@ public struct AddKewordBottomSheetFeature {
     case addKeywordTapped([String])
     case closeButtonTapped
     case textChanged(String)
-    case textFieldSubmitButtonTapped
     case chipItemDeleteButtonTapped(String)
     case confirmButtonTapped
+    
+    // MARK: Inner Business Action
+    case dismiss
     
     // MARK: Inner SetState Action
     case setValidation
@@ -72,21 +74,16 @@ public struct AddKewordBottomSheetFeature {
           await send(.setPresented(true))
         }
         
-      case .closeButtonTapped, .confirmButtonTapped:
-        state.text = ""
-        state.isAddKewordBottomSheetPresented = false
-        return .send(.delegate(.updateKeywords(state.keywords)))
+      case .closeButtonTapped:
+        return .send(.dismiss)
         
       case let .textChanged(text):
         state.text = text
         return .send(.setValidation)
         
-      case .textFieldSubmitButtonTapped:
-        guard state.isValidation else { return .none }
-        
+      case .confirmButtonTapped:
         state.keywords.append(state.text)
-        state.text = ""
-        return .run { send in await send(.setValidation) }
+        return .send(.dismiss)
         
       case let .chipItemDeleteButtonTapped(keyword):
         if let index = state.keywords.firstIndex(where: { $0 == keyword }) {
@@ -94,6 +91,11 @@ public struct AddKewordBottomSheetFeature {
         }
         
         return .run { send in await send(.setValidation) }
+        
+      case .dismiss:
+        state.text = ""
+        state.isAddKewordBottomSheetPresented = false
+        return .send(.delegate(.updateKeywords(state.keywords)))
         
       case .setValidation:
         if state.keywords.count == 3 {
