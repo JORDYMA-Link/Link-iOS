@@ -168,7 +168,7 @@ public struct LoginFeature {
         }
         
       case let .setSaveAnalyticsUserId(accessToken):
-        return .run { send in
+        return .run { _ in
           let userId = try await authClient.decodeUserId(accessToken)
           analyticsClient.setUserId(userID: userId)
         }
