@@ -14,6 +14,7 @@ import DependenciesMacros
 @DependencyClient
 public struct AnalyticsClient {
   public var logEvent: @Sendable (_ event: AnalyticsLogEvent) -> Void
+  public var setUserId: @Sendable (_ userID: String?) -> Void
 }
 
 extension AnalyticsClient: DependencyKey {
@@ -21,6 +22,9 @@ extension AnalyticsClient: DependencyKey {
     return Self(
       logEvent: { event in
         AnalyticsManager.shared.logEvent(event)
+      }, 
+      setUserId: { userID in
+        AnalyticsManager.shared.setUserId(userID)
       }
     )
   }
