@@ -90,7 +90,7 @@ public struct AddKewordBottomSheetFeature {
           state.keywords.remove(at: index)
         }
         
-        return .run { send in await send(.setValidation) }
+        return .send(.setValidation)
         
       case .dismiss:
         state.text = ""
