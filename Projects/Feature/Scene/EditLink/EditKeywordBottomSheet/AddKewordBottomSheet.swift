@@ -49,7 +49,7 @@ struct AddKewordBottomSheet: View {
             
             BKRoundedButton(
               title: "완료",
-              isDisabled: !store.isValidation,
+              isDisabled: !store.isValidation || store.text.isEmpty,
               isCornerRadius: false,
               confirmAction: { store.send(.confirmButtonTapped) }
             )
