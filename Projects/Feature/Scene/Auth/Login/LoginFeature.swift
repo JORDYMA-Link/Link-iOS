@@ -10,6 +10,7 @@ import Foundation
 
 import Services
 import Models
+import Analytics
 
 import ComposableArchitecture
 
@@ -34,10 +35,12 @@ public struct LoginFeature {
     case login(SocialLoginInfo)
     case fetchFolderList
     case putFcmPushToken
+    case loginSuccessFlow(TokenInfo)
     
     // MARK: Inner SetState Action
     case setSocialLoginInfo(SocialLoginInfo)
     case setSaveKeychain(TokenInfo)
+    case setSaveAnalyticsUserId(String)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -48,6 +51,7 @@ public struct LoginFeature {
     case delegate(Delegate)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.socialLogin) private var socialLogin
@@ -146,7 +150,7 @@ public struct LoginFeature {
             debugPrint(error)
           }
         )
-          
+        
       case let .setSocialLoginInfo(info):
         state.loginInfo = info
         return .none
@@ -157,8 +161,16 @@ public struct LoginFeature {
           try await keychainClient.save(.refreshToken, token.refreshToken)
           
           await send(.putFcmPushToken)
+          await send(.setSaveAnalyticsUserId(token.accessToken))
           /// 폴더 유무로 첫 가입 유저 확인
           await send(.fetchFolderList)
+          
+        }
+        
+      case let .setSaveAnalyticsUserId(accessToken):
+        return .run { _ in
+          let userId = try await authClient.decodeUserId(accessToken)
+          analyticsClient.setUserId(userID: userId)
         }
         
       default:
