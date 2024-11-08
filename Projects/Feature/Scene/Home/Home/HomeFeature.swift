@@ -161,6 +161,7 @@ public struct HomeFeature: Reducer {
         } else {
           state.category = categoryType
           return .run { send in
+            await send(.feeds(.setCategory(categoryType)))
             await send(.setMorePagingStatus(true))
             await send(.feeds(.resetPage))
           }

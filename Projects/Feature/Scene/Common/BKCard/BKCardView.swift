@@ -84,7 +84,7 @@ struct BKCardView: View {
           title: item.title,
           description: item.summary,
           keyword: item.keywords,
-          isUncategorized: item.isUnclassified,
+          isUncategorized: item.isUnclassified && store.category == .unclassified,
           recommendedFolders: item.recommendedFolder,
           recommendedFolderAction: { store.send(.cardItemRecommendedFolderTapped(item.feedId, $0)) },
           addFolderAction: { store.send(.cardItemAddFolderTapped(item)) }
