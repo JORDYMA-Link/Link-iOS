@@ -108,9 +108,6 @@ private struct ChipItem: View {
           color: .bkColor(.gray700),
           size: .init(width: 12, height: 12)
         )
-        .onTapGesture {
-          isAdd ? addAction?() : deleteAction?(title)
-        }
       }
     }
     .padding(.vertical, 4)
@@ -120,6 +117,9 @@ private struct ChipItem: View {
       Capsule()
         .stroke(Color.bkColor(.gray500), lineWidth: 1)
         .padding(1)
+    }
+    .hapticTapGesture {
+      isAdd ? addAction?() : deleteAction?(title)
     }
   }
 }

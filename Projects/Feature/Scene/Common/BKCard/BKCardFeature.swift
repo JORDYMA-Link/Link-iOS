@@ -8,6 +8,7 @@
 
 import Foundation
 
+import CommonFeature
 import Common
 import Services
 import Models
@@ -18,6 +19,8 @@ import ComposableArchitecture
 public struct BKCardFeature {
   @ObservableState
   public struct State: Equatable {
+    var category: CategoryType = .bookmarked
+    
     var feedList: [FeedCard] = []
     
     var page: Int
@@ -48,6 +51,7 @@ public struct BKCardFeature {
     case patchBookmark(Int, Bool)
     
     // MARK: Inner SetState Action
+    case setCategory(CategoryType)
     case setAddFeeds([FeedCard])
     case setFetchedAllCardsStatus(Bool)
     case setFeedFolder(Int, Folder)
@@ -120,6 +124,9 @@ public struct BKCardFeature {
             print(error)
           }
         )
+      case let .setCategory(category):
+        state.category = category
+        return .none
         
       case let .setAddFeeds(feedList):
         if state.page == 0 {

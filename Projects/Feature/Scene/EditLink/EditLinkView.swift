@@ -103,7 +103,7 @@ struct EditLinkView: View {
                 chipType: .addWithDelete,
                 deleteAction: {
                   HapticFeedbackManager.shared.impact(style: .light)
-                  store.send(.chipItemDeleteButtonTapped($0))
+                  store.send(.chipItemDeleteButtonTapped($0), animation: .default)
                 },
                 addAction: {
                   HapticFeedbackManager.shared.impact(style: .light)
