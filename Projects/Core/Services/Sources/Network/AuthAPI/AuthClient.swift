@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Common
 import Models
 
 import Dependencies
@@ -23,6 +24,8 @@ public struct AuthClient {
   public var logout: @Sendable (_ refreshToken: String) async throws -> Void
   /// 회원탈퇴
   public var signout: @Sendable (_ refreshToken: String) async throws -> Void
+  /// 토큰 내 유저 아이디 디코딩
+  public var decodeUserId: @Sendable (_ accessToken: String) async throws -> String
 }
 
 extension AuthClient: DependencyKey {
@@ -47,8 +50,41 @@ extension AuthClient: DependencyKey {
       },
       signout: { refreshToken in
         return try await authProvider.requestPlain(.signout(refreshToken: refreshToken))
+      }, 
+      decodeUserId: { accessToken in
+        return try await self.extractUserIdFromToken(accessToken)
       }
     )
+  }
+}
+
+private extension AuthClient {
+  enum DecodeUserIdError: Error {
+    case invalidFormat
+    case invalidBase64
+    case invalidJSON
+    case userIdNotFound
+  }
+  
+  static func extractUserIdFromToken(_ accessToken: String) async throws -> String {
+    let segments = accessToken.components(separatedBy: ".")
+    guard segments.count > 1, let segment = segments[safe: 1] else {
+      throw DecodeUserIdError.invalidFormat
+    }
+    
+    guard let payloadData = Data(base64URLEncoded: segment) else {
+      throw DecodeUserIdError.invalidBase64
+    }
+    
+    guard let payload = try? JSONSerialization.jsonObject(with: payloadData, options: []) as? [String: Any] else {
+      throw DecodeUserIdError.invalidJSON
+    }
+    
+    guard let userId = payload["user_id"] as? Int else {
+      throw DecodeUserIdError.userIdNotFound
+    }
+    
+    return String(userId)
   }
 }
 
