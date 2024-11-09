@@ -47,7 +47,7 @@ public enum AnalyticsEventName: String {
   // 폴더함
   case storageboxFolderClicked = "storagebox_folder_clicked"
   case storageboxFeedListSearchFeedClicked = "storagebox_feed_list_search_feed_clicked"
-  case storageboxFeedListCalenderClicked = "storagebox_feed_list_calender_clicked"
+  case storageboxFeedListCalendarClicked = "storagebox_feed_list_calendar_clicked"
   case storageboxFeedListFeedClicked = "storagebox_feed_list_feed_clicked"
   
   // 캘린더
