@@ -22,7 +22,7 @@ public enum AnalyticsEventName: String {
   case homeSummaryClicked = "home_summary_clicked"
   case homeSummaringFeedClicked = "home_summaring_feed_clicked"
   case homeSearchFeedClicked = "home_search_feed_clicked"
-  case homeCalenderClicked = "home_calender_clicked"
+  case homeCalendarClicked = "home_calendar_clicked"
   case homeFeedClicked = "home_feed_clicked"
   case homeTabbarStorageboxClicked = "home_tabbar_storagebox_clicked"
   
