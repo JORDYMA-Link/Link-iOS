@@ -9,9 +9,12 @@
 import Foundation
 
 import DomainFolderInterface
-import CommonFeature
+
+import Analytics
 import Services
 import Models
+
+import CommonFeature
 
 import ComposableArchitecture
 
@@ -69,6 +72,7 @@ public struct StorageBoxFeature: Reducer {
     case deleteFolderAlertPresented
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(DomainFolderClient.self) private var folderClient
   @Dependency(\.alertClient) private var alertClient
   
@@ -107,6 +111,8 @@ public struct StorageBoxFeature: Reducer {
         return .send(.addFolderBottomSheet(.addFolderTapped))
               
       case let .storageBoxTapped(folder):
+        storageBoxTappedLog(folderId: folder.id)
+        
         return .send(.delegate(.routeStorageBoxFeedList(folder)))
         
       case let .storageBoxMenuTapped(folder):
@@ -174,5 +180,13 @@ public struct StorageBoxFeature: Reducer {
         return .none
       }
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension StorageBoxFeature {
+  private func storageBoxTappedLog(folderId: Int) {
+    analyticsClient.logEvent(event: .init(name: .storageboxFolderClicked, screen: .storagebox, extraParameters: [.folderId: folderId]))
   }
 }

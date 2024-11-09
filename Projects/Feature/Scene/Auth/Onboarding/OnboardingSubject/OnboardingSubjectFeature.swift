@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Analytics
 import Services
 
 import ComposableArchitecture
@@ -39,6 +40,7 @@ public struct OnboardingSubjectFeature {
     case delegate(Delegate)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.userDefaultsClient) private var userDefault
   @Dependency(\.folderClient) private var folderClient
   
@@ -53,6 +55,7 @@ public struct OnboardingSubjectFeature {
       switch action {
       case .binding:
         return .none
+        
       case let .selectSubject(subject):
         if state.subjects.contains(subject) {
           state.subjects.remove(subject)
@@ -62,9 +65,13 @@ public struct OnboardingSubjectFeature {
         return .none
         
       case .skipButtonTapped:
+        skipButtonTappedLog()
+        
         return .send(.delegate(.moveToMainTab))
         
       case .confirmButtonTapped:
+        confirmButtonTappedLog()
+        
         return .run(
           operation: { [state] send in
             let topics = state.subjects.map { $0 }
@@ -82,5 +89,17 @@ public struct OnboardingSubjectFeature {
         return .none
       }
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension OnboardingSubjectFeature  {
+  private func confirmButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .onboardingConfirmClicked, screen: .onboarding_subject))
+  }
+  
+  private func skipButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .onboardingSkipClicked, screen: .onboarding_subject))
   }
 }

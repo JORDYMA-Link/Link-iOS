@@ -8,8 +8,10 @@
 
 import Foundation
 
-import CommonFeature
+import Analytics
 import Models
+
+import CommonFeature
 
 import ComposableArchitecture
 
@@ -73,6 +75,7 @@ public struct BKTabFeature {
     case routeSummaryCompleted(Int)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   
@@ -85,6 +88,10 @@ public struct BKTabFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.currentItem):
+        if state.currentItem == .folder {
+          tabbarStorageboxTappedLog()
+        }
+        
         state.isSaveContentPresented = false
         return .none
         
@@ -93,6 +100,8 @@ public struct BKTabFeature {
                 
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
+        roundedTabIconTappedLog()
+        
         state.isSaveContentPresented.toggle()
         return .none
         
@@ -255,5 +264,17 @@ public struct BKTabFeature {
       }
     }
     .forEach(\.path, action: \.path)
+  }
+}
+
+// MARK: Analytics Log
+
+extension BKTabFeature {
+  private func roundedTabIconTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .homeSummaryClicked, screen: .home))
+  }
+  
+  private func tabbarStorageboxTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .homeTabbarStorageboxClicked, screen: .home))
   }
 }

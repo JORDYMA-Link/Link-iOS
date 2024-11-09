@@ -8,9 +8,11 @@
 
 import Foundation
 
-import CommonFeature
+import Analytics
 import Models
 import Services
+
+import CommonFeature
 
 import ComposableArchitecture
 
@@ -90,6 +92,7 @@ public struct SearchFeature {
     case editFolderPresented(Int, String)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.userDefaultsClient) private var userDefault
   @Dependency(\.alertClient) private var alertClient
@@ -122,6 +125,8 @@ public struct SearchFeature {
         return .run { _ in await self.dismiss() }
         
       case let .searchButtonTapped(query):
+        searchButtonTappedLog()
+        
         guard !query.isEmpty else { return .none }
         
         return .run { send in
@@ -138,6 +143,8 @@ public struct SearchFeature {
         return .send(.setRemoveRecentSearches(keyword))
         
       case let .recentSearchItemTapped(keyword):
+        recentSearchItemTappedLog()
+        
         state.query = keyword
         
         return .run { send in
@@ -146,6 +153,8 @@ public struct SearchFeature {
         }
         
       case let .keywordSearchItemTapped(sectionIndex, index, feed):
+        keywordSearchItemTappedLog(feedId: feed.feedId)
+        
         return .run { send in
           await send(.setSelectedFeed(sectionIndex: sectionIndex, index: index, feed: feed))
           await send(.delegate(.routeFeedDetail(feed.feedId)))
@@ -386,5 +395,21 @@ public struct SearchFeature {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension SearchFeature {
+  private func searchButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .searchFeedSearchbarClicked, screen: .search_feed))
+  }
+  
+  private func recentSearchItemTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .searchFeedRecentKeywordClicked, screen: .search_feed))
+  }
+  
+  private func keywordSearchItemTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .searchFeedFeedClicked, screen: .search_feed, extraParameters: [.feedId: feedId]))
   }
 }
