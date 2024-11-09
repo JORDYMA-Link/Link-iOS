@@ -14,8 +14,6 @@ import Common
 import ComposableArchitecture
 
 public struct SettingView: View {
-  @Environment(\.dismiss) private var dismiss
-  
   @Perception.Bindable var store: StoreOf<SettingFeature>
   
   public var body: some View {
