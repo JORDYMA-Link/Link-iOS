@@ -20,6 +20,7 @@ public struct NoticeFeature {
     var noticeList: [NoticeModel] = []
     var nextPage: Int = 0
     var size: Int = 10
+    var existNotFetchedNotice: Bool = true
   }
   
   public enum Action {
@@ -27,6 +28,9 @@ public struct NoticeFeature {
     case fetchNotice
     case setNoticeData(_ noticeData: [NoticeModel])
     case expanding(target: UUID?)
+    
+    //MARK: Business Logic
+    case isExistNextPage(Int)
     
     //MARK: User Action
     case tappedNaviBackButton
@@ -44,24 +48,24 @@ public struct NoticeFeature {
         return .run { _ in await self.dismiss() }
         
       case .fetchNotice:
-        guard state.nextPage > -1 else { return .none }
+        guard state.existNotFetchedNotice else { return .none }
         
         return .run { [page = state.nextPage, size = state.size] send in
           let response = try await noticeClient.getNotice(page, size)
-          return await send(.setNoticeData(response))
+          await send(.setNoticeData(response))
+          await send(.isExistNextPage(response.count))
         }
         
       case let .setNoticeData(noticeData):
-        if noticeData.isEmpty {
-          if state.nextPage == 0 {
-            let emptyNotice = NoticeModel(date: "Blink", title: "공지사항이 없어요", content: "아직 공지사항이 없어요!")
-            state.noticeList.append(emptyNotice)
-          }
-          state.nextPage = -1
-        } else {
+        if !noticeData.isEmpty {
           state.noticeList.append(contentsOf: noticeData)
           state.nextPage += 1
         }
+        return .none
+        
+      case let .isExistNextPage(fetchedNoticeCount):
+        let isExistNextPage = (fetchedNoticeCount >= state.size)
+        state.existNotFetchedNotice = isExistNextPage
         return .none
         
       case let .expanding(target):

@@ -14,9 +14,7 @@ import ComposableArchitecture
 
 
 public struct NoticeView: View {
-  @Environment(\.dismiss) private var dismiss
-  
-  public let store: StoreOf<NoticeFeature>
+  @Perception.Bindable public var store: StoreOf<NoticeFeature>
   
   public var body: some View {
     WithPerceptionTracking {
@@ -25,7 +23,23 @@ public struct NoticeView: View {
         trailingType: .none
       )
       .padding(.leading, 16)
-      
+      .navigationBarBackButtonHidden(true)
+
+      if store.existNotFetchedNotice || !store.noticeList.isEmpty {
+        NoticeContentView(store: store)
+      } else {
+        NoticeEmptyView()
+      }
+//        
+    }
+  }// body
+}
+
+fileprivate struct NoticeContentView: View {
+  @Perception.Bindable fileprivate var store: StoreOf<NoticeFeature>
+  
+  var body: some View {
+    WithPerceptionTracking {
       ScrollView(.vertical) {
         LazyVStack {
           ForEach(store.noticeList) { notice in
@@ -79,10 +93,18 @@ public struct NoticeView: View {
       .onAppear(perform: {
         store.send(.fetchNotice)
       }) //onAppear
-      
-      .navigationBarBackButtonHidden(true)
     }
-  }// body
+  }//Body
+}
+
+fileprivate struct NoticeEmptyView: View {
+  
+  var body: some View {
+    VStack{
+      EmptyView()
+    }
+    .frame(maxHeight: .infinity)
+  }
 }
 
 
