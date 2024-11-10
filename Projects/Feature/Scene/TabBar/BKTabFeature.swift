@@ -207,9 +207,9 @@ public struct BKTabFeature {
         
         /// - 피드 디테일 진입 후 `WillDisappear` 됐을 때
       case let .feedDetailWillDisappear(feed):
-        guard let stackElementId = state.path.ids.last,
-              let lastPath = state.path.last else {
-          return .send(.home(.feedDetailWillDisappear(feed)))
+        guard let stackElementId = state.path.ids.first,
+              let lastPath = state.path.first else {
+          return .none
         }
         
         switch lastPath {
@@ -223,7 +223,7 @@ public struct BKTabFeature {
           return .send(.path(.element(id: stackElementId, action: .Calendar(.feedDetailWillDisappear(feed)))))
           
         default:
-          return .none
+          return .send(.home(.feedDetailWillDisappear(feed)))
         }
                 
         /// - 홈(미분류) -> `추천 폴더` 눌렀을 때  && 폴더함 -> `폴더` 진입 시
