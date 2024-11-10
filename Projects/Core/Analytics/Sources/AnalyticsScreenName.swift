@@ -13,6 +13,8 @@ public enum AnalyticsScreenName: String {
   case onboarding_subject
   case onboarding
   case home
+  case storagebox
+  case storagebox_feed_list
   case feed_summary
   case summaring_feed
   case feed_save

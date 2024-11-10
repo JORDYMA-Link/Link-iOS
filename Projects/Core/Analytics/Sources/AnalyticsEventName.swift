@@ -22,7 +22,7 @@ public enum AnalyticsEventName: String {
   case homeSummaryClicked = "home_summary_clicked"
   case homeSummaringFeedClicked = "home_summaring_feed_clicked"
   case homeSearchFeedClicked = "home_search_feed_clicked"
-  case homeCalenderClicked = "home_calender_clicked"
+  case homeCalendarClicked = "home_calendar_clicked"
   case homeFeedClicked = "home_feed_clicked"
   case homeTabbarStorageboxClicked = "home_tabbar_storagebox_clicked"
   
@@ -47,7 +47,7 @@ public enum AnalyticsEventName: String {
   // 폴더함
   case storageboxFolderClicked = "storagebox_folder_clicked"
   case storageboxFeedListSearchFeedClicked = "storagebox_feed_list_search_feed_clicked"
-  case storageboxFeedListCalenderClicked = "storagebox_feed_list_calender_clicked"
+  case storageboxFeedListCalendarClicked = "storagebox_feed_list_calendar_clicked"
   case storageboxFeedListFeedClicked = "storagebox_feed_list_feed_clicked"
   
   // 캘린더

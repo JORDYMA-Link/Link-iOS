@@ -150,9 +150,13 @@ public struct HomeFeature: Reducer {
         return .send(.delegate(.routeSetting))
         
       case .searchBannerSearchBarTapped:
+        searchBarTappedLog()
+        
         return .send(.delegate(.routeSearchKeyword))
         
       case .searchBannerCalendarTapped:
+        calendarTappedLog()
+        
         return .send(.delegate(.routeCalendar))
         
       case let .categoryButtonTapped(categoryType):
@@ -265,6 +269,8 @@ public struct HomeFeature: Reducer {
         return .none
         
       case let .feeds(.cardItemTapped(feedId)):
+        cardItemTappedLog(feedId: feedId)
+        
         return .send(.delegate(.routeFeedDetail(feedId)))
         
       case let .feeds(.cardItemMenuButtonTapped(selectedFeed)):
@@ -357,6 +363,18 @@ public struct HomeFeature: Reducer {
 // MARK: Analytics Log
 
 extension HomeFeature {
+  private func searchBarTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .homeSearchFeedClicked, screen: .home))
+  }
+  
+  private func calendarTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .homeCalendarClicked, screen: .home))
+  }
+  
+  private func cardItemTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .homeFeedClicked, screen: .home, extraParameters: [.feedId: feedId]))
+  }
+    
   private func summaryToastRouteButtonTappedLog() {
     analyticsClient.logEvent(event: .init(name: .homeSummaringFeedClicked, screen: .home))
   }
