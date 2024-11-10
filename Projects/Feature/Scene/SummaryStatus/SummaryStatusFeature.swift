@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Analytics
 import Services
 import Models
 
@@ -45,6 +46,7 @@ public struct SummaryStatusFeature {
     case delegate(Delegate)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.linkClient) private var linkClient
   
@@ -60,6 +62,8 @@ public struct SummaryStatusFeature {
         return .run { _ in await self.dismiss() }
         
       case let .summaryStatusItemTapped(feedId):
+        summaryStatusItemTappedLog(feedId: feedId)
+        
         return .run { send in await send(.delegate(.summaryStatusItemTapped(feedId)), animation: .default) }
         
         
@@ -105,5 +109,13 @@ public struct SummaryStatusFeature {
         return .none
       }
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension SummaryStatusFeature {
+  private func summaryStatusItemTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .summarizedFeedClicked, screen: .summaring_feed, extraParameters: [.feedId: feedId]))
   }
 }

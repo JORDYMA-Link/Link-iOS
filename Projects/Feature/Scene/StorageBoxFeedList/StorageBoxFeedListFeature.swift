@@ -8,9 +8,11 @@
 
 import Foundation
 
-import CommonFeature
+import Analytics
 import Services
 import Models
+
+import CommonFeature
 
 import ComposableArchitecture
 
@@ -80,6 +82,7 @@ public struct StorageBoxFeedListFeature {
     case editFolderPresented(Int, String)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.folderClient) private var folderClient
   @Dependency(\.feedClient) private var feedClient
   @Dependency(\.alertClient) private var alertClient
@@ -117,9 +120,13 @@ public struct StorageBoxFeedListFeature {
         return .run { _ in await self.dismiss() }
         
       case .searchBannerSearchBarTapped:
+        searchBarTappedLog()
+        
         return .send(.delegate(.routeSearchKeyword))
         
       case .searchBannerCalendarTapped:
+        calendarTappedLog()
+        
         return .send(.routeCalendar)
         
       case .pullToRefresh:
@@ -175,6 +182,8 @@ public struct StorageBoxFeedListFeature {
         return .none
         
       case let .feeds(.cardItemTapped(feedId)):
+        cardItemTappedLog(folderId: state.folderInput.id, feedId: feedId)
+        
         return .send(.delegate(.routeFeedDetail(feedId)))
         
       case let .feeds(.cardItemMenuButtonTapped(selectedFeed)):
@@ -254,5 +263,21 @@ public struct StorageBoxFeedListFeature {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension StorageBoxFeedListFeature {
+  private func searchBarTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .storageboxFeedListSearchFeedClicked, screen: .storagebox_feed_list))
+  }
+  
+  private func calendarTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .storageboxFeedListCalendarClicked, screen: .storagebox_feed_list))
+  }
+  
+  private func cardItemTappedLog(folderId: Int, feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .storageboxFeedListFeedClicked, screen: .storagebox_feed_list, extraParameters: [.folderId: folderId, .feedId: feedId]))
   }
 }

@@ -72,6 +72,8 @@ public struct LoginFeature {
       case .binding:
         return .none
       case .kakaoLoginButtonTapped:
+        loginButtonTappedLog(.kakao)
+        
         return .run(
           operation: { send in
             let info = try await socialLogin.kakaoLogin()
@@ -84,6 +86,8 @@ public struct LoginFeature {
         .throttle(id: ThrottleId.kakaoLoginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case .appleLoginButtonTapped:
+        loginButtonTappedLog(.apple)
+        
         return .run(
           operation: { send in
             let info = try await socialLogin.appleLogin()
@@ -177,5 +181,13 @@ public struct LoginFeature {
         return .none
       }
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension LoginFeature {
+  private func loginButtonTappedLog(_ type: SocialLoginInfo.Socialtype) {
+    analyticsClient.logEvent(event: .init(name: type == .kakao ? .kakaoLoginClicked : .appleLoginClicked, screen: .login))
   }
 }

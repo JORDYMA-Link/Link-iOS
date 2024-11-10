@@ -8,9 +8,11 @@
 
 import Foundation
 
-import CommonFeature
+import Analytics
 import Services
 import Models
+
+import CommonFeature
 
 import ComposableArchitecture
 
@@ -113,6 +115,7 @@ public struct LinkFeature {
     case editLinkPresented
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.alertClient) private var alertClient
@@ -182,6 +185,11 @@ public struct LinkFeature {
       case let .saveButtonTapped(isMarked):
         let feedId = state.feed.feedId
         state.feed.isMarked = isMarked
+        
+        if isMarked {
+          saveButtonTappedLog(feedId: feedId)
+        }
+        
         return .run { send in await send(.patchBookmark(feedId, isMarked)) }
           .throttle(id: ThrottleId.saveButtonTapped, for: .seconds(2), scheduler: DispatchQueue.main, latest: false)
         
@@ -213,6 +221,8 @@ public struct LinkFeature {
         return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
         
       case .showURLButtonTapped:
+        showURLButtonTappedLog(feedId: state.feed.feedId)
+        
         state.isWebViewPresented = true
         return .none
         
@@ -220,6 +230,8 @@ public struct LinkFeature {
         return .send(.editLinkPresented)
         
       case .summarySaveButtonTapped:
+        summarySaveButtonTappedLog(feedId: state.feed.feedId)
+        
         return .send(.patchFeed)
           .throttle(id: ThrottleId.summarySaveButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
@@ -360,5 +372,21 @@ public struct LinkFeature {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension LinkFeature {
+  private func saveButtonTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .feedSaveBookmarkedClicked, screen: .feed_save, extraParameters: [.feedId: feedId]))
+  }
+  
+  private func summarySaveButtonTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .feedSaveConfirmClicked, screen: .feed_save, extraParameters: [.feedId: feedId]))
+  }
+  
+  private func showURLButtonTappedLog(feedId: Int) {
+    analyticsClient.logEvent(event: .init(name: .feedDetailLinkButtonClicked, screen: .feed_detail, extraParameters: [.feedId: feedId]))
   }
 }

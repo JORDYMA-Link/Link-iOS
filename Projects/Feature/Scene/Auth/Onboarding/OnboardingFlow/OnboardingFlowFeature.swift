@@ -8,6 +8,7 @@
 
 import Foundation
 
+import Analytics
 import Services
 
 import ComposableArchitecture
@@ -32,6 +33,9 @@ public struct OnboardingFlowFeature {
     case nextButtonTapped
     case startButtonTapped
     
+    // MARK: Inner SetState Action
+    case setPage
+    
     // MARK: Delegate Action
     public enum Delegate {
       case moveToMainTab
@@ -40,9 +44,11 @@ public struct OnboardingFlowFeature {
     case delegate(Delegate)
   }
   
+  @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.userDefaultsClient) var userDefault
   
   enum ThrottleId {
+    case skipButton
     case startButton
   }
   
@@ -55,16 +61,45 @@ public struct OnboardingFlowFeature {
         return .none
         
       case .nextButtonTapped:
-          state.selectedPage += 1
-          return .none
+        nextButtonTappedLog()
         
-      case .skipButtonTapped, .startButtonTapped:
+        return .send(.setPage)
+        
+      case .skipButtonTapped:
+        skipButtonTappedLog()
+        
+        return .send(.delegate(.moveToMainTab))
+          .throttle(id: ThrottleId.skipButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
+      case .startButtonTapped:
+        startButtonTappedLog()
+        
         return .send(.delegate(.moveToMainTab))
           .throttle(id: ThrottleId.startButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
+      case .setPage:
+        state.selectedPage += 1
+        return .none
         
       default:
         return .none
       }
     }
+  }
+}
+
+// MARK: Analytics Log
+
+extension OnboardingFlowFeature  {
+  private func skipButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .onboardingSkipClicked, screen: .onboarding))
+  }
+  
+  private func nextButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .onboardingNextClicked, screen: .onboarding))
+  }
+  
+  private func startButtonTappedLog() {
+    analyticsClient.logEvent(event: .init(name: .onboardingConfirmClicked, screen: .onboarding))
   }
 }
