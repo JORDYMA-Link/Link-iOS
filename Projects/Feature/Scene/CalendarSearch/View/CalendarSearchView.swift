@@ -214,11 +214,10 @@ public struct CalendarSearchView: View {
     return WithPerceptionTracking {
       ScrollView(.horizontal, showsIndicators: false) {
         LazyHStack(spacing: 8) {
-          ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
-            let folder = store.article.folderList[key]
-            let folderName = folder?.folderName ?? ""
-            let feedCount = folder?.feedCount ?? 0
-            let isSelectedIndex = (store.article.categorySelectedIndex == key)
+          ForEach(categories, id: \.self) { folder in
+            let folderName = folder.folderName
+            let feedCount = folder.feedCount
+            let isSelectedIndex = (store.article.categorySelectedIndex == folder.folderId)
             
             Text("\(folderName) \(feedCount)")
               .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
@@ -234,7 +233,7 @@ public struct CalendarSearchView: View {
                   )
               )
               .onTapGesture {
-                store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
+                store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: folder.folderId)))
               }
           }// Foreach
         } //LazyHStack

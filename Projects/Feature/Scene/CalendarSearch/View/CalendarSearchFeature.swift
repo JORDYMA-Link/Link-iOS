@@ -195,7 +195,6 @@ public struct CalendarSearchFeature {
         return .none
         
       case let .catchNetworkError(error):
-        //FIXME: 에러 토스트 로직 구현 -> 토스트 로직만 구현하면 될 듯함.
         debugPrint(error)
         return .none
         
