@@ -156,8 +156,8 @@ Tuist/.build
 node_modules
 .grunt-env
 
-/Projects/App/Resources/GoogleService-Info.plist
-/Projects/App/Resources/xcconfigs/APIKey.xcconfig
+Projects/App/Resources/GoogleService-Info.plist
+Projects/App/Resources/xcconfigs/APIKey.xcconfig
 
 GoogleService-Info.plist
 *.xcconfig
