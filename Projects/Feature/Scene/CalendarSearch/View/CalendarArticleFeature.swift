@@ -26,13 +26,13 @@ public struct CalendarArticleFeature {
       categorySelectedIndex: Int = 0,
       folderList: [FolderInfo] = [FolderInfo()],
       article: [FeedCard] = [],
-      orderedCategoryStartIndex: Bool = false
+      existedNotClassifiedFolder: Bool = false
     ) {
       self.categorySelectedIndex = categorySelectedIndex
       self.folderList = folderList
       self.selectedDateArticle = article
       self.filteredArticle = article
-      self.existedNotClassifiedFolder = orderedCategoryStartIndex
+      self.existedNotClassifiedFolder = existedNotClassifiedFolder
     }
   }
   
