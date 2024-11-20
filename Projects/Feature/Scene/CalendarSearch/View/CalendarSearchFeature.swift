@@ -192,10 +192,16 @@ public struct CalendarSearchFeature {
         
         state.calendarSearchData?.existedFeedData[selectedDate]?.list.remove(at: feedIndex)
         
-        return .none
+        
+        guard let existedFeedData = state.calendarSearchData?.existedFeedData[selectedDate]?.list, existedFeedData.count <= 0 else { return .none }
+        
+        state.calendarSearchData?.existedFeedData.removeValue(forKey: selectedDate)
+        
+        guard let reSpreadData = state.calendarSearchData else { return .none }
+        
+        return .send(.spreadSearchData(reSpreadData))
         
       case let .catchNetworkError(error):
-        //FIXME: 에러 토스트 로직 구현 -> 토스트 로직만 구현하면 될 듯함.
         debugPrint(error)
         return .none
         

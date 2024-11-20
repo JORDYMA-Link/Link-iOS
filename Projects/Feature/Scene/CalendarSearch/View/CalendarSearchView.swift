@@ -163,7 +163,7 @@ public struct CalendarSearchView: View {
         LazyVGrid(columns: columns, spacing: 20) {
           ForEach(months, id: \.self) { month in
             Text(month.toString)
-              .font(.regular(size: ._14))
+              .font(searchSheetMonthFont(targetMonth: month.rawValue))
               .frame(maxWidth: .infinity)
               .foregroundStyle(searchSheetMonthColor(targetMonth: month.rawValue))
               .padding(EdgeInsets(top: 16, leading: 0, bottom: 16, trailing: 0))
@@ -212,13 +212,12 @@ public struct CalendarSearchView: View {
     let categories = store.article.folderList
     
     return WithPerceptionTracking {
-      ScrollView(.horizontal) {
+      ScrollView(.horizontal, showsIndicators: false) {
         LazyHStack(spacing: 8) {
-          ForEach(Array(categories.keys).sorted { $0 < $1 }, id: \.self) { key in
-            let folder = store.article.folderList[key]
-            let folderName = folder?.folderName ?? ""
-            let feedCount = folder?.feedCount ?? 0
-            let isSelectedIndex = (store.article.categorySelectedIndex == key)
+          ForEach(categories, id: \.self) { folder in
+            let folderName = folder.folderName
+            let feedCount = folder.feedCount
+            let isSelectedIndex = (store.article.categorySelectedIndex == folder.folderId)
             
             Text("\(folderName) \(feedCount)")
               .font(isSelectedIndex ? .semiBold(size: ._14) : .regular(size: ._14))
@@ -234,12 +233,11 @@ public struct CalendarSearchView: View {
                   )
               )
               .onTapGesture {
-                store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: key)))
+                store.send(.articleAction(.changeCategorySelectedIndex(targetIndex: folder.folderId)))
               }
           }// Foreach
-        }
-      } //LazyHStack
-      .scrollDisabled(true)
+        } //LazyHStack
+      } //ScrollView
       .frame(height: 40)
       .padding(EdgeInsets(top: 20, leading: 16, bottom: 16, trailing: 0))
     }// WithPerceptionTracking
@@ -349,5 +347,17 @@ extension CalendarSearchView {
     } else {
       return false
     }
+  }
+  
+  private func searchSheetMonthFont(targetMonth: Int) -> Font {
+    let targetDate = calculatingCurrentSheetPageDate(month: targetMonth)
+    
+    let currentPageComponents = calendar.dateComponents([.year, .month], from: store.calendar.currentPage)
+    let currentPageSheetComponents = calendar.dateComponents([.year, .month], from: targetDate)
+    
+    guard currentPageComponents == currentPageSheetComponents else { return .regular(size: ._14) }
+    
+    return .semiBold(size: ._14)
+    
   }
 }

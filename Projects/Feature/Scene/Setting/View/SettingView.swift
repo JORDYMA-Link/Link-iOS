@@ -33,7 +33,8 @@ public struct SettingView: View {
       .bottomSheet(
         isPresented: $store.showEditNicknameSheet,
         detents: .init(arrayLiteral: .height(200)),
-        leadingTitle: "닉네임 변경하기"
+        leadingTitle: "닉네임 변경하기",
+        closeButtonAction: { store.send(.cancelEditingNickname) }
       ) {
         ChangeNicknameBottomSheetContent(store: store)
       }

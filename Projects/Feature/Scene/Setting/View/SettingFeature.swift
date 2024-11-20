@@ -51,7 +51,7 @@ public struct SettingFeature {
     case changeConfirmWithdrawModal
     case confirmedWithdrawWarning
     case tappedCompletedEditingNickname
-    case cancelCompletedEditingNickname
+    case cancelEditingNickname
     
     case postLogout
     case postSignout
@@ -166,8 +166,8 @@ public struct SettingFeature {
         state.isConfirmedWithdrawWarning.toggle()
         return .none
         
-      case .cancelCompletedEditingNickname:
-        state.showEditNicknameSheet = false
+      case .cancelEditingNickname:
+        state.targetNickname = ""
         return .none
         
       case .tappedCompletedEditingNickname:

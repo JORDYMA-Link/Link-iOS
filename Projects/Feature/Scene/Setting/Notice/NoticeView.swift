@@ -30,7 +30,6 @@ public struct NoticeView: View {
       } else {
         NoticeEmptyView()
       }
-//        
     }
   }// body
 }
@@ -100,8 +99,11 @@ fileprivate struct NoticeContentView: View {
 fileprivate struct NoticeEmptyView: View {
   
   var body: some View {
-    VStack{
-      EmptyView()
+    VStack {
+      Text("아직 작성된 공지사항이 없어요")
+        .font(.regular(size: ._15))
+        .foregroundStyle(Color.bkColor(.gray600))
+        .padding(.bottom, 56)
     }
     .frame(maxHeight: .infinity)
   }
