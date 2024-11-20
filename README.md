@@ -10,3 +10,18 @@
 > v1.0.0 **개발기간: 2023.06.25 ~ 2024.09.25**
 > 
 > **지속적인 업데이트**: 2024.09.25 ~ (진행중)
+
+### 주요 기능
+- AI 링크 요약 및 분류 폴더 추천
+- 폴더 별 링크 아카이빙
+
+# **⚙️ 개발환경 및 기술스택**
+
+- Minimum Deployment: iOS 16.2
+- Dependence Manager : SPM
+- Swift Version: 5.9.0
+- `SwiftUI` `TCA`
+- `Swift Concurrency`
+- `Moya`
+- `Firebase Crashlytics, Analytics, Push Notifications`
+- `Tuist`
