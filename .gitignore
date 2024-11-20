@@ -156,4 +156,10 @@ Tuist/.build
 node_modules
 .grunt-env
 
+/Projects/App/Resources/GoogleService-Info.plist
+/Projects/App/Resources/xcconfigs/APIKey.xcconfig
+
+GoogleService-Info.plist
+*.xcconfig
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,swift,swiftpackagemanager,xcode
