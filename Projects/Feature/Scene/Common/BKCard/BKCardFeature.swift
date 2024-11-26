@@ -26,6 +26,8 @@ public struct BKCardFeature {
     var page: Int
     var fetchedAllFeedCards: Bool = false
     
+    var isLoading: Bool = true
+    
     public init(feedList: [FeedCard]) {
       page = 0
       self.feedList = feedList
@@ -56,6 +58,7 @@ public struct BKCardFeature {
     case setFetchedAllCardsStatus(Bool)
     case setFeedFolder(Int, Folder)
     case setDeleteFeed(Int)
+    case setLoading(Bool)
   }
   
   @Dependency(\.feedClient) private var feedClient
@@ -130,10 +133,18 @@ public struct BKCardFeature {
         
       case let .setAddFeeds(feedList):
         if state.page == 0 {
-          state.feedList = feedList
+          state.feedList = feedList 
+          return .run { [state] send in
+            guard state.isLoading else { return }
+            
+            try await Task.sleep(for: .seconds(0.2))
+            await send(.setLoading(false), animation: .default)
+          }
+          
         } else {
           state.feedList.append(contentsOf: feedList)
         }
+        
         return .none
         
       case let .setFetchedAllCardsStatus(isPaging):
@@ -151,6 +162,10 @@ public struct BKCardFeature {
         
       case let .setDeleteFeed(feedId):
         state.feedList.removeAll { $0.feedId == feedId }
+        return .none
+        
+      case let .setLoading(isLoading):
+        state.isLoading = isLoading
         return .none
         
       default:

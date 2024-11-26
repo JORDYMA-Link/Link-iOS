@@ -33,13 +33,22 @@ struct BKCardView: View {
   var body: some View {
     Group {
       WithPerceptionTracking {
-        if store.feedList.isEmpty {
+        if store.isLoading {
+          loadingView()
+        } else if store.feedList.isEmpty {
           emptyView()
         } else {
           contentSectionView()
         }
       }
     }
+  }
+  
+  @ViewBuilder
+  private func loadingView() -> some View {
+    BKLoadingIndicator()
+      .frame(minHeight: emptyHeight)
+      .background(Color.bkColor(.gray300))
   }
   
   @ViewBuilder

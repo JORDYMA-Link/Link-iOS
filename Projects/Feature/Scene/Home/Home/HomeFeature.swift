@@ -142,6 +142,7 @@ public struct HomeFeature: Reducer {
             let feedList = try await feedClient.postFeedByType(state.category.rawValue, 0)
             
             await send(.setFeeds(feedList))
+            await send(.feeds(.setLoading(false)), animation: .default)
           },
           catch: { error, send in
             print(error)
@@ -166,20 +167,24 @@ public struct HomeFeature: Reducer {
           return .none
         } else {
           state.category = categoryType
-          return .run { send in
-            await send(.feeds(.setCategory(categoryType)))
-            await send(.setMorePagingStatus(true))
-            await send(.feeds(.resetPage))
-          }
-          .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
+          return .concatenate(
+            .send(.feeds(.setCategory(categoryType))),
+            .send(.feeds(.setLoading(true)), animation: .default),
+            .send(.setMorePagingStatus(true)),
+            .send(.feeds(.resetPage))
+            .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
+          )
         }
         
       case .pullToRefresh:
-        return .run { send in
-          await send(.setMorePagingStatus(true))
-          await send(.feeds(.resetPage))
-        }
-        .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
+        return .concatenate(
+          .send(.feeds(.setLoading(true)), animation: .default),
+          .send(.setMorePagingStatus(true)),
+          .run { send in
+            await send(.feeds(.resetPage))
+          }
+            .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
+        )
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .feedDetailWillDisappear(feed):

@@ -110,6 +110,7 @@ public struct StorageBoxFeedListFeature {
             let folderFeedList = try await folderClient.getFolderFeeds(state.folderInput.id, 0)
             
             await send(.setFeeds(folderFeedList))
+            await send(.feeds(.setLoading(false)), animation: .default)
           },
           catch: { error, send in
             print(error)
