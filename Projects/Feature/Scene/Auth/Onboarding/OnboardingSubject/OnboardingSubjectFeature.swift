@@ -96,10 +96,10 @@ public struct OnboardingSubjectFeature {
 
 extension OnboardingSubjectFeature  {
   private func confirmButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .onboardingConfirmClicked, screen: .onboarding_subject))
+    analyticsClient.logEvent(.init(name: .onboardingConfirmClicked, screen: .onboarding_subject))
   }
   
   private func skipButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .onboardingSkipClicked, screen: .onboarding_subject))
+    analyticsClient.logEvent(.init(name: .onboardingSkipClicked, screen: .onboarding_subject))
   }
 }

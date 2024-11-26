@@ -187,6 +187,6 @@ public struct StorageBoxFeature: Reducer {
 
 extension StorageBoxFeature {
   private func storageBoxTappedLog(folderId: Int) {
-    analyticsClient.logEvent(event: .init(name: .storageboxFolderClicked, screen: .storagebox, extraParameters: [.folderId: folderId]))
+    analyticsClient.logEvent(.init(name: .storageboxFolderClicked, screen: .storagebox, extraParameters: [.folderId: folderId]))
   }
 }

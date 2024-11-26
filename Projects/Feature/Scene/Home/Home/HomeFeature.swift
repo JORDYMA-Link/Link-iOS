@@ -371,18 +371,18 @@ public struct HomeFeature: Reducer {
 
 extension HomeFeature {
   private func searchBarTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeSearchFeedClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeSearchFeedClicked, screen: .home))
   }
   
   private func calendarTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeCalendarClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeCalendarClicked, screen: .home))
   }
   
   private func cardItemTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .homeFeedClicked, screen: .home, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .homeFeedClicked, screen: .home, extraParameters: [.feedId: feedId]))
   }
-    
+  
   private func summaryToastRouteButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeSummaringFeedClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeSummaringFeedClicked, screen: .home))
   }
 }

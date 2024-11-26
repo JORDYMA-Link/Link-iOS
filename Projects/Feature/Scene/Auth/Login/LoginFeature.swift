@@ -188,6 +188,6 @@ public struct LoginFeature {
 
 extension LoginFeature {
   private func loginButtonTappedLog(_ type: SocialLoginInfo.Socialtype) {
-    analyticsClient.logEvent(event: .init(name: type == .kakao ? .kakaoLoginClicked : .appleLoginClicked, screen: .login))
+    analyticsClient.logEvent(.init(name: type == .kakao ? .kakaoLoginClicked : .appleLoginClicked, screen: .login))
   }
 }

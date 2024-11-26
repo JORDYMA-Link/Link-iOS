@@ -379,14 +379,14 @@ public struct LinkFeature {
 
 extension LinkFeature {
   private func saveButtonTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .feedSaveBookmarkedClicked, screen: .feed_save, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .feedSaveBookmarkedClicked, screen: .feed_save, extraParameters: [.feedId: feedId]))
   }
   
   private func summarySaveButtonTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .feedSaveConfirmClicked, screen: .feed_save, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .feedSaveConfirmClicked, screen: .feed_save, extraParameters: [.feedId: feedId]))
   }
   
   private func showURLButtonTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .feedDetailLinkButtonClicked, screen: .feed_detail, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .feedDetailLinkButtonClicked, screen: .feed_detail, extraParameters: [.feedId: feedId]))
   }
 }

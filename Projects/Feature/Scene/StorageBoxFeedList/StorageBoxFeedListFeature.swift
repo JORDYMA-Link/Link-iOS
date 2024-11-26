@@ -271,14 +271,14 @@ public struct StorageBoxFeedListFeature {
 
 extension StorageBoxFeedListFeature {
   private func searchBarTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .storageboxFeedListSearchFeedClicked, screen: .storagebox_feed_list))
+    analyticsClient.logEvent(.init(name: .storageboxFeedListSearchFeedClicked, screen: .storagebox_feed_list))
   }
   
   private func calendarTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .storageboxFeedListCalendarClicked, screen: .storagebox_feed_list))
+    analyticsClient.logEvent(.init(name: .storageboxFeedListCalendarClicked, screen: .storagebox_feed_list))
   }
   
   private func cardItemTappedLog(folderId: Int, feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .storageboxFeedListFeedClicked, screen: .storagebox_feed_list, extraParameters: [.folderId: folderId, .feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .storageboxFeedListFeedClicked, screen: .storagebox_feed_list, extraParameters: [.folderId: folderId, .feedId: feedId]))
   }
 }

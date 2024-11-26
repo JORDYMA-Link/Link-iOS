@@ -271,10 +271,10 @@ public struct BKTabFeature {
 
 extension BKTabFeature {
   private func roundedTabIconTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeSummaryClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeSummaryClicked, screen: .home))
   }
   
   private func tabbarStorageboxTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeTabbarStorageboxClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeTabbarStorageboxClicked, screen: .home))
   }
 }

@@ -136,6 +136,6 @@ public struct SaveLinkFeature {
 
 extension SaveLinkFeature {
   private func feedSummaryButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .feedSummaryClicked, screen: .feed_summary))
+    analyticsClient.logEvent(.init(name: .feedSummaryClicked, screen: .feed_summary))
   }
 }
