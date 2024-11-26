@@ -92,14 +92,14 @@ public struct OnboardingFlowFeature {
 
 extension OnboardingFlowFeature  {
   private func skipButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .onboardingSkipClicked, screen: .onboarding))
+    analyticsClient.logEvent(.init(name: .onboardingSkipClicked, screen: .onboarding))
   }
   
   private func nextButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .onboardingNextClicked, screen: .onboarding))
+    analyticsClient.logEvent(.init(name: .onboardingNextClicked, screen: .onboarding))
   }
   
   private func startButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .onboardingConfirmClicked, screen: .onboarding))
+    analyticsClient.logEvent(.init(name: .onboardingConfirmClicked, screen: .onboarding))
   }
 }

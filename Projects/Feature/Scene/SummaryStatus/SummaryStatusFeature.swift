@@ -116,6 +116,6 @@ public struct SummaryStatusFeature {
 
 extension SummaryStatusFeature {
   private func summaryStatusItemTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .summarizedFeedClicked, screen: .summaring_feed, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .summarizedFeedClicked, screen: .summaring_feed, extraParameters: [.feedId: feedId]))
   }
 }

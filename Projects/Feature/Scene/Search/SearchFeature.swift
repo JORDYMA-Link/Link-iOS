@@ -402,14 +402,14 @@ public struct SearchFeature {
 
 extension SearchFeature {
   private func searchButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .searchFeedSearchbarClicked, screen: .search_feed))
+    analyticsClient.logEvent(.init(name: .searchFeedSearchbarClicked, screen: .search_feed))
   }
   
   private func recentSearchItemTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .searchFeedRecentKeywordClicked, screen: .search_feed))
+    analyticsClient.logEvent(.init(name: .searchFeedRecentKeywordClicked, screen: .search_feed))
   }
   
   private func keywordSearchItemTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .searchFeedFeedClicked, screen: .search_feed, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .searchFeedFeedClicked, screen: .search_feed, extraParameters: [.feedId: feedId]))
   }
 }

@@ -9,11 +9,14 @@
 import SwiftUI
 
 public enum CategoryType: String, CaseIterable {
+  case all = "ALL"
   case bookmarked = "BOOKMARKED"
   case unclassified = "UNCLASSIFIED"
   
   public var title: String {
     switch self {
+    case .all:
+      return "전체"
     case .bookmarked:
       return "북마크"
     case .unclassified:

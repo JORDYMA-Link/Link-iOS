@@ -174,7 +174,7 @@ public struct LoginFeature {
       case let .setSaveAnalyticsUserId(accessToken):
         return .run { _ in
           let userId = try await authClient.decodeUserId(accessToken)
-          analyticsClient.setUserId(userID: userId)
+          analyticsClient.setUserId(userId)
         }
         
       default:
@@ -188,6 +188,6 @@ public struct LoginFeature {
 
 extension LoginFeature {
   private func loginButtonTappedLog(_ type: SocialLoginInfo.Socialtype) {
-    analyticsClient.logEvent(event: .init(name: type == .kakao ? .kakaoLoginClicked : .appleLoginClicked, screen: .login))
+    analyticsClient.logEvent(.init(name: type == .kakao ? .kakaoLoginClicked : .appleLoginClicked, screen: .login))
   }
 }

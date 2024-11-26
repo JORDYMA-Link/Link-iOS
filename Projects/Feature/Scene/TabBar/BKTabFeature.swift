@@ -40,6 +40,8 @@ public struct BKTabFeature {
     var home: HomeFeature.State = .init()
     var storageBox: StorageBoxFeature.State = .init()
     
+    var sourceScreenId: StackElementID?
+    
     public init() {}
   }
   
@@ -168,16 +170,19 @@ public struct BKTabFeature {
         
         /// - 검색 -> `피드 디테일` 진입 시
       case let .path(.element(id: _, action: .SearchKeyword(.delegate(.routeFeedDetail(feedId))))):
+        state.sourceScreenId = state.path.ids.last
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
         return .none
         
         ///  - 캘린더 검색 -> `피드 디테일` 진입 시
       case let .path(.element(id: _, action: .Calendar(.delegate(.routeFeedDetail(feedId))))):
+        state.sourceScreenId = state.path.ids.last
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
         return .none
         
         /// - 폴더 별 피드 리스트 -> `피드 디테일` 진입 시
       case let .path(.element(id: _, action: .StorageBoxFeedList(.delegate(.routeFeedDetail(feedId))))):
+        state.sourceScreenId = state.path.ids.last
         state.path.append(.Link(LinkFeature.State(linkType: .feedDetail, feedId: feedId)))
         return .none
         
@@ -207,23 +212,24 @@ public struct BKTabFeature {
         
         /// - 피드 디테일 진입 후 `WillDisappear` 됐을 때
       case let .feedDetailWillDisappear(feed):
-        guard let stackElementId = state.path.ids.first,
-              let lastPath = state.path.first else {
-          return .none
+        // sourceScreenId -> 피드 디테일의 부모뷰 id 값
+        guard let sourceId = state.sourceScreenId,
+              let sourceState = state.path[id: sourceId] else {
+          return .send(.home(.feedDetailWillDisappear(feed)))
         }
         
-        switch lastPath {
-        case .SearchKeyword:
-          return .send(.path(.element(id: stackElementId, action: .SearchKeyword(.feedDetailWillDisappear(feed)))))
+        switch sourceState {
+        case .SearchKeyword(_):
+          return .send(.path(.element(id: sourceId, action: .SearchKeyword(.feedDetailWillDisappear(feed)))))
           
-        case .StorageBoxFeedList:
-          return .send(.path(.element(id: stackElementId, action: .StorageBoxFeedList(.feedDetailWillDisappear(feed)))))
+        case .Calendar(_):
+          return .send(.path(.element(id: sourceId, action: .Calendar(.feedDetailWillDisappear(feed)))))
           
-        case .Calendar:
-          return .send(.path(.element(id: stackElementId, action: .Calendar(.feedDetailWillDisappear(feed)))))
+        case .StorageBoxFeedList(_):
+          return .send(.path(.element(id: sourceId, action: .StorageBoxFeedList(.feedDetailWillDisappear(feed)))))
           
         default:
-          return .send(.home(.feedDetailWillDisappear(feed)))
+          return .none
         }
                 
         /// - 홈(미분류) -> `추천 폴더` 눌렀을 때  && 폴더함 -> `폴더` 진입 시
@@ -271,10 +277,10 @@ public struct BKTabFeature {
 
 extension BKTabFeature {
   private func roundedTabIconTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeSummaryClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeSummaryClicked, screen: .home))
   }
   
   private func tabbarStorageboxTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeTabbarStorageboxClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeTabbarStorageboxClicked, screen: .home))
   }
 }

@@ -116,7 +116,7 @@ public struct RootFeature: Reducer {
       case let .setSaveAnalyticsUserId(accessToken):
         return .run { _ in
           let userId = try await authClient.decodeUserId(accessToken)
-          analyticsClient.setUserId(userID: userId)
+          analyticsClient.setUserId(userId)
         }
         
       case let .setPopGestureEnabled(isEnabled):

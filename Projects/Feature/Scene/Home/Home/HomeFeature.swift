@@ -21,7 +21,7 @@ public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
     var viewDidLoad: Bool = false
-    var category: CategoryType = .bookmarked
+    var category: CategoryType = .all
     
     var selectedFeed: FeedCard?
     var feeds: BKCardFeature.State?
@@ -30,6 +30,8 @@ public struct HomeFeature: Reducer {
     
     var emptyTitle: String {
       switch category {
+      case .all:
+        return "저장된 콘텐츠가 없습니다."
       case .bookmarked:
         return "북마크된 콘텐츠가 없습니다\n중요한 링크는 북마크하여 바로 확인해보세요"
       case .unclassified:
@@ -140,6 +142,7 @@ public struct HomeFeature: Reducer {
             let feedList = try await feedClient.postFeedByType(state.category.rawValue, 0)
             
             await send(.setFeeds(feedList))
+            await send(.feeds(.setLoading(false)), animation: .default)
           },
           catch: { error, send in
             print(error)
@@ -164,20 +167,24 @@ public struct HomeFeature: Reducer {
           return .none
         } else {
           state.category = categoryType
-          return .run { send in
-            await send(.feeds(.setCategory(categoryType)))
-            await send(.setMorePagingStatus(true))
-            await send(.feeds(.resetPage))
-          }
-          .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
+          return .concatenate(
+            .send(.feeds(.setCategory(categoryType))),
+            .send(.feeds(.setLoading(true)), animation: .default),
+            .send(.setMorePagingStatus(true)),
+            .send(.feeds(.resetPage))
+            .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
+          )
         }
         
       case .pullToRefresh:
-        return .run { send in
-          await send(.setMorePagingStatus(true))
-          await send(.feeds(.resetPage))
-        }
-        .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
+        return .concatenate(
+          .send(.feeds(.setLoading(true)), animation: .default),
+          .send(.setMorePagingStatus(true)),
+          .run { send in
+            await send(.feeds(.resetPage))
+          }
+            .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
+        )
         
         /// 추후 서버 데이터로 변경하는 로직으로 수정 필요;
       case let .feedDetailWillDisappear(feed):
@@ -364,18 +371,18 @@ public struct HomeFeature: Reducer {
 
 extension HomeFeature {
   private func searchBarTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeSearchFeedClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeSearchFeedClicked, screen: .home))
   }
   
   private func calendarTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeCalendarClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeCalendarClicked, screen: .home))
   }
   
   private func cardItemTappedLog(feedId: Int) {
-    analyticsClient.logEvent(event: .init(name: .homeFeedClicked, screen: .home, extraParameters: [.feedId: feedId]))
+    analyticsClient.logEvent(.init(name: .homeFeedClicked, screen: .home, extraParameters: [.feedId: feedId]))
   }
-    
+  
   private func summaryToastRouteButtonTappedLog() {
-    analyticsClient.logEvent(event: .init(name: .homeSummaringFeedClicked, screen: .home))
+    analyticsClient.logEvent(.init(name: .homeSummaringFeedClicked, screen: .home))
   }
 }
