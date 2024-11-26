@@ -21,7 +21,7 @@ public struct HomeFeature: Reducer {
   @ObservableState
   public struct State: Equatable {
     var viewDidLoad: Bool = false
-    var category: CategoryType = .bookmarked
+    var category: CategoryType = .all
     
     var selectedFeed: FeedCard?
     var feeds: BKCardFeature.State?
@@ -30,6 +30,8 @@ public struct HomeFeature: Reducer {
     
     var emptyTitle: String {
       switch category {
+      case .all:
+        return "저장된 콘텐츠가 없습니다."
       case .bookmarked:
         return "북마크된 콘텐츠가 없습니다\n중요한 링크는 북마크하여 바로 확인해보세요"
       case .unclassified:
