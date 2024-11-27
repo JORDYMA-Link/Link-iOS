@@ -47,7 +47,7 @@ struct BKCardView: View {
   @ViewBuilder
   private func loadingView() -> some View {
     BKLoadingIndicator()
-      .frame(minHeight: emptyHeight)
+      .frame(maxWidth: .infinity, minHeight: emptyHeight)
       .background(Color.bkColor(.gray300))
   }
   
