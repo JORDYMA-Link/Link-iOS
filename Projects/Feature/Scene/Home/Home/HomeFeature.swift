@@ -168,8 +168,8 @@ public struct HomeFeature: Reducer {
         } else {
           state.category = categoryType
           return .concatenate(
-            .send(.feeds(.setCategory(categoryType))),
             .send(.feeds(.setLoading(true)), animation: .default),
+            .send(.feeds(.setCategory(categoryType))),
             .send(.setMorePagingStatus(true)),
             .send(.feeds(.resetPage))
             .throttle(id: ThrottleId.categoryButton, for: .seconds(0.3), scheduler: DispatchQueue.main, latest: true)
@@ -180,9 +180,7 @@ public struct HomeFeature: Reducer {
         return .concatenate(
           .send(.feeds(.setLoading(true)), animation: .default),
           .send(.setMorePagingStatus(true)),
-          .run { send in
-            await send(.feeds(.resetPage))
-          }
+          .run { send in await send(.feeds(.resetPage)) }
             .debounce(id: DebounceId.pullToRefresh, for: .seconds(0.3), scheduler: DispatchQueue.main)
         )
         
@@ -261,7 +259,7 @@ public struct HomeFeature: Reducer {
             print(error)
           }
         )
-        
+                
       case let .setFeeds(feedList):
         state.feeds = .init(feedList: feedList)
         return .none

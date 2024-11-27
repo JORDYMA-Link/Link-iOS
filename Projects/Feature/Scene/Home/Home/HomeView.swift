@@ -63,9 +63,9 @@ public struct HomeView: View {
                     VStack(spacing: 0) {
                       CategoryHeaderView(
                         store: store,
-                        scrollAction: {
-                          withAnimation {
-                            scrollProxy.scrollTo(topID, anchor: .top)
+                        scrollAction: { type in
+                          scrollProxy.scrollTo(topID, anchor: .top) {
+                            store.send(.categoryButtonTapped(type), animation: .default)
                           }
                         }
                       )
@@ -173,11 +173,11 @@ private struct HomeBanner: View {
 
 private struct CategoryHeaderView: View {
   @Perception.Bindable private var store: StoreOf<HomeFeature>
-  private let scrollAction: () -> Void
+  private let scrollAction: (CategoryType) -> Void
   
   init(
     store: StoreOf<HomeFeature>,
-    scrollAction: @escaping () -> Void
+    scrollAction: @escaping (CategoryType) -> Void
   ) {
     self.store = store
     self.scrollAction = scrollAction
@@ -191,10 +191,7 @@ private struct CategoryHeaderView: View {
             BKCategoryButton(
               title: type.title,
               isSelected: store.category == type,
-              action: {
-                scrollAction()
-                store.send(.categoryButtonTapped(type), animation: .default)
-              }
+              action: { scrollAction(type) }
             )
           }
         }
@@ -224,7 +221,7 @@ final class ScrollViewDelegate: NSObject, UIScrollViewDelegate, ObservableObject
   
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
     DispatchQueue.main.async {
-      self.isScrollDetected = scrollView.contentOffset.y >  self.headerMaxY
+      self.isScrollDetected = scrollView.contentOffset.y > self.headerMaxY
     }
   }
 }
