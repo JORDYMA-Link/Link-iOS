@@ -61,5 +61,7 @@
 	</array>
 	<key>UIUserInterfaceStyle</key>
 	<string>Light</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>Blink에서 사용자에게 맞춤 광고를 위해 추적 권한을 요청합니다</string>
 </dict>
 </plist>
