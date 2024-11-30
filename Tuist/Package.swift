@@ -1,8 +1,8 @@
 // swift-tools-version: 5.9
-import PackageDescription
+@preconcurrency import PackageDescription
 
 #if TUIST
-  import ProjectDescription
+@preconcurrency import ProjectDescription
 
 let packageSettings = PackageSettings(
     productTypes: [
@@ -10,6 +10,7 @@ let packageSettings = PackageSettings(
         "Moya": .framework,
         "FirebaseMessaging": .staticLibrary,
         "FirebaseAnalytics": .staticLibrary,
+        "GoogleMobileAds": .framework,
         "Lottie": .framework,
         "Kingfisher": .framework,
         "SwiftUIIntrospect": .framework,
@@ -23,6 +24,7 @@ let package = Package(
     name: "blink",
     dependencies: [
         .package(url: "https://github.com/firebase/firebase-ios-sdk", from: "11.0.0"),
+        .package(url: "https://github.com/googleads/swift-package-manager-google-mobile-ads.git", from: "11.12.0"),
         .package(url: "https://github.com/onevcat/Kingfisher", from: "7.9.1"),
         .package(url: "https://github.com/airbnb/lottie-ios.git", from: "4.4.3"),
         .package(url: "https://github.com/siteline/swiftui-introspect", exact: "1.3.0"),

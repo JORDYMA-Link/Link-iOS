@@ -11,8 +11,8 @@ import Foundation
 import Services
 
 import ComposableArchitecture
-import FirebaseCore
 import FirebaseMessaging
+import FirebaseCore
 
 @Reducer
 struct AppDelegateFeature {

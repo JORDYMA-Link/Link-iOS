@@ -11,8 +11,7 @@ import SwiftUI
 import Feature
 
 import ComposableArchitecture
-import FirebaseCore
-import FirebaseMessaging
+import GoogleMobileAds
 
 final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
   let store = StoreOf<AppDelegateFeature>.init(
@@ -26,6 +25,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationC
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    
+    GADMobileAds.sharedInstance().start(completionHandler: nil)
     store.send(.didFinishLaunching)
     return true
   }
