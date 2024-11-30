@@ -5,7 +5,7 @@
 //  Created by kyuchul on 10/18/24.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 import ProjectDescriptionHelpers
 import DependencyPlugin
 
