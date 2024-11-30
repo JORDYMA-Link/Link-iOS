@@ -27,6 +27,7 @@ struct AppDelegateFeature {
     case initKakaoSDK
     case setUpNotificationCenter
     case setUpFirebase
+    case setUpGoogleAds
     
     case setUserNotificationCenterDelegate
     case setUserNotificationCenterAuthorization
@@ -41,6 +42,8 @@ struct AppDelegateFeature {
   @Dependency(\.userDefaultsClient) private var userDefault
   @Dependency(\.socialLogin) private var socialLogin
   @Dependency(\.userNotificationClient) private var userNotificationClient
+  @Dependency(ATTrackingManagerClient.self) private var attrackingManagerClient
+  @Dependency(GoogleMobileAdsClient.self) private var googleMobileAdsClient
   
   var body: some ReducerOf<Self> {
     Reduce { state, action in
@@ -53,6 +56,8 @@ struct AppDelegateFeature {
           await send(.setUpNotificationCenter)
           /// Firebase 설정
           await send(.setUpFirebase)
+          /// Google Ads 설정
+          await send(.setUpGoogleAds)
         }
         
       case let .didRegisterForRemoteNotificationsWithDeviceToken(deviceToken):
@@ -77,6 +82,12 @@ struct AppDelegateFeature {
         return .run { send in
           await send(.setFirebaseConfigure)
           await send(.setFirebaseIsAutoInitEnabled)
+        }
+        
+      case .setUpGoogleAds:
+        return .run { send in
+          await attrackingManagerClient.requestTrackingAuthorization()
+          await googleMobileAdsClient.start()
         }
         
       case .setUserNotificationCenterDelegate:
