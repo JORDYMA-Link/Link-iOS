@@ -22,22 +22,30 @@ public struct SaveLinkFeature {
     var isValidationURL = true
     var validationReasonText = "URL 형식이 올바르지 않아요. 다시 입력해주세요."
     var isLoading: Bool = false
+    
+    var ad: GoogleAd?
+    var isAdPresented: Bool = false
   }
   
   public enum Action: BindableAction {
     case binding(BindingAction<State>)
     
     //MARK: UserAction
+    case onAppear
     case onTapNextButton
+    case adDismissButtonTapped
     case onTapBackButton
     
     // MARK: Inner Business Action
     case postLinkSummary
+    case loadAd
     case sendAnalyticsLog
     
     // MARK: Inner SetState Action
+    case setAd(GoogleAd)
+    case setAdPresented(Bool)
     case setLoading(Bool)
-            
+    
     // MARK: Present Action
     case linkSummaryLoadingAlertPresented
     case linkSummaryFailAlertPresented
@@ -47,6 +55,7 @@ public struct SaveLinkFeature {
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(AnalyticsClient.self) private var analyticsClient
+  @Dependency(GoogleMobileAdsClient.self) private var googleMobileAdsClient
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
@@ -66,6 +75,9 @@ public struct SaveLinkFeature {
         
         return .none
         
+      case .onAppear:
+        return .send(.loadAd)
+                
       case .onTapBackButton:
         return .run { _ in await self.dismiss() }
         
@@ -75,6 +87,18 @@ public struct SaveLinkFeature {
           await send(.sendAnalyticsLog)
         }
         
+      case .adDismissButtonTapped:
+        return .run { send in
+          await send(.setLoading(false))
+          await send(.linkSummaryLoadingAlertPresented)
+          
+          // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
+          try? await Task.sleep(for: .seconds(2))
+          
+          await alertClient.dismiss()
+          await send(.onTapBackButton)
+        }
+        
       case .postLinkSummary:
         return .run(
           operation: { [state] send in
@@ -82,14 +106,7 @@ public struct SaveLinkFeature {
             
             _ = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
             
-            await send(.setLoading(false))
-            await send(.linkSummaryLoadingAlertPresented)
-            
-            // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
-            try? await Task.sleep(for: .seconds(2))
-            
-            await alertClient.dismiss()
-            await send(.onTapBackButton)
+            await send(.setAdPresented(true))
           },
           catch: { error, send in
             await send(.setLoading(false))
@@ -97,15 +114,29 @@ public struct SaveLinkFeature {
           }
         )
         
+      case .loadAd:
+        return .run { send in
+          let ad = try await googleMobileAdsClient.load()
+          await send(.setAd(ad))
+        }
+        
       case .sendAnalyticsLog:
         feedSummaryButtonTappedLog()
+        return .none
+        
+      case let .setAd(ad):
+        state.ad = ad
+        return .none
+        
+      case let .setAdPresented(isPresented):
+        state.isAdPresented = isPresented
         return .none
         
       case let .setLoading(isLoading):
         state.isLoading = isLoading
         return .none
         
-        case .linkSummaryLoadingAlertPresented:
+      case .linkSummaryLoadingAlertPresented:
         return .run { send in
           await alertClient.present(.init(
             isLoadingType: true,
@@ -117,16 +148,16 @@ public struct SaveLinkFeature {
         }
         
       case .linkSummaryFailAlertPresented:
-      return .run { send in
-        await alertClient.present(.init(
-          title: "요약 불가",
-          imageType: .link,
-          description: "링크 요약에 실패했습니다",
-          buttonType: .singleButton("메인으로"),
-          rightButtonAction: { await send(.onTapBackButton) }
-        ))
-      }
-                
+        return .run { send in
+          await alertClient.present(.init(
+            title: "요약 불가",
+            imageType: .link,
+            description: "링크 요약에 실패했습니다",
+            buttonType: .singleButton("메인으로"),
+            rightButtonAction: { await send(.onTapBackButton) }
+          ))
+        }
+        
       default:
         return .none
       }
