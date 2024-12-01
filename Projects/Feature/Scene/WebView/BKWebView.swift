@@ -39,23 +39,25 @@ struct BKWebView: UIViewRepresentable {
   }
 }
 
-final class Coordinator: NSObject, WKNavigationDelegate {
-  private let parent: BKWebView
-  
-  init(parent: BKWebView) {
-    self.parent = parent
-  }
-  
-  func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+extension BKWebView {
+  final class Coordinator: NSObject, WKNavigationDelegate {
+    private let parent: BKWebView
+    
+    init(parent: BKWebView) {
+      self.parent = parent
+    }
+    
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
       if let urlString = webView.url?.absoluteString {
         self.parent.viewModel.title = urlString
       }
+      
+      self.parent.viewModel.canGoBack = webView.canGoBack
+      self.parent.viewModel.canGoForward = webView.canGoForward
+    }
     
-    self.parent.viewModel.canGoBack = webView.canGoBack
-    self.parent.viewModel.canGoForward = webView.canGoForward
-  }
-  
-  func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    self.parent.viewModel.isLoading = false
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+      self.parent.viewModel.isLoading = false
+    }
   }
 }

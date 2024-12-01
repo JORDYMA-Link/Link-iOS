@@ -10,8 +10,6 @@ import Foundation
 
 import Models
 
-
-
 struct FeedResponse: Decodable {
   let feedId: Int
   let thumbnailImage: String
