@@ -5,7 +5,7 @@
 //  Created by kyuchul on 9/27/24.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 import ProjectDescriptionHelpers
 import DependencyPlugin
 
@@ -20,9 +20,11 @@ let project = Project.make(
                     .external(externalDependency: .kakaoSDK),
                     .external(externalDependency: .firebaseAnalytics),
                     .external(externalDependency: .firebaseMessaging),
+                    .external(externalDependency: .googleMobileAds),
                     .external(externalDependency: .moya),
                     .external(externalDependency: .introspect),
-                    .external(externalDependency: .FSCalendar)
+                    .external(externalDependency: .FSCalendar),
+                    .sdk(name: "JavaScriptCore", type: .framework)
                 ]
             )
         )

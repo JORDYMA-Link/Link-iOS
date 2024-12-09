@@ -5,7 +5,7 @@
 //  Created by kyuchul on 9/29/24.
 //
 
-import ProjectDescription
+@preconcurrency import ProjectDescription
 
 let config = Config(
     plugins: [

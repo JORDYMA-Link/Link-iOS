@@ -82,6 +82,15 @@ public struct SaveLinkView: View {
       .if(store.isLoading) { view in
         view.progressBackground()
       }
+      .onAppear { store.send(.onAppear) }
+      .fullScreenCover(isPresented: $store.isAdPresented) {
+        BKGoogleAdView(
+          isPresented: $store.isAdPresented,
+          interstitialAd: $store.ad,
+          dismissAdScreen: { store.send(.adDismissButtonTapped) }
+        )
+        .presentationClearBackground()
+      }
     }
   }
 }

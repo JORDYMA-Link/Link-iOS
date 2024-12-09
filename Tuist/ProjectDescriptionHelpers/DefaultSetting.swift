@@ -1,4 +1,4 @@
-import ProjectDescription
+@preconcurrency import ProjectDescription
 
 public struct DefaultSetting {
     public static let DeploymentTargets: DeploymentTargets = .iOS("16.2")

@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import ProjectDescription
+@preconcurrency import ProjectDescription
 
 public extension SourceFilesList {
     static let exampleSources: SourceFilesList = "Example/Sources/**"

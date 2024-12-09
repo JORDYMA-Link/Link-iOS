@@ -11,8 +11,6 @@ import SwiftUI
 import Feature
 
 import ComposableArchitecture
-import FirebaseCore
-import FirebaseMessaging
 
 final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
   let store = StoreOf<AppDelegateFeature>.init(
