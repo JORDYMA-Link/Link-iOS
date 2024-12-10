@@ -18,9 +18,9 @@ extension BKExternalURL {
   public var urlString: String {
     switch self {
     case .privacy:
-      return "https://daffy-sandal-6ef.notion.site/4df567ac571948f0a2b7d782bde3767a?pvs=4"
+      return "https://daffy-sandal-6ef.notion.site/fb6f49c6bd714097a422c39d5047e7f5"
     case .termOfUse:
-      return "https://daffy-sandal-6ef.notion.site/ea068d8517af4ca0a719916f7d23dee2?pvs=4"
+      return "https://daffy-sandal-6ef.notion.site/c784f55ca8164c669845d3569cd6683a"
     case .introduceService:
       return "https://daffy-sandal-6ef.notion.site/100-5d76361912514364864547cbc1600531?pvs=4"
     }
