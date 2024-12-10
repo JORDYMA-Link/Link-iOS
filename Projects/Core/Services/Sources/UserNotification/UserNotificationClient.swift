@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import UserNotifications
+@preconcurrency import UserNotifications
 
 import Dependencies
 
@@ -18,7 +18,7 @@ public struct UserNotificationClient {
   public var registerForRemoteNotifications: @Sendable () async -> Void
   
   
-  public enum DelegateEvent {
+  public enum DelegateEvent: Sendable {
     case didReceiveResponse(UNNotificationResponse, completionHandler: @Sendable () -> Void)
     case willPresentNotification(UNNotification, completionHandler: @Sendable (UNNotificationPresentationOptions) -> Void)
   }

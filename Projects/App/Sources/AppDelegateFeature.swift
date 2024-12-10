@@ -20,7 +20,7 @@ struct AppDelegateFeature {
   struct State: Equatable {
   }
   
-  enum Action {
+  enum Action: Sendable {
     case didFinishLaunching
     case didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: Data)
     
@@ -93,7 +93,7 @@ struct AppDelegateFeature {
       case .setUserNotificationCenterDelegate:
         return .run { send in
           for await event in self.userNotificationClient.delegate() {
-            await send(.setUserNotifications(event))
+              await send(.setUserNotifications(event))
           }
         }
         
