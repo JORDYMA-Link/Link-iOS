@@ -11,9 +11,10 @@ import AuthenticationServices
 
 import Models
 
-enum AppleErrorType: Error {
+public enum AppleErrorType: Error {  
   case invalidToken
   case invalidAuthorizationCode
+  case dismissASAuthorizationController
 }
 
 final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
@@ -76,8 +77,18 @@ final class AppleLogin: NSObject, ASAuthorizationControllerDelegate {
     }
   }
   
+  @MainActor
   func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-      continuation?.resume(throwing: error)
-      continuation = nil
+    if let authError = error as? ASAuthorizationError {
+      switch authError.code {
+      case .canceled:
+        continuation?.resume(throwing: AppleErrorType.dismissASAuthorizationController)
+        continuation = nil
+
+      default:
+        continuation?.resume(throwing: authError)
+        continuation = nil
+      }
+    }
   }
 }

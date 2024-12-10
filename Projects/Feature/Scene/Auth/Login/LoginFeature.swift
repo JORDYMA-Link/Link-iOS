@@ -106,7 +106,18 @@ public struct LoginFeature {
             await send(.login(info))
           },
           catch: { error, send in
-            debugPrint(error)
+            await send(.setLoading(false))
+            
+            guard let appleAuthError = error as? AppleErrorType else {
+              await send(.loginFailAlertPresented)
+              return
+            }
+            
+            if case .dismissASAuthorizationController = appleAuthError {
+              return
+            }
+            
+            await send(.loginFailAlertPresented)
           }
         )
         .throttle(id: ThrottleId.appleLoginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
