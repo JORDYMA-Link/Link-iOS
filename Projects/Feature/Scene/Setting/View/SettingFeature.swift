@@ -17,7 +17,7 @@ import ComposableArchitecture
 public struct SettingFeature {
   @ObservableState
   public struct State: Equatable {
-    var nickname: String = "블링크"
+    var nickname: String = ""
     var validationNoticeMessage: String = ""
     var currentAppVersion: String = Bundle.currentAppVersion
     var latestAppVersion: String = "Unknown"
@@ -46,8 +46,9 @@ public struct SettingFeature {
     case versionInfo
     case tappedServiceInfo
     case tappedLogOut
-    case tappedWithdrawCell
+    case logoutAlertRightButtonTapped
     case signoutButtonTapped
+    case signoutAlertRightButtonTapped
     case changeConfirmWithdrawModal
     case confirmedWithdrawWarning
     case tappedCompletedEditingNickname
@@ -69,7 +70,6 @@ public struct SettingFeature {
     }
     case delegate(Delegate)
   }
-  
   
   private enum NicknameValidationNotice {
     case notAllowOthreLanguage
@@ -102,6 +102,7 @@ public struct SettingFeature {
   
   private enum ThrottleId {
     case logoutButton
+    case signoutButton
   }
   
   public var body: some ReducerOf<Self> {
@@ -142,18 +143,36 @@ public struct SettingFeature {
             title: "로그아웃",
             description: "정말 로그아웃 하시겠어요?",
             buttonType: .doubleButton(left: "아니오", right: "로그아웃"),
-            rightButtonAction: { await send(.postLogout) })
+            rightButtonAction: { await send(.logoutAlertRightButtonTapped) })
           )
         }
         .throttle(id: ThrottleId.logoutButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
-      case .tappedWithdrawCell:
-        state.showWithdrawModal = true
-        return .none
+      case .logoutAlertRightButtonTapped:
+        return .concatenate(
+          .send(.postLogout),
+          .merge(
+            .send(.setDeleteKeychain),
+            .send(.setDeleteUserDefaults)
+          ),
+          .send(.delegate(.logout))
+        )
         
       case .signoutButtonTapped:
-        return .send(.postSignout)
+        state.showWithdrawModal = true
+        return .none
+          .throttle(id: ThrottleId.signoutButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
+      case .signoutAlertRightButtonTapped:
+        return .concatenate(
+          .send(.postSignout),
+          .merge(
+            .send(.setDeleteKeychain),
+            .send(.setDeleteUserDefaults)
+          ),
+          .send(.delegate(.signout))
+        )
+                
       case .tappedNotice:
         state.noticeContent = .init()
         return .none
@@ -177,16 +196,12 @@ public struct SettingFeature {
           let response = try await userClient.requestUserProfile(targetNickName)
           await send(.changeNickName(targetNickname: response.nickname))
         }
-        
+                
       case .postLogout:
         return .run(
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
-            
             try await authClient.logout(refreshToken)
-            
-            await send(.setDeleteKeychain)
-            await send(.delegate(.logout))
           },
           catch : { error, send in
             print(error)
@@ -197,12 +212,7 @@ public struct SettingFeature {
         return .run(
           operation: { send in
             let refreshToken = keychainClient.read(.refreshToken)
-            
             try await authClient.signout(refreshToken)
-            
-            await send(.setDeleteKeychain)
-            await send(.setDeleteUserDefaults)
-            await send(.delegate(.signout))
           },
           catch : { error, send in
             print(error)
