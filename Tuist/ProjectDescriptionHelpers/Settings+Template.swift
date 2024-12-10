@@ -16,7 +16,8 @@ public extension ProjectDescription.Settings {
                 "CODE_SIGN_STYLE": "Manual",
                 "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
                 "OTHER_LDFLAGS": "$(inherited) -ObjC",
-                "ENABLE_BITCODE": "NO"
+                "ENABLE_BITCODE": "NO",
+                "SWIFT_VERSION": .string("6.0")
             ],
             configurations: [
                 .release(
@@ -39,10 +40,12 @@ public extension ProjectDescription.Settings {
     
     static var projectSettings: Self {
         return .settings(
-            base: ["OTHER_LDFLAGS": "$(inherited) -ObjC",
-                   "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-                   "ENABLE_BITCODE": "NO"
-                  ],
+            base: [
+                "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                "ENABLE_BITCODE": "NO",
+                "SWIFT_VERSION": .string("6.0")
+            ],
             configurations: [
                 .release(
                     name: .release,
