@@ -24,36 +24,38 @@ public struct LoginView: View {
   public var body: some View {
     NavigationStack {
       WithPerceptionTracking {
-        ZStack {
-          Color.white
+        VStack(alignment: .center, spacing: 0) {
+          Spacer()
+          Spacer()
           
-          VStack(alignment: .center, spacing: 0) {
-            Spacer()
-            Spacer()
+          logo
+          title
+          
+          Spacer()
+          Spacer()
+          Spacer()
+          
+          VStack(spacing: 12) {
+            makeLoginButton(action: {
+              HapticFeedbackManager.shared.impact(style: .light)
+              store.send(.kakaoLoginButtonTapped)
+            }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
             
-            logo
-            title
+            makeLoginButton(action: {
+              HapticFeedbackManager.shared.impact(style: .light)
+              store.send(.appleLoginButtonTapped)
+            }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
             
-            Spacer()
-            Spacer()
-            Spacer()
-            
-            VStack(spacing: 12) {
-              makeLoginButton(action: {
-                HapticFeedbackManager.shared.impact(style: .light)
-                store.send(.kakaoLoginButtonTapped)
-              }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
-              
-              makeLoginButton(action: {
-                HapticFeedbackManager.shared.impact(style: .light)
-                store.send(.appleLoginButtonTapped)
-              }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
-              
-              makeTerms(
-                serviceTerms:makeTermsText("서비스 약관", url: BKExternalURL.termOfUse.urlString),
-                privacyPolicy: makeTermsText("개인정보 처리방침", url: BKExternalURL.privacy.urlString)
-              )
-            }
+            makeTerms(
+              serviceTerms:makeTermsText("서비스 약관", url: BKExternalURL.termOfUse.urlString),
+              privacyPolicy: makeTermsText("개인정보 처리방침", url: BKExternalURL.privacy.urlString)
+            )
+          }
+        }
+        .background(.white)
+        .if(store.isLoading) { view in
+          view.overlay {
+            LoginIndicator()
           }
         }
       }
@@ -136,5 +138,17 @@ public struct LoginView: View {
     attributedString.underlineStyle = .single
     attributedString.link = URL(string: url)
     return attributedString
+  }
+}
+
+private struct LoginIndicator: View {
+  var body: some View {
+    VStack {
+      Spacer()
+      BKLoadingIndicator()
+      Spacer()
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+    .ignoresSafeArea()
   }
 }

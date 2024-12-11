@@ -14,20 +14,13 @@ public struct BKLoadingIndicator: View {
   public init() {}
   
   public var body: some View {
-    VStack {
-      Spacer()
-      
-      LottieView(
-        animation: .named(
-          "loadingIndicator",
-          bundle: CommonFeatureResources.bundle
-        )
+    LottieView(
+      animation: .named(
+        "loadingIndicator",
+        bundle: CommonFeatureResources.bundle
       )
-      .playing(loopMode: .loop)
-      .backgroundBehavior(.pauseAndRestore)
-      
-      Spacer()
-      Spacer()
-    }
+    )
+    .playing(loopMode: .loop)
+    .backgroundBehavior(.pauseAndRestore)
   }
 }

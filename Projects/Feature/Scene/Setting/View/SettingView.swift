@@ -44,7 +44,7 @@ public struct SettingView: View {
       ), destination: { store in
         NoticeView(store: store)
       })
-      .signoutAlert(isPresented: $store.showWithdrawModal, buttonAction:  { store.send(.signoutButtonTapped) })
+      .signoutAlert(isPresented: $store.showWithdrawModal, buttonAction: { store.send(.signoutAlertRightButtonTapped) })
       .onAppear(perform: {
         store.send(.requestSettingInfo)
       })
@@ -161,7 +161,7 @@ extension SettingView {
           
           Button(action: {
             HapticFeedbackManager.shared.notification(type: .error)
-            store.send(.tappedWithdrawCell)
+            store.send(.signoutButtonTapped)
           }, label: {
             Text("회원탈퇴")
               .font(.regular(size: ._12))

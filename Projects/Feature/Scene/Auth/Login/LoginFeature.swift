@@ -21,6 +21,7 @@ public struct LoginFeature {
   @ObservableState
   public struct State: Equatable {
     var loginInfo: SocialLoginInfo?
+    var isLoading: Bool = false
     
     public init() {}
   }
@@ -41,6 +42,7 @@ public struct LoginFeature {
     case setSocialLoginInfo(SocialLoginInfo)
     case setSaveKeychain(TokenInfo)
     case setSaveAnalyticsUserId(String)
+    case setLoading(Bool)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -49,9 +51,13 @@ public struct LoginFeature {
     }
     
     case delegate(Delegate)
+    
+    // MARK: Present Action
+    case loginFailAlertPresented
   }
   
   @Dependency(AnalyticsClient.self) private var analyticsClient
+  @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.keychainClient) private var keychainClient
   @Dependency(\.socialLogin) private var socialLogin
@@ -76,11 +82,15 @@ public struct LoginFeature {
         
         return .run(
           operation: { send in
+            await send(.setLoading(true))
+            
             let info = try await socialLogin.kakaoLogin()
             await send(.login(info))
           },
           catch: { error, send in
             debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
           }
         )
         .throttle(id: ThrottleId.kakaoLoginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
@@ -90,11 +100,24 @@ public struct LoginFeature {
         
         return .run(
           operation: { send in
+            await send(.setLoading(true))
+            
             let info = try await socialLogin.appleLogin()
             await send(.login(info))
           },
           catch: { error, send in
-            debugPrint(error)
+            await send(.setLoading(false))
+            
+            guard let appleAuthError = error as? AppleErrorType else {
+              await send(.loginFailAlertPresented)
+              return
+            }
+            
+            if case .dismissASAuthorizationController = appleAuthError {
+              return
+            }
+            
+            await send(.loginFailAlertPresented)
           }
         )
         .throttle(id: ThrottleId.appleLoginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
@@ -120,6 +143,8 @@ public struct LoginFeature {
           },
           catch: { error, send in
             debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
           }
         )
         
@@ -130,6 +155,9 @@ public struct LoginFeature {
             
             let folderList = try await folderListResponse
             
+            await send(.setLoading(false))
+            try? await Task.sleep(for: .seconds(0.2))
+            
             if folderList.isEmpty {
               await send(.delegate(.moveToOnboarding))
             } else {
@@ -138,20 +166,21 @@ public struct LoginFeature {
           },
           catch: { error, send in
             debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
           }
         )
         
       case .putFcmPushToken:
         return .run(
           operation: { send in
-            guard !userDefaultsClient.string(.fcmToken, "").isEmpty else {
-              return
-            }
-            
+            guard !userDefaultsClient.string(.fcmToken, "").isEmpty else { return }
             try await userClient.putFcmPushToken(userDefaultsClient.string(.fcmToken, ""))
           },
           catch: { error, send in
             debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
           }
         )
         
@@ -160,21 +189,50 @@ public struct LoginFeature {
         return .none
         
       case let .setSaveKeychain(token):
-        return .run { send in
-          try await keychainClient.save(.accessToken, token.accessToken)
-          try await keychainClient.save(.refreshToken, token.refreshToken)
-          
-          await send(.putFcmPushToken)
-          await send(.setSaveAnalyticsUserId(token.accessToken))
-          /// 폴더 유무로 첫 가입 유저 확인
-          await send(.fetchFolderList)
-          
-        }
+        return .run(
+          operation: { send in
+            try await keychainClient.save(.accessToken, token.accessToken)
+            try await keychainClient.save(.refreshToken, token.refreshToken)
+            
+            await send(.putFcmPushToken)
+            await send(.setSaveAnalyticsUserId(token.accessToken))
+            await send(.fetchFolderList)
+          },
+          catch: { error, send in
+            debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
+          }
+        )
         
       case let .setSaveAnalyticsUserId(accessToken):
-        return .run { _ in
-          let userId = try await authClient.decodeUserId(accessToken)
-          analyticsClient.setUserId(userId)
+        return .run(
+          operation: { send in
+            let userId = try await authClient.decodeUserId(accessToken)
+            analyticsClient.setUserId(userId)
+          },
+          catch: { error, send in
+            debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
+          }
+        )
+        
+      case let .setLoading(isLoading):
+        state.isLoading = isLoading
+        return .none
+        
+      case .loginFailAlertPresented:
+        return .run { send in
+          await alertClient.present(.init(
+            title: "로그인 실패",
+            description: """
+                          로그인에 실패하였습니다. 
+                          잠시 후 다시 시도해주세요.
+                          """,
+            buttonType: .singleButton(),
+            rightButtonAction: {}
+          ))
         }
         
       default:

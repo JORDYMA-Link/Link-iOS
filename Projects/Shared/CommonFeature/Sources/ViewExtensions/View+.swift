@@ -44,3 +44,9 @@ public extension View {
       }
   }
 }
+
+public extension View {
+  func dimmedBackground(_ opacity: Double = 0.56) -> some View {
+    self.overlay { Color.black.opacity(opacity) }
+  }
+}

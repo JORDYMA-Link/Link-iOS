@@ -37,6 +37,7 @@ public struct SplashView: View {
             .scaledToFill()
             .frame(width: proxy.size.width, height: proxy.size.height)
         )
+        .onAppear { store.send(.onAppear) }
       }
     }
   }

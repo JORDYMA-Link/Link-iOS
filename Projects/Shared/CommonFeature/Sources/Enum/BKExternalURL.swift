@@ -22,7 +22,7 @@ extension BKExternalURL {
     case .termOfUse:
       return "https://daffy-sandal-6ef.notion.site/c784f55ca8164c669845d3569cd6683a"
     case .introduceService:
-      return "https://daffy-sandal-6ef.notion.site/100-5d76361912514364864547cbc1600531?pvs=4"
+      return "https://daffy-sandal-6ef.notion.site/6addddc3f4164264b4fc58d01cbfd706?pvs=4"
     }
   }
   public var url: URL {
