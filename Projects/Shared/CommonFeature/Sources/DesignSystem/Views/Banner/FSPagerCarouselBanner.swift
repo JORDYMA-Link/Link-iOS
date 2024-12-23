@@ -15,9 +15,14 @@ public struct FSPagerCarouselBanner: UIViewRepresentable {
   private let bannerView = BannerView()
   
   @Binding private var bannerItems: [BannerItem]
+  private let action: (BKBannerType) -> Void
   
-  public init (bannerItems: Binding<[BannerItem]>) {
+  public init(
+    bannerItems: Binding<[BannerItem]>,
+    action: @escaping (BKBannerType) -> Void
+  ) {
     self._bannerItems = bannerItems
+    self.action = action
   }
   
   public func makeUIView(context: Context) -> BannerView {
@@ -68,7 +73,7 @@ extension FSPagerCarouselBanner {
     public func pagerView(_ pagerView: FSPagerView, didSelectItemAt index: Int) {
       guard let item = parent.bannerItems[safe: index] else { return }
         
-//        parent.didSelect(urlString)
+      parent.action(item.type)
     }
     
     public func pagerViewWillEndDragging(_ pagerView: FSPagerView, targetIndex: Int) {

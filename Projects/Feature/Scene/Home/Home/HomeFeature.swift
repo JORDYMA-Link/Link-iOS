@@ -47,6 +47,11 @@ public struct HomeFeature: Reducer {
     
     var summaryType: SummaryType = .summarizing
     var isSummaryToastPresented = false
+    
+    var bannerItems: [BannerItem] = [
+      .init(type: .instruction),
+      .init(type: .kakaoChannel)
+    ]
   }
   
   public enum Action: BindableAction {
@@ -56,6 +61,7 @@ public struct HomeFeature: Reducer {
     case onAppear
     case onViewDidLoad
     case settingButtonTapped
+    case homeBannerItemTapped(BKBannerType)
     case searchBannerSearchBarTapped
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)

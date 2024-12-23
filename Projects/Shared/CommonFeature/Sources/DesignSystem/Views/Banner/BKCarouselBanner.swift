@@ -11,19 +11,25 @@ import SwiftUI
 /// iOS 18.0 이상 Carousel 사용 시 
 @available(iOS 18.0, *)
 public struct BKCarouselBanner: View {
+  @Binding private var bannerItems: [BannerItem]
+  private let action: (BKBannerType) -> Void
   @State private var activePage: Int = 0
-  private var bannerItems: [BannerItem] = [
-    .init(type: .instruction),
-    .init(type: .kakaoChannel)
-  ]
   
-  public init() {}
+  
+  public init(
+    bannerItems: Binding<[BannerItem]>,
+    action: @escaping (BKBannerType) -> Void
+  ) {
+    self._bannerItems = bannerItems
+    self.action = action
+  }
   
   public var body: some View {
     BKCarousel(activeIndex: $activePage) {
       ForEach(bannerItems) { item in
         BKBannerItem(type: item.type)
           .padding(.horizontal, 1)
+          .hapticTapGesture { action(item.type) }
       }
     }
     .frame(height: 74)

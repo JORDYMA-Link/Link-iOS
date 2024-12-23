@@ -13,7 +13,7 @@ public enum BKBannerType: CaseIterable {
   case kakaoChannel
 }
 
-public struct BannerItem: Identifiable {
+public struct BannerItem: Identifiable, Equatable {
   public var id: String = UUID().uuidString
   public var type: BKBannerType
   
