@@ -1,5 +1,5 @@
 //
-//  BKInstructionBanner.swift
+//  BKBannerItem.swift
 //  CommonFeature
 //
 //  Created by kyuchul on 8/30/24.
@@ -8,8 +8,17 @@
 
 import SwiftUI
 
-public struct BKInstructionBanner: View {
-  public init() {}
+public enum BKBannerType: CaseIterable {
+  case instruction
+  case kakaoChannel
+}
+
+public struct BKBannerItem: View {
+  private let type: BKBannerType
+  
+  public init(type: BKBannerType) {
+    self.type = type
+  }
   
   public var body: some View {
     HStack(spacing: 0) {
@@ -32,24 +41,17 @@ public struct BKInstructionBanner: View {
     .clipShape(RoundedRectangle(cornerRadius: 10))
   }
   
-  @ViewBuilder
   private var logo: some View {
-    Circle()
-      .fill(Color.bkColor(.white))
+    logoImage
+      .resizable()
+      .scaledToFill()
       .frame(width: 50, height: 50)
-      .overlay {
-        CommonFeature.Images.graphicLogo
-          .resizable()
-          .scaledToFit()
-          .frame(width: 32, height: 32)
-      }
   }
   
-  @ViewBuilder
   private var instructionView: some View {
     VStack(alignment: .leading, spacing: 2) {
       BKText(
-        text: "알면 알수록 똑똑한 앱, 블링크",
+        text: subTitle,
         font: .regular,
         size: ._12,
         lineHeight: 18,
@@ -58,7 +60,7 @@ public struct BKInstructionBanner: View {
       .lineLimit(1)
       
       BKText(
-        text: "100% 활용하는 방법 확인하기",
+        text: title,
         font: .semiBold,
         size: ._14,
         lineHeight: 18,
@@ -67,5 +69,37 @@ public struct BKInstructionBanner: View {
       .lineLimit(1)
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+}
+
+private extension BKBannerItem {
+  var logoImage: Image {
+    switch type {
+    case .instruction:
+      CommonFeature.Images.icoCircleAppLogo
+      
+    case .kakaoChannel:
+      CommonFeature.Images.icoCircleKakao
+    }
+  }
+    
+  var subTitle: String {
+    switch type {
+    case .instruction:
+      "알면 알수록 똑똑한 앱, 블링크"
+      
+    case .kakaoChannel:
+      "서비스 이용에 불편이 있나요?"
+    }
+  }
+  
+  var title: String {
+    switch type {
+    case .instruction:
+      "100% 활용하는 방법 확인하기"
+      
+    case .kakaoChannel:
+      "톡상담으로 빠르게 해결하기"
+    }
   }
 }
