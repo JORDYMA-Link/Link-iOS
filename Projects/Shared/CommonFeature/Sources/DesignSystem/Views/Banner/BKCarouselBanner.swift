@@ -8,11 +8,7 @@
 
 import SwiftUI
 
-struct BannerItem: Identifiable {
-  var id: String = UUID().uuidString
-  var type: BKBannerType
-}
-
+/// iOS 18.0 이상 Carousel 사용 시 
 @available(iOS 18.0, *)
 public struct BKCarouselBanner: View {
   @State private var activePage: Int = 0
@@ -27,9 +23,11 @@ public struct BKCarouselBanner: View {
     BKCarousel(activeIndex: $activePage) {
       ForEach(bannerItems) { item in
         BKBannerItem(type: item.type)
+          .padding(.horizontal, 1)
       }
     }
     .frame(height: 74)
+    .clipShape(RoundedRectangle(cornerRadius: 10))
     .overlay(alignment: .bottom) {
       BKPageControl(
         pageItems: bannerItems,
