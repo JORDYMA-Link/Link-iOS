@@ -109,6 +109,8 @@ public struct HomeFeature: Reducer {
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(AnalyticsClient.self) private var analyticsClient
+  @Dependency(KakaoChannelClient.self) private var kakaoChannelClient
+  @Dependency(URLOpenHandlerClient.self) private var urlOpenHandlerClient
   
   private enum ThrottleId {
     case categoryButton
@@ -158,6 +160,22 @@ public struct HomeFeature: Reducer {
       case .settingButtonTapped:
         return .send(.delegate(.routeSetting))
         
+      case let .homeBannerItemTapped(type):
+        return .run(
+          operation: { send in
+            switch type {
+            case .instruction:
+              await urlOpenHandlerClient.openURL(urlType: .introduceService)
+              
+            case .kakaoChannel:
+              try await kakaoChannelClient.chatChannel()
+            }
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+          
       case .searchBannerSearchBarTapped:
         searchBarTappedLog()
         
