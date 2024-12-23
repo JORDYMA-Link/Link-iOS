@@ -47,8 +47,8 @@ public struct LoginView: View {
             }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
             
             makeTerms(
-              serviceTerms:makeTermsText("서비스 약관", url: BKExternalURL.termOfUse.urlString),
-              privacyPolicy: makeTermsText("개인정보 처리방침", url: BKExternalURL.privacy.urlString)
+              serviceTerms:makeTermsText("서비스 약관", url: URLLiteral.termOfUse.url),
+              privacyPolicy: makeTermsText("개인정보 처리방침", url: URLLiteral.privacy.url)
             )
           }
         }
@@ -131,12 +131,12 @@ public struct LoginView: View {
       })
   }
   
-  private func makeTermsText(_ text: String, url: String) -> AttributedString {
+  private func makeTermsText(_ text: String, url: URL?) -> AttributedString {
     var attributedString = AttributedString(text)
     attributedString.foregroundColor = .bkColor(.gray600)
     attributedString.font = .regular(size: ._12)
     attributedString.underlineStyle = .single
-    attributedString.link = URL(string: url)
+    attributedString.link = url
     return attributedString
   }
 }
