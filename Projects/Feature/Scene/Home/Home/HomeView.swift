@@ -155,10 +155,17 @@ private struct HomeBanner: View {
   var body: some View {
     WithPerceptionTracking {
       VStack(spacing: 12) {
-        Link(destination:
-              BKExternalURL.introduceService.url
-        ) {
-          BKInstructionBanner()
+        if #available(iOS 18.0, *) {
+          BKCarouselBanner(
+            bannerItems: $store.bannerItems,
+            action: { store.send(.homeBannerItemTapped($0)) }
+          )
+        } else {
+          FSPagerCarouselBanner(
+            bannerItems: $store.bannerItems,
+            action: { store.send(.homeBannerItemTapped($0)) }
+          )
+            .frame(minHeight: 74, maxHeight: 74)
         }
         
         BKSearchBanner(

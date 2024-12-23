@@ -23,7 +23,7 @@ let project = Project.make(
                     .external(externalDependency: .googleMobileAds),
                     .external(externalDependency: .moya),
                     .external(externalDependency: .introspect),
-                    .external(externalDependency: .FSCalendar),
+                    .external(externalDependency: .fSCalendar),
                     .sdk(name: "JavaScriptCore", type: .framework)
                 ]
             )
