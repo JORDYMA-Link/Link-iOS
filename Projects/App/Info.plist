@@ -47,6 +47,7 @@
 	<string></string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>kakaoplus</string>
 		<string>kakaokompassauth</string>
 		<string>kakaolink</string>
 	</array>
