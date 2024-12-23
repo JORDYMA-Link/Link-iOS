@@ -142,7 +142,7 @@ extension SettingView {
             .font(.regular(size: ._12))
             .foregroundStyle(Color.bkColor(.gray700))
           
-          Link(destination: BKExternalURL.introduceService.url) {
+          Link(destination: URLLiteral.introduceService.url!) {
             Text("서비스 이용방법")
           }
           .font(.regular(size: ._15))
