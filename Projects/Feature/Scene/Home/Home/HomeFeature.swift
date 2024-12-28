@@ -66,6 +66,7 @@ public struct HomeFeature: Reducer {
     case searchBannerCalendarTapped
     case categoryButtonTapped(CategoryType)
     case pullToRefresh
+    case summarySaveDisappear
     case feedDetailWillDisappear(Feed)
     case summaryToastRouteButtonTapped
     
@@ -200,7 +201,7 @@ public struct HomeFeature: Reducer {
           )
         }
         
-      case .pullToRefresh:
+      case .pullToRefresh, .summarySaveDisappear:
         return .concatenate(
           .send(.feeds(.setLoading(true)), animation: .default),
           .send(.setMorePagingStatus(true)),
