@@ -259,7 +259,7 @@ public struct BKTabFeature {
         /// - 링크 요약 이후 저장 화면 -> `뒤로가기` 버튼 눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
-        return .none
+        return .send(.home(.summarySaveDisappear))
                 
       case let .routeSummaryCompleted(feedId):
         state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
