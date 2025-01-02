@@ -90,6 +90,7 @@ public struct LinkFeature {
     
     // MARK: Inner SetState Action
     case setFeed(Feed)
+    case setLatestUnsavedSummaryFeedId(Int)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -113,6 +114,8 @@ public struct LinkFeature {
     case clipboardPopupPresented(Bool)
     case clipboardToastPresented(Bool)
     case editLinkPresented
+    case fetchFeedDetailFailAlertPresented
+    case fetchLinkSummaryFailAlertPresented
   }
   
   @Dependency(AnalyticsClient.self) private var analyticsClient
@@ -147,7 +150,7 @@ public struct LinkFeature {
       switch action {
       case .binding:
         return .none
-                
+        
       case .onTask:
         switch state.linkType {
         case .feedDetail, .summarySave:
@@ -156,8 +159,6 @@ public struct LinkFeature {
           }
           
         case .summaryCompleted:
-          userDefaultsClient.set(state.feedId, .latestUnsavedSummaryFeedId)
-          
           return .run { [state] send in
             await send(.fetchLinkSummary(state.feedId))
           }
@@ -244,6 +245,7 @@ public struct LinkFeature {
           },
           catch: { error, send in
             print(error)
+            await send(.fetchFeedDetailFailAlertPresented)
           }
         )
         
@@ -253,9 +255,10 @@ public struct LinkFeature {
             let feed = try await linkClient.getLinkSummary(feedId)
             
             await send(.setFeed(feed), animation: .default)
+            await send(.setLatestUnsavedSummaryFeedId(feedId))
           },
           catch: { error, send in
-            print(error)
+            await send(.fetchLinkSummaryFailAlertPresented)
           }
         )
         
@@ -305,10 +308,14 @@ public struct LinkFeature {
             print(error)
           }
         )
-                
+        
       case let .setFeed(feed):
         state.selectedFolder = feed.folderName
         state.feed = feed
+        return .none
+        
+      case let .setLatestUnsavedSummaryFeedId(feedId):
+        userDefaultsClient.set(feedId, .latestUnsavedSummaryFeedId)
         return .none
         
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
@@ -338,8 +345,8 @@ public struct LinkFeature {
       case .menuBottomSheet(.editLinkItemTapped):
         state.isMenuBottomSheetPresented = false
         return .run { send in
-            try? await Task.sleep(for: .seconds(0.1))
-            await send(.editLinkPresented)
+          try? await Task.sleep(for: .seconds(0.1))
+          await send(.editLinkPresented)
         }
         
       case .menuBottomSheet(.deleteLinkItemTapped):
@@ -364,6 +371,19 @@ public struct LinkFeature {
       case .editLinkPresented:
         state.editLink = .init(editLinkType: .link(state.feed))
         return .none
+        
+      case .fetchFeedDetailFailAlertPresented, .fetchLinkSummaryFailAlertPresented:
+        return .run { send in
+          await alertClient.present(.init(
+            title: "에러 발생",
+            description: """
+                          에러가 발생했습니다. 
+                          잠시 후 다시 시도해주세요.
+                          """,
+            buttonType: .singleButton("뒤로가기"),
+            rightButtonAction: { await send(.closeButtonTapped) }
+          ))
+        }
         
       default:
         return .none
