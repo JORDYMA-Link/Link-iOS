@@ -155,6 +155,7 @@ public struct HomeFeature: Reducer {
           },
           catch: { error, send in
             print(error)
+            await send(.setFeeds([]))
           }
         )
         
