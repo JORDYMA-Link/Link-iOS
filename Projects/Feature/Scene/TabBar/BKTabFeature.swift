@@ -10,7 +10,6 @@ import Foundation
 
 import Analytics
 import Models
-
 import CommonFeature
 
 import ComposableArchitecture
@@ -35,8 +34,6 @@ public struct BKTabFeature {
     var currentItem: BKTabViewType = .home
     var path = StackState<Path.State>()
     
-    var isSaveContentPresented = false
-        
     var home: HomeFeature.State = .init()
     var storageBox: StorageBoxFeature.State = .init()
     
@@ -51,8 +48,6 @@ public struct BKTabFeature {
     // MARK: User Action
     case onViewDidLoad
     case roundedTabIconTapped
-    case saveLinkButtonTapped
-    /// 피드 디테일 WillDisappear
     case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
@@ -100,7 +95,6 @@ public struct BKTabFeature {
           tabbarStorageboxTappedLog()
         }
         
-        state.isSaveContentPresented = false
         return .none
         
       case .onViewDidLoad:
@@ -110,15 +104,9 @@ public struct BKTabFeature {
       case .roundedTabIconTapped:
         roundedTabIconTappedLog()
         
-        state.isSaveContentPresented.toggle()
-        return .none
-        
-        /// - 링크 저장 버튼 눌렀을 때
-      case .saveLinkButtonTapped:
-        state.isSaveContentPresented.toggle()
         state.path.append(.SaveLink(SaveLinkFeature.State()))
         return .none
-        
+                
       case .handleUnsavedSummary:
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
           return .none
