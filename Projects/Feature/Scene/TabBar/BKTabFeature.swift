@@ -56,9 +56,11 @@ public struct BKTabFeature {
     case feedDetailWillDisappear(Feed)
     
     // MARK: Inner Business Action
+    case handleUnsavedSummary
+    case fetchLinkProcessing(Int)
     
     // MARK: Inner SetState Action
-    case setUnsavedSummaryAlertPresented
+    case setUnsavedSummaryFeedId(Int)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -75,8 +77,12 @@ public struct BKTabFeature {
     
     // MARK: Navigation Action
     case routeSummaryCompleted(Int)
+    
+    // MARK: Present Action
+    case unsavedSummaryAlertPresented(Int)
   }
   
+  @Dependency(\.linkClient) private var linkClient
   @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
@@ -98,7 +104,7 @@ public struct BKTabFeature {
         return .none
         
       case .onViewDidLoad:
-        return .send(.setUnsavedSummaryAlertPresented)
+        return .send(.handleUnsavedSummary)
                 
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
@@ -112,27 +118,38 @@ public struct BKTabFeature {
         state.isSaveContentPresented.toggle()
         state.path.append(.SaveLink(SaveLinkFeature.State()))
         return .none
-                        
-      case .setUnsavedSummaryAlertPresented:
+        
+      case .handleUnsavedSummary:
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
           return .none
         }
         
         let feedId = userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1)
-        return .run { send in
-          await alertClient.present(.init(
-            title: "작업 미완료 알림",
-            description: """
-                          아직 저장중인 링크가 있어요!
-                          링크를 저장할 폴더를 지정해주세요
-                          """,
-            buttonType: .singleButton("저장하러 가기"),
-            rightButtonAction: {
-              await send(.routeSummaryCompleted(feedId))
+        return .send(.fetchLinkProcessing(feedId))
+        
+      case let .fetchLinkProcessing(feedId):
+        return .run(
+          operation: { send in
+            async let linkProcessingResponse = try linkClient.getLinkProcessing()
+            
+            let linkProcessing = try await linkProcessingResponse.processingList
+            
+            guard linkProcessing.contains(where: { $0.feedId == feedId }) else {
+              await send(.setUnsavedSummaryFeedId(-1))
+              return
             }
-          ))
-        }
-                
+            
+            await send(.unsavedSummaryAlertPresented(feedId))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case let .setUnsavedSummaryFeedId(feedId):
+        userDefaultsClient.set(feedId, .latestUnsavedSummaryFeedId)
+        return .none
+                                        
         /// - 네비게이션 바 `세팅`버튼 눌렀을 때
       case .home(.delegate(.routeSetting)):
         state.path.append(.Setting(SettingFeature.State()))
@@ -264,7 +281,22 @@ public struct BKTabFeature {
       case let .routeSummaryCompleted(feedId):
         state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
         return .none
-                
+        
+      case let .unsavedSummaryAlertPresented(feedId):
+        return .run { send in
+          await alertClient.present(.init(
+            title: "작업 미완료 알림",
+            description: """
+                          아직 저장중인 링크가 있어요!
+                          링크를 저장할 폴더를 지정해주세요
+                          """,
+            buttonType: .singleButton("저장하러 가기"),
+            rightButtonAction: {
+              await send(.routeSummaryCompleted(feedId))
+            }
+          ))
+        }
+        
       default:
         return .none
       }
