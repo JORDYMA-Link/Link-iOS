@@ -17,6 +17,7 @@ struct LinkSummaryResponse: Decodable {
   let keywords: [String]
   let folders: [String]
   let platformImage: String
+  let thumbnailImage: String?
   let recommendFolder: String
   let recommendFolders: [String]
   let date: String
@@ -26,7 +27,7 @@ extension LinkSummaryResponse {
   public func toDomain() -> Feed {
     return Feed(
       feedId: feedId,
-      thumbnailImage: "",
+      thumbnailImage: thumbnailImage ?? "",
       platformImage: platformImage,
       title: subject,
       date: date.replacingOccurrences(of: "-", with: "."),
