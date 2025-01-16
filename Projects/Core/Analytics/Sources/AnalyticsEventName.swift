@@ -13,7 +13,11 @@ public enum AnalyticsEventName: String {
   case kakaoLoginClicked = "kakao_login_clicked"
   case appleLoginClicked = "apple_login_clicked"
   
-  // 온보딩
+  // 온보딩(Subject)
+  case onboardingSubjectSkipClicked = "onboarding_subject_skip_clicked"
+  case onboardingSubjectConfirmClicked = "onboarding_subject_confirm_clicked"
+  
+  // 온보딩(Flow)
   case onboardingSkipClicked = "onboarding_skip_clicked"
   case onboardingNextClicked = "onboarding_next_clicked"
   case onboardingConfirmClicked = "onboarding_confirm_clicked"
