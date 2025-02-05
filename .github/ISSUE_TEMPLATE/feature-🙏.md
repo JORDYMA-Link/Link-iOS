@@ -3,7 +3,7 @@ name: "FEATURE \U0001F64F"
 about: Feature 작업 사항을 입력해주세요.
 title: "[FEATURE]"
 labels: FEATURE
-assignees: ''
+assignees: kimkyuchul
 
 ---
 

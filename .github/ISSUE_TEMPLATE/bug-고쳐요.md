@@ -2,7 +2,7 @@
 name: Bug 고쳐요
 about: Bug
 title: "[BUG]"
-labels: BUG
+labels: BUG, FEATURE
 assignees: ''
 
 ---
