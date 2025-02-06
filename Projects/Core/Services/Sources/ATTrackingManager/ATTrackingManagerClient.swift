@@ -23,7 +23,7 @@ extension ATTrackingManagerClient: DependencyKey {
   private static func live() -> ATTrackingManagerClient {
     
     return ATTrackingManagerClient(
-      trackingAuthorizationStatus: { @MainActor in
+      trackingAuthorizationStatus: {
         return ATTrackingManager.trackingAuthorizationStatus
       },
       requestTrackingAuthorization: { @MainActor in
