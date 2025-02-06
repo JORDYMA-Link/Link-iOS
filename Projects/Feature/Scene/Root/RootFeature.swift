@@ -32,7 +32,13 @@ public struct RootFeature {
     case onAppear
     case onOpenURL(URL)
     
+    // MARK: App LifeCycle
+    case background
+    case inactive
+    case active
+    
     // MARK: Inner Business Action
+    case requestATTrackingAuthorization
     
     // MARK: Inner SetState Action
     case changeScreen(State)
@@ -45,6 +51,7 @@ public struct RootFeature {
     case mainTab(BKTabFeature.Action)
   }
   
+  @Dependency(ATTrackingManagerClient.self) private var attrackingManagerClient
   @Dependency(\.socialLogin) private var socialLogin
   
   public var body: some ReducerOf<Self> {
@@ -57,6 +64,24 @@ public struct RootFeature {
         socialLogin.handleKakaoUrl(url)
         return .none
         
+      case .background:
+        return .none
+        
+      case .inactive:
+        return .none
+        
+      case .active:
+        return .run { send in
+          await send(.requestATTrackingAuthorization)
+        }
+        
+      case .requestATTrackingAuthorization:
+        return .run { send in
+          if attrackingManagerClient.trackingAuthorizationStatus() == .notDetermined {
+            await attrackingManagerClient.requestTrackingAuthorization()
+          }
+        }
+
       case let .changeScreen(newState):
         state = newState
         return .none
