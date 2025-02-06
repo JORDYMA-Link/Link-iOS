@@ -14,6 +14,7 @@ import DependenciesMacros
 
 @DependencyClient
 public struct ATTrackingManagerClient {
+  public var trackingAuthorizationStatus: @Sendable () -> ATTrackingManager.AuthorizationStatus = { .notDetermined }
   public var requestTrackingAuthorization: @Sendable () async -> Void
 }
 
@@ -22,6 +23,9 @@ extension ATTrackingManagerClient: DependencyKey {
   private static func live() -> ATTrackingManagerClient {
     
     return ATTrackingManagerClient(
+      trackingAuthorizationStatus: { @MainActor in
+        return ATTrackingManager.trackingAuthorizationStatus
+      },
       requestTrackingAuthorization: { @MainActor in
         return await withCheckedContinuation { continuation in
           ATTrackingManager.requestTrackingAuthorization { _ in
