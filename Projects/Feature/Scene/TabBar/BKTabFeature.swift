@@ -65,7 +65,6 @@ public struct BKTabFeature {
     
     case delegate(Delegate)
     
-    
     case path(StackAction<Path.State, Path.Action>)
     case storageBox(StorageBoxFeature.Action)
     case home(HomeFeature.Action)
@@ -77,8 +76,8 @@ public struct BKTabFeature {
     case unsavedSummaryAlertPresented(Int)
   }
   
-  @Dependency(\.linkClient) private var linkClient
   @Dependency(AnalyticsClient.self) private var analyticsClient
+  @Dependency(\.linkClient) private var linkClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   
@@ -98,7 +97,7 @@ public struct BKTabFeature {
         return .none
         
       case .onViewDidLoad:
-        return .send(.handleUnsavedSummary)
+        return .run { send in await send(.handleUnsavedSummary) }
                 
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
@@ -106,7 +105,7 @@ public struct BKTabFeature {
         
         state.path.append(.SaveLink(SaveLinkFeature.State()))
         return .none
-                
+                        
       case .handleUnsavedSummary:
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
           return .none

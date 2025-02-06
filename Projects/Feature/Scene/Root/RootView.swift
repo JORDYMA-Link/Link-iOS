@@ -12,6 +12,7 @@ import ComposableArchitecture
 
 public struct RootView: View {
   private let store: StoreOf<RootFeature>
+  @Environment(\.scenePhase) private var scenePhase
   
   public init(store: StoreOf<RootFeature>) {
     self.store = store
@@ -49,12 +50,20 @@ public struct RootView: View {
       .onReceive(NotificationCenter.default.publisher(for: .tokenExpired)) { _ in
         store.send(.changeScreen(.login()))
       }
-      .animation(.easeInOut(duration: 0.5), value: store.state)
-      .task {
-        await store
-          .send(.onAppear)
-          .finish()
+      .onChange(of: scenePhase) { newValue in
+        switch newValue {
+        case .background:
+          store.send(.background)
+        case .inactive:
+          store.send(.inactive)
+        case .active:
+          store.send(.active)
+        @unknown default:
+          assertionFailure("Unknown scene phase")
+        }
       }
+      .animation(.easeInOut(duration: 0.5), value: store.state)
+      .task { await store.send(.onAppear).finish() }
     }
   }
 }
