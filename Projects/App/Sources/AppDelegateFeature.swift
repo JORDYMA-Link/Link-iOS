@@ -42,7 +42,6 @@ struct AppDelegateFeature {
   @Dependency(\.userDefaultsClient) private var userDefault
   @Dependency(\.socialLogin) private var socialLogin
   @Dependency(\.userNotificationClient) private var userNotificationClient
-  @Dependency(ATTrackingManagerClient.self) private var attrackingManagerClient
   @Dependency(GoogleMobileAdsClient.self) private var googleMobileAdsClient
   
   var body: some ReducerOf<Self> {
@@ -85,10 +84,7 @@ struct AppDelegateFeature {
         }
         
       case .setUpGoogleAds:
-        return .run { send in
-          await attrackingManagerClient.requestTrackingAuthorization()
-          await googleMobileAdsClient.start()
-        }
+        return .run { send in await googleMobileAdsClient.start() }
         
       case .setUserNotificationCenterDelegate:
         return .run { send in
