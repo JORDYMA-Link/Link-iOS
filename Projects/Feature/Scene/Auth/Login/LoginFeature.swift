@@ -158,7 +158,7 @@ public struct LoginFeature {
             await send(.setLoading(false))
             try? await Task.sleep(for: .seconds(0.2))
             
-            if folderList.isEmpty {
+            if isCheckOnboarding(folderList) {
               await send(.delegate(.moveToOnboarding))
             } else {
               await send(.delegate(.moveToMainTab))
@@ -239,6 +239,16 @@ public struct LoginFeature {
         return .none
       }
     }
+  }
+}
+
+// MARK: Private
+
+extension LoginFeature {
+  func isCheckOnboarding(_ folderList: [Folder]) -> Bool {
+    guard !folderList.isEmpty else { return true }
+    
+    return folderList.count == 1 && folderList.first?.name == "블링크 소개"
   }
 }
 
