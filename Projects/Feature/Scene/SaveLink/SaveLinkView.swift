@@ -73,6 +73,10 @@ public struct SaveLinkView: View {
             .clipShape(RoundedRectangle(cornerRadius: 10))
             .disabled(!store.saveButtonActive)
           }
+          
+          SummarizedLinkListView()
+            .padding(.top, 24)
+          
         }
         .padding(EdgeInsets(top: 28, leading: 16, bottom: 0, trailing: 16))
       }
@@ -108,6 +112,81 @@ private struct SaveLinkNavigationBar: View {
   }
 }
 
+private struct SummarizedLinkListView: View {
+  var body: some View {
+    VStack(alignment: .leading, spacing: 6) {
+      titleView
+      summarizedLinkList
+    }
+  }
+  
+  private var titleView: some View {
+    HStack(spacing: 2) {
+      BKIcon(
+        image: CommonFeature.Images.icoCircleInfo,
+        color: .bkColor(.gray600),
+        size: .init(width: 20, height: 20)
+      )
+      
+      BKText(
+        text: "요약 가능한 링크",
+        font: .semiBold,
+        size: ._14,
+        lineHeight: 20,
+        color: .bkColor(.gray600)
+      )
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+  }
+  
+  @ViewBuilder
+  private var summarizedLinkList: some View {
+    let linkList: [(Image, String)] = [
+      (CommonFeature.Images.icoGoogleLogo, "구글"),
+      (CommonFeature.Images.icoNaverLogo, "네이버"),
+      (CommonFeature.Images.icoMediumLogo, "미디엄"),
+      (CommonFeature.Images.icoVelogLogo, "벨로그"),
+      (CommonFeature.Images.icoBrunchLogo, "브런치"),
+      (CommonFeature.Images.icoThreadsLogo, "쓰레드"),
+      (CommonFeature.Images.icoXLogo, "X"),
+      (CommonFeature.Images.icoRecentlyITLogo, "요즘IT"),
+      (CommonFeature.Images.icoEOLogo, "EO"),
+      (CommonFeature.Images.icoTStoryLogo, "티스토리"),
+      (CommonFeature.Images.icoTechBlogLogo, "기술블로그")
+    ]
+    
+    LazyVGrid(
+      columns: [
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible())
+      ]
+    ) {
+      ForEach(linkList, id: \.1) { item in
+        VStack(alignment: .center, spacing: 4) {
+          item.0
+            .resizable()
+            .scaledToFill()
+            .frame(width: 20, height: 20)
+          
+          BKText(
+            text: item.1,
+            font: .regular,
+            size: ._13,
+            lineHeight: 18,
+            color: .bkColor(.gray700)
+          )
+          .lineLimit(1)
+          .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .padding(.vertical, 16)
+        .frame(maxWidth: .infinity)
+      }
+    }
+  }
+}
+
 private struct SaveLinkLodingView: View {
   var body: some View {
     ZStack {
@@ -140,4 +219,10 @@ private extension View {
       SaveLinkLodingView()
     }
   }
+}
+
+#Preview {
+  SaveLinkView(store: .init(initialState: SaveLinkFeature.State(), reducer: {
+    SaveLinkFeature()
+  }))
 }
