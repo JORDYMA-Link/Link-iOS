@@ -110,25 +110,27 @@ private struct SaveLinkTextField: View {
   }
   
   var body: some View {
-    HStack(alignment: .top, spacing: 12) {
-      BKTextField(
-        text: $store.urlText,
-        isValidation: store.state.isValidationURL,
-        textFieldType: .saveLink,
-        isMultiLine: false,
-        isClearButton: true,
-        errorMessage: store.state.urlValidation.title,
-        height: 46
-      )
-      
-      Button {
-        hideKeyboard()
-        HapticFeedbackManager.shared.impact(style: .medium)
-        store.send(.onTapNextButton, animation: .default)
-      } label: {
-        buttonView
+    WithPerceptionTracking {
+      HStack(alignment: .top, spacing: 12) {
+        BKTextField(
+          text: $store.urlText,
+          isValidation: store.state.isValidationURL,
+          textFieldType: .saveLink,
+          isMultiLine: false,
+          isClearButton: true,
+          errorMessage: store.state.urlValidation.title,
+          height: 46
+        )
+        
+        Button {
+          hideKeyboard()
+          HapticFeedbackManager.shared.impact(style: .medium)
+          store.send(.onTapNextButton, animation: .default)
+        } label: {
+          buttonView
+        }
+        .disabled(store.isDisableSaveLinkButton)
       }
-      .disabled(store.isDisableSaveLinkButton)
     }
   }
   
