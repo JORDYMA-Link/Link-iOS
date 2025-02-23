@@ -9,8 +9,20 @@
 import UIKit
 
 extension String {
-  public var containsHTTPorHTTPS: Bool {
-    return self.lowercased().hasPrefix("http") || self.lowercased().hasPrefix("https")
+  public var isHTTPURL: Bool {
+    if let url = URL(string: self.lowercased()), url.host != nil {
+      return UIApplication.shared.canOpenURL(url as URL)
+    }
+    return false
+  }
+    
+  public var isYouTubeOrInstagramURL: Bool {
+    guard let url = URL(string: self.lowercased()),
+          let urlHost = url.host() else {
+      return false
+    }
+    
+    return urlHost.contains("youtube.com") || urlHost.contains("instagram.com")
   }
   
   public var containsOtherLanguage: Bool {
