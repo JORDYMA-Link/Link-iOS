@@ -17,14 +17,15 @@ import ComposableArchitecture
 public struct SaveLinkFeature {
   @ObservableState
   public struct State: Equatable {
-    var urlText = ""
-    var saveButtonActive = false
-    var isValidationURL = true
-    var validationReasonText = "URL 형식이 올바르지 않아요. 다시 입력해주세요."
-    var isLoading: Bool = false
+    var urlText: String = ""
+    
+    var isDisableSaveLinkButton: Bool = true
+    var isValidationURL: Bool = true
+    var urlValidation: URLValidationError = .invalidScheme
     
     var ad: GoogleAd?
     var isAdPresented: Bool = false
+    var isLoading: Bool = false
   }
   
   public enum Action: BindableAction {
@@ -42,6 +43,7 @@ public struct SaveLinkFeature {
     case sendAnalyticsLog
     
     // MARK: Inner SetState Action
+    case setURLValidation(isURL: Bool, isDisable: Bool)
     case setAd(GoogleAd)
     case setAdPresented(Bool)
     case setLoading(Bool)
@@ -63,17 +65,21 @@ public struct SaveLinkFeature {
     Reduce { state, action in
       switch action {
       case .binding(\.urlText):
-        if !state.urlText.isEmpty {
-          let valid = state.urlText.containsHTTPorHTTPS
-          
-          state.isValidationURL = valid
-          state.saveButtonActive = valid
-        } else {
-          state.isValidationURL = true
-          state.saveButtonActive = false
+        if state.urlText.isEmpty {
+          return .send(.setURLValidation(isURL: true, isDisable: true))
+        }
+                
+        if !state.urlText.isHTTPURL {
+          state.urlValidation = .invalidScheme
+          return .send(.setURLValidation(isURL: false, isDisable: true))
+        }
+                
+        if state.urlText.isYouTubeOrInstagramURL {
+          state.urlValidation = .unsupportedYouTubeOrInstagramURL
+          return .send(.setURLValidation(isURL: false, isDisable: true))
         }
         
-        return .none
+        return .send(.setURLValidation(isURL: true, isDisable: false))
         
       case .onAppear:
         return .send(.loadAd)
@@ -124,6 +130,11 @@ public struct SaveLinkFeature {
         feedSummaryButtonTappedLog()
         return .none
         
+      case let .setURLValidation(isURL, isDisable):
+        state.isValidationURL = isURL
+        state.isDisableSaveLinkButton = isDisable
+        return .none
+        
       case let .setAd(ad):
         state.ad = ad
         return .none
@@ -160,6 +171,24 @@ public struct SaveLinkFeature {
         
       default:
         return .none
+      }
+    }
+  }
+}
+
+extension SaveLinkFeature {
+  enum URLValidationError: Equatable, Sendable {
+      /// http 또는 https가 아닌 경우
+      case invalidScheme
+      /// YouTube && Instagram URL 형식
+      case unsupportedYouTubeOrInstagramURL
+    
+    var title: String {
+      switch self {
+      case .invalidScheme:
+        return "URL 형식이 올바르지 않아요. 다시 입력해주세요."
+      case .unsupportedYouTubeOrInstagramURL:
+        return "현재 해당 플랫폼의 저장 기능을 지원하지 않습니다.\n빠른 시일 내에 저장 할 수 있도록 준비하고 있습니다."
       }
     }
   }

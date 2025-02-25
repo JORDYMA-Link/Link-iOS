@@ -16,6 +16,7 @@ public enum BKTextFieldType {
   case addMemo
   case editLinkTitle
   case editLinkContent
+  case saveLink
   
   var placeholder: String {
     switch self {
@@ -25,6 +26,8 @@ public enum BKTextFieldType {
       return "추가할 키워드를 입력해주세요"
     case .searchKeyword:
       return "검색어를 입력해 주세요"
+    case .saveLink:
+      return "링크를 붙여주세요"
     default:
       return ""
     }
@@ -35,7 +38,7 @@ public struct BKTextField: View {
   @Binding var text: String
   private var isValidation: Bool
   private var textFieldType: BKTextFieldType
-  private var textCount: Int
+  private var textCount: Int?
   private let height: CGFloat
   private let isMultiLine: Bool
   private let isClearButton: Bool
@@ -47,7 +50,7 @@ public struct BKTextField: View {
     text: Binding<String>,
     isValidation: Bool,
     textFieldType: BKTextFieldType,
-    textCount: Int,
+    textCount: Int? = nil,
     isMultiLine: Bool,
     isClearButton: Bool = false,
     errorMessage: String,
@@ -69,7 +72,7 @@ public struct BKTextField: View {
     isValidation: Bool,
     textIsFocused: FocusState<Bool>,
     textFieldType: BKTextFieldType,
-    textCount: Int,
+    textCount: Int? = nil,
     isMultiLine: Bool,
     isClearButton: Bool = false,
     errorMessage: String,
@@ -90,10 +93,8 @@ public struct BKTextField: View {
     VStack(spacing: 0) {
       HStack(spacing: 6) {
         makeTextField
-        
-        if isClearButton {
-          makeClearButton
-        }
+        makeClearButton
+          .opacity(isClearButton ? 1 : 0)
       }
       .frame(height: height - 16)
       .padding(.vertical, 8)
@@ -105,17 +106,12 @@ public struct BKTextField: View {
           .stroke(isValidation ? Color.bkColor(.gray500) : Color.bkColor(.red), lineWidth: 1)
       )
       
-      HStack(spacing: 8) {
-        makeValidLabel(errorTitle: errorMessage)
-        
-        BKText(
-          text: "\(text.count)/\(textCount)",
-          font: .regular,
-          size: ._12,
-          lineHeight: 18,
-          color: .bkColor(.gray600)
-        )
-      }
+      BKTextFieldErrorView(
+        errorMessage: errorMessage,
+        isValidation: isValidation,
+        text: $text,
+        textCount: textCount
+      )
     }
   }
 }
@@ -130,7 +126,6 @@ extension BKTextField {
     }
   }
   
-  @ViewBuilder
   private var singleTextField: some View {
     TextField(text: $text) {
       Text(textFieldType.placeholder)
@@ -142,7 +137,6 @@ extension BKTextField {
     .focused($textIsFocused)
   }
   
-  @ViewBuilder
   private var multiLineTextView: some View {
     TextEditor(text: $text)
       .tint(.bkColor(.gray900))
@@ -152,7 +146,6 @@ extension BKTextField {
   }
   
   /// 멀티라인 + 플레이스 홀더
-  @ViewBuilder
   private var multiLineTextField: some View {
     TextField("", text: $text, axis: .vertical)
       .tint(.bkColor(.gray900))
@@ -160,7 +153,6 @@ extension BKTextField {
       .focused($textIsFocused)
   }
   
-  @ViewBuilder
   private func makeValidLabel(errorTitle: String) -> some View {
     Text(errorTitle)
       .font(.regular(size: ._12))
@@ -170,7 +162,6 @@ extension BKTextField {
       .opacity(isValidation ? 0 : 1)
   }
   
-  @ViewBuilder
   private var makeClearButton: some View {
     Button {
       text = ""
@@ -183,3 +174,47 @@ extension BKTextField {
     .opacity(!text.isEmpty ? 1 : 0)
   }
 }
+
+private struct BKTextFieldErrorView: View {
+  private let errorMessage: String
+  private let isValidation: Bool
+  @Binding private var text: String
+  private let textCount: Int?
+  
+  init(
+    errorMessage: String,
+    isValidation: Bool,
+    text: Binding<String>,
+    textCount: Int?
+  ) {
+    self.errorMessage = errorMessage
+    self.isValidation = isValidation
+    self._text = text
+    self.textCount = textCount
+  }
+  
+  var body: some View {
+    HStack(spacing: 8) {
+      BKText(
+        text: errorMessage,
+        font: .regular,
+        size: ._12,
+        lineHeight: 18,
+        color: .bkColor(.red)
+      )
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .opacity(isValidation ? 0 : 1)
+      
+      BKText(
+        text: "\(text.count)/\(textCount ?? 0)",
+        font: .regular,
+        size: ._12,
+        lineHeight: 18,
+        color: .bkColor(.gray600)
+      )
+      .opacity(textCount == nil ? 0 : 1)
+    }
+    .padding(.top, 8)
+  }
+}
+

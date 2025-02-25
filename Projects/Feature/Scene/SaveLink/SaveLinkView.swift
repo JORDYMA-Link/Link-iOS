@@ -19,74 +19,21 @@ public struct SaveLinkView: View {
   
   public var body: some View {
     WithPerceptionTracking {
-      VStack(alignment: .leading, spacing: 0) {
+      VStack(alignment: .leading, spacing: 24) {
         SaveLinkNavigationBar(store: store)
         
-        VStack(alignment: .leading, spacing: 0) {
-          HStack(spacing: 0) {
-            Text("링크")
-              .foregroundStyle(Color.bkColor(.main300))
-            Text("를 입력해주세요")
-              .foregroundStyle(Color.bkColor(.gray900))
-          }
-          .font(.semiBold(size: ._24))
-          .padding(.bottom, 4)
-          
-          Text("블링크가 무엇이든 요약해줍니다")
-            .frame(alignment: .leading)
-            .font(.regular(size: ._14))
-            .foregroundStyle(Color.bkColor(.gray700))
-            .padding(EdgeInsets(top: 0, leading: 0, bottom: 24, trailing: 0))
-          
-          HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading) {
-              ClearableTextField(
-                text: $store.urlText,
-                placeholder: "링크를 붙여주세요"
-              )
-              .background(Color.bkColor(.white))
-              .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                  .stroke(!store.isValidationURL ? Color.bkColor(.red) : Color.bkColor(.gray500), lineWidth: 1)
-              )
-              
-              if !store.state.isValidationURL {
-                Text(store.validationReasonText)
-                  .font(.regular(size: ._12))
-                  .foregroundStyle(Color.bkColor(.red))
-              }
-            }
-            
-            Button {
-              HapticFeedbackManager.shared.impact(style: .medium)
-              store.send(.onTapNextButton, animation: .default)
-              hideKeyboard()
-            } label: {
-              CommonFeature.Images.icoChevronRight
-                .renderingMode(.template)
-                .foregroundStyle(store.saveButtonActive ?
-                                 Color.bkColor(.white) : Color.bkColor(.gray800))
-            }
-            .frame(width: 46, height: 46)
-            .background(store.saveButtonActive ?
-                        Color.bkColor(.main300) : Color.bkColor(.gray300))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-            .disabled(!store.saveButtonActive)
-          }
-          
-          SummarizedLinkListView()
-            .padding(.top, 24)
-          
-        }
-        .padding(EdgeInsets(top: 28, leading: 16, bottom: 0, trailing: 16))
+        SaveLinkTitleView()
+        
+        SaveLinkTextField(store: store)
+        
+        SaveLinkSummarizedList()
       }
+      .padding(.horizontal, 16)
       .saveLinkBackground()
-      .navigationBarBackButtonHidden()
       .toolbar(.hidden, for: .navigationBar)
       .if(store.isLoading) { view in
         view.progressBackground()
       }
-      .onAppear { store.send(.onAppear) }
       .fullScreenCover(isPresented: $store.isAdPresented) {
         BKGoogleAdView(
           isPresented: $store.isAdPresented,
@@ -95,6 +42,7 @@ public struct SaveLinkView: View {
         )
         .presentationClearBackground()
       }
+      .onAppear { store.send(.onAppear) }
     }
   }
 }
@@ -107,16 +55,101 @@ private struct SaveLinkNavigationBar: View {
   }
   
   var body: some View {
-    makeBKNavigationView(leadingType: .dismiss("링크 저장", { store.send(.onTapBackButton) }), trailingType: .none)
-      .padding(.leading, 16)
+    makeBKNavigationView(
+      leadingType: .dismiss("링크 저장", { store.send(.onTapBackButton) }),
+      trailingType: .none
+    )
   }
 }
 
-private struct SummarizedLinkListView: View {
+private struct SaveLinkTitleView: View {
+  var body: some View {
+    VStack(alignment: .leading, spacing: 4) {
+      titleView
+      subTitleView
+    }
+  }
+  
+  private var titleView: some View {
+    HStack(spacing: 0) {
+      BKText(
+        text: "링크",
+        font: .semiBold,
+        size: ._24,
+        lineHeight: 34,
+        color: .bkColor(.main300)
+      )
+      
+      BKText(
+        text: "를 입력해주세요",
+        font: .semiBold,
+        size: ._24,
+        lineHeight: 34,
+        color: .bkColor(.gray900)
+      )
+    }
+    .font(.semiBold(size: ._24))
+  }
+  
+  private var subTitleView: some View {
+    BKText(
+      text: "블링크가 무엇이든 요약해 줍니다",
+      font: .regular,
+      size: ._14,
+      lineHeight: 20,
+      color: .bkColor(.gray700)
+    )
+  }
+}
+
+private struct SaveLinkTextField: View {
+  @Perception.Bindable private var store: StoreOf<SaveLinkFeature>
+  
+  init(store: StoreOf<SaveLinkFeature>) {
+    self.store = store
+  }
+  
+  var body: some View {
+    WithPerceptionTracking {
+      HStack(alignment: .top, spacing: 12) {
+        BKTextField(
+          text: $store.urlText,
+          isValidation: store.state.isValidationURL,
+          textFieldType: .saveLink,
+          isMultiLine: false,
+          isClearButton: true,
+          errorMessage: store.state.urlValidation.title,
+          height: 46
+        )
+        
+        Button {
+          hideKeyboard()
+          HapticFeedbackManager.shared.impact(style: .medium)
+          store.send(.onTapNextButton, animation: .default)
+        } label: {
+          buttonView
+        }
+        .disabled(store.isDisableSaveLinkButton)
+      }
+    }
+  }
+  
+  
+  private var buttonView: some View {
+    CommonFeature.Images.icoChevronRight
+      .renderingMode(.template)
+      .foregroundStyle(Color.bkColor(store.isDisableSaveLinkButton ? .gray800 : .white))
+      .frame(width: 46, height: 46)
+      .background(Color.bkColor(store.isDisableSaveLinkButton ? .gray300 : .main300))
+      .clipShape(RoundedRectangle(cornerRadius: 10))
+  }
+}
+
+private struct SaveLinkSummarizedList: View {
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
       titleView
-      summarizedLinkList
+      summarizedList
     }
   }
   
@@ -140,7 +173,7 @@ private struct SummarizedLinkListView: View {
   }
   
   @ViewBuilder
-  private var summarizedLinkList: some View {
+  private var summarizedList: some View {
     let linkList: [(Image, String)] = [
       (CommonFeature.Images.icoGoogleLogo, "구글"),
       (CommonFeature.Images.icoNaverLogo, "네이버"),
