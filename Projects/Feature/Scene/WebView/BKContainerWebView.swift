@@ -27,8 +27,8 @@ struct BKContainerWebView: View {
       )
       
       BKWebView(
-        url: url,
-        viewModel: viewModel
+        viewModel: viewModel,
+        url: url
       )
       .overlay{
         if viewModel.isLoading {

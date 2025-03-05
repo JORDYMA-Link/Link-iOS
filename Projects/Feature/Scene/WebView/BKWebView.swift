@@ -10,24 +10,41 @@ import SwiftUI
 import WebKit
 
 struct BKWebView: UIViewRepresentable {
-  private let webView: WKWebView
-  private var url: URL
   @ObservedObject var viewModel: BKWebViewModel
+  private var url: URL
+  private let webView: WKWebView
+  private let supervisor: JSInterfaceSupervisor
+  private let webAction: ((BKWebViewAction) -> ())?
   
   init(
+    viewModel: BKWebViewModel,
     url: URL,
-    viewModel: BKWebViewModel
+    webAction: ((BKWebViewAction) -> ())? = nil
   ) {
-    self.url = url
     self.viewModel = viewModel
-    webView = WKWebView()
+    self.url = url
+    self.supervisor = JSInterfaceSupervisor()
+    let preferences = WKPreferences()
+    preferences.javaScriptCanOpenWindowsAutomatically = true
+    let configuration = WKWebViewConfiguration()
+    configuration.preferences = preferences
+    configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+    webView = WKWebView(frame: .zero, configuration: configuration)
+    self.webAction = webAction
   }
   
   func makeUIView(context: Context) -> WKWebView {
+    webView.configuration.userContentController.add(
+      context.coordinator,
+      name: BKWebViewBridge.default.bridgeName
+    )
     webView.navigationDelegate = context.coordinator
     viewModel.webView = webView
     let request = URLRequest(url: url)
     webView.load(request)
+    
+    initPlugins()
+    
     return webView
   }
   
@@ -37,14 +54,34 @@ struct BKWebView: UIViewRepresentable {
   func makeCoordinator() -> Coordinator {
     Coordinator(parent: self)
   }
+  
+  private func initPlugins() {
+    let surveyPlugin = SurveyJSPlugin()
+    
+    surveyPlugin.set { action, _ in
+      webAction?(.survey(action))
+    }
+    
+    supervisor.loadPlugin(contentsOf: [surveyPlugin])
+  }
 }
 
 extension BKWebView {
-  final class Coordinator: NSObject, WKNavigationDelegate {
+  final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
     private let parent: BKWebView
     
     init(parent: BKWebView) {
       self.parent = parent
+    }
+    
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+      guard
+        message.name == BKWebViewBridge.default.bridgeName,
+        let messageBody = message.body as? [String: Any],
+        let action = messageBody["action"] as? String
+      else { return }
+      
+      parent.supervisor.resolve(action, message: messageBody, with: parent.webView)
     }
     
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
