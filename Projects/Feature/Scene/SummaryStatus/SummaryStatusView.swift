@@ -17,6 +17,7 @@ import ComposableArchitecture
 
 struct SummaryStatusView: View {
   @Perception.Bindable var store: StoreOf<SummaryStatusFeature>
+  @StateObject private var bkWebViewModel = BKWebViewModel()
   private let timer = Timer.publish(every: 5, tolerance: 0.5, on: .main, in: .common).autoconnect()
   
   var body: some View {
@@ -43,6 +44,22 @@ struct SummaryStatusView: View {
         }
       }
       .toolbar(.hidden, for: .navigationBar)
+      .bkWebViewAlert(
+        isPresented: $store.isWebViewPresented) {
+          BKWebView(
+            viewModel: bkWebViewModel,
+            url: URL(string: store.webViewInfo.link)!,
+            isScrollEnabled: false
+          ) { action in
+            switch action {
+            case .survey(.closeSurveyModal):
+              store.send(.closeBKWebView)
+              
+            case .survey(.openSurveyForm(let url)):
+              store.send(.openSurveyFormButtonTapped(url))
+            }
+          }
+        }
       .onReceive(timer) { time in
         /// 5초에 한번 API 재통신
         store.send(.onAppear)

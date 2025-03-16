@@ -41,10 +41,12 @@ public struct LinkFeature {
     var memoButtonTitle: String {
       feed.memo.isEmpty ? "추가" : "수정"
     }
+    var webViewInfo: WebViewInfo = .init(flag: false, link: "")
     
     var isMenuBottomSheetPresented: Bool = false
     var isClipboardPopupPresented: Bool = false
     var isClipboardToastPresented: Bool = false
+    var isOriginUrlPresented: Bool = false
     var isWebViewPresented: Bool = false
     
     @Presents var editLink: EditLinkFeature.State?
@@ -68,6 +70,8 @@ public struct LinkFeature {
     // MARK: User Action
     case onTask
     case closeButtonTapped
+    case closeBKWebView
+    case openSurveyFormButtonTapped(String)
     case menuButtonTapped
     case saveButtonTapped(Bool)
     case shareButtonTapped
@@ -84,6 +88,7 @@ public struct LinkFeature {
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
     case fetchLinkSummary(Int)
+    case fetchWebViewInfo
     case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
@@ -91,6 +96,7 @@ public struct LinkFeature {
     // MARK: Inner SetState Action
     case setFeed(Feed)
     case setLatestUnsavedSummaryFeedId(Int)
+    case setWebViewInfo(WebViewInfo)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -116,14 +122,17 @@ public struct LinkFeature {
     case editLinkPresented
     case fetchFeedDetailFailAlertPresented
     case fetchLinkSummaryFailAlertPresented
+    case closeWebViewPresented(Bool)
   }
   
   @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
+  @Dependency(URLOpenHandlerClient.self) private var urlOpenHandlerClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
+  @Dependency(\.noticeClient) private var noticeClient
   
   private enum ThrottleId {
     case deleteButtonTapped
@@ -156,6 +165,10 @@ public struct LinkFeature {
         case .feedDetail, .summarySave:
           return .run { [state] send in
             await send(.fetchFeedDetail(state.feedId))
+            
+            guard state.linkType != .summarySave else {
+              return await send(.fetchWebViewInfo)
+            }
           }
           
         case .summaryCompleted:
@@ -175,9 +188,21 @@ public struct LinkFeature {
             await send(.delegate(.summaryCompletedCloseButtonTapped))
           }
         case .summarySave:
-          return .run { send in
-            await send(.delegate(.summarySaveCloseButtonTapped))
+          if state.webViewInfo.flag {
+            state.webViewInfo.flag.toggle()
+            
+            return .send(.closeWebViewPresented(true))
           }
+          
+          return .send(.delegate(.summarySaveCloseButtonTapped))
+        }
+        
+      case .closeBKWebView:
+        return .send(.closeWebViewPresented(false))
+        
+      case let .openSurveyFormButtonTapped(surveyFormURL):
+        return .run { send in
+          await urlOpenHandlerClient.openURL(urlType: .custom(surveyFormURL))
         }
         
       case .menuButtonTapped:
@@ -224,7 +249,7 @@ public struct LinkFeature {
       case .showURLButtonTapped:
         showURLButtonTappedLog(feedId: state.feed.feedId)
         
-        state.isWebViewPresented = true
+        state.isOriginUrlPresented = true
         return .none
         
       case .summaryEditButtonTapped:
@@ -261,6 +286,9 @@ public struct LinkFeature {
             await send(.fetchLinkSummaryFailAlertPresented)
           }
         )
+        
+      case .fetchWebViewInfo:
+        return fetchWebViewInfo()
         
       case let .deleteFeed(feedId):
         return .run(
@@ -316,6 +344,14 @@ public struct LinkFeature {
         
       case let .setLatestUnsavedSummaryFeedId(feedId):
         userDefaultsClient.set(feedId, .latestUnsavedSummaryFeedId)
+        return .none
+        
+      case let .setWebViewInfo(info):
+        guard info.link.isHTTPURL else {
+          return .none
+        }
+        
+        state.webViewInfo = info
         return .none
         
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
@@ -385,6 +421,10 @@ public struct LinkFeature {
           ))
         }
         
+      case let .closeWebViewPresented(isPresented):
+        state.isWebViewPresented = isPresented
+        return .none
+        
       default:
         return .none
       }
@@ -392,6 +432,23 @@ public struct LinkFeature {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+// MARK: Private
+
+extension LinkFeature {
+  private func fetchWebViewInfo() -> Effect<Action> {
+    return .run(
+      operation: { send in
+        let info = try await noticeClient.getWebViewInfo()
+        
+        await send(.setWebViewInfo(info))
+      },
+      catch: { error, send in
+        print(error)
+      }
+    )
   }
 }
 

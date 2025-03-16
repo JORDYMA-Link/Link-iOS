@@ -18,6 +18,7 @@ import SwiftUIIntrospect
 struct LinkView: View {
   @Perception.Bindable var store: StoreOf<LinkFeature>
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
+  @StateObject private var bkWebViewModel = BKWebViewModel()
   @State private var isScrollDetected: Bool = false
   private var onWillDisappear: (Feed) -> Void
   
@@ -136,7 +137,7 @@ struct LinkView: View {
         toastContent: { BKClipboardToast() }
       )
       .fullScreenCover(
-        isPresented: $store.isWebViewPresented) {
+        isPresented: $store.isOriginUrlPresented) {
           if let url = URL(string: store.feed.originUrl) {
             BKContainerWebView(url: url)
           }
@@ -150,6 +151,22 @@ struct LinkView: View {
           EditLinkView(store: store)
         }
       }
+      .bkWebViewAlert(
+        isPresented: $store.isWebViewPresented) {
+          BKWebView(
+            viewModel: bkWebViewModel,
+            url: URL(string: store.webViewInfo.link)!,
+            isScrollEnabled: false
+          ) { action in
+            switch action {
+            case .survey(.closeSurveyModal):
+              store.send(.closeBKWebView)
+              
+            case .survey(.openSurveyForm(let url)):
+              store.send(.openSurveyFormButtonTapped(url))
+            }
+          }
+        }
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
         detents: [.height(132)],
