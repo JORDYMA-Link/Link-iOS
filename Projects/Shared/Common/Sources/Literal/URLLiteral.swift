@@ -12,6 +12,7 @@ public enum URLLiteral {
   case privacy
   case termOfUse
   case introduceService
+  case custom(String)
 }
 
 extension URLLiteral {
@@ -23,6 +24,8 @@ extension URLLiteral {
       return URL(string:"https://daffy-sandal-6ef.notion.site/c784f55ca8164c669845d3569cd6683a")
     case .introduceService:
       return URL(string:"https://daffy-sandal-6ef.notion.site/6addddc3f4164264b4fc58d01cbfd706?pvs=4")
+    case let .custom(urlString):
+      return URL(string: urlString)
     }
   }
 }
