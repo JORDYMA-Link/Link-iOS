@@ -18,6 +18,7 @@ import SwiftUIIntrospect
 struct LinkView: View {
   @Perception.Bindable var store: StoreOf<LinkFeature>
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
+  @StateObject private var bkWebViewModel = BKWebViewModel()
   @State private var isScrollDetected: Bool = false
   private var onWillDisappear: (Feed) -> Void
   
@@ -150,6 +151,21 @@ struct LinkView: View {
           EditLinkView(store: store)
         }
       }
+      .bkWebViewAlert(
+        isPresented: $store.webViewInfo.0) {
+          BKWebView(
+            viewModel: bkWebViewModel,
+            url: URL(string: store.webViewInfo.1)
+          ) { action in
+            switch action {
+            case .survey(.closeSurveyModal):
+              store.send(.closeBKWebView)
+              
+            case .survey(.openSurveyForm(let url)):
+              store.send(.openSurveyFormButtonTapped(url))
+            }
+          }
+        }
       .bottomSheet(
         isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
         detents: [.height(132)],

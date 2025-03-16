@@ -41,6 +41,7 @@ public struct LinkFeature {
     var memoButtonTitle: String {
       feed.memo.isEmpty ? "추가" : "수정"
     }
+    var webViewInfo: (Bool, URL) = .init(flag: false, link: "")
     
     var isMenuBottomSheetPresented: Bool = false
     var isClipboardPopupPresented: Bool = false
@@ -68,6 +69,8 @@ public struct LinkFeature {
     // MARK: User Action
     case onTask
     case closeButtonTapped
+    case closeBKWebView
+    case openSurveyFormButtonTapped(String)
     case menuButtonTapped
     case saveButtonTapped(Bool)
     case shareButtonTapped
@@ -84,6 +87,7 @@ public struct LinkFeature {
     // MARK: Inner Business Action
     case fetchFeedDetail(Int)
     case fetchLinkSummary(Int)
+    case fetchWebViewInfo
     case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
@@ -91,6 +95,7 @@ public struct LinkFeature {
     // MARK: Inner SetState Action
     case setFeed(Feed)
     case setLatestUnsavedSummaryFeedId(Int)
+    case setWebViewInfo(WebViewInfo)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -124,6 +129,7 @@ public struct LinkFeature {
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
+  @Dependency(\.noticeClient) private var noticeClient
   
   private enum ThrottleId {
     case deleteButtonTapped
@@ -156,6 +162,10 @@ public struct LinkFeature {
         case .feedDetail, .summarySave:
           return .run { [state] send in
             await send(.fetchFeedDetail(state.feedId))
+            
+            guard state.linkType != .summarySave else {
+              return await send(.fetchWebViewInfo)
+            }
           }
           
         case .summaryCompleted:
@@ -262,6 +272,9 @@ public struct LinkFeature {
           }
         )
         
+      case .fetchWebViewInfo:
+        return fetchWebViewInfo()
+        
       case let .deleteFeed(feedId):
         return .run(
           operation: { [state] send in
@@ -316,6 +329,14 @@ public struct LinkFeature {
         
       case let .setLatestUnsavedSummaryFeedId(feedId):
         userDefaultsClient.set(feedId, .latestUnsavedSummaryFeedId)
+        return .none
+        
+      case let .setWebViewInfo(info):
+        guard info.url.isHTTPURL else {
+          return .none
+        }
+        
+        state.webViewInfo = info
         return .none
         
       case let .editFolderBottomSheet(.delegate(.didUpdateFolder(_, folder))):
@@ -392,6 +413,23 @@ public struct LinkFeature {
     .ifLet(\.$editLink, action: \.editLink) {
       EditLinkFeature()
     }
+  }
+}
+
+// MARK: Private
+
+extension LinkFeature {
+  private func fetchWebViewInfo() -> Effect<Action> {
+    return .run(
+      operation: { send in
+        let info = try await noticeClient.getWebViewInfo()
+        
+        await send(.setWebViewInfo(info))
+      },
+      catch: { error, send in
+        print(error)
+      }
+    )
   }
 }
 
