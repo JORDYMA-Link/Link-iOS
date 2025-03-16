@@ -35,12 +35,9 @@ private struct BKWebViewAlertPresentationModifier<InnerContent: View>: ViewModif
           }
         
         innerContent()
-          .frame(minWidth: 280, minHeight: 300)
-          .padding(30)
-          .background(.white)
-          .clipShape(RoundedRectangle(cornerRadius: 20))
-          .shadow(radius: 20)
-          .padding()
+          .frame(maxWidth: 328, maxHeight: 440, alignment: .center)
+          .clipShape(RoundedRectangle(cornerRadius: 10))
+          .shadow(radius: 10)
           .zIndex(2)
       }
     }
@@ -50,8 +47,8 @@ private struct BKWebViewAlertPresentationModifier<InnerContent: View>: ViewModif
 
 public extension View {
   func bkWebViewAlert<innerContent: View>(
-  isPresented: Binding<Bool>,
-  @ViewBuilder innerContent: @escaping () -> innerContent
+    isPresented: Binding<Bool>,
+    @ViewBuilder innerContent: @escaping () -> innerContent
   ) -> some View {
     modifier(BKWebViewAlertPresentationModifier(isPresented: isPresented, innerContent: innerContent))
   }
