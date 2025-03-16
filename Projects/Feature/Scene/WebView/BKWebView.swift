@@ -13,17 +13,19 @@ struct BKWebView: UIViewRepresentable {
   @ObservedObject var viewModel: BKWebViewModel
   private var url: URL
   private let webView: WKWebView
-  private let supervisor: JSInterfaceSupervisor
+  private let isScrollEnabled: Bool
   private let webAction: ((BKWebViewAction) -> ())?
+  private let supervisor = JSInterfaceSupervisor()
   
   init(
     viewModel: BKWebViewModel,
     url: URL,
+    isScrollEnabled: Bool = true,
     webAction: ((BKWebViewAction) -> ())? = nil
   ) {
     self.viewModel = viewModel
     self.url = url
-    self.supervisor = JSInterfaceSupervisor()
+    self.isScrollEnabled = isScrollEnabled
     let preferences = WKPreferences()
     preferences.javaScriptCanOpenWindowsAutomatically = true
     let configuration = WKWebViewConfiguration()
@@ -38,6 +40,7 @@ struct BKWebView: UIViewRepresentable {
       context.coordinator,
       name: BKWebViewBridge.default.bridgeName
     )
+    webView.scrollView.isScrollEnabled = isScrollEnabled
     webView.navigationDelegate = context.coordinator
     viewModel.webView = webView
     let request = URLRequest(url: url)
