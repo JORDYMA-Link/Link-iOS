@@ -9,7 +9,7 @@
 import Foundation
 
 public struct WebViewInfo: Equatable {
-  public let flag: Bool
+  public var flag: Bool
   public let link: String
   
   public init(flag: Bool, link: String) {

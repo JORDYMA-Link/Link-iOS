@@ -41,11 +41,12 @@ public struct LinkFeature {
     var memoButtonTitle: String {
       feed.memo.isEmpty ? "추가" : "수정"
     }
-    var webViewInfo: (Bool, URL) = .init(flag: false, link: "")
+    var webViewInfo: WebViewInfo = .init(flag: false, link: "")
     
     var isMenuBottomSheetPresented: Bool = false
     var isClipboardPopupPresented: Bool = false
     var isClipboardToastPresented: Bool = false
+    var isOriginUrlPresented: Bool = false
     var isWebViewPresented: Bool = false
     
     @Presents var editLink: EditLinkFeature.State?
@@ -121,11 +122,13 @@ public struct LinkFeature {
     case editLinkPresented
     case fetchFeedDetailFailAlertPresented
     case fetchLinkSummaryFailAlertPresented
+    case closeWebViewPresented(Bool)
   }
   
   @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.dismiss) private var dismiss
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
+  @Dependency(URLOpenHandlerClient.self) private var urlOpenHandlerClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
@@ -185,9 +188,21 @@ public struct LinkFeature {
             await send(.delegate(.summaryCompletedCloseButtonTapped))
           }
         case .summarySave:
-          return .run { send in
-            await send(.delegate(.summarySaveCloseButtonTapped))
+          if state.webViewInfo.flag {
+            state.webViewInfo.flag.toggle()
+            
+            return .send(.closeWebViewPresented(true))
           }
+          
+          return .send(.delegate(.summarySaveCloseButtonTapped))
+        }
+        
+      case .closeBKWebView:
+        return .send(.closeWebViewPresented(false))
+        
+      case let .openSurveyFormButtonTapped(surveyFormURL):
+        return .run { send in
+          await urlOpenHandlerClient.openURL(urlType: .custom(surveyFormURL))
         }
         
       case .menuButtonTapped:
@@ -234,7 +249,7 @@ public struct LinkFeature {
       case .showURLButtonTapped:
         showURLButtonTappedLog(feedId: state.feed.feedId)
         
-        state.isWebViewPresented = true
+        state.isOriginUrlPresented = true
         return .none
         
       case .summaryEditButtonTapped:
@@ -332,7 +347,7 @@ public struct LinkFeature {
         return .none
         
       case let .setWebViewInfo(info):
-        guard info.url.isHTTPURL else {
+        guard info.link.isHTTPURL else {
           return .none
         }
         
@@ -405,6 +420,10 @@ public struct LinkFeature {
             rightButtonAction: { await send(.closeButtonTapped) }
           ))
         }
+        
+      case let .closeWebViewPresented(isPresented):
+        state.isWebViewPresented = isPresented
+        return .none
         
       default:
         return .none

@@ -137,7 +137,7 @@ struct LinkView: View {
         toastContent: { BKClipboardToast() }
       )
       .fullScreenCover(
-        isPresented: $store.isWebViewPresented) {
+        isPresented: $store.isOriginUrlPresented) {
           if let url = URL(string: store.feed.originUrl) {
             BKContainerWebView(url: url)
           }
@@ -152,10 +152,11 @@ struct LinkView: View {
         }
       }
       .bkWebViewAlert(
-        isPresented: $store.webViewInfo.0) {
+        isPresented: $store.isWebViewPresented) {
           BKWebView(
             viewModel: bkWebViewModel,
-            url: URL(string: store.webViewInfo.1)
+            url: URL(string: store.webViewInfo.link)!,
+            isScrollEnabled: false
           ) { action in
             switch action {
             case .survey(.closeSurveyModal):
