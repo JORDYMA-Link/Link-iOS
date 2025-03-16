@@ -12,19 +12,24 @@ import Moya
 
 enum NoticeEndpoint {
   case getNotice(page: Int, size: Int)
+  case getWebViewInfo
 }
 
 extension NoticeEndpoint: BaseTargetType {
   var path: String {
+    let baseLinkRoutePath: String = "/notice"
+    
     switch self {
     case .getNotice:
-      return "/notice"
+      return baseLinkRoutePath
+    case .getWebViewInfo:
+      return baseLinkRoutePath + "/webview"
     }
   }
   
   var method: Moya.Method {
     switch self {
-    case .getNotice:
+    case .getNotice, .getWebViewInfo:
       return .get
     }
   }
@@ -33,6 +38,9 @@ extension NoticeEndpoint: BaseTargetType {
     switch self {
     case let .getNotice(page, size):
       return .requestParameters(parameters: ["page": page, "size": size], encoding: URLEncoding.queryString)
+    
+    case .getWebViewInfo:
+      return .requestPlain
     }
   }
 }

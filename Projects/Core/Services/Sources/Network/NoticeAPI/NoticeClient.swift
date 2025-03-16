@@ -13,6 +13,8 @@ import Moya
 
 public struct NoticeClient {
   public var getNotice: @Sendable (_ page: Int, _ size: Int) async throws -> [NoticeModel]
+  
+  public var getWebViewInfo: @Sendable () async throws -> WebViewInfo
 }
 
 extension NoticeClient: DependencyKey {
@@ -22,6 +24,10 @@ extension NoticeClient: DependencyKey {
     return Self(
       getNotice: { (page, size) in
         let responseDTO: NoticeListResponse = try await noticeClient.request(.getNotice(page: page, size: size), modelType: NoticeListResponse.self)
+        return responseDTO.toDomain()
+      },
+      getWebViewInfo: {
+        let responseDTO: WebViewInfoResponse = try await noticeClient.request(.getWebViewInfo, modelType: WebViewInfoResponse.self)
         return responseDTO.toDomain()
       }
     )
