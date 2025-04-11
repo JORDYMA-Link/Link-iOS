@@ -106,12 +106,14 @@ public struct BKTextField: View {
           .stroke(isValidation ? Color.bkColor(.gray500) : Color.bkColor(.red), lineWidth: 1)
       )
       
-      BKTextFieldErrorView(
-        errorMessage: errorMessage,
-        isValidation: isValidation,
-        text: $text,
-        textCount: textCount
-      )
+      if !isValidation {
+        BKTextFieldErrorView(
+          errorMessage: errorMessage,
+          isValidation: isValidation,
+          text: $text,
+          textCount: textCount
+        )
+      }
     }
   }
 }

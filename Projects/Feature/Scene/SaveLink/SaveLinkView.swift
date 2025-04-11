@@ -24,7 +24,15 @@ public struct SaveLinkView: View {
         
         SaveLinkTitleView()
         
-        SaveLinkTextField(store: store)
+        VStack(alignment: .leading, spacing: 16) {
+          SaveLinkTextField(store: store)
+          
+          if store.isPastoboardButtonPresented {
+            SaveLinkPasteboardButton(
+              action: { store.send(.pastoboardButtonTapped) }
+            )
+          }
+        }
         
         SaveLinkSummarizedList()
       }
@@ -35,14 +43,19 @@ public struct SaveLinkView: View {
         view.progressBackground()
       }
       .fullScreenCover(isPresented: $store.isAdPresented) {
-        BKGoogleAdView(
-          isPresented: $store.isAdPresented,
-          interstitialAd: $store.ad,
-          dismissAdScreen: { store.send(.adDismissButtonTapped) }
-        )
-        .presentationClearBackground()
+        WithPerceptionTracking {
+          BKGoogleAdView(
+            isPresented: $store.isAdPresented,
+            interstitialAd: $store.ad,
+            dismissAdScreen: { store.send(.adDismissButtonTapped) }
+          )
+          .presentationClearBackground()
+        }
       }
-      .onAppear { store.send(.onAppear) }
+      .animation(.spring, value: store.isPastoboardButtonPresented)
+      .onAppear {
+        store.send(.onAppear)
+      }
     }
   }
 }
@@ -142,6 +155,33 @@ private struct SaveLinkTextField: View {
       .frame(width: 46, height: 46)
       .background(Color.bkColor(store.isDisableSaveLinkButton ? .gray300 : .main300))
       .clipShape(RoundedRectangle(cornerRadius: 10))
+  }
+}
+
+private struct SaveLinkPasteboardButton: View {
+  private let action: () -> Void
+  
+  init(action: @escaping () -> Void) {
+    self.action = action
+  }
+  
+  var body: some View {
+    Button(action: action) {
+      BKText(
+        text: "복사한 링크 붙여넣기",
+        font: .semiBold,
+        size: ._14,
+        lineHeight: 20,
+        color: .bkColor(.main300)
+      )
+      .padding(.vertical, 10)
+      .padding(.horizontal, 14)
+      .clipShape(RoundedRectangle(cornerRadius: 100))
+      .overlay(
+        RoundedRectangle(cornerRadius: 100, style: .continuous)
+          .strokeBorder(Color.bkColor(.main300), lineWidth: 1)
+      )
+    }
   }
 }
 
