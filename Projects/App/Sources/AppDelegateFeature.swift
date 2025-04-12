@@ -23,6 +23,7 @@ struct AppDelegateFeature {
   enum Action: Sendable {
     case didFinishLaunching
     case didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: Data)
+    case didReceiveRemoteNotification(NotificationPayload)
     
     case initKakaoSDK
     case setUpNotificationCenter
@@ -57,6 +58,11 @@ struct AppDelegateFeature {
           await send(.setUpFirebase)
           /// Google Ads 설정
           await send(.setUpGoogleAds)
+        }
+        
+      case let .didReceiveRemoteNotification(payload):
+        return .run { @MainActor [payload] _ in
+          userNotificationClient.notificationReceiveSend(payload)
         }
         
       case let .didRegisterForRemoteNotificationsWithDeviceToken(deviceToken):
@@ -110,9 +116,16 @@ struct AppDelegateFeature {
         // foreground에서 노티 수신 방법 설정
         return .run { send in completionHandler([.banner, .badge, .sound]) }
         
-      case let .setUserNotifications(.didReceiveResponse(_, completionHandler)):
+      case let .setUserNotifications(.didReceiveResponse(response, completionHandler)):
+        let userInfo = response.notification.request.content.userInfo
+        let notificationId = userInfo["id"] as? String ?? UUID().uuidString
+        let payload = NotificationPayload(id: notificationId, userInfo: userInfo)
+        
         //  백그라운드에서 푸시 알림을 탭했을 때 실행
-        return .run { @MainActor _ in completionHandler() }
+        return .run { @MainActor [payload] _ in
+          userNotificationClient.notificationReceiveSend(payload)
+          completionHandler()
+        }
         
       case .setFirebaseConfigure:
         FirebaseApp.configure()

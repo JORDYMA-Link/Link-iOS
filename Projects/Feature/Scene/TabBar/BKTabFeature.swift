@@ -49,6 +49,7 @@ public struct BKTabFeature {
     case onViewDidLoad
     case roundedTabIconTapped
     case feedDetailWillDisappear(Feed)
+    case backgroundNotificationReceived
     
     // MARK: Inner Business Action
     case handleUnsavedSummary
@@ -70,6 +71,7 @@ public struct BKTabFeature {
     case home(HomeFeature.Action)
     
     // MARK: Navigation Action
+    case routeSummaryStatus
     case routeSummaryCompleted(Int)
     
     // MARK: Present Action
@@ -80,6 +82,7 @@ public struct BKTabFeature {
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
+  @Dependency(\.userNotificationClient) private var userNotificationClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.storageBox, action: \.storageBox) { StorageBoxFeature() }
@@ -97,14 +100,25 @@ public struct BKTabFeature {
         return .none
         
       case .onViewDidLoad:
-        return .run { send in await send(.handleUnsavedSummary) }
-                
+        return .run { send in
+          await send(.backgroundNotificationReceived)
+          await send(.handleUnsavedSummary)
+        }
+        
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
       case .roundedTabIconTapped:
         roundedTabIconTappedLog()
         
         state.path.append(.SaveLink(SaveLinkFeature.State()))
         return .none
+        
+      case .backgroundNotificationReceived:
+        return .run { send in
+          for await payload in userNotificationClient.notificationReceiveStream() {
+            try? await Task.sleep(for: .seconds(0.5))
+            await send(.routeSummaryStatus)
+          }
+        }
                         
       case .handleUnsavedSummary:
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
@@ -264,6 +278,10 @@ public struct BKTabFeature {
       case .path(.element(id: _, action: .Link(.delegate(.summarySaveCloseButtonTapped)))):
         state.path.removeAll()
         return .send(.home(.summarySaveDisappear))
+        
+      case .routeSummaryStatus:
+        state.path.append(.SummaryStatus(SummaryStatusFeature.State()))
+        return .none
                 
       case let .routeSummaryCompleted(feedId):
         state.path.append(.Link(LinkFeature.State(linkType: .summaryCompleted, feedId: feedId)))
