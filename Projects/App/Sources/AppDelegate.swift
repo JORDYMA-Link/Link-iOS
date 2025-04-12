@@ -20,9 +20,7 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
       AppDelegateFeature()
     }
   )
-  
-  @Dependency(\.userNotificationClient) private var userNotificationClient
-  
+
   func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
