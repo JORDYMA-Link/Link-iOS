@@ -31,6 +31,7 @@ struct SummaryStatusView: View {
               SummaryStatusItem(
                 title: item.title,
                 status: item.status,
+                url: item.originUrl,
                 deleteAction: { store.send(.deleteButtonTapped(item.feedId)) }
               )
               .onTapGesture {

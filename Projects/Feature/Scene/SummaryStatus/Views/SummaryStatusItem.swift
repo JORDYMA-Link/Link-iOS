@@ -15,15 +15,18 @@ import Services
 struct SummaryStatusItem: View {
   private let title: String
   private let status: ProcessingStatusType
+  private let url: String
   private let deleteAction: () -> Void
   
   init(
     title: String,
     status: ProcessingStatusType,
+    url: String,
     deleteAction: @escaping () -> Void
   ) {
     self.title = title
     self.status = status
+    self.url = url
     self.deleteAction = deleteAction
   }
   
@@ -41,13 +44,10 @@ struct SummaryStatusItem: View {
       .padding(24)
       
       Spacer()
-      
-      Divider()
-        .foregroundStyle(Color.bkColor(.gray500))
-        .frame(height: 1)
     }
     .frame(minHeight: 112, maxHeight: 112)
     .background(statusBackgroundColor)
+    .divider()
   }
   
   @ViewBuilder
@@ -64,17 +64,31 @@ struct SummaryStatusItem: View {
         view.completedTitle()
       }
       
-      BKText(
-        text: title,
-        font: .semiBold,
-        size: ._14,
-        lineHeight: 20,
-        color: .bkColor(.gray900)
-      )
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .lineLimit(2)
-      .multilineTextAlignment(.leading)
-      .fixedSize(horizontal: false, vertical: true)
+      VStack(spacing: 0) {
+        if status != .completed {
+          BKText(
+            text: url,
+            font: .semiBold,
+            size: ._14,
+            lineHeight: 20,
+            color: .bkColor(.gray900)
+          )
+          .frame(maxWidth: .infinity, alignment: .leading)
+          .lineLimit(1)
+        }
+        
+        BKText(
+          text: title,
+          font: .semiBold,
+          size: ._14,
+          lineHeight: 20,
+          color: .bkColor(.gray900)
+        )
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(2)
+        .multilineTextAlignment(.leading)
+        .fixedSize(horizontal: false, vertical: true)
+      }
     }
   }
   
@@ -133,6 +147,16 @@ private extension View {
       Circle()
         .fill(Color.bkColor(.yellow))
         .frame(width: 6, height: 6)
+    }
+  }
+  
+  func divider() -> some View {
+    VStack(spacing: 0) {
+      self
+      
+      Divider()
+        .foregroundStyle(Color.bkColor(.gray500))
+        .frame(height: 1)
     }
   }
 }
