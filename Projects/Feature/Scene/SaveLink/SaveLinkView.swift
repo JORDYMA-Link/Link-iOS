@@ -18,43 +18,47 @@ public struct SaveLinkView: View {
   @Environment(\.dismiss) private var dismiss
   
   public var body: some View {
-    WithPerceptionTracking {
-      VStack(alignment: .leading, spacing: 24) {
-        SaveLinkNavigationBar(store: store)
-        
-        SaveLinkTitleView()
-        
-        VStack(alignment: .leading, spacing: 16) {
-          SaveLinkTextField(store: store)
+    GeometryReader { _ in
+      WithPerceptionTracking {
+        VStack(alignment: .leading, spacing: 24) {
+          SaveLinkNavigationBar(store: store)
           
-          if store.isPastoboardButtonPresented {
-            SaveLinkPasteboardButton(
-              action: { store.send(.pastoboardButtonTapped) }
+          SaveLinkTitleView()
+          
+          VStack(alignment: .leading, spacing: 16) {
+            SaveLinkTextField(store: store)
+            
+            if store.isPastoboardButtonPresented {
+              SaveLinkPasteboardButton(
+                action: { store.send(.pastoboardButtonTapped) }
+              )
+            }
+          }
+          
+          SaveLinkSummarizedList()
+        }
+        .padding(.horizontal, 16)
+        .saveLinkBackground()
+        .toolbar(.hidden, for: .navigationBar)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .tapToHideKeyboard()
+        .if(store.isLoading) { view in
+          view.progressBackground()
+        }
+        .fullScreenCover(isPresented: $store.isAdPresented) {
+          WithPerceptionTracking {
+            BKGoogleAdView(
+              isPresented: $store.isAdPresented,
+              interstitialAd: $store.ad,
+              dismissAdScreen: { store.send(.adDismissButtonTapped) }
             )
+            .presentationClearBackground()
           }
         }
-        
-        SaveLinkSummarizedList()
-      }
-      .padding(.horizontal, 16)
-      .saveLinkBackground()
-      .toolbar(.hidden, for: .navigationBar)
-      .if(store.isLoading) { view in
-        view.progressBackground()
-      }
-      .fullScreenCover(isPresented: $store.isAdPresented) {
-        WithPerceptionTracking {
-          BKGoogleAdView(
-            isPresented: $store.isAdPresented,
-            interstitialAd: $store.ad,
-            dismissAdScreen: { store.send(.adDismissButtonTapped) }
-          )
-          .presentationClearBackground()
+        .animation(.spring, value: store.isPastoboardButtonPresented)
+        .onAppear {
+          store.send(.onAppear)
         }
-      }
-      .animation(.spring, value: store.isPastoboardButtonPresented)
-      .onAppear {
-        store.send(.onAppear)
       }
     }
   }
@@ -125,15 +129,17 @@ private struct SaveLinkTextField: View {
   var body: some View {
     WithPerceptionTracking {
       HStack(alignment: .top, spacing: 12) {
-        BKTextField(
-          text: $store.urlText,
-          isValidation: store.state.isValidationURL,
-          textFieldType: .saveLink,
-          isMultiLine: false,
-          isClearButton: true,
-          errorMessage: store.state.urlValidation.title,
-          height: 46
-        )
+        WithPerceptionTracking {
+          BKTextField(
+            text: $store.urlText,
+            isValidation: store.state.isValidationURL,
+            textFieldType: .saveLink,
+            isMultiLine: false,
+            isClearButton: true,
+            errorMessage: store.state.urlValidation.title,
+            height: 46
+          )
+        }
         
         Button {
           hideKeyboard()
@@ -280,6 +286,7 @@ private extension View {
   func saveLinkBackground() -> some View {
     VStack(spacing: 0) {
       self
+      
       Spacer()
     }
   }
@@ -292,10 +299,4 @@ private extension View {
       SaveLinkLodingView()
     }
   }
-}
-
-#Preview {
-  SaveLinkView(store: .init(initialState: SaveLinkFeature.State(), reducer: {
-    SaveLinkFeature()
-  }))
 }

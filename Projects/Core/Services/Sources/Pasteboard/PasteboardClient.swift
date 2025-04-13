@@ -16,7 +16,7 @@ import DependenciesMacros
 public struct PasteboardClient {
   public var hasString: @Sendable () -> AsyncStream<Void> = { .finished }
   public var hasChange: @Sendable () -> AsyncStream<Void> = { .finished }
-  public var pasteboardURL: @Sendable () async -> URL?
+  public var pasteboardURL: @Sendable () async -> String?
 }
 
 extension PasteboardClient: DependencyKey {
@@ -27,7 +27,8 @@ extension PasteboardClient: DependencyKey {
       hasChange: { UIPasteboard.general.hasChange },
       pasteboardURL: {
         do {
-          guard UIPasteboard.general.hasURLs else {
+          guard let urlString = UIPasteboard.general.string,
+                urlString.isHTTPURL else {
             return nil
           }
           
@@ -37,7 +38,7 @@ extension PasteboardClient: DependencyKey {
             return nil
           }
           
-          return UIPasteboard.general.url
+          return UIPasteboard.general.string
         } catch {
           return nil
         }

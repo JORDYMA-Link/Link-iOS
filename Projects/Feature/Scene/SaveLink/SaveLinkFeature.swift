@@ -52,7 +52,7 @@ public struct SaveLinkFeature {
     // MARK: Inner SetState Action
     case setURLValidation(isURL: Bool, isDisable: Bool)
     case setAd(GoogleAd)
-    case setPasteboardURL(URL?)
+    case setPasteboardURL(String?)
     case setAdPresented(Bool)
     case setLoading(Bool)
     
@@ -169,7 +169,7 @@ public struct SaveLinkFeature {
           return .none
         }
         
-        state.pastoboardURL = url.absoluteString
+        state.pastoboardURL = url
         state.isPastoboardButtonPresented = true
         return .none
         
