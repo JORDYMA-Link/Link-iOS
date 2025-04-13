@@ -137,10 +137,15 @@ public struct SaveLinkFeature {
         )
         
       case .loadAd:
-        return .run { send in
-          let ad = try await googleMobileAdsClient.load()
-          await send(.setAd(ad))
-        }
+        return .run(
+          operation: { send in
+            let ad = try await googleMobileAdsClient.load()
+            await send(.setAd(ad))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       case .checkPasteboard:
         return .run { send in

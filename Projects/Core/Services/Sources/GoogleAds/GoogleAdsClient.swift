@@ -34,9 +34,13 @@ extension GoogleMobileAdsClient: DependencyKey {
       #endif
         }
         
-        let ad = try await GADInterstitialAd.load(withAdUnitID: adUnitID, request: GADRequest())
-        
-        return GoogleAd(ad: ad)
+        do {
+          let ad = try await GADInterstitialAd.load(withAdUnitID: adUnitID, request: GADRequest())
+          
+          return GoogleAd(ad: ad)
+        } catch {
+          throw error
+        }
       }
     )
   }
