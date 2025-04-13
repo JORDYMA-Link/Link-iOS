@@ -18,31 +18,48 @@ public struct SaveLinkView: View {
   @Environment(\.dismiss) private var dismiss
   
   public var body: some View {
-    WithPerceptionTracking {
-      VStack(alignment: .leading, spacing: 24) {
-        SaveLinkNavigationBar(store: store)
-        
-        SaveLinkTitleView()
-        
-        SaveLinkTextField(store: store)
-        
-        SaveLinkSummarizedList()
+    GeometryReader { _ in
+      WithPerceptionTracking {
+        VStack(alignment: .leading, spacing: 24) {
+          SaveLinkNavigationBar(store: store)
+          
+          SaveLinkTitleView()
+          
+          VStack(alignment: .leading, spacing: 16) {
+            SaveLinkTextField(store: store)
+            
+            if store.isPastoboardButtonPresented {
+              SaveLinkPasteboardButton(
+                action: { store.send(.pastoboardButtonTapped) }
+              )
+            }
+          }
+          
+          SaveLinkSummarizedList()
+        }
+        .padding(.horizontal, 16)
+        .saveLinkBackground()
+        .toolbar(.hidden, for: .navigationBar)
+        .ignoresSafeArea(.keyboard, edges: .bottom)
+        .tapToHideKeyboard()
+        .if(store.isLoading) { view in
+          view.progressBackground()
+        }
+        .fullScreenCover(isPresented: $store.isAdPresented) {
+          WithPerceptionTracking {
+            BKGoogleAdView(
+              isPresented: $store.isAdPresented,
+              interstitialAd: $store.ad,
+              dismissAdScreen: { store.send(.adDismissButtonTapped) }
+            )
+            .presentationClearBackground()
+          }
+        }
+        .animation(.spring, value: store.isPastoboardButtonPresented)
+        .onAppear {
+          store.send(.onAppear)
+        }
       }
-      .padding(.horizontal, 16)
-      .saveLinkBackground()
-      .toolbar(.hidden, for: .navigationBar)
-      .if(store.isLoading) { view in
-        view.progressBackground()
-      }
-      .fullScreenCover(isPresented: $store.isAdPresented) {
-        BKGoogleAdView(
-          isPresented: $store.isAdPresented,
-          interstitialAd: $store.ad,
-          dismissAdScreen: { store.send(.adDismissButtonTapped) }
-        )
-        .presentationClearBackground()
-      }
-      .onAppear { store.send(.onAppear) }
     }
   }
 }
@@ -112,15 +129,17 @@ private struct SaveLinkTextField: View {
   var body: some View {
     WithPerceptionTracking {
       HStack(alignment: .top, spacing: 12) {
-        BKTextField(
-          text: $store.urlText,
-          isValidation: store.state.isValidationURL,
-          textFieldType: .saveLink,
-          isMultiLine: false,
-          isClearButton: true,
-          errorMessage: store.state.urlValidation.title,
-          height: 46
-        )
+        WithPerceptionTracking {
+          BKTextField(
+            text: $store.urlText,
+            isValidation: store.state.isValidationURL,
+            textFieldType: .saveLink,
+            isMultiLine: false,
+            isClearButton: true,
+            errorMessage: store.state.urlValidation.title,
+            height: 46
+          )
+        }
         
         Button {
           hideKeyboard()
@@ -142,6 +161,33 @@ private struct SaveLinkTextField: View {
       .frame(width: 46, height: 46)
       .background(Color.bkColor(store.isDisableSaveLinkButton ? .gray300 : .main300))
       .clipShape(RoundedRectangle(cornerRadius: 10))
+  }
+}
+
+private struct SaveLinkPasteboardButton: View {
+  private let action: () -> Void
+  
+  init(action: @escaping () -> Void) {
+    self.action = action
+  }
+  
+  var body: some View {
+    Button(action: action) {
+      BKText(
+        text: "복사한 링크 붙여넣기",
+        font: .semiBold,
+        size: ._14,
+        lineHeight: 20,
+        color: .bkColor(.main300)
+      )
+      .padding(.vertical, 10)
+      .padding(.horizontal, 14)
+      .clipShape(RoundedRectangle(cornerRadius: 100))
+      .overlay(
+        RoundedRectangle(cornerRadius: 100, style: .continuous)
+          .strokeBorder(Color.bkColor(.main300), lineWidth: 1)
+      )
+    }
   }
 }
 
@@ -240,6 +286,7 @@ private extension View {
   func saveLinkBackground() -> some View {
     VStack(spacing: 0) {
       self
+      
       Spacer()
     }
   }
@@ -252,10 +299,4 @@ private extension View {
       SaveLinkLodingView()
     }
   }
-}
-
-#Preview {
-  SaveLinkView(store: .init(initialState: SaveLinkFeature.State(), reducer: {
-    SaveLinkFeature()
-  }))
 }

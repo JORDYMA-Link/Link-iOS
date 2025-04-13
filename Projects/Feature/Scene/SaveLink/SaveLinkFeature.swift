@@ -25,6 +25,10 @@ public struct SaveLinkFeature {
     
     var ad: GoogleAd?
     var isAdPresented: Bool = false
+    
+    var pastoboardURL: String = ""
+    var isPastoboardButtonPresented: Bool = false
+    
     var isLoading: Bool = false
   }
   
@@ -33,6 +37,7 @@ public struct SaveLinkFeature {
     
     //MARK: UserAction
     case onAppear
+    case pastoboardButtonTapped
     case onTapNextButton
     case adDismissButtonTapped
     case onTapBackButton
@@ -40,11 +45,14 @@ public struct SaveLinkFeature {
     // MARK: Inner Business Action
     case postLinkSummary
     case loadAd
+    case checkPasteboard
+    case vaildatePastoboardURL
     case sendAnalyticsLog
     
     // MARK: Inner SetState Action
     case setURLValidation(isURL: Bool, isDisable: Bool)
     case setAd(GoogleAd)
+    case setPasteboardURL(String?)
     case setAdPresented(Bool)
     case setLoading(Bool)
     
@@ -58,22 +66,23 @@ public struct SaveLinkFeature {
   @Dependency(\.linkClient) private var linkClient
   @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(GoogleMobileAdsClient.self) private var googleMobileAdsClient
+  @Dependency(PasteboardClient.self) private var pasteboardClient
   
   public var body: some ReducerOf<Self> {
     BindingReducer()
     
     Reduce { state, action in
       switch action {
-      case .binding(\.urlText):
+      case .binding(\.urlText), .vaildatePastoboardURL:
         if state.urlText.isEmpty {
           return .send(.setURLValidation(isURL: true, isDisable: true))
         }
-                
+        
         if !state.urlText.isHTTPURL {
           state.urlValidation = .invalidScheme
           return .send(.setURLValidation(isURL: false, isDisable: true))
         }
-                
+        
         if state.urlText.isYouTubeOrInstagramURL {
           state.urlValidation = .unsupportedYouTubeOrInstagramURL
           return .send(.setURLValidation(isURL: false, isDisable: true))
@@ -82,10 +91,17 @@ public struct SaveLinkFeature {
         return .send(.setURLValidation(isURL: true, isDisable: false))
         
       case .onAppear:
-        return .send(.loadAd)
-                
+        return .run { send in
+          await send(.loadAd)
+          await send(.checkPasteboard)
+        }
+        
       case .onTapBackButton:
         return .run { _ in await self.dismiss() }
+        
+      case .pastoboardButtonTapped:
+        state.urlText = state.pastoboardURL
+        return .send(.vaildatePastoboardURL)
         
       case .onTapNextButton:
         return .run { send in
@@ -121,9 +137,22 @@ public struct SaveLinkFeature {
         )
         
       case .loadAd:
+        return .run(
+          operation: { send in
+            let ad = try await googleMobileAdsClient.load()
+            await send(.setAd(ad))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
+      case .checkPasteboard:
         return .run { send in
-          let ad = try await googleMobileAdsClient.load()
-          await send(.setAd(ad))
+          for await _ in pasteboardClient.hasString() {
+            let url = await pasteboardClient.pasteboardURL()
+            await send(.setPasteboardURL(url))
+          }
         }
         
       case .sendAnalyticsLog:
@@ -137,6 +166,16 @@ public struct SaveLinkFeature {
         
       case let .setAd(ad):
         state.ad = ad
+        return .none
+        
+      case let .setPasteboardURL(url):
+        guard let url else {
+          state.isPastoboardButtonPresented = false
+          return .none
+        }
+        
+        state.pastoboardURL = url
+        state.isPastoboardButtonPresented = true
         return .none
         
       case let .setAdPresented(isPresented):
@@ -178,10 +217,10 @@ public struct SaveLinkFeature {
 
 extension SaveLinkFeature {
   enum URLValidationError: Equatable, Sendable {
-      /// http 또는 https가 아닌 경우
-      case invalidScheme
-      /// YouTube && Instagram URL 형식
-      case unsupportedYouTubeOrInstagramURL
+    /// http 또는 https가 아닌 경우
+    case invalidScheme
+    /// YouTube && Instagram URL 형식
+    case unsupportedYouTubeOrInstagramURL
     
     var title: String {
       switch self {
