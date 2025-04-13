@@ -271,7 +271,7 @@ public struct BKTabFeature {
         
         /// - 요약 완료 화면 -> `확인` 버튼 누르지 않고 `뒤로가기` 버튼 눌렀을 때
       case .path(.element(id: _, action: .Link(.delegate(.summaryCompletedCloseButtonTapped)))):
-        state.path.removeAll()
+        state.path.removeLast()
         return .none
         
         /// - 링크 요약 이후 저장 화면 -> `뒤로가기` 버튼 눌렀을 때
