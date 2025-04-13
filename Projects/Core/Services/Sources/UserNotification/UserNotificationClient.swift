@@ -16,6 +16,8 @@ public struct UserNotificationClient {
   public var requestAuthorization: @Sendable () async throws -> Void
   public var getAuthorizationStatus: @Sendable () async -> UNAuthorizationStatus = { .notDetermined }
   public var registerForRemoteNotifications: @Sendable () async -> Void
+  public var notificationReceiveStream: @Sendable () -> AsyncStream<NotificationPayload>
+  public var notificationReceiveSend: @Sendable (NotificationPayload) -> Void
   
   
   public enum DelegateEvent: Sendable {
@@ -26,6 +28,8 @@ public struct UserNotificationClient {
 
 extension UserNotificationClient: DependencyKey {
   public static var liveValue: UserNotificationClient {
+    let notificationReceiveStream = AsyncStream<NotificationPayload>.makeStream()
+    
     return Self(
       delegate: {
         AsyncStream { continuation in
@@ -44,6 +48,12 @@ extension UserNotificationClient: DependencyKey {
       },
       registerForRemoteNotifications: { @MainActor in
         UIApplication.shared.registerForRemoteNotifications()
+      },
+      notificationReceiveStream: {
+        notificationReceiveStream.stream
+      },
+      notificationReceiveSend: { payload in
+        notificationReceiveStream.continuation.yield(payload)
       }
     )
   }
@@ -80,4 +90,21 @@ extension UserNotificationClient {
       )
     }
   }
+}
+
+public struct NotificationPayload: Equatable, @unchecked Sendable {
+  public let id: String
+  public let userInfo: [AnyHashable: Any]
+  
+  public init(
+    id: String,
+    userInfo: [AnyHashable : Any]
+  ) {
+    self.id = id
+    self.userInfo = userInfo
+  }
+    
+  public static func == (lhs: NotificationPayload, rhs: NotificationPayload) -> Bool {
+        lhs.id == rhs.id
+    }
 }

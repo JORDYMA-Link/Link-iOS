@@ -9,26 +9,39 @@
 import SwiftUI
 
 import Feature
+import Services
 
 import ComposableArchitecture
 
-final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+final class AppDelegate: UIResponder, UIApplicationDelegate {
   let store = StoreOf<AppDelegateFeature>.init(
-      initialState: .init(),
-      reducer: {
-        AppDelegateFeature()
-      }
-    )
-  
+    initialState: .init(),
+    reducer: {
+      AppDelegateFeature()
+    }
+  )
+
   func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    UNUserNotificationCenter.current().delegate = self
     store.send(.didFinishLaunching)
     return true
   }
   
   func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     store.send(.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken))
+  }
+}
+
+extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {
+  func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+    let userInfo = response.notification.request.content.userInfo
+    let notificationId = userInfo["id"] as? String ?? UUID().uuidString
+    let payload = NotificationPayload(id: notificationId, userInfo: userInfo)
+    
+    store.send(.didReceiveRemoteNotification(payload))
+    completionHandler()
   }
 }
