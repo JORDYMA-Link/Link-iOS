@@ -12,15 +12,18 @@ public struct LinkProcessingStatus: Equatable {
   public let feedId: Int
   public let title: String
   public let status: ProcessingStatusType
+  public let originUrl: String
   
   public init(
     feedId: Int,
     title: String,
-    status: ProcessingStatusType
+    status: ProcessingStatusType,
+    originUrl: String
   ) {
     self.feedId = feedId
     self.title = title
     self.status = status
+    self.originUrl = originUrl
   }
 }
 

@@ -14,6 +14,7 @@ struct LinkProcessingStatusResponse: Decodable {
   let feedId: Int
   let title: String
   let status: String
+  let originUrl: String
 }
 
 extension LinkProcessingStatusResponse {
@@ -21,7 +22,8 @@ extension LinkProcessingStatusResponse {
     return LinkProcessingStatus(
       feedId: feedId,
       title: title,
-      status: ProcessingStatusType(fromRawValue: status)
+      status: ProcessingStatusType(fromRawValue: status),
+      originUrl: originUrl
     )
   }
 }
