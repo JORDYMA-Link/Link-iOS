@@ -54,15 +54,24 @@ struct LinkView: View {
           }
           
           VStack(alignment: .leading, spacing: 0) {
-            BKText(
-              text: "요약 내용",
-              font: .semiBold,
-              size: ._18,
-              lineHeight: 26,
-              color: .bkColor(.gray900)
-            )
+            HStack {
+              BKText(
+                text: "요약 내용",
+                font: .semiBold,
+                size: ._18,
+                lineHeight: 26,
+                color: .bkColor(.gray900)
+              )
+              
+              Spacer()
+              
+              LinkUpdateButton(
+                isUpdatable: store.state.isContentUpdatable,
+                action: { store.send(.contentUpdateButtonTapped) }
+              )
+            }
             
-            LinkTextView(content: store.feed.summary)
+            textView
               .padding(.top, 6)
             
             BKChipView(
@@ -214,6 +223,18 @@ struct LinkView: View {
         if store.linkType == .feedDetail {
           onWillDisappear(store.feed)
         }
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var textView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      LinkTextView(content: store.feed.summary)
+    case .summaryCompleted:
+      WithPerceptionTracking {
+        LinkTextField(content: $store.feed.summary, isDisabled: store.state.isContentUpdatable)
       }
     }
   }

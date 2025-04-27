@@ -37,6 +37,9 @@ public struct LinkFeature {
     var feed: Feed = .init(feedId: 0, thumbnailImage: "", platformImage: "", title: "", date: "", summary: "", keywords: [], folderName: "", folders: [], memo: "", isMarked: false, originUrl: "")
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
+    
+    /// 요약 내용 편집/완료 버튼
+    var isContentUpdatable: Bool = true
     /// 메모 타이틀
     var memoButtonTitle: String {
       feed.memo.isEmpty ? "추가" : "수정"
@@ -76,6 +79,7 @@ public struct LinkFeature {
     case saveButtonTapped(Bool)
     case shareButtonTapped
     case clipboardPopupSaveButtonTapped
+    case contentUpdateButtonTapped
     case editFolderButtonTapped
     case recommendFolderItemTapped
     case addFolderItemTapped
@@ -224,6 +228,10 @@ public struct LinkFeature {
         
       case .clipboardPopupSaveButtonTapped:
         return .run { send in await send(.clipboardToastPresented(true)) }
+        
+      case .contentUpdateButtonTapped:
+        state.isContentUpdatable.toggle()
+        return .none
         
       case .editFolderButtonTapped:
         let feed = state.feed
