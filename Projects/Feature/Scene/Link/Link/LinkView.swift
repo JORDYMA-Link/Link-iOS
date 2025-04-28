@@ -20,6 +20,7 @@ struct LinkView: View {
   @StateObject var scrollViewDelegate = ScrollViewDelegate()
   @StateObject private var bkWebViewModel = BKWebViewModel()
   @State private var isScrollDetected: Bool = false
+  @State private var isMemoTextFieldHidden: Bool = true
   private var onWillDisappear: (Feed) -> Void
   
   init(store: StoreOf<LinkFeature>,
@@ -44,24 +45,9 @@ struct LinkView: View {
             }
           
           VStack(alignment: .leading, spacing: 0) {
-            HStack {
-              BKText(
-                text: "요약 내용",
-                font: .semiBold,
-                size: ._18,
-                lineHeight: 26,
-                color: .bkColor(.gray900)
-              )
-              
-              Spacer()
-              
-              LinkUpdateButton(
-                isUpdatable: store.state.isContentUpdatable,
-                action: { store.send(.contentUpdateButtonTapped) }
-              )
-            }
+            contentHeaderView
             
-            textView
+            contentTextView
               .padding(.top, 6)
             
             BKChipView(
@@ -76,20 +62,11 @@ struct LinkView: View {
             folderSection
               .padding(.top, 8)
             
-            LinkTitleButton(
-              title: "메모",
-              buttonTitle: store.memoButtonTitle,
-              action: {
-                HapticFeedbackManager.shared.selection()
-                store.send(.editMemoButtonTapeed)
-              }
-            )
-            .padding(.top, 16)
+            memoHeaderView
+              .padding(.top, 16)
             
-            if !store.feed.memo.isEmpty {
-              LinkTextView(content: store.feed.memo)
-                .padding(.top, 13)
-            }
+            memoTextView
+              .padding(.top, 13)
           }
           .padding(.top, 24)
           .padding(.horizontal, 16)
@@ -218,7 +195,39 @@ struct LinkView: View {
   }
   
   @ViewBuilder
-  private var textView: some View {
+  private var contentHeaderView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      BKText(
+        text: "요약 내용",
+        font: .semiBold,
+        size: ._18,
+        lineHeight: 26,
+        color: .bkColor(.gray900)
+      )
+      
+    case .summaryCompleted:
+      HStack {
+        BKText(
+          text: "요약 내용",
+          font: .semiBold,
+          size: ._18,
+          lineHeight: 26,
+          color: .bkColor(.gray900)
+        )
+        
+        Spacer()
+        
+        LinkUpdateButton(
+          isUpdatable: store.state.isContentUpdatable,
+          action: { store.send(.contentUpdateButtonTapped) }
+        )
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var contentTextView: some View {
     switch store.linkType {
     case .feedDetail, .summarySave:
       LinkTextView(content: store.feed.summary)
@@ -249,8 +258,8 @@ struct LinkView: View {
           .frame(width: 20, height: 20)
         
         LinkTitleButton(
-          title: "추천 폴더",
-          buttonTitle: "선택사항",
+          title: "AI 추천 폴더",
+          buttonTitle: "AI가 링크 내용 기반으로 추천한 폴더입니다.",
           action: {}
         )
       }
@@ -293,6 +302,57 @@ struct LinkView: View {
           }
         )
         .padding(.horizontal, -16)
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var memoHeaderView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      BKText(
+        text: "메모",
+        font: .semiBold,
+        size: ._18,
+        lineHeight: 26,
+        color: .bkColor(.gray900)
+      )
+      .opacity(store.feed.memo.isEmpty ? 0 : 1)
+      
+    case .summaryCompleted:
+      HStack {
+        BKText(
+          text: "메모",
+          font: .semiBold,
+          size: ._18,
+          lineHeight: 26,
+          color: .bkColor(.gray900)
+        )
+        
+        Spacer()
+        
+        LinkUpdateButton(
+          isUpdatable: store.state.isMemoUpdatable,
+          action: {
+            if isMemoTextFieldHidden { isMemoTextFieldHidden = false }
+            store.send(.memoUpdateButtonTapped)
+          }
+        )
+      }
+    }
+  }
+  
+  @ViewBuilder
+  private var memoTextView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      LinkTextView(content: store.feed.memo)
+        .opacity(store.feed.memo.isEmpty ? 0 : 1)
+      
+    case .summaryCompleted:
+      WithPerceptionTracking {
+        LinkTextField(content: $store.feed.memo, isDisabled: store.state.isMemoUpdatable)
+          .opacity(isMemoTextFieldHidden ? 0 : 1)
       }
     }
   }

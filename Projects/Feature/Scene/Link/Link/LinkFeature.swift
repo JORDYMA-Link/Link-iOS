@@ -41,11 +41,9 @@ public struct LinkFeature {
     var isTitleUpdatable: Bool = true
     /// 요약 내용 편집/완료 버튼
     var isContentUpdatable: Bool = true
+    /// 메모 편집/완료 버튼
+    var isMemoUpdatable: Bool = true
     
-    /// 메모 타이틀
-    var memoButtonTitle: String {
-      feed.memo.isEmpty ? "추가" : "수정"
-    }
     var webViewInfo: WebViewInfo = .init(flag: false, link: "")
     
     var isMenuBottomSheetPresented: Bool = false
@@ -87,7 +85,7 @@ public struct LinkFeature {
     case recommendFolderItemTapped
     case addFolderItemTapped
     case folderItemTapped(any FolderItem)
-    case editMemoButtonTapeed
+    case memoUpdateButtonTapped
     case showURLButtonTapped
     case summaryEditButtonTapped
     case summarySaveButtonTapped
@@ -257,9 +255,9 @@ public struct LinkFeature {
         state.selectedFolder = folder.folderName
         return .none
         
-      case .editMemoButtonTapeed:
-        let feed = state.feed
-        return .send(.editMemoBottomSheet(.editMemoTapped(feed.feedId, feed.memo)))
+      case .memoUpdateButtonTapped:
+        state.isMemoUpdatable.toggle()
+        return .none
         
       case .showURLButtonTapped:
         showURLButtonTappedLog(feedId: state.feed.feedId)
