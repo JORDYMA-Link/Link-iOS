@@ -11,7 +11,6 @@ import Foundation
 import Analytics
 import Services
 import Models
-
 import CommonFeature
 
 import ComposableArchitecture
@@ -38,8 +37,11 @@ public struct LinkFeature {
     /// 링크 요약 화면 시 선택할 폴더
     var selectedFolder: String = ""
     
+    /// 타이틀 편집/완료 버튼
+    var isTitleUpdatable: Bool = true
     /// 요약 내용 편집/완료 버튼
     var isContentUpdatable: Bool = true
+    
     /// 메모 타이틀
     var memoButtonTitle: String {
       feed.memo.isEmpty ? "추가" : "수정"
@@ -79,6 +81,7 @@ public struct LinkFeature {
     case saveButtonTapped(Bool)
     case shareButtonTapped
     case clipboardPopupSaveButtonTapped
+    case titleUpdateButtonTapped
     case contentUpdateButtonTapped
     case editFolderButtonTapped
     case recommendFolderItemTapped
@@ -228,6 +231,10 @@ public struct LinkFeature {
         
       case .clipboardPopupSaveButtonTapped:
         return .run { send in await send(.clipboardToastPresented(true)) }
+        
+      case .titleUpdateButtonTapped:
+        state.isTitleUpdatable.toggle()
+        return .none
         
       case .contentUpdateButtonTapped:
         state.isContentUpdatable.toggle()

@@ -33,25 +33,15 @@ struct LinkView: View {
     WithPerceptionTracking {
       ScrollView(showsIndicators: false) {
         VStack(spacing: 0) {
-          LinkHeaderView(
-            feed: store.feed,
-            saveAction: {
-              HapticFeedbackManager.shared.impact(style: .light)
-              store.send(.saveButtonTapped($0))
-            },
-            shareAction: {
-              HapticFeedbackManager.shared.impact(style: .light)
-              store.send(.shareButtonTapped)
+          LinkHeaderView(store: store)
+            .background(ViewMaxYGeometry())
+            .onPreferenceChange(ViewPreferenceKey.self) { maxY in
+              let headerMaxY = maxY + UIApplication.topSafeAreaInset
+              
+              DispatchQueue.main.async {
+                scrollViewDelegate.headerMaxY = headerMaxY
+              }
             }
-          )
-          .background(ViewMaxYGeometry())
-          .onPreferenceChange(ViewPreferenceKey.self) { maxY in
-            let headerMaxY = maxY + UIApplication.topSafeAreaInset
-            
-            DispatchQueue.main.async {
-              scrollViewDelegate.headerMaxY = headerMaxY
-            }
-          }
           
           VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -151,79 +141,79 @@ struct LinkView: View {
             BKContainerWebView(url: url)
           }
         }
-      .fullScreenCover(
-        item: $store.scope(
-          state: \.editLink,
-          action: \.editLink)
-      ) { store in
-        WithPerceptionTracking {
-          EditLinkView(store: store)
+        .fullScreenCover(
+          item: $store.scope(
+            state: \.editLink,
+            action: \.editLink)
+        ) { store in
+          WithPerceptionTracking {
+            EditLinkView(store: store)
+          }
         }
-      }
-      .bkWebViewAlert(
-        isPresented: $store.isWebViewPresented) {
-          BKWebView(
-            viewModel: bkWebViewModel,
-            url: URL(string: store.webViewInfo.link)!,
-            isScrollEnabled: false
-          ) { action in
-            switch action {
-            case .survey(.closeSurveyModal):
-              store.send(.closeBKWebView)
-              
-            case .survey(.openSurveyForm(let url)):
-              store.send(.openSurveyFormButtonTapped(url))
+        .bkWebViewAlert(
+          isPresented: $store.isWebViewPresented) {
+            BKWebView(
+              viewModel: bkWebViewModel,
+              url: URL(string: store.webViewInfo.link)!,
+              isScrollEnabled: false
+            ) { action in
+              switch action {
+              case .survey(.closeSurveyModal):
+                store.send(.closeBKWebView)
+                
+              case .survey(.openSurveyForm(let url)):
+                store.send(.openSurveyFormButtonTapped(url))
+              }
             }
           }
-        }
-      .bottomSheet(
-        isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
-        detents: [.height(132)],
-        leadingTitle: "폴더 수정",
-        closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
-      ) {
-        EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
-      }
-      .bottomSheet(
-        isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
-        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
-        leadingTitle: "폴더 추가",
-        closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
-      ) {
-        AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
-          .interactiveDismissDisabled()
-      }
-      .bottomSheet(
-        isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
-        detents: [.height(292 - UIApplication.bottomSafeAreaInset)],
-        leadingTitle: "메모",
-        closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
-      ) {
-        EditMemoBottomSheet(store: store.scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet))
-      }
-      .bottomSheet(
-        isPresented: $store.isMenuBottomSheetPresented,
-        detents: [.height(144)],
-        leadingTitle: "설정"
-      ) {
-        BKMenuBottomSheet(
-          menuItems: [.editLink, .deleteLink],
-          action: {
-            HapticFeedbackManager.shared.selection()
-            store.send(.menuBottomSheet($0))
+          .bottomSheet(
+            isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+            detents: [.height(132)],
+            leadingTitle: "폴더 수정",
+            closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+          ) {
+            EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
           }
-        )
-      }
-      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-        self.isScrollDetected = $0
-      }
-      .task { await store.send(.onTask).finish() }
-      .onWillDisappear {
-        // FeedDetail에서만 스와이프백이 가능하기 때문에 WillDisappear 시 부모뷰 업데이트
-        if store.linkType == .feedDetail {
-          onWillDisappear(store.feed)
-        }
-      }
+          .bottomSheet(
+            isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
+            detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
+            leadingTitle: "폴더 추가",
+            closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
+          ) {
+            AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
+              .interactiveDismissDisabled()
+          }
+          .bottomSheet(
+            isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
+            detents: [.height(292 - UIApplication.bottomSafeAreaInset)],
+            leadingTitle: "메모",
+            closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
+          ) {
+            EditMemoBottomSheet(store: store.scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet))
+          }
+          .bottomSheet(
+            isPresented: $store.isMenuBottomSheetPresented,
+            detents: [.height(144)],
+            leadingTitle: "설정"
+          ) {
+            BKMenuBottomSheet(
+              menuItems: [.editLink, .deleteLink],
+              action: {
+                HapticFeedbackManager.shared.selection()
+                store.send(.menuBottomSheet($0))
+              }
+            )
+          }
+          .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+            self.isScrollDetected = $0
+          }
+          .task { await store.send(.onTask).finish() }
+          .onWillDisappear {
+            // FeedDetail에서만 스와이프백이 가능하기 때문에 WillDisappear 시 부모뷰 업데이트
+            if store.linkType == .feedDetail {
+              onWillDisappear(store.feed)
+            }
+          }
     }
   }
   
