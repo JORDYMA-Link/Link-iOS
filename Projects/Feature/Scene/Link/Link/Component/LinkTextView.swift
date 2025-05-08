@@ -23,24 +23,21 @@ struct LinkTextView: View {
   
   var body: some View {
     VStack(spacing: 10) {
-      BKText(
-        text: content,
-        font: .regular,
-        size: ._14,
-        lineHeight: 20,
-        color: .bkColor(.gray800)
-      )
-      .background(ViewHeightGeometry())
-      .onPreferenceChange(ViewPreferenceKey.self) { height in
-        DispatchQueue.main.async {
-          if !content.isEmpty && height > 0 {
-            contentHeight = height
+      Text(content.parseBoldString())
+        .font(.regular(size: ._14))
+        .fontWithLineHeight(font: BKFont.regular.fontName(size: 14), lineHeight: 20)
+        .foregroundStyle(Color.bkColor(.gray800))
+        .background(ViewHeightGeometry())
+        .onPreferenceChange(ViewPreferenceKey.self) { height in
+          DispatchQueue.main.async {
+            if !content.isEmpty && height > 0 {
+              contentHeight = height
+            }
           }
         }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-      .lineLimit(isExpandable && contentHeight > 60 ? nil : 3)
-      .multilineTextAlignment(.leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .lineLimit(isExpandable && contentHeight > 60 ? nil : 3)
+        .multilineTextAlignment(.leading)
       
       if !isExpandable && contentHeight > 60 {
         Divider()
@@ -79,5 +76,35 @@ private struct LinkTextViewExpandButton: View {
       }
       .frame(maxWidth: .infinity, minHeight: 20, maxHeight: 20)
     }
+  }
+}
+
+private extension String {
+  func parseBoldString() -> AttributedString {
+    let pattern = "\\*\\*(.*?)\\*\\*"
+    let regex = try! NSRegularExpression(pattern: pattern)
+    
+    let cleanText = self.replacingOccurrences(of: "**", with: "")
+    var attributedString = AttributedString(cleanText)
+    
+    let matches = regex.matches(in: self, range: NSRange(self.startIndex..., in: self))
+    
+    for match in matches {
+      if let range = Range(match.range(at: 1), in: self) {
+        let boldText = String(self[range])
+        
+        if let startRange = cleanText.range(of: boldText) {
+          let startIndex = cleanText.distance(from: cleanText.startIndex, to: startRange.lowerBound)
+          let length = boldText.count
+          
+          if let attributedRange = Range(NSRange(location: startIndex, length: length), in: attributedString) {
+            attributedString[attributedRange].font = UIFont.semiBold(size: ._14)
+            attributedString[attributedRange].foregroundColor = BKColor.gray900.color
+          }
+        }
+      }
+    }
+    
+    return attributedString
   }
 }

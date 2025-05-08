@@ -14,7 +14,7 @@ public enum BKFont {
   case regular
   case light
   
-  func fontName(size: CGFloat) -> UIFont {
+  public func fontName(size: CGFloat) -> UIFont {
     switch self {
     case .semiBold: return CommonFeatureFontFamily.Pretendard.semiBold.font(size: size)
     case .regular: return CommonFeatureFontFamily.Pretendard.regular.font(size: size)
@@ -22,7 +22,7 @@ public enum BKFont {
     }
   }
   
-  func fontName(size: CGFloat) -> Font {
+  public func fontName(size: CGFloat) -> Font {
     switch self {
     case .semiBold: return CommonFeatureFontFamily.Pretendard.semiBold.swiftUIFont(size: size)
     case .regular: return CommonFeatureFontFamily.Pretendard.regular.swiftUIFont(size: size)
