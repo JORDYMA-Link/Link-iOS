@@ -13,86 +13,67 @@ import Services
 import Models
 import Common
 
+import ComposableArchitecture
+
 struct LinkHeaderView: View {
-  private var feed: Feed
-  private let saveAction: (Bool) -> Void
-  private let shareAction: () -> Void
+  @Perception.Bindable private var store: StoreOf<LinkFeature>
   @State private var height: CGFloat = 0
+  @FocusState private var titleFocus: Bool
   
-  init(
-    feed: Feed,
-    saveAction: @escaping (Bool) -> Void,
-    shareAction: @escaping () -> Void
-  ) {
-    self.feed = feed
-    self.saveAction = saveAction
-    self.shareAction = shareAction
+  init(store: StoreOf<LinkFeature>) {
+    self.store = store
   }
   
   var body: some View {
-    GeometryReader { proxy in
-      let size = proxy.size
-      let minY = proxy.frame(in: .global).minY
-      let isScrolling = minY > 0
-      
-      Group {
-        if !feed.thumbnailImage.isEmpty {
-          BKImageView(
-            imageURL: feed.thumbnailImage,
-            downsamplingSize: .init(width: size.width, height: size.height),
-            placeholder: CommonFeature.Images.icoEmptyThumnail
-          )
-        } else {
-          CommonFeature.Images.icoEmptyThumnail
-            .resizable()
-            .scaledToFill()
+    WithPerceptionTracking {
+      GeometryReader { proxy in
+        let size = proxy.size
+        let minY = proxy.frame(in: .global).minY
+        let isScrolling = minY > 0
+        
+        Group {
+          if !store.feed.thumbnailImage.isEmpty {
+            BKImageView(
+              imageURL: store.feed.thumbnailImage,
+              downsamplingSize: .init(width: size.width, height: size.height),
+              placeholder: CommonFeature.Images.icoEmptyThumnail
+            )
+          } else {
+            CommonFeature.Images.icoEmptyThumnail
+              .resizable()
+              .scaledToFill()
+          }
+        }
+        .dimmedBackground()
+        .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
+        .clipped()
+        .offset(y: isScrolling ? -minY : 0)
+        .overlay(alignment: .bottom) {
+          VStack(spacing: 0) {
+            titleView()
+            buttonView
+          }
+          .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
+          .offset(y: isScrolling ? -minY : 0)
         }
       }
-      .dimmedBackground()
-      .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
-      .clipped()
-      .offset(y: isScrolling ? -minY : 0)
-      .overlay(alignment: .bottom) {
-        VStack(spacing: 0) {
-          titleView()
-          buttonView
-        }
-        .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
-        .offset(y: isScrolling ? -minY : 0)
+      .frame(height: height <= Size.titleMinHeight ? Size.headerMinHeight : Size.headerMaxHeight)
+      .onChange(of: store.isTitleUpdatable) { isTitleUpdatable in
+        titleFocus = !isTitleUpdatable
       }
     }
-    .frame(height: height <= Size.titleMinHeight ? Size.headerMinHeight : Size.headerMaxHeight)
   }
   
   @MainActor
   private func titleView() -> some View {
     HStack(spacing: 0) {
       VStack(alignment: .leading, spacing: 0) {
-        BKImageView(
-          imageURL: feed.platformImage ?? "",
-          downsamplingSize: .init(width: 24, height: 24),
-          placeholder: CommonFeature.Images.icoEmptyPlatform
-        )
-        .frame(width: 24, height: 24)
-        .clipShape(Circle())
+        titleHeaderView
         
-        Text(feed.title)
-          .font(.regular(size: ._28))
-          .foregroundColor(Color.bkColor(.white))
-          .lineLimit(3)
-          .multilineTextAlignment(.leading)
-          .padding(.top, 4)
-          .frame(maxWidth: .infinity, minHeight: 38, alignment: .bottomLeading)
-          .fixedSize(horizontal: false, vertical: true)
-          .background(ViewHeightGeometry())
-          .onPreferenceChange(ViewPreferenceKey.self) { height in
-            DispatchQueue.main.async {
-              self.height = height
-            }
-          }
+        titleContentView
         
         BKText(
-          text: feed.date,
+          text: store.feed.date,
           font: .regular,
           size: ._16,
           lineHeight: 24,
@@ -104,22 +85,69 @@ struct LinkHeaderView: View {
     }
   }
   
+  @ViewBuilder
+  private var titleHeaderView: some View {
+    BKImageView(
+      imageURL: store.feed.platformImage ?? "",
+      downsamplingSize: .init(width: 24, height: 24),
+      placeholder: CommonFeature.Images.icoEmptyPlatform
+    )
+    .frame(width: 24, height: 24)
+    .clipShape(Circle())
+  }
+  
+  @ViewBuilder
+  private var titleContentView: some View {
+    Group {
+      switch store.linkType {
+      case .feedDetail, .summarySave:
+        Text(store.feed.title)
+        
+      case .summaryCompleted:
+        TextField("", text: $store.feed.title, axis: .vertical)
+          .focused($titleFocus)
+          .disabled(store.isTitleUpdatable)
+          .onChange(of: store.feed.title) { newText in
+            if newText.count > 50 {
+              store.feed.title = String(newText.prefix(50))
+            }
+          }
+      }
+    }
+    .foregroundStyle(.white)
+    .tint(Color.bkColor(.white))
+    .font(.regular(size: ._28))
+    .lineLimit(3)
+    .multilineTextAlignment(.leading)
+    .padding(.top, 4)
+    .frame(maxWidth: .infinity, minHeight: 38, alignment: .bottomLeading)
+    .fixedSize(horizontal: false, vertical: true)
+    .background(ViewHeightGeometry())
+    .onPreferenceChange(ViewPreferenceKey.self) { height in
+      DispatchQueue.main.async {
+        self.height = height
+      }
+    }
+  }
+  
   private var buttonView: some View {
-    HStack(spacing: 20) {
+    HStack(spacing: store.linkType != .summaryCompleted ? 20 : 11) {
       Spacer(minLength: 0)
       
       Button {
-        saveAction(!feed.isMarked)
+        HapticFeedbackManager.shared.impact(style: .light)
+        store.send(.saveButtonTapped(!store.feed.isMarked))
       } label: {
         BKIcon(
-          image: feed.isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave,
+          image: store.feed.isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave,
           color: .white,
           size:CGSize(width: 20, height: 20)
         )
       }
       
       Button {
-        shareAction()
+        HapticFeedbackManager.shared.impact(style: .light)
+        store.send(.shareButtonTapped)
       } label: {
         BKIcon(
           image: CommonFeature.Images.icoShare,
@@ -127,7 +155,20 @@ struct LinkHeaderView: View {
           size: CGSize(width: 20, height: 20)
         )
       }
+      
+      if store.linkType == .summaryCompleted {
+       Rectangle()
+          .frame(width: 1, height: 14, alignment: .center)
+          .foregroundStyle(Color.bkColor(.white))
+        
+        LinkUpdateButton(
+          isUpdatable: store.state.isTitleUpdatable,
+          type: .title,
+          action: { store.send(.titleUpdateButtonTapped) }
+        )
+      }
     }
+    .frame(minHeight: 20, maxHeight: 20)
   }
 }
 

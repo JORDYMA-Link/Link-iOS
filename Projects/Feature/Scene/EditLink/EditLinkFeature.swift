@@ -28,16 +28,16 @@ public struct EditLinkFeature {
     var initFeed: Feed?
     var isTitleValidation: Bool = true
     var isDescriptionValidation: Bool = true
+    var isMemoValidation: Bool = true
     
     var selectedPhotoInfos: [Data] = []
     var isPhotoError: PhotoPickerError?
     var isPhotoErrorPresented: Bool = false
     
     var addKeywordBottomSheet: AddKewordBottomSheetFeature.State = .init()
+    var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
     
-    public init(
-      editLinkType: EditLinkType
-    ) {
+    public init(editLinkType: EditLinkType) {
       self.editLinkType = editLinkType
     }
   }
@@ -52,18 +52,24 @@ public struct EditLinkFeature {
     case descriptionChanged(String)
     case chipItemDeleteButtonTapped(String)
     case chipItemAddButtonTapped
+    case addFolderItemTapped
+    case folderItemTapped(String)
+    case memoChanged(String)
     case editConfirmButtonTapped
     
     // MARK: Inner Business Action
     case fetchFeed(Int)
+    case fetchFolderList
     case postThumbnailImage(Int, Data)
     case patchLink(Int)
     case dismiss
     
     // MARK: Inner SetState Action
     case setFeed(Feed)
+    case setFolderList([Folder])
     case setTitleValidation(Bool)
     case setDescriptionValidation(Bool)
+    case setMemoValidation(Bool)
     case setDelegate
     
     // MARK: Delegate Action
@@ -77,6 +83,7 @@ public struct EditLinkFeature {
     
     // MARK: Child Action
     case addKeywordBottomSheet(AddKewordBottomSheetFeature.Action)
+    case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
     
     // MARK: Present Action
     case addKeywordBottomSheetPresented([String])
@@ -87,10 +94,15 @@ public struct EditLinkFeature {
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(\.feedClient) private var feedClient
+  @Dependency(\.folderClient) private var folderClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet) {
       AddKewordBottomSheetFeature()
+    }
+    
+    Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
+      AddFolderBottomSheetFeature()
     }
     
     BindingReducer()
@@ -104,9 +116,16 @@ public struct EditLinkFeature {
       case .onAppear:
         switch state.editLinkType {
         case let .link(feed):
-          return .send(.setFeed(feed))
+          return .run { send in
+            await send(.fetchFolderList)
+            await send(.setFeed(feed))
+          }
+          
         case let .home(feedId):
-          return .send(.fetchFeed(feedId))
+          return .run { send in
+            await send(.fetchFolderList)
+            await send(.fetchFeed(feedId))
+          }
         }
         
       case .closeButtonTapped:
@@ -136,7 +155,7 @@ public struct EditLinkFeature {
       case let .descriptionChanged(description):
         state.feed.summary = description
         
-        guard 2 <= state.feed.summary.count && state.feed.summary.count <= 200 else {
+        guard 2 <= state.feed.summary.count && state.feed.summary.count <= 500 else {
           return .send(.setDescriptionValidation(false))
         }
         
@@ -150,6 +169,22 @@ public struct EditLinkFeature {
         
       case .chipItemAddButtonTapped:
         return .run { [state] send in await send(.addKeywordBottomSheetPresented(state.feed.keywords)) }
+        
+      case .addFolderItemTapped:
+        return .send(.addFolderBottomSheet(.addFolderTapped))
+        
+      case let .folderItemTapped(folder):
+        state.feed.folderName = folder.folderName
+        return .none
+        
+      case let .memoChanged(memo):
+        state.feed.memo = memo
+        
+        guard state.feed.memo.count <= 500 else {
+          return .send(.setMemoValidation(false))
+        }
+        
+        return .send(.setMemoValidation(true))
         
       case .editConfirmButtonTapped:
         if let selectedPhoto = state.selectedPhotoInfos.first {
@@ -186,6 +221,18 @@ public struct EditLinkFeature {
           }
         )
         
+      case .fetchFolderList:
+        return .run(
+          operation: { send in
+            let folderList = try await folderClient.getFolders()
+            
+            await send(.setFolderList(folderList), animation: .default)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
       case let .patchLink(feedId):
         return .run(
           operation: { [state] send in
@@ -213,12 +260,20 @@ public struct EditLinkFeature {
         state.initFeed = feed
         return .none
         
+      case let .setFolderList(folderList):
+        state.feed.folders = folderList.map { $0.name }
+        return .none
+        
       case let .setTitleValidation(isTitleValidation):
         state.isTitleValidation = isTitleValidation
         return .none
         
       case let .setDescriptionValidation(isDescriptionValidation):
         state.isDescriptionValidation = isDescriptionValidation
+        return .none
+        
+      case let .setMemoValidation(isMemoValidation):
+        state.isMemoValidation = isMemoValidation
         return .none
         
       case .setDelegate:
@@ -239,6 +294,11 @@ public struct EditLinkFeature {
         
       case let .addKeywordBottomSheetPresented(keywords):
         return .send(.addKeywordBottomSheet(.addKeywordTapped(keywords)))
+        
+      case let .addFolderBottomSheet(.delegate(.didUpdate(folder))):
+        state.feed.folders?.insert(folder.name, at: 0)
+        state.feed.folderName = folder.name
+        return .none
         
       case .photoErrorAlertPresented:
         return .run { [state] send in

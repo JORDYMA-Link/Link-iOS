@@ -17,13 +17,18 @@ import SwiftUIIntrospect
 
 struct LinkView: View {
   @Perception.Bindable var store: StoreOf<LinkFeature>
-  @StateObject var scrollViewDelegate = ScrollViewDelegate()
-  @StateObject private var bkWebViewModel = BKWebViewModel()
-  @State private var isScrollDetected: Bool = false
   private var onWillDisappear: (Feed) -> Void
   
-  init(store: StoreOf<LinkFeature>,
-       onWillDisappear: @escaping (Feed) -> Void
+  @StateObject private var scrollViewDelegate = ScrollViewDelegate()
+  @StateObject private var bkWebViewModel = BKWebViewModel()
+  
+  @State private var isScrollDetected: Bool = false
+  @FocusState private var isContentFocused: Bool
+  @FocusState private var isMemoFocused: Bool
+  
+  init(
+    store: StoreOf<LinkFeature>,
+    onWillDisappear: @escaping (Feed) -> Void
   ) {
     self.store = store
     self.onWillDisappear = onWillDisappear
@@ -33,62 +38,76 @@ struct LinkView: View {
     WithPerceptionTracking {
       ScrollView(showsIndicators: false) {
         VStack(spacing: 0) {
-          LinkHeaderView(
-            feed: store.feed,
-            saveAction: {
-              HapticFeedbackManager.shared.impact(style: .light)
-              store.send(.saveButtonTapped($0))
-            },
-            shareAction: {
-              HapticFeedbackManager.shared.impact(style: .light)
-              store.send(.shareButtonTapped)
+          LinkHeaderView(store: store)
+            .background(ViewMaxYGeometry())
+            .onPreferenceChange(ViewPreferenceKey.self) { maxY in
+              let headerMaxY = maxY + UIApplication.topSafeAreaInset
+              
+              DispatchQueue.main.async {
+                scrollViewDelegate.headerMaxY = headerMaxY
+              }
             }
-          )
-          .background(ViewMaxYGeometry())
-          .onPreferenceChange(ViewPreferenceKey.self) { maxY in
-            let headerMaxY = maxY + UIApplication.topSafeAreaInset
-            
-            DispatchQueue.main.async {
-              scrollViewDelegate.headerMaxY = headerMaxY
-            }
-          }
           
           VStack(alignment: .leading, spacing: 0) {
-            BKText(
-              text: "요약 내용",
-              font: .semiBold,
-              size: ._18,
-              lineHeight: 26,
-              color: .bkColor(.gray900)
-            )
-            
-            LinkTextView(content: store.feed.summary)
+            switch store.linkType {
+            case .feedDetail, .summarySave:
+              contentHeaderView
+              
+              BKChipView(
+                keywords: .constant(store.feed.keywords),
+                chipType: .default,
+                designType: .main
+              )
               .padding(.top, 6)
-            
-            BKChipView(
-              keywords: .constant(store.feed.keywords),
-              chipType: .default
-            )
-            .padding(.top, 8)
-            
-            folderTitle
-              .padding(.top, 16)
-            
-            folderSection
-              .padding(.top, 8)
-            
-            LinkTitleButton(
-              title: "메모",
-              buttonTitle: store.memoButtonTitle,
-              action: {
-                HapticFeedbackManager.shared.selection()
-                store.send(.editMemoButtonTapeed)
+              
+              contentTextView
+                .padding(.top, 8)
+                            
+              folderTitle
+                .padding(.top, 16)
+              
+              folderSection
+                .padding(.top, 8)
+              
+              memoHeaderView
+                .padding(.top, 16)
+              
+              memoTextView
+                .padding(.top, 13)
+              
+            case .summaryCompleted:
+              folderTitle
+              
+              folderSection
+                .padding(.top, 8)
+              
+              contentHeaderView
+                .padding(.top, 16)
+              
+              WithPerceptionTracking {
+                BKChipView(
+                  keywords: $store.feed.keywords,
+                  chipType: store.isContentUpdatable ? .default : .addWithDelete,
+                  designType: .main,
+                  deleteAction: {
+                    HapticFeedbackManager.shared.impact(style: .light)
+                    store.send(.chipItemDeleteButtonTapped($0), animation: .default)
+                  },
+                  addAction: {
+                    HapticFeedbackManager.shared.impact(style: .light)
+                    store.send(.chipItemAddButtonTapped)
+                  }
+                )
+                .padding(.top, 6)
               }
-            )
-            .padding(.top, 16)
-            
-            if !store.feed.memo.isEmpty {
-              LinkTextView(content: store.feed.memo)
+              
+              contentTextView
+                .padding(.top, 8)
+                            
+              memoHeaderView
+                .padding(.top, 16)
+              
+              memoTextView
                 .padding(.top, 13)
             }
           }
@@ -99,13 +118,8 @@ struct LinkView: View {
           GeometryReader { proxy in
             let minY = proxy.frame(in: .global).minY
             LinkNavigationBar(
-              isScrollDetected: $isScrollDetected,
-              title: store.feed.title,
-              leftAction: { store.send(.closeButtonTapped) },
-              rightAction: {
-                HapticFeedbackManager.shared.selection()
-                store.send(.menuButtonTapped)
-              }
+              store: store,
+              isScrollDetected: $isScrollDetected
             )
             .offset(y: -minY)
           }
@@ -142,78 +156,141 @@ struct LinkView: View {
             BKContainerWebView(url: url)
           }
         }
-      .fullScreenCover(
-        item: $store.scope(
-          state: \.editLink,
-          action: \.editLink)
-      ) { store in
-        WithPerceptionTracking {
-          EditLinkView(store: store)
+        .fullScreenCover(
+          item: $store.scope(
+            state: \.editLink,
+            action: \.editLink)
+        ) { store in
+          WithPerceptionTracking {
+            EditLinkView(store: store)
+          }
         }
-      }
-      .bkWebViewAlert(
-        isPresented: $store.isWebViewPresented) {
-          BKWebView(
-            viewModel: bkWebViewModel,
-            url: URL(string: store.webViewInfo.link)!,
-            isScrollEnabled: false
-          ) { action in
-            switch action {
-            case .survey(.closeSurveyModal):
-              store.send(.closeBKWebView)
-              
-            case .survey(.openSurveyForm(let url)):
-              store.send(.openSurveyFormButtonTapped(url))
+        .bkWebViewAlert(
+          isPresented: $store.isWebViewPresented) {
+            BKWebView(
+              viewModel: bkWebViewModel,
+              url: URL(string: store.webViewInfo.link)!,
+              isScrollEnabled: false
+            ) { action in
+              switch action {
+              case .survey(.closeSurveyModal):
+                store.send(.closeBKWebView)
+                
+              case .survey(.openSurveyForm(let url)):
+                store.send(.openSurveyFormButtonTapped(url))
+              }
             }
           }
-        }
-      .bottomSheet(
-        isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
-        detents: [.height(132)],
-        leadingTitle: "폴더 수정",
-        closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
-      ) {
-        EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
-      }
-      .bottomSheet(
-        isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
-        detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
-        leadingTitle: "폴더 추가",
-        closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
-      ) {
-        AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
-          .interactiveDismissDisabled()
-      }
-      .bottomSheet(
-        isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
-        detents: [.height(292 - UIApplication.bottomSafeAreaInset)],
-        leadingTitle: "메모",
-        closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
-      ) {
-        EditMemoBottomSheet(store: store.scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet))
-      }
-      .bottomSheet(
-        isPresented: $store.isMenuBottomSheetPresented,
-        detents: [.height(144)],
-        leadingTitle: "설정"
-      ) {
-        BKMenuBottomSheet(
-          menuItems: [.editLink, .deleteLink],
-          action: {
-            HapticFeedbackManager.shared.selection()
-            store.send(.menuBottomSheet($0))
+          .bottomSheet(
+            isPresented: $store.editFolderBottomSheet.isEditFolderBottomSheetPresented,
+            detents: [.height(132)],
+            leadingTitle: "폴더 수정",
+            closeButtonAction: { store.send(.editFolderBottomSheet(.closeButtonTapped)) }
+          ) {
+            EditFolderBottomSheet(store: store.scope(state: \.editFolderBottomSheet, action: \.editFolderBottomSheet))
           }
+          .bottomSheet(
+            isPresented: $store.addFolderBottomSheet.isAddFolderBottomSheetPresented,
+            detents: [.height(202 - UIApplication.bottomSafeAreaInset)],
+            leadingTitle: "폴더 추가",
+            closeButtonAction: { store.send(.addFolderBottomSheet(.closeButtonTapped)) }
+          ) {
+            AddFolderBottomSheet(store: store.scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet))
+              .interactiveDismissDisabled()
+          }
+          .bottomSheet(
+            isPresented: $store.addKeywordBottomSheet.isAddKewordBottomSheetPresented,
+            detents: [.height(240 - UIApplication.bottomSafeAreaInset)],
+            leadingTitle: "키워드 추가",
+            closeButtonAction: { store.send(.addKeywordBottomSheet(.closeButtonTapped)) }
+          ) {
+            AddKewordBottomSheet(store: store.scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet))
+          }
+          .bottomSheet(
+            isPresented: $store.editMemoBottomSheet.isEditMemoBottomSheetPresented,
+            detents: [.height(292 - UIApplication.bottomSafeAreaInset)],
+            leadingTitle: "메모",
+            closeButtonAction: { store.send(.editMemoBottomSheet(.closeButtonTapped)) }
+          ) {
+            EditMemoBottomSheet(store: store.scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet))
+          }
+          .bottomSheet(
+            isPresented: $store.isMenuBottomSheetPresented,
+            detents: [.height(144)],
+            leadingTitle: "설정"
+          ) {
+            BKMenuBottomSheet(
+              menuItems: [.editLink, .deleteLink],
+              action: {
+                HapticFeedbackManager.shared.selection()
+                store.send(.menuBottomSheet($0))
+              }
+            )
+          }
+          .tapToHideKeyboard()
+          .onChange(of: store.isContentUpdatable) { isContentUpdatable in
+            isContentFocused = !isContentUpdatable
+          }
+          .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
+            self.isScrollDetected = $0
+          }
+          .task { await store.send(.onTask).finish() }
+          .onWillDisappear {
+            // FeedDetail에서만 스와이프백이 가능하기 때문에 WillDisappear 시 부모뷰 업데이트
+            if store.linkType == .feedDetail {
+              onWillDisappear(store.feed)
+            }
+          }
+    }
+  }
+  
+  @ViewBuilder
+  private var contentHeaderView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      BKText(
+        text: "요약 내용",
+        font: .semiBold,
+        size: ._18,
+        lineHeight: 26,
+        color: .bkColor(.gray900)
+      )
+      
+    case .summaryCompleted:
+      HStack {
+        BKText(
+          text: "요약 내용",
+          font: .semiBold,
+          size: ._18,
+          lineHeight: 26,
+          color: .bkColor(.gray900)
+        )
+        
+        Spacer()
+        
+        LinkUpdateButton(
+          isUpdatable: store.state.isContentUpdatable,
+          type: .content,
+          action: {store.send(.contentUpdateButtonTapped) }
         )
       }
-      .onReceive(scrollViewDelegate.$isScrollDetected.receive(on: DispatchQueue.main)) {
-        self.isScrollDetected = $0
-      }
-      .task { await store.send(.onTask).finish() }
-      .onWillDisappear {
-        // FeedDetail에서만 스와이프백이 가능하기 때문에 WillDisappear 시 부모뷰 업데이트
-        if store.linkType == .feedDetail {
-          onWillDisappear(store.feed)
-        }
+    }
+  }
+  
+  @ViewBuilder
+  private var contentTextView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      LinkTextView(content: store.feed.summary)
+      
+    case .summaryCompleted:
+      WithPerceptionTracking {
+        LinkTextField(
+          content: $store.feed.summary,
+          isFocused: _isContentFocused,
+          type: .content,
+          isDisabled: store.state.isContentUpdatable
+        )
       }
     }
   }
@@ -222,25 +299,37 @@ struct LinkView: View {
   private var folderTitle: some View {
     switch store.linkType {
     case .feedDetail, .summarySave:
-      LinkTitleButton(
-        title: "폴더",
-        buttonTitle: "수정",
-        action: {
-          HapticFeedbackManager.shared.selection()
-          store.send(.editFolderButtonTapped)
-        }
+      BKText(
+        text: "폴더",
+        font: .semiBold,
+        size: ._18,
+        lineHeight: 26,
+        color: .bkColor(.gray900)
       )
+      
     case .summaryCompleted:
-      HStack(spacing: 0) {
-        CommonFeature.Images.icoConceptStar
-          .resizable()
-          .scaledToFill()
-          .frame(width: 20, height: 20)
+      VStack(alignment: .leading, spacing: 0) {
+        HStack(spacing: 0) {
+          BKText(
+            text: "AI 추천 폴더",
+            font: .semiBold,
+            size: ._18,
+            lineHeight: 26,
+            color: .bkColor(.gray900)
+          )
+          
+          CommonFeature.Images.icoConceptStar
+            .resizable()
+            .scaledToFill()
+            .frame(width: 20, height: 20)
+        }
         
-        LinkTitleButton(
-          title: "추천 폴더",
-          buttonTitle: "선택사항",
-          action: {}
+        BKText(
+          text: "AI가 링크 내용 기반으로 추천한 폴더입니다.",
+          font: .regular,
+          size: ._12,
+          lineHeight: 18,
+          color: .bkColor(.gray600)
         )
       }
     }
@@ -268,6 +357,15 @@ struct LinkView: View {
           }
         )
         
+        BKText(
+          text: "직접 폴더 설정",
+          font: .semiBold,
+          size: ._18,
+          lineHeight: 26,
+          color: .bkColor(.gray900)
+        )
+        .padding(.top, 6)
+        
         BKAddFolderList(
           folderItemType: .default,
           folderList: store.feed.folders ?? [],
@@ -287,6 +385,38 @@ struct LinkView: View {
   }
   
   @ViewBuilder
+  private var memoHeaderView: some View {
+    BKText(
+      text: "메모",
+      font: .semiBold,
+      size: ._18,
+      lineHeight: 26,
+      color: .bkColor(.gray900)
+    )
+    .opacity((store.linkType != .summaryCompleted && store.feed.memo.isEmpty) ? 0 : 1)
+  }
+  
+  @ViewBuilder
+  private var memoTextView: some View {
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      LinkTextView(content: store.feed.memo)
+        .opacity(store.feed.memo.isEmpty ? 0 : 1)
+      
+    case .summaryCompleted:
+      WithPerceptionTracking {
+        LinkTextField(
+          content: $store.feed.memo,
+          isFocused: _isMemoFocused,
+          type: .memo,
+          placeholder: "메모를 작성해주세요.",
+          isDisabled: false
+        )
+      }
+    }
+  }
+  
+  @ViewBuilder
   private var bottomSafeAreaButton: some View {
     switch store.linkType {
     case .feedDetail, .summarySave:
@@ -296,12 +426,12 @@ struct LinkView: View {
       })
     case .summaryCompleted:
       HStack(spacing: 8) {
-        BKRoundedButton(buttonType: .gray, title: "내용 수정", confirmAction: {
+        BKRoundedButton(buttonType: .gray, title: "삭제", confirmAction: {
           HapticFeedbackManager.shared.impact(style: .medium)
-          store.send(.summaryEditButtonTapped)
+          store.send(.summaryDeleteButtonTapped)
         })
         
-        BKRoundedButton(buttonType: .main, title: "확인", confirmAction: {
+        BKRoundedButton(buttonType: .main, title: "저장하기", confirmAction: {
           HapticFeedbackManager.shared.impact(style: .medium)
           store.send(.summarySaveButtonTapped)
         })
