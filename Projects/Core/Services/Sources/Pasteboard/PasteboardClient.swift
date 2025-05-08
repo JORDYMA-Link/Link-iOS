@@ -26,22 +26,18 @@ extension PasteboardClient: DependencyKey {
       hasString: { UIPasteboard.general.hasString },
       hasChange: { UIPasteboard.general.hasChange },
       pasteboardURL: {
-        do {
-          guard let urlString = UIPasteboard.general.string,
-                urlString.isHTTPURL else {
-            return nil
-          }
-          
-          let pattern = try await UIPasteboard.general.detectedPatterns(for: [\.probableWebURL])
-          
-          guard pattern.contains(\.probableWebURL) else {
-            return nil
-          }
-          
-          return UIPasteboard.general.string
-        } catch {
+        guard let urlString = UIPasteboard.general.string,
+              urlString.isHTTPURL else {
           return nil
         }
+        
+        //          let pattern = try await UIPasteboard.general.detectedPatterns(for: [\.probableWebURL])
+        //
+        //          guard pattern.contains(\.probableWebURL) else {
+        //            return nil
+        //          }
+        
+        return UIPasteboard.general.string
       }
     )
   }
