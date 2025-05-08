@@ -35,9 +35,7 @@ public struct EditLinkFeature {
     
     var addKeywordBottomSheet: AddKewordBottomSheetFeature.State = .init()
     
-    public init(
-      editLinkType: EditLinkType
-    ) {
+    public init(editLinkType: EditLinkType) {
       self.editLinkType = editLinkType
     }
   }

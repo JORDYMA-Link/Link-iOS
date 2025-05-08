@@ -85,34 +85,13 @@ struct LinkHeaderView: View {
   
   @ViewBuilder
   private var titleHeaderView: some View {
-    switch store.linkType {
-    case .feedDetail, .summarySave:
-      BKImageView(
-        imageURL: store.feed.platformImage ?? "",
-        downsamplingSize: .init(width: 24, height: 24),
-        placeholder: CommonFeature.Images.icoEmptyPlatform
-      )
-      .frame(width: 24, height: 24)
-      .clipShape(Circle())
-      
-    case .summaryCompleted:
-      HStack {
-        BKImageView(
-          imageURL: store.feed.platformImage ?? "",
-          downsamplingSize: .init(width: 24, height: 24),
-          placeholder: CommonFeature.Images.icoEmptyPlatform
-        )
-        .frame(width: 24, height: 24)
-        .clipShape(Circle())
-        
-        Spacer()
-        
-        LinkUpdateButton(
-          isUpdatable: store.state.isTitleUpdatable,
-          action: { store.send(.titleUpdateButtonTapped) }
-        )
-      }
-    }
+    BKImageView(
+      imageURL: store.feed.platformImage ?? "",
+      downsamplingSize: .init(width: 24, height: 24),
+      placeholder: CommonFeature.Images.icoEmptyPlatform
+    )
+    .frame(width: 24, height: 24)
+    .clipShape(Circle())
   }
   
   @ViewBuilder
@@ -150,7 +129,7 @@ struct LinkHeaderView: View {
   }
   
   private var buttonView: some View {
-    HStack(spacing: 20) {
+    HStack(spacing: store.linkType != .summaryCompleted ? 20 : 11) {
       Spacer(minLength: 0)
       
       Button {
@@ -174,7 +153,20 @@ struct LinkHeaderView: View {
           size: CGSize(width: 20, height: 20)
         )
       }
+      
+      if store.linkType == .summaryCompleted {
+       Rectangle()
+          .frame(width: 1, height: 14, alignment: .center)
+          .foregroundStyle(Color.bkColor(.white))
+        
+        LinkUpdateButton(
+          isUpdatable: store.state.isTitleUpdatable,
+          type: .title,
+          action: { store.send(.titleUpdateButtonTapped) }
+        )
+      }
     }
+    .frame(minHeight: 20, maxHeight: 20)
   }
 }
 

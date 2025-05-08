@@ -56,6 +56,7 @@ public struct LinkFeature {
     
     var editFolderBottomSheet: EditFolderBottomSheetFeature.State = .init()
     var addFolderBottomSheet: AddFolderBottomSheetFeature.State = .init()
+    var addKeywordBottomSheet: AddKewordBottomSheetFeature.State = .init()
     var editMemoBottomSheet: EditMemoBottomSheetFeature.State = .init()
     
     public init(
@@ -81,13 +82,15 @@ public struct LinkFeature {
     case clipboardPopupSaveButtonTapped
     case titleUpdateButtonTapped
     case contentUpdateButtonTapped
+    case chipItemDeleteButtonTapped(String)
+    case chipItemAddButtonTapped
     case editFolderButtonTapped
     case recommendFolderItemTapped
     case addFolderItemTapped
     case folderItemTapped(any FolderItem)
     case memoUpdateButtonTapped
     case showURLButtonTapped
-    case summaryEditButtonTapped
+    case summaryDeleteButtonTapped
     case summarySaveButtonTapped
     
     // MARK: Inner Business Action
@@ -116,6 +119,7 @@ public struct LinkFeature {
     // MARK: Child Action
     case editFolderBottomSheet(EditFolderBottomSheetFeature.Action)
     case addFolderBottomSheet(AddFolderBottomSheetFeature.Action)
+    case addKeywordBottomSheet(AddKewordBottomSheetFeature.Action)
     case editMemoBottomSheet(EditMemoBottomSheetFeature.Action)
     case editLink(PresentationAction<EditLinkFeature.Action>)
     case menuBottomSheet(BKMenuBottomSheet.Delegate)
@@ -124,6 +128,7 @@ public struct LinkFeature {
     case menuBottomSheetPresented(Bool)
     case clipboardPopupPresented(Bool)
     case clipboardToastPresented(Bool)
+    case addKeywordBottomSheetPresented([String])
     case editLinkPresented
     case fetchFeedDetailFailAlertPresented
     case fetchLinkSummaryFailAlertPresented
@@ -152,6 +157,10 @@ public struct LinkFeature {
     
     Scope(state: \.addFolderBottomSheet, action: \.addFolderBottomSheet) {
       AddFolderBottomSheetFeature()
+    }
+    
+    Scope(state: \.addKeywordBottomSheet, action: \.addKeywordBottomSheet) {
+      AddKewordBottomSheetFeature()
     }
     
     Scope(state: \.editMemoBottomSheet, action: \.editMemoBottomSheet) {
@@ -238,6 +247,15 @@ public struct LinkFeature {
         state.isContentUpdatable.toggle()
         return .none
         
+      case let .chipItemDeleteButtonTapped(keyword):
+        if let index = state.feed.keywords.firstIndex(where: { $0 == keyword }) {
+          state.feed.keywords.remove(at: index)
+        }
+        return .none
+        
+      case .chipItemAddButtonTapped:
+        return .run { [state] send in await send(.addKeywordBottomSheetPresented(state.feed.keywords)) }
+        
       case .editFolderButtonTapped:
         let feed = state.feed
         return .send(.editFolderBottomSheet(.editFolderTapped(feed.feedId, feed.folderName)))
@@ -265,8 +283,15 @@ public struct LinkFeature {
         state.isOriginUrlPresented = true
         return .none
         
-      case .summaryEditButtonTapped:
-        return .send(.editLinkPresented)
+      case .summaryDeleteButtonTapped:
+        return .run { [state] send in
+          await alertClient.present(.init(
+            title: "삭제",
+            description:"콘텐츠를 삭제하시면 복원이 어려워요",
+            buttonType: .doubleButton(left: "취소", right: "확인"),
+            rightButtonAction: { await send(.deleteFeed(state.feed.feedId)) }
+          ))
+        }
         
       case .summarySaveButtonTapped:
         summarySaveButtonTappedLog(feedId: state.feed.feedId)
@@ -416,6 +441,13 @@ public struct LinkFeature {
       case let .clipboardToastPresented(isPresented):
         state.isClipboardToastPresented = isPresented
         return .none
+        
+      case let .addKeywordBottomSheet(.delegate(.updateKeywords(keyword))):
+        state.feed.keywords = keyword
+        return .none
+        
+      case let .addKeywordBottomSheetPresented(keywords):
+        return .send(.addKeywordBottomSheet(.addKeywordTapped(keywords)))
         
       case .editLinkPresented:
         state.editLink = .init(editLinkType: .link(state.feed))

@@ -11,22 +11,18 @@ import SwiftUI
 import CommonFeature
 import Common
 
+import ComposableArchitecture
+
 struct LinkNavigationBar: View {
+  @Perception.Bindable private var store: StoreOf<LinkFeature>
   @Binding var isScrollDetected: Bool
-  private let title: String
-  private let leftAction: () -> Void
-  private let rightAction: () -> Void
   
   init(
-    isScrollDetected: Binding<Bool>,
-    title: String,
-    leftAction: @escaping () -> Void,
-    rightAction: @escaping () -> Void
+    store: StoreOf<LinkFeature>,
+    isScrollDetected: Binding<Bool>
   ) {
+    self.store = store
     self._isScrollDetected = isScrollDetected
-    self.title = title
-    self.leftAction = leftAction
-    self.rightAction = rightAction
   }
   
   var body: some View {
@@ -35,7 +31,7 @@ struct LinkNavigationBar: View {
       
       HStack(spacing: 0) {
         Button {
-          leftAction()
+          store.send(.closeButtonTapped)
         } label: {
           BKIcon(
             image: CommonFeature.Images.icoChevronLeft,
@@ -44,24 +40,28 @@ struct LinkNavigationBar: View {
           )
         }
         
-        Text(title)
+        Spacer()
+        
+        Text(store.feed.title)
           .foregroundStyle(Color.black)
           .font(.semiBold(size: ._16))
           .lineLimit(1)
-          .frame(maxWidth: .infinity, alignment: .leading)
+          .frame(maxWidth: .infinity, alignment: .center)
           .padding(.leading, 4)
           .opacity(isScrollDetected ? 1 : 0)
         
-        Spacer(minLength: 0)
+        Spacer()
         
         Button {
-          rightAction()
+          HapticFeedbackManager.shared.selection()
+          store.send(.menuButtonTapped)
         } label: {
           BKIcon(
             image: CommonFeature.Images.icoMoreVertical,
             color: isScrollDetected ? .black : .white,
             size: CGSize(width: 24, height: 24)
           )
+          .opacity(store.linkType != .summaryCompleted ? 1 : 0)
         }
       }
       .padding(.horizontal, 16)
