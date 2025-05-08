@@ -25,40 +25,42 @@ struct LinkHeaderView: View {
   }
   
   var body: some View {
-    GeometryReader { proxy in
-      let size = proxy.size
-      let minY = proxy.frame(in: .global).minY
-      let isScrolling = minY > 0
-      
-      Group {
-        if !store.feed.thumbnailImage.isEmpty {
-          BKImageView(
-            imageURL: store.feed.thumbnailImage,
-            downsamplingSize: .init(width: size.width, height: size.height),
-            placeholder: CommonFeature.Images.icoEmptyThumnail
-          )
-        } else {
-          CommonFeature.Images.icoEmptyThumnail
-            .resizable()
-            .scaledToFill()
+    WithPerceptionTracking {
+      GeometryReader { proxy in
+        let size = proxy.size
+        let minY = proxy.frame(in: .global).minY
+        let isScrolling = minY > 0
+        
+        Group {
+          if !store.feed.thumbnailImage.isEmpty {
+            BKImageView(
+              imageURL: store.feed.thumbnailImage,
+              downsamplingSize: .init(width: size.width, height: size.height),
+              placeholder: CommonFeature.Images.icoEmptyThumnail
+            )
+          } else {
+            CommonFeature.Images.icoEmptyThumnail
+              .resizable()
+              .scaledToFill()
+          }
         }
-      }
-      .dimmedBackground()
-      .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
-      .clipped()
-      .offset(y: isScrolling ? -minY : 0)
-      .overlay(alignment: .bottom) {
-        VStack(spacing: 0) {
-          titleView()
-          buttonView
-        }
-        .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
+        .dimmedBackground()
+        .frame(width: size.width, height: size.height + (isScrolling ? minY : 0))
+        .clipped()
         .offset(y: isScrolling ? -minY : 0)
+        .overlay(alignment: .bottom) {
+          VStack(spacing: 0) {
+            titleView()
+            buttonView
+          }
+          .padding(EdgeInsets(top: Size.topSafeAreaInset + Size.navigationBarHeight, leading: 16, bottom: 24, trailing: 16))
+          .offset(y: isScrolling ? -minY : 0)
+        }
       }
-    }
-    .frame(height: height <= Size.titleMinHeight ? Size.headerMinHeight : Size.headerMaxHeight)
-    .onChange(of: store.isTitleUpdatable) { isTitleUpdatable in
-      titleFocus = !isTitleUpdatable
+      .frame(height: height <= Size.titleMinHeight ? Size.headerMinHeight : Size.headerMaxHeight)
+      .onChange(of: store.isTitleUpdatable) { isTitleUpdatable in
+        titleFocus = !isTitleUpdatable
+      }
     }
   }
   
