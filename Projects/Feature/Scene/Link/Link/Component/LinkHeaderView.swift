@@ -130,36 +130,40 @@ struct LinkHeaderView: View {
     }
   }
   
+  @ViewBuilder
   private var buttonView: some View {
-    HStack(spacing: store.linkType != .summaryCompleted ? 20 : 11) {
-      Spacer(minLength: 0)
-      
-      Button {
-        HapticFeedbackManager.shared.impact(style: .light)
-        store.send(.saveButtonTapped(!store.feed.isMarked))
-      } label: {
-        BKIcon(
-          image: store.feed.isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave,
-          color: .white,
-          size:CGSize(width: 20, height: 20)
-        )
+    switch store.linkType {
+    case .feedDetail, .summarySave:
+      HStack(spacing: 20) {
+        Spacer()
+        
+        Button {
+          HapticFeedbackManager.shared.impact(style: .light)
+          store.send(.saveButtonTapped(!store.feed.isMarked))
+        } label: {
+          BKIcon(
+            image: store.feed.isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave,
+            color: .white,
+            size:CGSize(width: 20, height: 20)
+          )
+        }
+        
+        Button {
+          HapticFeedbackManager.shared.impact(style: .light)
+          store.send(.shareButtonTapped)
+        } label: {
+          BKIcon(
+            image: CommonFeature.Images.icoShare,
+            color: .white,
+            size: CGSize(width: 20, height: 20)
+          )
+        }
       }
+      .frame(minHeight: 20, maxHeight: 20)
       
-      Button {
-        HapticFeedbackManager.shared.impact(style: .light)
-        store.send(.shareButtonTapped)
-      } label: {
-        BKIcon(
-          image: CommonFeature.Images.icoShare,
-          color: .white,
-          size: CGSize(width: 20, height: 20)
-        )
-      }
-      
-      if store.linkType == .summaryCompleted {
-       Rectangle()
-          .frame(width: 1, height: 14, alignment: .center)
-          .foregroundStyle(Color.bkColor(.white))
+    case .summaryCompleted:
+      HStack {
+        Spacer()
         
         LinkUpdateButton(
           isUpdatable: store.state.isTitleUpdatable,
@@ -167,8 +171,8 @@ struct LinkHeaderView: View {
           action: { store.send(.titleUpdateButtonTapped) }
         )
       }
+      .frame(minHeight: 20, maxHeight: 20)
     }
-    .frame(minHeight: 20, maxHeight: 20)
   }
 }
 
