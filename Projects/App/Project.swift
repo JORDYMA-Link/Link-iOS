@@ -7,9 +7,11 @@ let project = Project.make(
     targets: [
         .app(factory: .init(
             dependencies: [
-                .feature
+                .feature,
+                .target(name: "ShareExtension")
             ]
-        ))
+        )),
+        .shareExtenion(factory: .init())
     ],
     schemes: [
       .scheme(

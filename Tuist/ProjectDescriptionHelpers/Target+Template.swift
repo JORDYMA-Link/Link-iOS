@@ -52,26 +52,26 @@ public struct TargetFactory {
         environmentVariables: [String: EnvironmentVariable] = [:],
         launchArguments: [LaunchArgument] = [],
         additionalFiles: [FileElement] = []) {
-        self.name = name
-        self.destinations = destinations
-        self.product = product
-        self.productName = productName
-        self.deploymentTarget = DefaultSetting.DeploymentTargets
-        self.bundleId = bundleId
-        self.infoPlist = infoPlist
-        self.sources = sources
-        self.resources = resources
-        self.copyFiles = copyFiles
-        self.headers = headers
-        self.entitlements = entitlements
-        self.scripts = scripts
-        self.dependencies = dependencies
-        self.settings = settings
-        self.coreDataModels = coreDataModels
-        self.environmentVariables = environmentVariables
-        self.launchArguments = launchArguments
-        self.additionalFiles = additionalFiles
-    }
+            self.name = name
+            self.destinations = destinations
+            self.product = product
+            self.productName = productName
+            self.deploymentTarget = DefaultSetting.DeploymentTargets
+            self.bundleId = bundleId
+            self.infoPlist = infoPlist
+            self.sources = sources
+            self.resources = resources
+            self.copyFiles = copyFiles
+            self.headers = headers
+            self.entitlements = entitlements
+            self.scripts = scripts
+            self.dependencies = dependencies
+            self.settings = settings
+            self.coreDataModels = coreDataModels
+            self.environmentVariables = environmentVariables
+            self.launchArguments = launchArguments
+            self.additionalFiles = additionalFiles
+        }
 }
 
 public extension Target {
@@ -109,9 +109,22 @@ public extension Target {
         newFactory.infoPlist = .file(path: .relativeToRoot("Projects/App/Info.plist"))
         newFactory.resources = ["Resources/**",
                                 "Resources/GoogleService-Info.plist"
-                               ]
+        ]
         newFactory.entitlements = .file(path: .relativeToRoot("Projects/App/Blink.entitlements"))
         newFactory.scripts = [.firebaseCrashlytics]
+        newFactory.settings = .appSettings
+        
+        return make(factory: newFactory)
+    }
+    
+    static func shareExtenion(factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = "ShareExtension"
+        newFactory.product = .appExtension
+        newFactory.bundleId = "\(DefaultSetting.projectBundleId()).shareExtension"
+        newFactory.infoPlist = .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist"))
+        newFactory.sources = ["ShareExtension/Sources/**"]
+        newFactory.resources = ["ShareExtension/Resources/**"]
         newFactory.settings = .appSettings
         
         return make(factory: newFactory)
@@ -268,9 +281,9 @@ public extension Target {
     
     static func core(implements module: ModulePath.Core, factory: TargetFactory) -> Self {
         var newFactory = factory
-//        newFactory.name = ModulePath.Core.name + module.rawValue
+        //        newFactory.name = ModulePath.Core.name + module.rawValue
         newFactory.name = module.rawValue
-                
+        
         return make(factory: newFactory)
     }
     
@@ -295,7 +308,7 @@ public extension Target {
     
     static func shared(implements module: ModulePath.Shared, factory: TargetFactory) -> Self {
         var newFactory = factory
-//        newFactory.name = ModulePath.Shared.name + module.rawValue
+        //        newFactory.name = ModulePath.Shared.name + module.rawValue
         newFactory.name = module.rawValue
         
         if module == .CommonFeature {
@@ -303,16 +316,16 @@ public extension Target {
             newFactory.resources = ["Resources/**"]
             newFactory.product = .staticFramework
         }
-                
+        
         return make(factory: newFactory)
     }
     
     static func shared(example module: ModulePath.Shared, factory: TargetFactory) -> Self {
-         var newFactory = factory
-         newFactory.name = module.rawValue + "Example"
-         newFactory.sources = .exampleSources
-         newFactory.product = .app
-         
-         return make(factory: newFactory)
-     }
+        var newFactory = factory
+        newFactory.name = module.rawValue + "Example"
+        newFactory.sources = .exampleSources
+        newFactory.product = .app
+        
+        return make(factory: newFactory)
+    }
 }

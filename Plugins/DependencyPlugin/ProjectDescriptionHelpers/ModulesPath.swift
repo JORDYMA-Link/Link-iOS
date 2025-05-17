@@ -10,7 +10,8 @@ import ProjectDescription
 
 public extension ProjectDescription.Path {
     static var app: Self {
-        return .relativeToRoot("Projects/\(ModulePath.App.name)")
+        return .relativeToRoot("Projects/App")
+    }
     }
 }
 
