@@ -14,19 +14,25 @@ import ComposableArchitecture
 
 public struct SocialLoginClient {
   public var initKakaoSDK: @Sendable () -> Void
+  public var handleGoogleUrl: @Sendable (URL) -> Void
   public var handleKakaoUrl: @Sendable (URL) -> Void
   public var kakaoLogin: @Sendable () async throws -> SocialLoginInfo
   public var appleLogin: @Sendable () async throws -> SocialLoginInfo
+  public var googleLogin: @Sendable () async throws -> SocialLoginInfo
 }
 
 extension SocialLoginClient: DependencyKey {
   public static var liveValue: SocialLoginClient {
+    let googleLogin = GoogleLogin()
     let kakaoLogin = KakaoLogin()
     let appleLogin = AppleLogin()
     
     return Self(
       initKakaoSDK: {
         kakaoLogin.initSDK()
+      },
+      handleGoogleUrl: {
+        googleLogin.handleGoogleLoginUrl(url: $0)
       },
       handleKakaoUrl: {
         kakaoLogin.handleKakaoTalkLoginUrl(url: $0)
@@ -36,6 +42,9 @@ extension SocialLoginClient: DependencyKey {
       },
       appleLogin: {
         try await appleLogin.appleLogin()
+      },
+      googleLogin: {
+        try await googleLogin.googleLogin()
       }
     )
   }

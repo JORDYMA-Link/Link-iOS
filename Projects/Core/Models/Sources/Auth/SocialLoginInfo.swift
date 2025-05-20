@@ -26,6 +26,7 @@ public struct SocialLoginInfo: Equatable {
 
 extension SocialLoginInfo {
   public enum Socialtype: String {
+    case google = "Google"
     case kakao = "Kakao"
     case apple = "Apple"
   }
