@@ -45,7 +45,10 @@ public struct RootView: View {
         }
       }
       .onOpenURL { url in
-        store.send(.onOpenURL(url))
+        store.send(.onOpenGoogleURL(url))
+      }
+      .onOpenURL { url in
+        store.send(.onOpenKakaoURL(url))
       }
       .onReceive(NotificationCenter.default.publisher(for: .tokenExpired)) { _ in
         store.send(.changeScreen(.login()))
