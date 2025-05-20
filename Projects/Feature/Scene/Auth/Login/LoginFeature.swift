@@ -31,6 +31,7 @@ public struct LoginFeature {
     case binding(BindingAction<State>)
     case kakaoLoginButtonTapped
     case appleLoginButtonTapped
+    case googleLoginButtonTapped
     
     // MARK: Inner Business Action
     case login(SocialLoginInfo)
@@ -68,6 +69,7 @@ public struct LoginFeature {
   private enum ThrottleId {
     case kakaoLoginButton
     case appleLoginButton
+    case googleLoginButton
   }
   
   public var body: some ReducerOf<Self> {
@@ -122,6 +124,24 @@ public struct LoginFeature {
         )
         .throttle(id: ThrottleId.appleLoginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
+      case .googleLoginButtonTapped:
+        loginButtonTappedLog(.google)
+        
+        return .run(
+          operation: { send in
+            await send(.setLoading(true))
+            
+            let info = try await socialLogin.googleLogin()
+            await send(.login(info))
+          },
+          catch: { error, send in
+            debugPrint(error)
+            await send(.setLoading(false))
+            await send(.loginFailAlertPresented)
+          }
+        )
+        .throttle(id: ThrottleId.googleLoginButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
+        
       case let .login(info):
         return .run(
           operation: { send in
@@ -135,6 +155,9 @@ public struct LoginFeature {
               
             case .apple:
               tokenInfo = try await authClient.requestAppleLogin(info.idToken)
+              
+            case .google:
+              break
             }
             
             guard let tokenInfo else { return }
@@ -256,6 +279,19 @@ extension LoginFeature {
 
 extension LoginFeature {
   private func loginButtonTappedLog(_ type: SocialLoginInfo.Socialtype) {
-    analyticsClient.logEvent(.init(name: type == .kakao ? .kakaoLoginClicked : .appleLoginClicked, screen: .login))
+    var eventName: AnalyticsEventName?
+    
+    switch type {
+    case .google:
+      eventName = .googleLoginClicked
+    case .kakao:
+      eventName = .kakaoLoginClicked
+    case .apple:
+      eventName = .appleLoginClicked
+    }
+    
+    guard let eventName else { return }
+    
+    analyticsClient.logEvent(.init(name: eventName, screen: .login))
   }
 }
