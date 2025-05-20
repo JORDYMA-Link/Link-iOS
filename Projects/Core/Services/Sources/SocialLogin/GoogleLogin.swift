@@ -12,7 +12,6 @@ import Models
 
 import GoogleSignIn
 
-
 public enum GoogleErrorType: Error {
   case rootview
   case invalidToken
