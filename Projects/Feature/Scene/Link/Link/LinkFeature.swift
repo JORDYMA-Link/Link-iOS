@@ -132,6 +132,7 @@ public struct LinkFeature {
     case editLinkPresented
     case fetchFeedDetailFailAlertPresented
     case fetchLinkSummaryFailAlertPresented
+    case saveLinkFailAlertPresented
     case closeWebViewPresented(Bool)
   }
   
@@ -295,6 +296,10 @@ public struct LinkFeature {
         
       case .summarySaveButtonTapped:
         summarySaveButtonTappedLog(feedId: state.feed.feedId)
+        
+        if state.feed.title.isEmpty || state.feed.summary.isEmpty {
+          return .send(.saveLinkFailAlertPresented)
+        }
         
         return .send(.patchFeed)
           .throttle(id: ThrottleId.summarySaveButtonTapped, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
@@ -463,6 +468,16 @@ public struct LinkFeature {
                           """,
             buttonType: .singleButton("뒤로가기"),
             rightButtonAction: { await send(.closeButtonTapped) }
+          ))
+        }
+        
+      case .saveLinkFailAlertPresented:
+        return .run { send in
+          await alertClient.present(.init(
+            title: "저장 불가",
+            description: "제목과 요약 내용을 1글자 이상 입력해주세요.",
+            buttonType: .singleButton("확인"),
+            rightButtonAction: {}
           ))
         }
         

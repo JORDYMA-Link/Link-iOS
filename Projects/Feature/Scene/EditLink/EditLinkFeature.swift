@@ -146,7 +146,7 @@ public struct EditLinkFeature {
       case let .titleTextChanged(title):
         state.feed.title = title
         
-        guard 2 <= state.feed.title.count && state.feed.title.count <= 50 else {
+        guard 1 <= state.feed.title.count && state.feed.title.count <= 50 else {
           return .send(.setTitleValidation(false))
         }
         
@@ -155,7 +155,7 @@ public struct EditLinkFeature {
       case let .descriptionChanged(description):
         state.feed.summary = description
         
-        guard 2 <= state.feed.summary.count && state.feed.summary.count <= 500 else {
+        guard 1 <= state.feed.summary.count && state.feed.summary.count <= 500 else {
           return .send(.setDescriptionValidation(false))
         }
         
