@@ -135,8 +135,17 @@ public struct LoginFeature {
             await send(.login(info))
           },
           catch: { error, send in
-            debugPrint(error)
             await send(.setLoading(false))
+            
+            guard let googleAuthError = error as? GoogleErrorType else {
+              await send(.loginFailAlertPresented)
+              return
+            }
+            
+            if case .dismissSignIn = googleAuthError {
+              return
+            }
+            
             await send(.loginFailAlertPresented)
           }
         )

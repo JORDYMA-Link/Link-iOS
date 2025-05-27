@@ -14,8 +14,9 @@ import GoogleSignIn
 
 public enum GoogleErrorType: Error {
   case rootview
-  case invalidToken
   case dismissSignIn
+  case invalidSignInResult
+  case invalidToken
 }
 
 final class GoogleLogin: NSObject {
@@ -41,14 +42,14 @@ final class GoogleLogin: NSObject {
       }
       
       GIDSignIn.sharedInstance.signIn(withPresenting: rootViewController) { signInResult, error in
-        if let error = error {
-          self.continuation?.resume(throwing: error)
+        if let _ = error {
+          self.continuation?.resume(throwing: GoogleErrorType.dismissSignIn)
           self.continuation = nil
           return
         }
         
         guard let signInResult = signInResult else {
-          self.continuation?.resume(throwing: GoogleErrorType.dismissSignIn)
+          self.continuation?.resume(throwing: GoogleErrorType.invalidSignInResult)
           self.continuation = nil
           return
         }
