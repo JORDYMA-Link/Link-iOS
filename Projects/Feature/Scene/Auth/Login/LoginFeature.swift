@@ -166,7 +166,7 @@ public struct LoginFeature {
               tokenInfo = try await authClient.requestAppleLogin(info.idToken)
               
             case .google:
-              break
+              tokenInfo = try await authClient.requestGoogleLogin(info.idToken)
             }
             
             guard let tokenInfo else { return }

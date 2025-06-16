@@ -18,6 +18,8 @@ public struct AuthClient {
   public var requestKakaoLogin: @Sendable (_ request: KakaoLoginRequest) async throws -> TokenInfo
   /// 애플로그인
   public var requestAppleLogin: @Sendable (_ idToken: String) async throws -> TokenInfo
+  /// 구글로그인
+  public var requestGoogleLogin: @Sendable (_ idToken: String) async throws -> TokenInfo
   /// 토큰재발급
   public var requestRegenerateToken: @Sendable (_ refreshToken: String) async throws -> TokenInfo
   /// 로그아웃
@@ -39,6 +41,10 @@ extension AuthClient: DependencyKey {
       },
       requestAppleLogin: { idToken in
         let responseDTO: TokenResponse = try await authProvider.request(.appleLogin(idToken: idToken), modelType: TokenResponse.self)
+        return responseDTO.toDomain()
+      },
+      requestGoogleLogin: { idToken in
+        let responseDTO: TokenResponse = try await authProvider.request(.googleLogin(idToken: idToken), modelType: TokenResponse.self)
         return responseDTO.toDomain()
       },
       requestRegenerateToken: { refreshToken in
