@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 extension String {
   public var isHTTPURL: Bool {
@@ -89,5 +90,44 @@ public extension String {
   /// String 시작과 끝 공백 체크
   func isValidLeadingTrailingWhitespace() -> Bool {
     return self.hasPrefix(" ") || self.hasSuffix(" ")
+  }
+}
+
+public extension String {
+  func parseBoldString(
+    font: Font? = nil,
+    color: Color? = nil
+  ) -> AttributedString {
+    let pattern = "\\*\\*(.*?)\\*\\*"
+    let regex = try! NSRegularExpression(pattern: pattern)
+    
+    let cleanText = self.replacingOccurrences(of: "**", with: "")
+    var attributedString = AttributedString(cleanText)
+    
+    let matches = regex.matches(in: self, range: NSRange(self.startIndex..., in: self))
+    
+    for match in matches {
+      if let range = Range(match.range(at: 1), in: self) {
+        let boldText = String(self[range])
+        
+        if let startRange = cleanText.range(of: boldText) {
+          let startIndex = cleanText.distance(from: cleanText.startIndex, to: startRange.lowerBound)
+          let length = boldText.count
+          
+          if let attributedRange = Range(NSRange(location: startIndex, length: length), in: attributedString) {
+            
+            if let font = font {
+              attributedString[attributedRange].font = font
+            }
+            
+            if let color = color {
+              attributedString[attributedRange].foregroundColor = color
+            }
+          }
+        }
+      }
+    }
+    
+    return attributedString
   }
 }
