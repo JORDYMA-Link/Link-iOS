@@ -9,6 +9,7 @@
 import SwiftUI
 
 import CommonFeature
+import Common
 
 struct LinkTextView: View {
   private let content: String
@@ -23,7 +24,7 @@ struct LinkTextView: View {
   
   var body: some View {
     VStack(spacing: 10) {
-      Text(content.parseBoldString())
+      Text(content.parseBoldString(font: .semiBold(size: ._14), color: .bkColor(.gray900)))
         .font(.regular(size: ._14))
         .fontWithLineHeight(font: BKFont.regular.fontName(size: 14), lineHeight: 20)
         .foregroundStyle(Color.bkColor(.gray800))
@@ -76,35 +77,5 @@ private struct LinkTextViewExpandButton: View {
       }
       .frame(maxWidth: .infinity, minHeight: 20, maxHeight: 20)
     }
-  }
-}
-
-private extension String {
-  func parseBoldString() -> AttributedString {
-    let pattern = "\\*\\*(.*?)\\*\\*"
-    let regex = try! NSRegularExpression(pattern: pattern)
-    
-    let cleanText = self.replacingOccurrences(of: "**", with: "")
-    var attributedString = AttributedString(cleanText)
-    
-    let matches = regex.matches(in: self, range: NSRange(self.startIndex..., in: self))
-    
-    for match in matches {
-      if let range = Range(match.range(at: 1), in: self) {
-        let boldText = String(self[range])
-        
-        if let startRange = cleanText.range(of: boldText) {
-          let startIndex = cleanText.distance(from: cleanText.startIndex, to: startRange.lowerBound)
-          let length = boldText.count
-          
-          if let attributedRange = Range(NSRange(location: startIndex, length: length), in: attributedString) {
-            attributedString[attributedRange].font = UIFont.semiBold(size: ._14)
-            attributedString[attributedRange].foregroundColor = BKColor.gray900.color
-          }
-        }
-      }
-    }
-    
-    return attributedString
   }
 }
