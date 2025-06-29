@@ -24,6 +24,7 @@ let project = Project.make(
                     .external(externalDependency: .moya),
                     .external(externalDependency: .introspect),
                     .external(externalDependency: .fSCalendar),
+                    .external(externalDependency: .googleSignIn),
                     .sdk(name: "JavaScriptCore", type: .framework)
                 ]
             )

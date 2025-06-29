@@ -19,4 +19,5 @@ public enum ExternalDependency: String {
     case kakaoSDK = "KakaoSDK"
     case fSCalendar = "FSCalendar"
     case fSPagerViewSwift = "FSPagerViewSwift"
+    case googleSignIn = "GoogleSignIn"
 }

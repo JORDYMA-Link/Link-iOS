@@ -166,3 +166,4 @@ GoogleService-Info.plist
 
 Projects/App/xcconfigs/
 Projects/App/xcconfigs/Blink.shared.xcconfig
+buildServer.json

@@ -1,0 +1,13 @@
+{
+ "swiftPM": {
+ "triple": "arm64-apple-ios",
+ "swiftCompilerFlags": [
+ "-sdk",
+ "/var/db/xcode_select_link/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+ ],
+ "cCompilerFlags": [
+ "-isysroot",
+ "/var/db/xcode_select_link/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk"
+ ]
+ }
+}
