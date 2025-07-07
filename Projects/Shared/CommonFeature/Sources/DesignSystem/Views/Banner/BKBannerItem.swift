@@ -90,9 +90,15 @@ private extension BKBannerItem {
     switch type {
     case .instruction:
       CommonFeature.Images.icoCircleAppLogo
-      // to do 
-    case .kakaoChannel, .linkSavePromotionDetail, .linkSavePromotionVerify:
+  
+    case .kakaoChannel:
       CommonFeature.Images.icoCircleKakao
+      
+    case .linkSavePromotionDetail:
+      CommonFeature.Images.promotionDetailBannerIcon
+      
+    case .linkSavePromotionVerify:
+      CommonFeature.Images.promotionVerifyBannerIcon
     }
   }
   
