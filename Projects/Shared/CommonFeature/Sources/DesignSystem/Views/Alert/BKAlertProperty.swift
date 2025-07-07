@@ -44,21 +44,7 @@ public extension BKAlertProperty {
     case link
     case search
     case star
-    
-    var image: Image {
-      switch self {
-      case .folder:
-        return CommonFeature.Images.icoEmptyFolder
-      case .image:
-        return CommonFeature.Images.icoEmptyImg
-      case .link:
-        return CommonFeature.Images.icoEmptyLink
-      case .search:
-        return CommonFeature.Images.icoEmptySearch
-      case .star:
-        return CommonFeature.Images.icoEmptyStar
-      }
-    }
+    case promotion(count: Int)
   }
   
   enum ButtonType {

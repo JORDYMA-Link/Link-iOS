@@ -60,7 +60,7 @@ struct BKAlert: View {
       .multilineTextAlignment(.center)
       
       if let imageType = imageType {
-        imageType.image
+        alertImageView(imageType)
           .padding(12)
       }
       
@@ -83,6 +83,42 @@ struct BKAlert: View {
     .padding(EdgeInsets(top: 28, leading: 20, bottom: 28, trailing: 20))
     .background(Color.white)
     .clipShape(RoundedRectangle(cornerRadius: 10))
+  }
+  
+  @ViewBuilder
+  private func alertImageView(_ imageType: BKAlertProperty.ImageType) -> some View {
+    switch imageType {
+    case .folder:
+      CommonFeature.Images.icoEmptyFolder
+      
+    case .image:
+      CommonFeature.Images.icoEmptyImg
+      
+    case .link:
+      CommonFeature.Images.icoEmptyLink
+      
+    case .search:
+      CommonFeature.Images.icoEmptySearch
+      
+    case .star:
+      CommonFeature.Images.icoEmptyStar
+      
+    case .promotion(let count):
+      let challengeImages = [
+        CommonFeature.Images.challenge1,
+        CommonFeature.Images.challenge2,
+        CommonFeature.Images.challenge3,
+        CommonFeature.Images.challenge4,
+        CommonFeature.Images.challenge5
+      ]
+      
+      HStack(spacing: 5) {
+        ForEach(0..<5, id: \.self) { index in
+          challengeImages[index]
+            .opacity(count == index + 1 ? 1.0 : 0.4)
+        }
+      }
+    }
   }
 }
 
