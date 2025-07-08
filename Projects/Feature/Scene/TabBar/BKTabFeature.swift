@@ -39,6 +39,9 @@ public struct BKTabFeature {
     
     var sourceScreenId: StackElementID?
     
+    var webViewInfo: WebViewInfo = .init(flag: false, link: "")
+    var isWebViewPresented: Bool = false
+    
     public init() {}
   }
   
@@ -54,9 +57,11 @@ public struct BKTabFeature {
     // MARK: Inner Business Action
     case handleUnsavedSummary
     case fetchLinkProcessing(Int)
+    case fetchWebViewInfo
     
     // MARK: Inner SetState Action
     case setUnsavedSummaryFeedId(Int)
+    case setWebViewInfo(WebViewInfo)
     
     // MARK: Delegate Action
     public enum Delegate {
@@ -76,10 +81,12 @@ public struct BKTabFeature {
     
     // MARK: Present Action
     case unsavedSummaryAlertPresented(Int)
+    case eventWebViewPresented(Bool)
   }
   
   @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.linkClient) private var linkClient
+  @Dependency(\.noticeClient) private var noticeClient
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.userNotificationClient) private var userNotificationClient
@@ -103,6 +110,7 @@ public struct BKTabFeature {
         return .run { send in
           await send(.backgroundNotificationReceived)
           await send(.handleUnsavedSummary)
+          await send(.fetchWebViewInfo)
         }
         
         /// - 탭바 중앙 CIrcle 버튼 눌렀을 때
@@ -147,8 +155,33 @@ public struct BKTabFeature {
           }
         )
         
+      case .fetchWebViewInfo:
+        return .run(
+          operation: { send in
+            let info = try await noticeClient.getWebViewInfo()
+            
+            await send(.setWebViewInfo(info))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
+        
       case let .setUnsavedSummaryFeedId(feedId):
         userDefaultsClient.set(feedId, .latestUnsavedSummaryFeedId)
+        return .none
+        
+      case let .setWebViewInfo(info):
+        guard info.link.isHTTPURL else {
+          return .none
+        }
+        
+        state.webViewInfo = info
+        
+        if state.webViewInfo.flag {
+          return .send(.eventWebViewPresented(true))
+        }
+        
         return .none
                                         
         /// - 네비게이션 바 `세팅`버튼 눌렀을 때
@@ -301,6 +334,10 @@ public struct BKTabFeature {
             }
           ))
         }
+        
+      case let .eventWebViewPresented(isPresented):
+        state.isWebViewPresented = isPresented
+        return .none
         
       default:
         return .none
