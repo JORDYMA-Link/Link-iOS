@@ -15,6 +15,7 @@ struct BKAlert: View {
   private let title: String
   private let imageType: BKAlertProperty.ImageType?
   private let description: String
+  private let bottomImageType: BKAlertProperty.BottomImageType?
   private let buttonType: BKAlertProperty.ButtonType
   private let leftAction: (() async -> Void)
   private let rightAction: (() async -> Void)
@@ -24,6 +25,7 @@ struct BKAlert: View {
     title: String,
     imageType: BKAlertProperty.ImageType? = nil,
     description: String,
+    bottomImageType: BKAlertProperty.BottomImageType? = nil,
     buttonType: BKAlertProperty.ButtonType,
     leftAction: @escaping () async -> Void,
     rightAction: @escaping () async -> Void
@@ -32,6 +34,7 @@ struct BKAlert: View {
     self.title = title
     self.imageType = imageType
     self.description = description
+    self.bottomImageType = bottomImageType
     self.buttonType = buttonType
     self.leftAction = leftAction
     self.rightAction = rightAction
@@ -73,6 +76,10 @@ struct BKAlert: View {
       )
       .multilineTextAlignment(.center)
       
+      if let imageType = bottomImageType {
+        bottomImageView(imageType)
+      }
+      
       BKAlertButton(
         buttonType: buttonType,
         leftAction: leftAction,
@@ -102,7 +109,12 @@ struct BKAlert: View {
       
     case .star:
       CommonFeature.Images.icoEmptyStar
-      
+    }
+  }
+  
+  @ViewBuilder
+  private func bottomImageView(_ imageType: BKAlertProperty.BottomImageType) -> some View {
+    switch imageType {
     case .promotion(let count):
       BKChallengeCountView(count: count)
     }
@@ -126,8 +138,8 @@ private struct BKAlertButton: View {
   
   var body: some View {
     switch buttonType {
-    case let .singleButton(title):
-      singleButton(title: title, isCancel: false, action: rightAction)
+    case let .singleButton(title, isCancel):
+      singleButton(title: title, isCancel: isCancel, action: rightAction)
     case let .doubleButton(left, right):
       doubleButton(leftTitle: left, rightTtitle: right, leftAction: leftAction, rightAction: rightAction)
     }

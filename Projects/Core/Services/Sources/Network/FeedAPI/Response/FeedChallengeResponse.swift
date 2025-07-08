@@ -27,7 +27,7 @@ extension FeedChallengeResponse {
   func toDomain() -> FeedChallenge {
     return FeedChallenge(
       isVisible: isVisible,
-      count: count
+      challengeType: FeedChallengeType(rawValue: count) ?? .error
     )
   }
 }

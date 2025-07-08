@@ -27,8 +27,9 @@ struct BKChallengeCountView: View {
     HStack(spacing: 8) {
       ForEach(0..<5, id: \.self) { index in
         challengeImages[index]
-          .opacity(count == index + 1 ? 1.0 : 0.4)
+          .opacity(count >= 5 || index < count ? 1.0 : 0.4)
       }
     }
+    .background(.white)
   }
-} 
+}

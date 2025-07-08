@@ -100,6 +100,7 @@ public struct LinkFeature {
     case deleteFeed(Int)
     case patchBookmark(Int, Bool)
     case patchFeed
+    case getFeedChallenge(Int)
     
     // MARK: Inner SetState Action
     case setFeed(Feed)
@@ -133,6 +134,7 @@ public struct LinkFeature {
     case fetchFeedDetailFailAlertPresented
     case fetchLinkSummaryFailAlertPresented
     case saveLinkFailAlertPresented
+    case challengeCountPromotionAlertPresented(FeedChallengeType, Int)
     case closeWebViewPresented(Bool)
   }
   
@@ -373,10 +375,27 @@ public struct LinkFeature {
             let feedId = try await feedIdResponse
             
             userDefaultsClient.set(-1, .latestUnsavedSummaryFeedId)
-            await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
+            
+            await send(.getFeedChallenge(feedId))
           },
           catch: { error, send in
             print(error)
+          }
+        )
+        
+      case let .getFeedChallenge(feedId):
+        return .run(
+          operation: { send in
+            let feedChallenge = try await feedClient.getFeedChallenge()
+            
+            if feedChallenge.isVisible && feedChallenge.challengeType != .error {
+              await send(.challengeCountPromotionAlertPresented(feedChallenge.challengeType, feedId))
+            } else {
+              await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
+            }
+          },
+          catch: { error, send in
+            await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
           }
         )
         
@@ -478,6 +497,23 @@ public struct LinkFeature {
             description: "제목과 요약 내용을 1글자 이상 입력해주세요.",
             buttonType: .singleButton("확인"),
             rightButtonAction: {}
+          ))
+        }
+        
+      case let .challengeCountPromotionAlertPresented(type, feedId):
+        return .run { send in
+          await alertClient.present(.init(
+            title: type.title,
+            description: type.subTitle,
+            bottomImageType: .promotion(count: type.rawValue),
+            buttonType: type != .complete ? .singleButton("확인", true) : .doubleButton(left: "확인", right: "리뷰 쓰러가기"),
+            leftButtonAction: {
+              await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
+            },
+            rightButtonAction: {
+              await urlOpenHandlerClient.openURL(.appStore)
+            },
+            isRightButtonDismiss: false
           ))
         }
         
