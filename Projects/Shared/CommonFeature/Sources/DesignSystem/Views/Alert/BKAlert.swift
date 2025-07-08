@@ -104,20 +104,7 @@ struct BKAlert: View {
       CommonFeature.Images.icoEmptyStar
       
     case .promotion(let count):
-      let challengeImages = [
-        CommonFeature.Images.challenge1,
-        CommonFeature.Images.challenge2,
-        CommonFeature.Images.challenge3,
-        CommonFeature.Images.challenge4,
-        CommonFeature.Images.challenge5
-      ]
-      
-      HStack(spacing: 5) {
-        ForEach(0..<5, id: \.self) { index in
-          challengeImages[index]
-            .opacity(count == index + 1 ? 1.0 : 0.4)
-        }
-      }
+      BKChallengeCountView(count: count)
     }
   }
 }
