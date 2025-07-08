@@ -17,6 +17,7 @@ struct BlinkApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   init() {
+    CommonFeatureFontFamily.registerAllCustomFonts()
     setupNavigationBarAppearance()
   }
     
