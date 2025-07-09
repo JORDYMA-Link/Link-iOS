@@ -506,12 +506,18 @@ public struct LinkFeature {
             title: type.title,
             description: type.subTitle,
             bottomImageType: .promotion(count: type.rawValue),
-            buttonType: type != .complete ? .singleButton("확인", true) : .doubleButton(left: "확인", right: "리뷰 쓰러가기"),
+            buttonType: type != .complete ? .singleButton("확인", false) : .doubleButton(left: "확인", right: "리뷰 쓰러가기"),
             leftButtonAction: {
               await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
             },
             rightButtonAction: {
-              await urlOpenHandlerClient.openURL(.appStore)
+              guard type != .complete else {
+                await urlOpenHandlerClient.openURL(.appStore)
+                return
+              }
+              
+              await send(.delegate(.summaryCompletedSaveButtonTapped(feedId)))
+              await alertClient.dismiss()
             },
             isRightButtonDismiss: false
           ))
