@@ -174,8 +174,7 @@ public struct HomeFeature: Reducer {
               break
               
             case .linkSavePromotionVerify:
-              // to do 
-              break
+              await urlOpenHandlerClient.openURL(urlType: .custom("https://forms.gle/sMiBFkUxqGE7n7odA"))
             }
           },
           catch: { error, send in
