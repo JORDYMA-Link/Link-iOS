@@ -60,12 +60,17 @@ struct BKWebView: UIViewRepresentable {
   
   private func initPlugins() {
     let surveyPlugin = SurveyJSPlugin()
+    let saveChallenge = SaveChallengeJSPlugin()
     
     surveyPlugin.set { action, _ in
       webAction?(.survey(action))
     }
     
-    supervisor.loadPlugin(contentsOf: [surveyPlugin])
+    saveChallenge.set { action, _ in
+      webAction?(.saveChallenge(action))
+    }
+    
+    supervisor.loadPlugin(contentsOf: [surveyPlugin, saveChallenge])
   }
 }
 
