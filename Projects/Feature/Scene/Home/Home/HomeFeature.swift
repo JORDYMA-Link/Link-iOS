@@ -170,8 +170,7 @@ public struct HomeFeature: Reducer {
               try await kakaoChannelClient.chatChannel()
               
             case .linkSavePromotionDetail:
-              // to do
-              break
+              await urlOpenHandlerClient.openURL(urlType: .saveChallenge)
               
             case .linkSavePromotionVerify:
               await urlOpenHandlerClient.openURL(urlType: .custom("https://forms.gle/sMiBFkUxqGE7n7odA"))

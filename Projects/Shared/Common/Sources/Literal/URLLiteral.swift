@@ -13,6 +13,7 @@ public enum URLLiteral {
   case termOfUse
   case introduceService
   case appStore
+  case saveChallenge
   case custom(String)
 }
 
@@ -27,6 +28,8 @@ extension URLLiteral {
       return URL(string:"https://daffy-sandal-6ef.notion.site/6addddc3f4164264b4fc58d01cbfd706?pvs=4")
     case .appStore:
       return URL(string:"https://apps.apple.com/kr/app/ai-%EB%A7%81%ED%81%AC-%EC%95%84%EC%B9%B4%EC%9D%B4%EB%B9%99-%EB%B8%94%EB%A7%81%ED%81%AC/id6605930254")
+    case .saveChallenge:
+      return URL(string:"https://blink-archive.com/event/save-challenge")
     case let .custom(urlString):
       return URL(string: urlString)
     }
