@@ -72,15 +72,18 @@ public struct BKTabView: View {
         .toolbar(.hidden, for: .navigationBar)
         .popGestureEnabled()
         .bkWebViewAlert(
-          isPresented: $store.isWebViewPresented) {
+          isPresented: $store.isWebViewPresented, maxHeight: 417) {
             BKWebView(
               viewModel: bkWebViewModel,
               url: URL(string: store.webViewInfo.link)!,
               isScrollEnabled: false
             ) { action in
               switch action {
-              case .survey(.closeSurveyModal):
+              case .saveChallenge(.closeSaveChallengeModal):
                 store.send(.eventWebViewPresented(false))
+                
+              case .saveChallenge(.joinSaveChallengeChallenge):
+                store.send(.joinSaveChallengeWebViewButtonTapped)
                 
               default:
                 return

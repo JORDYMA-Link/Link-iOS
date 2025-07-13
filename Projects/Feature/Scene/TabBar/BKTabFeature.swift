@@ -11,6 +11,7 @@ import Foundation
 import Analytics
 import Models
 import CommonFeature
+import Services
 
 import ComposableArchitecture
 
@@ -53,6 +54,7 @@ public struct BKTabFeature {
     case roundedTabIconTapped
     case feedDetailWillDisappear(Feed)
     case backgroundNotificationReceived
+    case joinSaveChallengeWebViewButtonTapped
     
     // MARK: Inner Business Action
     case handleUnsavedSummary
@@ -90,6 +92,7 @@ public struct BKTabFeature {
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.userDefaultsClient) private var userDefaultsClient
   @Dependency(\.userNotificationClient) private var userNotificationClient
+  @Dependency(URLOpenHandlerClient.self) private var urlOpenHandlerClient
   
   public var body: some ReducerOf<Self> {
     Scope(state: \.storageBox, action: \.storageBox) { StorageBoxFeature() }
@@ -127,6 +130,16 @@ public struct BKTabFeature {
             await send(.routeSummaryStatus)
           }
         }
+        
+      case .joinSaveChallengeWebViewButtonTapped:
+        return .run(
+          operation: { send in
+            await urlOpenHandlerClient.openURL(urlType: .saveChallenge)
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
                         
       case .handleUnsavedSummary:
         guard userDefaultsClient.integer(.latestUnsavedSummaryFeedId, -1) > 0 else {
