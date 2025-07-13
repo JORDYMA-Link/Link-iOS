@@ -183,9 +183,9 @@ public struct LinkFeature {
           return .run { [state] send in
             await send(.fetchFeedDetail(state.feedId))
             
-            guard state.linkType != .summarySave else {
-              return await send(.fetchWebViewInfo)
-            }
+//            guard state.linkType != .summarySave else {
+//              return await send(.fetchWebViewInfo)
+//            }
           }
           
         case .summaryCompleted:

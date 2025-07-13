@@ -62,7 +62,7 @@ struct LinkView: View {
               
               contentTextView
                 .padding(.top, 8)
-                            
+              
               folderTitle
                 .padding(.top, 16)
               
@@ -103,7 +103,7 @@ struct LinkView: View {
               
               contentTextView
                 .padding(.top, 8)
-                            
+              
               memoHeaderView
                 .padding(.top, 16)
               
@@ -178,6 +178,9 @@ struct LinkView: View {
                 
               case .survey(.openSurveyForm(let url)):
                 store.send(.openSurveyFormButtonTapped(url))
+                
+              default:
+                break
               }
             }
           }

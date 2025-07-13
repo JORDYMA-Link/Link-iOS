@@ -70,7 +70,7 @@ public struct SummaryStatusFeature {
       case .onAppear:
         return .run { send in
             await send(.fetchLinkProcessing)
-            await send(.fetchWebViewInfo)
+//            await send(.fetchWebViewInfo)
         }
         
       case .closeButtonTapped:
