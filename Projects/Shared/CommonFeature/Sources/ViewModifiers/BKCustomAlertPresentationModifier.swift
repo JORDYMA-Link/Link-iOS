@@ -10,13 +10,16 @@ import SwiftUI
 
 private struct BKWebViewAlertPresentationModifier<InnerContent: View>: ViewModifier {
   @Binding private var isPresented: Bool
+  private let maxHeight: CGFloat
   private let innerContent: () -> InnerContent
   
   init(
     isPresented: Binding<Bool>,
+    maxHeight: CGFloat,
     innerContent: @escaping () -> InnerContent
   ) {
     self._isPresented = isPresented
+    self.maxHeight = maxHeight
     self.innerContent = innerContent
   }
   
@@ -35,7 +38,7 @@ private struct BKWebViewAlertPresentationModifier<InnerContent: View>: ViewModif
           }
         
         innerContent()
-          .frame(maxWidth: 328, maxHeight: 440, alignment: .center)
+          .frame(maxWidth: 328, maxHeight: maxHeight, alignment: .center)
           .clipShape(RoundedRectangle(cornerRadius: 10))
           .shadow(radius: 10)
           .zIndex(2)
@@ -48,8 +51,15 @@ private struct BKWebViewAlertPresentationModifier<InnerContent: View>: ViewModif
 public extension View {
   func bkWebViewAlert<innerContent: View>(
     isPresented: Binding<Bool>,
+    maxHeight: CGFloat = 440,
     @ViewBuilder innerContent: @escaping () -> innerContent
   ) -> some View {
-    modifier(BKWebViewAlertPresentationModifier(isPresented: isPresented, innerContent: innerContent))
+    modifier(
+      BKWebViewAlertPresentationModifier(
+      isPresented: isPresented,
+      maxHeight: maxHeight,
+      innerContent: innerContent
+      )
+    )
   }
 }

@@ -28,6 +28,8 @@ public struct FeedClient {
   public var getFeed: @Sendable (_ feedId: Int) async throws -> Feed
   /// 캘린더 기준 조회
   public var getFeedCalendarSearch: @Sendable (_ yearMonth: String) async throws -> SearchCalendar
+  /// 프로모션 기간 챌린지 조회
+  public var getFeedChallenge: @Sendable () async throws -> FeedChallenge
 }
 
 extension FeedClient: DependencyKey {
@@ -65,6 +67,11 @@ extension FeedClient: DependencyKey {
       },
       getFeedCalendarSearch: { date in
         let responseDTO: FeedCalendarSearchResponse = try await feedProvider.request(.getFeedSearchByDate(date: date), modelType: FeedCalendarSearchResponse.self)
+        
+        return responseDTO.toDomain()
+      },
+      getFeedChallenge: {
+        let responseDTO: FeedChallengeResponse = try await feedProvider.request(.getFeedChallenge, modelType: FeedChallengeResponse.self)
         
         return responseDTO.toDomain()
       }

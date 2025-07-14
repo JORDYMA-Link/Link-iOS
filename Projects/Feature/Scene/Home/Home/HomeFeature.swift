@@ -48,10 +48,7 @@ public struct HomeFeature: Reducer {
     var summaryType: SummaryType = .summarizing
     var isSummaryToastPresented = false
     
-    var bannerItems: [BannerItem] = [
-      .init(type: .instruction),
-      .init(type: .kakaoChannel)
-    ]
+    var bannerItems: [BannerItem] = BannerItem.getPromotionBannerItems()
   }
   
   public enum Action: BindableAction {
@@ -171,6 +168,12 @@ public struct HomeFeature: Reducer {
               
             case .kakaoChannel:
               try await kakaoChannelClient.chatChannel()
+              
+            case .linkSavePromotionDetail:
+              await urlOpenHandlerClient.openURL(urlType: .saveChallenge)
+              
+            case .linkSavePromotionVerify:
+              await urlOpenHandlerClient.openURL(urlType: .custom("https://forms.gle/sMiBFkUxqGE7n7odA"))
             }
           },
           catch: { error, send in

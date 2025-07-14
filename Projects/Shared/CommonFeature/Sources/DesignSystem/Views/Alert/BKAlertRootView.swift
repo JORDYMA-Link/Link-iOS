@@ -24,6 +24,7 @@ struct BKAlertRootView: View {
           title: property.title,
           imageType: property.imageType,
           description: property.description,
+          bottomImageType: property.bottomImageType,
           buttonType: property.buttonType,
           leftAction: {
             await property.leftButtonAction?()
@@ -31,7 +32,9 @@ struct BKAlertRootView: View {
           },
           rightAction: {
             await property.rightButtonAction()
-            manager.dismiss()
+            if property.isRightButtonDismiss {
+              manager.dismiss()
+            }
           }
         )
         .padding(.horizontal, 24)
