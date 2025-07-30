@@ -11,7 +11,11 @@ let project = Project.make(
                 .target(name: "ShareExtension")
             ]
         )),
-        .shareExtenion(factory: .init())
+        .shareExtenion(factory: .init(
+            dependencies: [
+                .feature
+            ]
+        ))
     ],
     schemes: [
       .scheme(
