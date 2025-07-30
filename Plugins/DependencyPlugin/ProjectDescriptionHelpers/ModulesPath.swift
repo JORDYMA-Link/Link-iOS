@@ -12,7 +12,6 @@ public extension ProjectDescription.Path {
     static var app: Self {
         return .relativeToRoot("Projects/App")
     }
-    }
 }
 
 public extension ProjectDescription.Path {
