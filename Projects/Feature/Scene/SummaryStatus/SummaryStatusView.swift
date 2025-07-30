@@ -58,6 +58,9 @@ struct SummaryStatusView: View {
               
             case .survey(.openSurveyForm(let url)):
               store.send(.openSurveyFormButtonTapped(url))
+              
+            default:
+              break
             }
           }
         }

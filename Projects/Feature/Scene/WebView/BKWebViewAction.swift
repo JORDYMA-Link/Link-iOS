@@ -10,4 +10,5 @@ import Foundation
 
 enum BKWebViewAction {
   case survey(SurveyJSPlugin.SurveyJSAction)
+  case saveChallenge(SaveChallengeJSPlugin.SaveChallengeJSAction)
 }

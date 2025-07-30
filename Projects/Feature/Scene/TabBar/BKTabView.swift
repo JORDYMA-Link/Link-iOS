@@ -43,6 +43,8 @@ enum BKTabViewType: Int, CaseIterable {
 public struct BKTabView: View {
   @Perception.Bindable var store: StoreOf<BKTabFeature>
   
+  @StateObject private var bkWebViewModel = BKWebViewModel()
+  
   public init(store: StoreOf<BKTabFeature>) {
     self.store = store
   }
@@ -69,6 +71,25 @@ public struct BKTabView: View {
         }
         .toolbar(.hidden, for: .navigationBar)
         .popGestureEnabled()
+        .bkWebViewAlert(
+          isPresented: $store.isWebViewPresented, maxHeight: 417) {
+            BKWebView(
+              viewModel: bkWebViewModel,
+              url: URL(string: store.webViewInfo.link)!,
+              isScrollEnabled: false
+            ) { action in
+              switch action {
+              case .saveChallenge(.closeSaveChallengeModal):
+                store.send(.eventWebViewPresented(false))
+                
+              case .saveChallenge(.joinSaveChallengeChallenge):
+                store.send(.joinSaveChallengeWebViewButtonTapped)
+                
+              default:
+                return
+              }
+            }
+          }
         .onViewDidLoad {
           UITabBar.appearance().isHidden = true
           UIScrollView.appearance().bounces = true

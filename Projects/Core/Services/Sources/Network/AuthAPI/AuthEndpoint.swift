@@ -13,6 +13,7 @@ import Moya
 enum AuthEndpoint {
   case kakaoLogin(request: KakaoLoginRequest)
   case appleLogin(idToken: String)
+  case googleLogin(idToken: String)
   case regenerateToken(refreshToken: String)
   case logout(refreshToken: String)
   case signout(refreshToken: String)
@@ -25,6 +26,8 @@ extension AuthEndpoint: BaseTargetType {
       return "/auth/kakao-login"
     case .appleLogin:
       return "/auth/apple-login"
+    case .googleLogin:
+      return "/auth/google-login"
     case .regenerateToken:
       return "/auth/regenerate-token"
     case .logout:
@@ -36,7 +39,7 @@ extension AuthEndpoint: BaseTargetType {
   
   var method: Moya.Method {
     switch self {
-    case .kakaoLogin, .appleLogin, .regenerateToken, .logout, .signout:
+    case .kakaoLogin, .appleLogin, .googleLogin, .regenerateToken, .logout, .signout:
       return .post
     }
   }
@@ -44,6 +47,10 @@ extension AuthEndpoint: BaseTargetType {
   var task: Moya.Task {
     switch self {
     case let .kakaoLogin(request):
+      return .requestJSONEncodable(request)
+      
+    case let .googleLogin(idToken):
+      let request = TokenRequest(idToken: idToken)
       return .requestJSONEncodable(request)
       
     case let .appleLogin(idToken):

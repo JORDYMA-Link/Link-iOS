@@ -1,0 +1,108 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# TCA (The Composable Architecture) 가이드
+
+## 기본 구조
+
+TCA는 다음과 같은 기본 구조를 따릅니다:
+
+1. **Feature**: 각 기능별 모듈
+   - State: 상태 관리
+   - Action: 사용자 액션 및 시스템 이벤트
+   - Reducer: 상태 업데이트 로직
+   - View: UI 컴포넌트
+
+2. **Dependency**: 외부 의존성 관리
+   - Client: 외부 서비스와의 통신
+   - Interface: 의존성 인터페이스 정의
+
+## 코드 구조
+
+### Feature 모듈 구조
+```
+Feature/
+  ├── Sources/
+  │   ├── FeatureName/
+  │   │   ├── FeatureNameFeature.swift
+  │   │   ├── FeatureNameView.swift
+  │   │   └── Components/
+  │   └── Interface/
+  └── Tests/
+```
+
+### Feature 구현 예시
+```swift
+// State
+struct FeatureState: Equatable {
+    var isLoading: Bool = false
+    var currentItem: TabViewType = .home
+}
+
+// Action
+enum FeatureAction {
+    case onViewDidLoad
+    case binding(BindingAction<FeatureState>)
+}
+
+// Reducer
+let featureReducer = Reducer<FeatureState, FeatureAction> { state, action in
+    switch action {
+    case .onViewDidLoad:
+        return .none
+    case .binding:
+        return .none
+    }
+}
+.binding()
+
+// View
+struct FeatureView: View {
+    @Perception.Bindable var store: StoreOf<FeatureFeature>
+    
+    var body: some View {
+        WithPerceptionTracking {
+            // View 구현
+        }
+    }
+}
+```
+
+## 모범 사례
+
+1. **상태 관리**
+   - State는 Equatable을 준수해야 합니다
+   - 상태 변경은 Reducer를 통해서만 이루어져야 합니다
+   - 바인딩이 필요한 상태는 @BindingAction을 사용합니다
+
+2. **의존성 주입**
+   - 외부 의존성은 DependencyKey를 통해 주입합니다
+   - 테스트를 위한 mock 구현을 제공합니다
+
+3. **View 구현**
+   - WithPerceptionTracking을 사용하여 성능 최적화
+   - Store는 @Perception.Bindable로 선언
+   - 하위 뷰로 Store를 전달할 때는 scope를 사용
+
+4. **테스트**
+   - Reducer 테스트는 TestStore를 사용
+   - 의존성은 TestDependencyValues를 통해 주입
+   - 비동기 작업은 TestScheduler로 제어
+
+## 주의사항
+
+1. **성능**
+   - 불필요한 상태 업데이트를 피하세요
+   - WithPerceptionTracking을 적절히 사용하세요
+   - 대용량 데이터는 페이지네이션을 고려하세요
+
+2. **에러 처리**
+   - TaskResult를 사용하여 에러를 처리하세요
+   - 사용자에게 적절한 에러 메시지를 표시하세요
+
+3. **코드 구조**
+   - Feature는 단일 책임 원칙을 따르세요
+   - 공통 컴포넌트는 CommonFeature로 분리하세요
+   - 복잡한 로직은 UseCase로 분리하세요

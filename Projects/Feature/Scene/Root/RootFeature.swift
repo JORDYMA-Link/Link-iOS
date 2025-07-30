@@ -30,7 +30,8 @@ public struct RootFeature {
   public enum Action {
     // MARK: User Action
     case onAppear
-    case onOpenURL(URL)
+    case onOpenGoogleURL(URL)
+    case onOpenKakaoURL(URL)
     
     // MARK: App LifeCycle
     case background
@@ -60,7 +61,11 @@ public struct RootFeature {
       case .onAppear:
         return .none
         
-      case let .onOpenURL(url):
+      case let .onOpenGoogleURL(url):
+        socialLogin.handleGoogleUrl(url)
+        return .none
+        
+      case let .onOpenKakaoURL(url):
         socialLogin.handleKakaoUrl(url)
         return .none
         

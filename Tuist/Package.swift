@@ -16,7 +16,8 @@ let packageSettings = PackageSettings(
         "SwiftUIIntrospect": .framework,
         "KakaoSDK": .framework,
         "FSCalendar": .framework,
-        "FSPagerViewSwift": .framework
+        "FSPagerViewSwift": .framework,
+        "GoogleSignInSwift": .staticLibrary
     ]
 )
 #endif
@@ -33,6 +34,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", exact: "1.11.0"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", exact: "2.22.0"),
         .package(url: "https://github.com/WenchaoD/FSCalendar.git", from: "2.8.4"),
-        .package(url: "https://github.com/kimkyuchul/FSPagerView-SPM", from: "1.3.5")
+        .package(url: "https://github.com/kimkyuchul/FSPagerView-SPM", from: "1.3.5"),
+        .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "8.0.0")
     ]
 )

@@ -19,7 +19,7 @@
 
 - Minimum Deployment: iOS 16.2
 - Dependence Manager : SPM
-- Swift Version: 5.9.0
+- Swift Version: 6.0.0
 - `SwiftUI` `TCA`
 - `Swift Concurrency`
 - `Moya`

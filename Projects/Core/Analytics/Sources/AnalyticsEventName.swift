@@ -10,6 +10,7 @@ import Foundation
 
 public enum AnalyticsEventName: String {
   // 로그인
+  case googleLoginClicked = "google_login_clicked"
   case kakaoLoginClicked = "kakao_login_clicked"
   case appleLoginClicked = "apple_login_clicked"
   

@@ -10,6 +10,7 @@ import SwiftUI
 
 import Common
 import CommonFeature
+import Models
 
 import ComposableArchitecture
 
@@ -36,15 +37,29 @@ public struct LoginView: View {
           Spacer()
           
           VStack(spacing: 12) {
-            makeLoginButton(action: {
-              HapticFeedbackManager.shared.impact(style: .light)
-              store.send(.kakaoLoginButtonTapped)
-            }, backgroundColor: .bkColor(.kakaoYellow), title: "카카오톡으로 시작하기", titleColor: .bkColor(.gray900), buttonImage: CommonFeature.Images.icokakao, buttonImageColor: .bkColor(.gray900))
+            SocialLoginButton(
+              socialType: .kakao,
+              action: {
+                HapticFeedbackManager.shared.impact(style: .light)
+                store.send(.kakaoLoginButtonTapped)
+              }
+            )
             
-            makeLoginButton(action: {
-              HapticFeedbackManager.shared.impact(style: .light)
-              store.send(.appleLoginButtonTapped)
-            }, backgroundColor: .bkColor(.black), title: "Apple로 시작하기", titleColor: .bkColor(.white), buttonImage: CommonFeature.Images.icoapple, buttonImageColor: .bkColor(.white))
+            SocialLoginButton(
+              socialType: .apple,
+              action: {
+                HapticFeedbackManager.shared.impact(style: .light)
+                store.send(.appleLoginButtonTapped)
+              }
+            )
+            
+            SocialLoginButton(
+              socialType: .google,
+              action: {
+                HapticFeedbackManager.shared.impact(style: .light)
+                store.send(.googleLoginButtonTapped)
+              }
+            )
             
             makeTerms(
               serviceTerms:makeTermsText("서비스 약관", url: URLLiteral.termOfUse.url),
@@ -92,32 +107,6 @@ public struct LoginView: View {
   }
   
   @ViewBuilder
-  private func makeLoginButton(action: @escaping () -> (), backgroundColor: Color, title: String, titleColor: Color, buttonImage: Image, buttonImageColor: Color) -> some View {
-    Button {
-      action()
-    } label: {
-      ZStack {
-        RoundedRectangle(cornerRadius: 10, style: .continuous)
-          .fill(backgroundColor)
-          .frame(maxWidth: .infinity)
-        
-        HStack(spacing: 4) {
-          BKIcon(image: buttonImage, color: buttonImageColor, size: CGSize(width: 20, height: 20))
-          
-          Text(title)
-            .font(.semiBold(size: ._16))
-            .foregroundStyle(titleColor)
-            .multilineTextAlignment(.center)
-        }
-        .padding(EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
-      }
-      .padding(.top)
-      .padding(.horizontal, 16)
-      .frame(height: 52)
-    }
-  }
-  
-  @ViewBuilder
   private func makeTerms(serviceTerms: AttributedString, privacyPolicy: AttributedString) -> some View {
     Text("가입을 진행할 경우\n \(serviceTerms) 및 \(privacyPolicy)에 동의한 것으로 간주합니다. ")
       .font(.regular(size: ._12))
@@ -138,6 +127,99 @@ public struct LoginView: View {
     attributedString.underlineStyle = .single
     attributedString.link = url
     return attributedString
+  }
+}
+
+private struct SocialLoginButton: View {
+  private let socialType: SocialLoginInfo.Socialtype
+  private let action: () -> Void
+  
+  init(
+    socialType: SocialLoginInfo.Socialtype,
+    action: @escaping () -> Void
+  ) {
+    self.socialType = socialType
+    self.action = action
+  }
+  
+  var body: some View {
+    Button(action: action) {
+      ZStack {
+        backgroundView
+        
+        HStack(alignment: .center) {
+          buttonImage
+            .resizable()
+            .scaledToFill()
+            .frame(width: 20, height: 20)
+          
+          Text(buttonTitle)
+            .font(.semiBold(size: ._16))
+            .foregroundStyle(titleColor)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .padding(EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
+      }
+      .padding(.top)
+      .padding(.horizontal, 16)
+      .frame(height: 52)
+    }
+  }
+  
+  @ViewBuilder
+  private var backgroundView: some View {
+    switch socialType {
+    case .kakao, .apple:
+      RoundedRectangle(cornerRadius: 10, style: .continuous)
+        .fill(backgroundColor)
+        .frame(maxWidth: .infinity)
+    case .google:
+      RoundedRectangle(cornerRadius: 10, style: .continuous)
+        .stroke(Color.bkColor(.gray500), lineWidth: 1)
+        .frame(maxWidth: .infinity)
+    }
+  }
+  
+  private var backgroundColor: Color {
+    switch socialType {
+    case .kakao:
+      return .bkColor(.kakaoYellow)
+    case .apple:
+      return .bkColor(.black)
+    case .google:
+      return .clear
+    }
+  }
+  
+  private var titleColor: Color {
+    switch socialType {
+    case .kakao, .google:
+      return .bkColor(.gray900)
+    case .apple:
+      return .bkColor(.white)
+    }
+  }
+  
+  private var buttonTitle: String {
+    switch socialType {
+    case .kakao:
+      return "카카오톡으로 시작하기"
+    case .apple:
+      return "Apple로 시작하기"
+    case .google:
+      return "Google로 시작하기"
+    }
+  }
+  
+  private var buttonImage: Image {
+    switch socialType {
+    case .kakao:
+      return CommonFeature.Images.icokakao
+    case .apple:
+      return CommonFeature.Images.icoapple
+    case .google:
+      return CommonFeature.Images.icoGoogle
+    }
   }
 }
 

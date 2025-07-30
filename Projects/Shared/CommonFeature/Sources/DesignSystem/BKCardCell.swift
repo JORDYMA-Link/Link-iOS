@@ -209,7 +209,7 @@ public struct BKCardCell: View {
 
 extension BKCardCell {
   private func highlightedString(fullText: String, highlightedWord: String?) -> AttributedString {
-    var attributedString = AttributedString(fullText)
+    var attributedString = fullText.parseBoldString()
     
     guard let highlightedWord else { return attributedString }
         

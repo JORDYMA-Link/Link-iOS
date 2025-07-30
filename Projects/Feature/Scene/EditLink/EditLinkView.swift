@@ -88,7 +88,7 @@ struct EditLinkView: View {
                 textCount: 50,
                 isMultiLine: true,
                 isClearButton: true,
-                errorMessage: "제목은 최소 2자, 최대 50자까지 입력 가능해요.",
+                errorMessage: "제목은 최소 1자, 최대 50자까지 입력 가능해요.",
                 height: 67
               )
               .padding(.top, 4)
@@ -147,7 +147,7 @@ struct EditLinkView: View {
                 textFieldType: .editLinkContent,
                 textCount: 500,
                 isMultiLine: true,
-                errorMessage: "요약 내용은 최소 2자, 최대 500자까지 입력 가능해요.",
+                errorMessage: "요약 내용은 최소 1자, 최대 500자까지 입력 가능해요.",
                 height: 160
               )
               .padding(.top, 4)
