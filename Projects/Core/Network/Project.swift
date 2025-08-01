@@ -2,26 +2,22 @@
 //  Project.swift
 //  ProjectDescriptionHelpers
 //
-//  Created by kyuchul on 6/14/24.
+//  Created by Claude on 8/1/25.
 //
 
 @preconcurrency import ProjectDescription
 import ProjectDescriptionHelpers
 import DependencyPlugin
 
-
 let project = Project.make(
-    name: ModulePath.Core.Services.rawValue,
+    name: ModulePath.Core.Network.rawValue,
     targets: [
-        .core(implements: .Services, factory: .init(
+        .core(implements: .Network, factory: .init(
             dependencies: [
-                .shared(implements: .ThirdParty),
+                .external(externalDependency: .moya),
                 .core(implements: .Models),
-                .core(implements: .Network),
-                .shared(implements: .Common),
-                .shared
+                .shared(implements: .Common)
             ]
         ))
     ]
 )
-
