@@ -11,9 +11,9 @@ let project = Project.make(
                 .target(name: "ShareExtension")
             ]
         )),
-        .shareExtenion(factory: .init(
+        .shareExtension(factory: .init(
             dependencies: [
-                .feature
+                .core(implements: .Models)
             ]
         ))
     ],
