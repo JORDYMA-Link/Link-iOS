@@ -7,10 +7,9 @@
 //
 
 import UIKit
-import Models
+import SwiftUI
 
 import ComposableArchitecture
-
 
 @objc(ShareViewController)
 class ShareViewController: UIViewController {
@@ -19,40 +18,34 @@ class ShareViewController: UIViewController {
         super.viewDidLoad()
         print("ShareViewController viewDidLoad called")
         
-        view.backgroundColor = UIColor.systemBackground
-        
-        let label = UILabel()
-        label.text = "Blink 공유 화면"
-        label.textAlignment = .center
-        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        
-        let closeButton = UIButton(type: .system)
-        closeButton.setTitle("닫기", for: .normal)
-        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
-        closeButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        view.addSubview(label)
-        view.addSubview(closeButton)
-        
-        NSLayoutConstraint.activate([
-            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
-            closeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            closeButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 20)
-        ])
-        
-        print("ShareViewController UI setup completed")
+        setupSwiftUIView()
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        print("ShareViewController viewDidAppear called")
+    private func setupSwiftUIView() {
+        let store = Store(
+            initialState: ShareRootFeature.State()
+        ) {
+            ShareRootFeature()
+        }
+        
+        let hostingController = UIHostingController(
+            rootView: ShareRootView(store: store)
+        )
+        hostingController.presentationController?.delegate = self
+        hostingController.modalPresentationStyle = .automatic
+        present(hostingController, animated: true)
     }
     
-    @objc private func closeButtonTapped() {
-        print("Close button tapped")
+    private func closeShareExtension() {
+        print("ShareExtension closing...")
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+    }
+}
+
+// MARK: - UIAdaptivePresentationControllerDelegate
+
+extension ShareViewController: UIAdaptivePresentationControllerDelegate {
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        closeShareExtension()
     }
 }

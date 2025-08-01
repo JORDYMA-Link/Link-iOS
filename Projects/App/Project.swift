@@ -13,7 +13,7 @@ let project = Project.make(
         )),
         .shareExtension(factory: .init(
             dependencies: [
-                .core(implements: .Models)
+                .core(implements: .Network)
             ]
         ))
     ],
