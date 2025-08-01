@@ -125,6 +125,7 @@ public extension Target {
         newFactory.infoPlist = .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist"))
         newFactory.sources = ["ShareExtension/Sources/**"]
         newFactory.resources = ["ShareExtension/Resources/**"]
+        newFactory.entitlements = .file(path: .relativeToRoot("Projects/App/ShareExtension.entitlements"))
         newFactory.settings = .extensionSettings
         
         return make(factory: newFactory)
