@@ -117,15 +117,15 @@ public extension Target {
         return make(factory: newFactory)
     }
     
-    static func shareExtenion(factory: TargetFactory) -> Self {
+    static func shareExtension(factory: TargetFactory) -> Self {
         var newFactory = factory
         newFactory.name = "ShareExtension"
         newFactory.product = .appExtension
-        newFactory.bundleId = "\(DefaultSetting.projectBundleId()).shareExtension"
+        newFactory.bundleId = "\(DefaultSetting.projectBundleId()).ShareExtension"
         newFactory.infoPlist = .file(path: .relativeToRoot("Projects/App/ShareExtension/Info.plist"))
         newFactory.sources = ["ShareExtension/Sources/**"]
         newFactory.resources = ["ShareExtension/Resources/**"]
-        newFactory.settings = .appSettings
+        newFactory.settings = .extensionSettings
         
         return make(factory: newFactory)
     }

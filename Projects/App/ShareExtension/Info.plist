@@ -33,7 +33,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.share-services</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>ShareExtension.ShareViewController</string>
+		<string>$(PRODUCT_MODULE_NAME).ShareViewController</string>
 	</dict>
 	<key>CFBundleDisplayName</key>
 	<string>Blink</string>

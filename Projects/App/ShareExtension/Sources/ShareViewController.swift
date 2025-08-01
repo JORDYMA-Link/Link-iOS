@@ -7,25 +7,52 @@
 //
 
 import UIKit
-import Social
+import Models
 
-class ShareViewController: SLComposeServiceViewController {
+import ComposableArchitecture
 
-    override func isContentValid() -> Bool {
-        // Do validation of contentText and/or NSExtensionContext attachments here
-        return true
+
+@objc(ShareViewController)
+class ShareViewController: UIViewController {
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        print("ShareViewController viewDidLoad called")
+        
+        view.backgroundColor = UIColor.systemBackground
+        
+        let label = UILabel()
+        label.text = "Blink 공유 화면"
+        label.textAlignment = .center
+        label.font = UIFont.systemFont(ofSize: 18, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        let closeButton = UIButton(type: .system)
+        closeButton.setTitle("닫기", for: .normal)
+        closeButton.addTarget(self, action: #selector(closeButtonTapped), for: .touchUpInside)
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(label)
+        view.addSubview(closeButton)
+        
+        NSLayoutConstraint.activate([
+            label.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            label.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            closeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            closeButton.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 20)
+        ])
+        
+        print("ShareViewController UI setup completed")
     }
-
-    override func didSelectPost() {
-        // This is called after the user selects Post. Do the upload of contentText and/or NSExtensionContext attachments.
     
-        // Inform the host that we're done, so it un-blocks its UI. Note: Alternatively you could call super's -didSelectPost, which will similarly complete the extension context.
-        self.extensionContext!.completeRequest(returningItems: [], completionHandler: nil)
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        print("ShareViewController viewDidAppear called")
     }
-
-    override func configurationItems() -> [Any]! {
-        // To add configuration options via table cells at the bottom of the sheet, return an array of SLComposeSheetConfigurationItem here.
-        return []
+    
+    @objc private func closeButtonTapped() {
+        print("Close button tapped")
+        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
-
 }
