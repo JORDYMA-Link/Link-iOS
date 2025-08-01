@@ -15,8 +15,7 @@ let project = Project.make(
         .core(implements: .Network, factory: .init(
             dependencies: [
                 .external(externalDependency: .moya),
-                .core(implements: .Models),
-                .shared(implements: .Common)
+                .core(implements: .Models)
             ]
         ))
     ]
