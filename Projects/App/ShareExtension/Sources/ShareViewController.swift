@@ -9,43 +9,33 @@
 import UIKit
 import SwiftUI
 
-import ComposableArchitecture
-
-@objc(ShareViewController)
 class ShareViewController: UIViewController {
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        print("ShareViewController viewDidLoad called")
-        
-        setupSwiftUIView()
-    }
-    
-    private func setupSwiftUIView() {
-        let store = Store(
-            initialState: ShareRootFeature.State()
-        ) {
-            ShareRootFeature()
+  override func viewDidLoad() {
+    super.viewDidLoad()
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    openParentApp()
+    closeShareExtension()
+  }
+  
+  func openParentApp() {
+    if let url = URL(string: "blink://") {
+      var responder: UIResponder? = self
+      
+      while responder != nil {
+        if let application = responder as? UIApplication {
+          application.open(url)
+          break
         }
         
-        let hostingController = UIHostingController(
-            rootView: ShareRootView(store: store)
-        )
-        hostingController.presentationController?.delegate = self
-        hostingController.modalPresentationStyle = .automatic
-        present(hostingController, animated: true)
+        responder = responder?.next
+      }
     }
-    
-    private func closeShareExtension() {
-        print("ShareExtension closing...")
-        extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
-    }
-}
-
-// MARK: - UIAdaptivePresentationControllerDelegate
-
-extension ShareViewController: UIAdaptivePresentationControllerDelegate {
-    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-        closeShareExtension()
-    }
+  }
+  
+  private func closeShareExtension() {
+    extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+  }
 }

@@ -33,6 +33,14 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
     store.send(.didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: deviceToken))
   }
+  
+  func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
+    if url.scheme == "blink" {
+      return true
+    }
+    
+    return false
+  }
 }
 
 extension AppDelegate: @preconcurrency UNUserNotificationCenterDelegate {

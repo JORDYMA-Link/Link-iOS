@@ -46,6 +46,16 @@
 				<string>$(KAKAO_API_KEY)</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.kyuchul.blink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>blink</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
