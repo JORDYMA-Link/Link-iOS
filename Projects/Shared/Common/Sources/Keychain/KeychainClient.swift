@@ -29,9 +29,6 @@ public struct KeychainClient {
   public var update: @Sendable (_ type: TokenType, _ value: String) async throws -> Void
   public var delete: @Sendable (_ type: TokenType) async throws -> Void
   public var checkToTokenIsExist: @Sendable () -> Bool
-  
-  // Keychain Access Group for sharing between app and extensions
-  private static let accessGroup = "com.kyuchul.blink.keychain"
 }
 
 extension KeychainClient: DependencyKey {
@@ -42,7 +39,6 @@ extension KeychainClient: DependencyKey {
           dictionary: [
             kSecClass: kSecClassGenericPassword,
             kSecAttrAccount: type.rawValue,
-            kSecAttrAccessGroup: accessGroup,
             kSecValueData: value.data(using: .utf8, allowLossyConversion: false)!
           ]
         )
@@ -67,8 +63,7 @@ extension KeychainClient: DependencyKey {
       delete: { type in
         let keyChainQuery: NSDictionary = [
           kSecClass: kSecClassGenericPassword,
-          kSecAttrAccount: type.rawValue,
-          kSecAttrAccessGroup: accessGroup
+          kSecAttrAccount: type.rawValue
         ]
         
         let status = SecItemDelete(keyChainQuery)
@@ -97,7 +92,6 @@ extension KeychainClient {
       dictionary: [
         kSecClass: kSecClassGenericPassword,
         kSecAttrAccount: type.rawValue,
-        kSecAttrAccessGroup: accessGroup,
         kSecReturnData: true,
         kSecMatchLimit: kSecMatchLimitOne
       ]
@@ -120,8 +114,7 @@ extension KeychainClient {
     
     let query: NSDictionary = [
       kSecClass: kSecClassGenericPassword,
-      kSecAttrAccount: type.rawValue,
-      kSecAttrAccessGroup: accessGroup
+      kSecAttrAccount: type.rawValue
     ]
     
     let attributes: NSDictionary = [
