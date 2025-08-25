@@ -21,7 +21,6 @@ let project = Project.make(
                     .external(externalDependency: .firebaseAnalytics),
                     .external(externalDependency: .firebaseMessaging),
                     .external(externalDependency: .googleMobileAds),
-                    .external(externalDependency: .moya),
                     .external(externalDependency: .introspect),
                     .external(externalDependency: .fSCalendar),
                     .external(externalDependency: .googleSignIn),
