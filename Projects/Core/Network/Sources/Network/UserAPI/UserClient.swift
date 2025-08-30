@@ -16,6 +16,7 @@ public struct UserClient {
   public var getUserProfile: @Sendable () async throws -> Setting
   public var requestUserProfile: @Sendable (_ nickname: String) async throws -> Setting
   public var putFcmPushToken: @Sendable (_ pushToken: String) async throws -> Void
+  public var postOnboarding: @Sendable (_ jobField: String, _ birthYear: String, _ gender: String) async throws -> Void
 }
 
 extension UserClient: DependencyKey {
@@ -33,6 +34,9 @@ extension UserClient: DependencyKey {
       },
       putFcmPushToken: { pushToken in
         return try await settingClient.requestPlain(.putFcmPushToken(pushToken: pushToken))
+      },
+      postOnboarding: { jobField, birthYear, gender in
+        return try await settingClient.requestPlain(.postOnboarding(jobField: jobField, birthYear: birthYear, gender: gender))
       }
     )
   }

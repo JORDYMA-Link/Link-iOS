@@ -14,6 +14,7 @@ enum UserEndpoint {
   case getUserProfile
   case patchUserProfile(nickName: String)
   case putFcmPushToken(pushTokenType: String = "IOS", pushToken: String)
+  case postOnboarding(jobField: String, birthYear: String, gender: String)
 }
 
 extension UserEndpoint: BaseTargetType {
@@ -25,6 +26,8 @@ extension UserEndpoint: BaseTargetType {
       return baseUserRoutePath + "/profile"
     case .putFcmPushToken:
       return baseUserRoutePath + "/push-token"
+    case .postOnboarding:
+      return baseUserRoutePath + "/onboarding"
     }
   }
   
@@ -36,6 +39,8 @@ extension UserEndpoint: BaseTargetType {
       return .patch
     case .putFcmPushToken:
       return .put
+    case .postOnboarding:
+      return .post
     }
   }
   
@@ -54,6 +59,13 @@ extension UserEndpoint: BaseTargetType {
           "pushToken" : pushToken
         ],
         encoding: JSONEncoding.default)
+        
+    case let .postOnboarding(jobField, birthYear, gender):
+      return .requestJSONEncodable(OnboardingRequest(
+        jobField: jobField,
+        birthYear: birthYear,
+        gender: gender
+      ))
     }
   }
 }
