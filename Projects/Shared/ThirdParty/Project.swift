@@ -16,7 +16,6 @@ let project = Project.make(
             implements: .ThirdParty,
             factory: .init(
                 dependencies: [
-                    .external(externalDependency: .composableArchitecture),
                     .external(externalDependency: .kakaoSDK),
                     .external(externalDependency: .firebaseAnalytics),
                     .external(externalDependency: .firebaseMessaging),

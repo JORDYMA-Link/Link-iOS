@@ -13,6 +13,10 @@ import DependencyPlugin
 let project = Project.make(
     name: ModulePath.Shared.Common.rawValue,
     targets: [
-        .shared(implements: .Common, factory: .init())
+        .shared(implements: .Common, factory: .init(
+            dependencies: [
+                .external(externalDependency: .composableArchitecture)
+            ]
+        ))
     ]
 )
