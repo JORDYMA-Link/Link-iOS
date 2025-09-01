@@ -20,21 +20,34 @@ public struct OnboardingSubjectFeature {
   @ObservableState
   public struct State: Equatable {
     var subjects: Set<String> = []
+    let jobField: String
+    let ageGroup: String
+    let gender: String
     
-    public init() {}
+    public init(
+      jobField: String,
+      ageGroup: String,
+      gender: String
+    ) {
+      self.jobField = jobField
+      self.ageGroup = ageGroup
+      self.gender = gender
+    }
   }
   
   public enum Action: BindableAction, Equatable {
     // MARK: User Action
     case binding(BindingAction<State>)
     case selectSubject(String)
+    case backButtonTapped
     case skipButtonTapped
     case confirmButtonTapped
     
     // MARK: Delegate Action
     public enum Delegate {
-      case moveToOnboardingFlow
-      case moveToMainTab
+      case backButtonTapped
+      case skipButtonTapped
+      case confirmButtonTapped
     }
     
     case delegate(Delegate)
@@ -43,6 +56,7 @@ public struct OnboardingSubjectFeature {
   @Dependency(AnalyticsClient.self) private var analyticsClient
   @Dependency(\.userDefaultsClient) private var userDefault
   @Dependency(\.folderClient) private var folderClient
+  @Dependency(\.userClient) private var userClient
   
   private enum ThrottleId {
     case confirmButton
@@ -64,10 +78,13 @@ public struct OnboardingSubjectFeature {
         }
         return .none
         
+      case .backButtonTapped:
+        return .send(.delegate(.backButtonTapped))
+        
       case .skipButtonTapped:
         skipButtonTappedLog()
         
-        return .send(.delegate(.moveToMainTab))
+        return .send(.delegate(.skipButtonTapped))
         
       case .confirmButtonTapped:
         confirmButtonTappedLog()
@@ -76,8 +93,9 @@ public struct OnboardingSubjectFeature {
           operation: { [state] send in
             let topics = state.subjects.map { $0 }
             _ = try await folderClient.postOnboardingFolder(topics)
-
-            return await send(.delegate(.moveToOnboardingFlow))
+            _ = try await userClient.postOnboarding(state.jobField, state.ageGroup, state.gender)
+            
+            return await send(.delegate(.confirmButtonTapped))
           },
           catch: { error, send in
             print(error)

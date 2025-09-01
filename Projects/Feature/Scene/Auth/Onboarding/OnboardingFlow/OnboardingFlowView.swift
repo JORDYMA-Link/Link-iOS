@@ -14,23 +14,6 @@ import Common
 import ComposableArchitecture
 
 public struct OnboardingFlowView: View {
-  enum OnboardingType: CaseIterable {
-    case onboarding1
-    case onboarding2
-    case onboarding3
-    
-    var image: Image {
-      switch self {
-      case .onboarding1:
-        return CommonFeature.Images.onBoarding1
-      case .onboarding2:
-        return CommonFeature.Images.onBoarding2
-      case .onboarding3:
-        return CommonFeature.Images.onBoarding3
-      }
-    }
-  }
-  
   @Perception.Bindable var store: StoreOf<OnboardingFlowFeature>
   
   public init(store: StoreOf<OnboardingFlowFeature>) {
@@ -39,123 +22,82 @@ public struct OnboardingFlowView: View {
   
   public var body: some View {
     WithPerceptionTracking {
-      ZStack {
-        TabView(selection: $store.selectedPage) {
-          ForEach(Array(OnboardingType.allCases.enumerated()), id: \.element) { index, type in
-            onBoardingPageView(type: type)
-              .tag(index)
-          }
+      contentView
+        .animation(.spring, value: store.selectedPage)
+        .toolbar(.hidden, for: .navigationBar)
+        .onAppear {
+          UIScrollView.appearance().bounces = false
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
-        
-        VStack(spacing: 0) {
-          HStack {
-            Spacer()
-            
-            SkipButton {
-              store.send(.skipButtonTapped)
-            }
-          }
-          .padding(.trailing, 16)
-          .padding(.top, UIApplication.topSafeAreaInset + 41)
-          
-          Spacer()
-          
-          HStack {
-            Spacer()
-            
-            if !store.isStart {
-              NextButton {
-                store.send(.nextButtonTapped)
-              }
-            } else {
-              StartButton {
-                store.send(.startButtonTapped)
-              }
-            }
-          }
-          .padding(.trailing, 16)
-          .padding(.bottom, 61)
-        }
-      }
-      .animation(.spring, value: store.selectedPage)
-      .toolbar(.hidden, for: .navigationBar)
-      .ignoresSafeArea(edges: .all)
-      .onAppear {
-        UIScrollView.appearance().bounces = false
+    }
+  }
+  
+  private var contentView: some View {
+    ZStack(alignment: .bottom) {
+      onboardingTabView
+      bottomControlView
+    }
+  }
+  
+  private var onboardingTabView: some View {
+    TabView(selection: $store.selectedPage) {
+      ForEach(Array(OnboardingType.allCases.enumerated()), id: \.element) { index, type in
+        onBoardingPageView(type: type)
+          .tag(index)
       }
     }
+    .tabViewStyle(.page(indexDisplayMode: .never))
+  }
+  
+  private var bottomControlView: some View {
+    VStack {
+      pageIndicator
+      Spacer()
+      actionButton
+    }
+  }
+  
+  private var pageIndicator: some View {
+    OnboardingType.allCases[store.selectedPage].indicatorImage
+      .padding(.vertical, 24)
+  }
+  
+  private var actionButton: some View {
+    BKRoundedButton(
+      buttonType: store.selectedPage < 4 ? .black : .main,
+      title: store.selectedPage < 4 ? "다음 (\(store.selectedPage + 1)/5)" : "블링크 시작하기",
+      confirmAction: { store.send(store.selectedPage < 4 ? .nextButtonTapped : .startButtonTapped) }
+    )
+    .padding([.horizontal, .bottom], 16)
   }
   
   private func onBoardingPageView(type: OnboardingType) -> some View {
-    type.image
-      .resizable()
-      .aspectRatio(contentMode: .fill)
-      .ignoresSafeArea(edges: .all)
-  }
-}
-
-extension OnboardingFlowView {
-  private struct SkipButton: View {
-    private var action: () -> Void
-    
-    init(action: @escaping () -> Void) {
-      self.action = action
-    }
-    
-    var body: some View {
-      Button {
-        action()
-      } label: {
-        Text("건너뛰기")
-          .foregroundStyle(Color.white)
-          .font(.semiBold(size: ._16))
-      }
-    }
-  }
-  
-  private struct NextButton: View {
-    private var action: () -> Void
-    
-    init(action: @escaping () -> Void) {
-      self.action = action
-    }
-    
-    var body: some View {
-      Button {
-        action()
-      } label: {
-        BKIcon(image: CommonFeature.Images.icoChevronRight, color: .bkColor(.main300), size: CGSize(width: 24, height: 24))
-          .padding()
-          .background(Color.white)
-          .clipShape(Circle())
-      }
-    }
-  }
-  
-  private struct StartButton: View {
-    private var action: () -> Void
-    
-    init(action: @escaping () -> Void) {
-      self.action = action
-    }
-    
-    var body: some View {
-      Button {
-        action()
-      } label: {
-        HStack(spacing: 4) {
-          Text("시작하기")
-            .foregroundStyle(Color.bkColor(.main300))
-            .font(.semiBold(size: ._16))
-          
-          BKIcon(image: CommonFeature.Images.icoChevronRight, color: .bkColor(.main300), size: CGSize(width: 24, height: 24))
-        }
-        .padding(.vertical, 14)
-        .padding(.horizontal, 12)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 100, style: .continuous))
-      }
+    VStack(alignment: .center, spacing: 0) {
+      Spacer(minLength: 50)
+      
+      BKText(
+        text: type.title,
+        font: .semiBold,
+        size: ._28,
+        lineHeight: 38,
+        color: .black
+      )
+      .lineLimit(1)
+      
+      BKText(
+        text: type.subTitle,
+        font: .regular,
+        size: ._16,
+        lineHeight: 24,
+        color: .black
+      )
+      .lineLimit(2)
+      .multilineTextAlignment(.center)
+      
+      type.image
+        .resizable()
+        .scaledToFit()
+      
+      Spacer()
     }
   }
 }

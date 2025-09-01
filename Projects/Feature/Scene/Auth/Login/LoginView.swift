@@ -30,9 +30,7 @@ public struct LoginView: View {
           Spacer()
           
           logo
-          title
           
-          Spacer()
           Spacer()
           Spacer()
           
@@ -78,10 +76,21 @@ public struct LoginView: View {
   }
   
   private var logo: some View {
-    CommonFeature.Images.icoAppLogo
-      .resizable()
-      .scaledToFit()
-      .frame(width: 100, height: 100)
+    VStack(alignment: .center, spacing: 20) {
+      BKText(
+        text: "링크가 지식이 되는 순간",
+        font: .semiBold,
+        size: ._20,
+        lineHeight: 28,
+        color: .bkColor(.main300)
+      )
+      .frame(maxWidth: .infinity, alignment: .center)
+      
+      CommonFeature.Images.icoLoginLogo
+        .resizable()
+        .scaledToFit()
+        .frame(width: 240, height: 54)
+    }
   }
   
   private var title: some View {
@@ -153,10 +162,14 @@ private struct SocialLoginButton: View {
             .scaledToFill()
             .frame(width: 20, height: 20)
           
+          Spacer()
+          
           Text(buttonTitle)
             .font(.semiBold(size: ._16))
             .foregroundStyle(titleColor)
-            .frame(maxWidth: .infinity, alignment: .center)
+            .frame(alignment: .center)
+          
+          Spacer()
         }
         .padding(EdgeInsets(top: 14, leading: 16, bottom: 14, trailing: 16))
       }
