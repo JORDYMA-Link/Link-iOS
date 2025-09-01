@@ -98,12 +98,14 @@ extension OnboardingUserInfoView {
   private var jobFieldSection: some View {
     OnboardingUserInfoFlowLayout(verticalSpacing: 8, horizontalSpacing: 6) {
       ForEach(store.jobFields, id: \.self) { jobField in
-        sectionItem(
-          title: jobField,
-          isSelected: store.selectedJobField == jobField
-        )
-        .onTapGesture {
-          store.send(.jobFieldItemTapped(jobField), animation: .spring)
+        WithPerceptionTracking {
+          sectionItem(
+            title: jobField,
+            isSelected: store.selectedJobField == jobField
+          )
+          .onTapGesture {
+            store.send(.jobFieldItemTapped(jobField), animation: .spring)
+          }
         }
       }
     }
@@ -113,12 +115,14 @@ extension OnboardingUserInfoView {
   private var ageGroupSection: some View {
     OnboardingUserInfoFlowLayout(verticalSpacing: 8, horizontalSpacing: 6) {
       ForEach(store.ageGroups, id: \.self) { ageGroup in
-        sectionItem(
-          title: ageGroup,
-          isSelected: store.selectedAgeGroup == ageGroup
-        )
-        .onTapGesture {
-          store.send(.ageGroupItemTapped(ageGroup), animation: .spring)
+        WithPerceptionTracking {
+          sectionItem(
+            title: ageGroup,
+            isSelected: store.selectedAgeGroup == ageGroup
+          )
+          .onTapGesture {
+            store.send(.ageGroupItemTapped(ageGroup), animation: .spring)
+          }
         }
       }
     }
@@ -128,12 +132,14 @@ extension OnboardingUserInfoView {
   private var genderSection: some View {
     OnboardingUserInfoFlowLayout(verticalSpacing: 8, horizontalSpacing: 6) {
       ForEach(store.genders, id: \.self) { gender in
-        sectionItem(
-          title: gender,
-          isSelected: store.selectedGender == gender
-        )
-        .onTapGesture {
-          store.send(.genderItemTapped(gender), animation: .spring)
+        WithPerceptionTracking {
+          sectionItem(
+            title: gender,
+            isSelected: store.selectedGender == gender
+          )
+          .onTapGesture {
+            store.send(.genderItemTapped(gender), animation: .spring)
+          }
         }
       }
     }

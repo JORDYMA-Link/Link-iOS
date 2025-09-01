@@ -96,10 +96,12 @@ public struct OnboardingSubjectView: View {
     
     LazyVGrid(columns: gridItem, spacing: 8) {
       ForEach(subjects, id: \.1) { item in
-        subjectItem(emoji: item.0, title: item.1, isSelected: store.subjects.contains(item.1))
-          .onTapGesture {
-            store.send(.selectSubject(item.1), animation: .spring)
-          }
+        WithPerceptionTracking {
+          subjectItem(emoji: item.0, title: item.1, isSelected: store.subjects.contains(item.1))
+            .onTapGesture {
+              store.send(.selectSubject(item.1), animation: .spring)
+            }
+        }
       }
     }
     .padding(.vertical, 12)
