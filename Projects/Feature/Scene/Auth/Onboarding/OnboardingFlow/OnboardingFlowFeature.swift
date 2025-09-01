@@ -34,7 +34,7 @@ public struct OnboardingFlowFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
-      case moveToOnboardingSubject
+      case moveToOnboardingInfo
     }
     
     case delegate(Delegate)
@@ -64,7 +64,7 @@ public struct OnboardingFlowFeature {
       case .startButtonTapped:
         startButtonTappedLog()
         
-        return .send(.delegate(.moveToOnboardingSubject))
+        return .send(.delegate(.moveToOnboardingInfo))
           .throttle(id: ThrottleId.startButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case .setPage:

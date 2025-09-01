@@ -20,7 +20,7 @@ public struct RootFeature {
   public enum State: Equatable {
     case splash(SplashFeature.State = .init())
     case login(LoginFeature.State = .init())
-    case onBoardingSubject(OnboardingSubjectFeature.State = .init())
+    case onBoardingInfo(OnboardingUserInfoFeature.State = .init())
     case onBoardingFlow(OnboardingFlowFeature.State = .init())
     case mainTab(BKTabFeature.State = .init())
     
@@ -48,7 +48,7 @@ public struct RootFeature {
     case splash(SplashFeature.Action)
     case login(LoginFeature.Action)
     case onBoardingFlow(OnboardingFlowFeature.Action)
-    case onBoardingSubject(OnboardingSubjectFeature.Action)
+    case onBoardingInfo(OnboardingUserInfoFeature.Action)
     case mainTab(BKTabFeature.Action)
   }
   
@@ -100,7 +100,10 @@ public struct RootFeature {
         
         /// - MainTab Delegate
       case .mainTab(.delegate(.logout)), .mainTab(.delegate(.signout)):
-        return .run { send in await send(.changeScreen(.login())) }
+        return .run { send in
+          try await Task.sleep(for: .milliseconds(100))
+          await send(.changeScreen(.login()))
+        }
         
         /// - Login Delegate
       case .login(.delegate(.moveToOnboarding)):
@@ -110,15 +113,15 @@ public struct RootFeature {
         return .send(.changeScreen(.mainTab()))
         
         /// - OnBoardingFlow Delegate
-      case .onBoardingFlow(.delegate(.moveToOnboardingSubject)):
-        return .send(.changeScreen(.onBoardingSubject()), animation: .spring)
+      case .onBoardingFlow(.delegate(.moveToOnboardingInfo)):
+        return .send(.changeScreen(.onBoardingInfo()))
         
-        /// - OnBoardingSubject Delegate
-      case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
-        return .send(.changeScreen(.onBoardingFlow()), animation: .spring)
-        
-      case .onBoardingSubject(.delegate(.moveToMainTab)):
-        return .send(.changeScreen(.mainTab()))
+        /// - OnBoardingInfo Delegate
+      case .onBoardingInfo(.delegate(.moveToMainTab)):
+        return .run { send in
+          try await Task.sleep(for: .milliseconds(100))
+          await send(.changeScreen(.mainTab()))
+        }
         
       default:
         return .none
@@ -126,8 +129,8 @@ public struct RootFeature {
     }
     .ifCaseLet(\.splash, action: \.splash) { SplashFeature() }
     .ifCaseLet(\.login, action: \.login) { LoginFeature() }
-    .ifCaseLet(\.onBoardingSubject, action: \.onBoardingSubject) { OnboardingSubjectFeature() }
     .ifCaseLet(\.onBoardingFlow, action: \.onBoardingFlow) { OnboardingFlowFeature() }
+    .ifCaseLet(\.onBoardingInfo, action: \.onBoardingInfo) { OnboardingUserInfoFeature() }
     .ifCaseLet(\.mainTab, action: \.mainTab) { BKTabFeature() }
   }
 }
