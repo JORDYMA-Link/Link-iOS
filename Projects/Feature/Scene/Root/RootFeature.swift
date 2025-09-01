@@ -47,8 +47,8 @@ public struct RootFeature {
     // MARK: Child Action
     case splash(SplashFeature.Action)
     case login(LoginFeature.Action)
-    case onBoardingSubject(OnboardingSubjectFeature.Action)
     case onBoardingFlow(OnboardingFlowFeature.Action)
+    case onBoardingSubject(OnboardingSubjectFeature.Action)
     case mainTab(BKTabFeature.Action)
   }
   
@@ -104,10 +104,14 @@ public struct RootFeature {
         
         /// - Login Delegate
       case .login(.delegate(.moveToOnboarding)):
-        return .send(.changeScreen(.onBoardingSubject()))
+        return .send(.changeScreen(.onBoardingFlow()))
         
       case .login(.delegate(.moveToMainTab)):
         return .send(.changeScreen(.mainTab()))
+        
+        /// - OnBoardingFlow Delegate
+      case .onBoardingFlow(.delegate(.moveToOnboardingSubject)):
+        return .send(.changeScreen(.onBoardingSubject()), animation: .spring)
         
         /// - OnBoardingSubject Delegate
       case .onBoardingSubject(.delegate(.moveToOnboardingFlow)):
@@ -115,10 +119,6 @@ public struct RootFeature {
         
       case .onBoardingSubject(.delegate(.moveToMainTab)):
         return .send(.changeScreen(.mainTab()))
-        
-        /// - OnBoardingFlow Delegate
-      case .onBoardingFlow(.delegate(.moveToMainTab)):
-        return .send(.changeScreen(.mainTab()), animation: .spring)
         
       default:
         return .none

@@ -30,13 +30,13 @@ public struct RootView: View {
           if let store = store.scope(state: \.login, action: \.login) {
             LoginView(store: store)
           }
-        case .onBoardingSubject:
-          if let store = store.scope(state: \.onBoardingSubject, action: \.onBoardingSubject) {
-            OnboardingSubjectView(store: store)
-          }
         case .onBoardingFlow:
           if let store = store.scope(state: \.onBoardingFlow, action: \.onBoardingFlow) {
             OnboardingFlowView(store: store)
+          }
+        case .onBoardingSubject:
+          if let store = store.scope(state: \.onBoardingSubject, action: \.onBoardingSubject) {
+            OnboardingSubjectView(store: store)
           }
         case .mainTab:
           if let store = store.scope(state: \.mainTab, action: \.mainTab) {

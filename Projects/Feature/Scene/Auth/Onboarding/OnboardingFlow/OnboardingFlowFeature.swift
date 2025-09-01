@@ -20,16 +20,12 @@ public struct OnboardingFlowFeature {
   @ObservableState
   public struct State: Equatable {
     var selectedPage = 0
-    var isStart: Bool {
-      selectedPage == 2 ? true : false
-    }
     
     public init() {}
   }
   
   public enum Action: BindableAction, Equatable {
     case binding(BindingAction<State>)
-    case skipButtonTapped
     case nextButtonTapped
     case startButtonTapped
     
@@ -38,7 +34,7 @@ public struct OnboardingFlowFeature {
     
     // MARK: Delegate Action
     public enum Delegate {
-      case moveToMainTab
+      case moveToOnboardingSubject
     }
     
     case delegate(Delegate)
@@ -65,16 +61,10 @@ public struct OnboardingFlowFeature {
         
         return .send(.setPage)
         
-      case .skipButtonTapped:
-        skipButtonTappedLog()
-        
-        return .send(.delegate(.moveToMainTab))
-          .throttle(id: ThrottleId.skipButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
-        
       case .startButtonTapped:
         startButtonTappedLog()
         
-        return .send(.delegate(.moveToMainTab))
+        return .send(.delegate(.moveToOnboardingSubject))
           .throttle(id: ThrottleId.startButton, for: .seconds(1), scheduler: DispatchQueue.main, latest: false)
         
       case .setPage:
