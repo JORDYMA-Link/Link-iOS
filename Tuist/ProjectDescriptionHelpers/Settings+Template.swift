@@ -38,6 +38,30 @@ public extension ProjectDescription.Settings {
         )
     }
     
+    static var extensionSettings: Self {
+        return .settings(
+            base: [
+                "DEVELOPMENT_TEAM": "LQ5JVAULLP",
+                "CODE_SIGN_STYLE": "Manual",
+                "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
+                "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                "ENABLE_BITCODE": "NO",
+                "SWIFT_VERSION": .string("6.0"),
+                "SKIP_INSTALL": "YES"
+            ],
+            configurations: [
+                .release(
+                    name: .release,
+                    xcconfig: "./xcconfigs/Blink.release.xcconfig"
+                ),
+                .debug(
+                    name: .debug,
+                    xcconfig: "./xcconfigs/Blink.debug.xcconfig"
+                )
+            ]
+        )
+    }
+    
     static var projectSettings: Self {
         return .settings(
             base: [

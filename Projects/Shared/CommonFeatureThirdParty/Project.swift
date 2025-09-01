@@ -14,7 +14,6 @@ let project = Project.make(
     targets: [
         .shared(implements: .CommonFeatureThirdParty, factory: .init(
             dependencies: [
-                .external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .fSPagerViewSwift),
                 .external(externalDependency: .kingFisher),
                 .external(externalDependency: .lottie)
