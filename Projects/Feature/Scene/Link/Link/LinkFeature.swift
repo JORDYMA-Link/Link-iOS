@@ -219,7 +219,7 @@ public struct LinkFeature {
         
       case let .openSurveyFormButtonTapped(surveyFormURL):
         return .run { send in
-          await urlOpenHandlerClient.openURL(urlType: .custom(surveyFormURL))
+          await urlOpenHandlerClient.openURL(.custom(surveyFormURL))
         }
         
       case .menuButtonTapped:
