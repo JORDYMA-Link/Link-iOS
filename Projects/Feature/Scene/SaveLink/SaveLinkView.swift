@@ -45,16 +45,17 @@ public struct SaveLinkView: View {
         .if(store.isLoading) { view in
           view.progressBackground()
         }
-        .fullScreenCover(isPresented: $store.isAdPresented) {
-          WithPerceptionTracking {
-            BKGoogleAdView(
-              isPresented: $store.isAdPresented,
-              interstitialAd: $store.ad,
-              dismissAdScreen: { store.send(.adDismissButtonTapped) }
-            )
-            .presentationClearBackground()
-          }
-        }
+        // MARK: - 광고 관련 로직 임시 제거 (원복 가능하도록 주석 처리)
+        // .fullScreenCover(isPresented: $store.isAdPresented) {
+        //   WithPerceptionTracking {
+        //     BKGoogleAdView(
+        //       isPresented: $store.isAdPresented,
+        //       interstitialAd: $store.ad,
+        //       dismissAdScreen: { store.send(.adDismissButtonTapped) }
+        //     )
+        //     .presentationClearBackground()
+        //   }
+        // }
         .animation(.spring, value: store.isPastoboardButtonPresented)
         .onAppear {
           store.send(.onAppear)
