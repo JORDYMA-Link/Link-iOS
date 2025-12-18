@@ -31,7 +31,7 @@ struct BKGoogleAdView: UIViewControllerRepresentable {
   func makeUIViewController(context: Context) -> UIViewController {    
     DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
       if let interstitialAd {
-        interstitialAd.ad.present(fromRootViewController: viewController)
+        interstitialAd.ad.present(from: viewController)
       }
     }
     
@@ -46,16 +46,16 @@ struct BKGoogleAdView: UIViewControllerRepresentable {
 }
 
 extension BKGoogleAdView {
-  final class Coordinator: NSObject, GADFullScreenContentDelegate {
+  final class Coordinator: NSObject, FullScreenContentDelegate {
     private let parent: BKGoogleAdView
-    
+
     init(parent: BKGoogleAdView) {
       self.parent = parent
       super.init()
       parent.interstitialAd?.ad.fullScreenContentDelegate = self
     }
-    
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+
+    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
       parent.isPresented.toggle()
       parent.dismissAdScreen()
     }
