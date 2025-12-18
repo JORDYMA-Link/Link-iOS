@@ -23,7 +23,7 @@ extension GoogleMobileAdsClient: DependencyKey {
   private static func live() -> GoogleMobileAdsClient {
     return GoogleMobileAdsClient(
       start: {
-        await GADMobileAds.sharedInstance().start()
+        await MobileAds.shared.start()
       },
       load: {
         var adUnitID: String {
@@ -33,10 +33,10 @@ extension GoogleMobileAdsClient: DependencyKey {
           return APIKey.googleAdUnitID
       #endif
         }
-        
+
         do {
-          let ad = try await GADInterstitialAd.load(withAdUnitID: adUnitID, request: GADRequest())
-          
+          let ad = try await InterstitialAd.load(with: adUnitID, request: Request())
+
           return GoogleAd(ad: ad)
         } catch {
           throw error
@@ -47,9 +47,9 @@ extension GoogleMobileAdsClient: DependencyKey {
 }
 
 public struct GoogleAd: Equatable {
-  public var ad: GADInterstitialAd
-  
-  public init(ad: GADInterstitialAd) {
+  public var ad: InterstitialAd
+
+  public init(ad: InterstitialAd) {
     self.ad = ad
   }
 }

@@ -21,7 +21,6 @@ struct LinkTextField: View {
   private let isDisabled: Bool
   
   @State private var isHighlighted: Bool = false
-  private let maxCharacterCount = 500
   
   init(
     content: Binding<String>,
@@ -63,11 +62,6 @@ struct LinkTextField: View {
     )
     .disabled(isDisabled)
     .focused($isFocused)
-    .onChange(of: content) { newText in
-      if newText.count > maxCharacterCount {
-        content = String(newText.prefix(maxCharacterCount))
-      }
-    }
     .onChange(of: isFocused) { newValue in
       if type == .memo {
         isHighlighted = newValue

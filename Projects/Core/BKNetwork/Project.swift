@@ -10,12 +10,13 @@ import ProjectDescriptionHelpers
 import DependencyPlugin
 
 let project = Project.make(
-    name: ModulePath.Core.Network.rawValue,
+    name: ModulePath.Core.BKNetwork.rawValue,
     targets: [
-        .core(implements: .Network, factory: .init(
+        .core(implements: .BKNetwork, factory: .init(
             dependencies: [
                 .external(externalDependency: .moya),
-                .core(implements: .Models)
+                .core(implements: .Models),
+                .shared(implements: .Common)
             ]
         ))
     ]

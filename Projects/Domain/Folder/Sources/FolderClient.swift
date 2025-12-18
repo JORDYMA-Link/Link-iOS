@@ -10,7 +10,7 @@ import Foundation
 import DomainFolderInterface
 import Models
 import Services
-import Network
+import BKNetwork
 
 import Dependencies
 

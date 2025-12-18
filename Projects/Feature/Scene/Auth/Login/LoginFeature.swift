@@ -11,6 +11,7 @@ import Foundation
 import Services
 import Models
 import Analytics
+import BKNetwork
 
 import ComposableArchitecture
 
