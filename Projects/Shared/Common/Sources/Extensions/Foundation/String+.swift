@@ -98,28 +98,40 @@ public extension String {
     font: Font? = nil,
     color: Color? = nil
   ) -> AttributedString {
+    // 마크다운 헤딩(#, ##, ###)을 볼드 마커(**)로 변환
+    let headingPattern = "(?m)^(#{1,3})\\s+(.+)$"
+    var processedText = self
+    if let headingRegex = try? NSRegularExpression(pattern: headingPattern) {
+      let range = NSRange(processedText.startIndex..., in: processedText)
+      processedText = headingRegex.stringByReplacingMatches(
+        in: processedText,
+        range: range,
+        withTemplate: "**$2**"
+      )
+    }
+
     let pattern = "\\*\\*(.*?)\\*\\*"
     let regex = try! NSRegularExpression(pattern: pattern)
-    
-    let cleanText = self.replacingOccurrences(of: "**", with: "")
+
+    let cleanText = processedText.replacingOccurrences(of: "**", with: "")
     var attributedString = AttributedString(cleanText)
-    
-    let matches = regex.matches(in: self, range: NSRange(self.startIndex..., in: self))
-    
+
+    let matches = regex.matches(in: processedText, range: NSRange(processedText.startIndex..., in: processedText))
+
     for match in matches {
-      if let range = Range(match.range(at: 1), in: self) {
-        let boldText = String(self[range])
-        
+      if let range = Range(match.range(at: 1), in: processedText) {
+        let boldText = String(processedText[range])
+
         if let startRange = cleanText.range(of: boldText) {
           let startIndex = cleanText.distance(from: cleanText.startIndex, to: startRange.lowerBound)
           let length = boldText.count
-          
+
           if let attributedRange = Range(NSRange(location: startIndex, length: length), in: attributedString) {
-            
+
             if let font = font {
               attributedString[attributedRange].font = font
             }
-            
+
             if let color = color {
               attributedString[attributedRange].foregroundColor = color
             }
@@ -127,7 +139,7 @@ public extension String {
         }
       }
     }
-    
+
     return attributedString
   }
 }
