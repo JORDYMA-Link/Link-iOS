@@ -8,12 +8,13 @@ let project = Project.make(
         .app(factory: .init(
             dependencies: [
                 .feature,
+                .shared(implements: .ThirdParty),
                 .target(name: "ShareExtension")
             ]
         )),
         .shareExtension(factory: .init(
             dependencies: [
-                .core(implements: .Network)
+                .core(implements: .BKNetwork)
             ]
         ))
     ],

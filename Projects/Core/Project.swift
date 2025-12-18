@@ -17,7 +17,7 @@ let project = Project.make(
             sources: nil,
             dependencies: [
                 .core(implements: .Analytics),
-                .core(implements: .Network),
+                .core(implements: .BKNetwork),
                 .core(implements: .Services)
             ]
         ))

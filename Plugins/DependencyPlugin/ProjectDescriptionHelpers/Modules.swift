@@ -63,9 +63,9 @@ public extension ModulePath {
     enum Core: String, CaseIterable {
         case Analytics
         case Models
-        case Network
+        case BKNetwork
         case Services
-        
+
         public static let name: String = "Core"
     }
 }

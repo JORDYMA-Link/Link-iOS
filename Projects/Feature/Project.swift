@@ -6,7 +6,7 @@ let project = Project.make(
     name: ModulePath.Feature.name,
     targets: [
         .feature(factory: .init(
-            product: .framework,
+            product: .staticFramework,
             sources: ["Scene/**"],
             dependencies: [
                 .domain
