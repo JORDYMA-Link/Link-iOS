@@ -10,6 +10,7 @@ import Foundation
 
 import Analytics
 import Services
+import BKNetwork
 
 import ComposableArchitecture
 
