@@ -9,9 +9,9 @@
 import Foundation
 
 import Analytics
-import BKNetwork
-import Services
 import BKModel
+import FolderClient
+import Services
 
 import BKDesignSystem
 

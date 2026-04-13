@@ -9,6 +9,7 @@
 import Foundation
 
 import BKModel
+import FolderClient
 
 import ComposableArchitecture
 

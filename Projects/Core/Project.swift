@@ -17,8 +17,13 @@ let project = Project.make(
             sources: nil,
             dependencies: [
                 .core(implements: .Analytics),
-                .core(implements: .BKNetwork),
-                .core(implements: .Services)
+                .core(implements: .Services),
+                .core(implements: .UserClient),
+                .core(implements: .AuthClient),
+                .core(implements: .FeedClient),
+                .core(implements: .FolderClient),
+                .core(implements: .LinkClient),
+                .core(implements: .NoticeClient)
             ]
         ))
     ]

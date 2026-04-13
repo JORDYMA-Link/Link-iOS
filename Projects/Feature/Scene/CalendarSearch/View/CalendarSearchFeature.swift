@@ -8,9 +8,10 @@
 
 import Foundation
 
-import BKModel
-import BKDesignSystem
 import Analytics
+import BKDesignSystem
+import BKModel
+import FeedClient
 
 import ComposableArchitecture
 

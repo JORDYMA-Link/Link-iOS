@@ -53,7 +53,15 @@ public extension ModulePath {
     enum Core: String, CaseIterable {
         case Analytics
         case BKNetwork
+        case Clients
         case Services
+        case UserClient
+        case AuthClient
+        case FeedClient
+        case FeedClientInterface
+        case FolderClient
+        case LinkClient
+        case NoticeClient
 
         public static let name: String = "Core"
     }

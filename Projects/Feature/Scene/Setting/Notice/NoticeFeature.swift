@@ -9,6 +9,7 @@
 import SwiftUI
 
 import BKModel
+import NoticeClient
 
 import ComposableArchitecture
 

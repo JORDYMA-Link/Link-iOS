@@ -8,10 +8,11 @@
 
 import Foundation
 
-import BKDesignSystem
 import BKCommon
-import Services
+import BKDesignSystem
 import BKModel
+import FeedClient
+import Services
 
 import ComposableArchitecture
 

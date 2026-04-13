@@ -196,9 +196,8 @@ public extension Target {
     
     static func core(implements module: ModulePath.Core, factory: TargetFactory) -> Self {
         var newFactory = factory
-        //        newFactory.name = ModulePath.Core.name + module.rawValue
         newFactory.name = module.rawValue
-        
+
         return make(factory: newFactory)
     }
     

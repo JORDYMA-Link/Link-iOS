@@ -8,8 +8,10 @@
 
 import Foundation
 
+import AuthClient
 import BKModel
 import Services
+import UserClient
 
 import ComposableArchitecture
 

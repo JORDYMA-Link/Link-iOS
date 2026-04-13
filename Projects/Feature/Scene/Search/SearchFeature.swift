@@ -9,10 +9,10 @@
 import Foundation
 
 import Analytics
-import BKModel
-import Services
-
 import BKDesignSystem
+import BKModel
+import FeedClient
+import Services
 
 import ComposableArchitecture
 
