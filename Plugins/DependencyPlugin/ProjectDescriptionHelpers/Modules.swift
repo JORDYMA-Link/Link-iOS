@@ -40,7 +40,6 @@ public extension ModulePath {
 public extension ModulePath {
     enum Core: String, CaseIterable {
         case Analytics
-        case Models
         case BKNetwork
         case Services
 
@@ -52,6 +51,7 @@ public extension ModulePath {
 
 public extension ModulePath {
     enum Shared: String, CaseIterable {
+        case BKModel
         case Common
         case CommonFeature
         case CommonFeatureThirdParty

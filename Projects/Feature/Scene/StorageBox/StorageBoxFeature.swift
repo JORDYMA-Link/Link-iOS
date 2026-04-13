@@ -11,7 +11,7 @@ import Foundation
 import Analytics
 import BKNetwork
 import Services
-import Models
+import BKModel
 
 import CommonFeature
 

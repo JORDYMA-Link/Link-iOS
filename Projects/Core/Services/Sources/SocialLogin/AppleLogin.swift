@@ -9,7 +9,7 @@
 import Foundation
 import AuthenticationServices
 
-import Models
+import BKModel
 
 public enum AppleErrorType: Error {  
   case invalidToken

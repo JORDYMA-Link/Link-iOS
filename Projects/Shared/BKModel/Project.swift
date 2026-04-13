@@ -10,11 +10,11 @@ import ProjectDescriptionHelpers
 import DependencyPlugin
 
 let project = Project.make(
-    name: ModulePath.Core.Models.rawValue,
+    name: ModulePath.Shared.BKModel.rawValue,
     targets: [
-        .core(implements: .Models, factory: .init(
+        .shared(implements: .BKModel, factory: .init(
             dependencies: [
-                .shared
+                .shared(implements: .Common)
             ]
         ))
     ]

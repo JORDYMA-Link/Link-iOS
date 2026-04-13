@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Models
+import BKModel
 
 struct FeedChallengeResponse: Decodable {
   private let isVisible: Bool

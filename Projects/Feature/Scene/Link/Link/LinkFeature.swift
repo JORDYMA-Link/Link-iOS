@@ -10,7 +10,7 @@ import Foundation
 
 import Analytics
 import Services
-import Models
+import BKModel
 import CommonFeature
 
 import ComposableArchitecture

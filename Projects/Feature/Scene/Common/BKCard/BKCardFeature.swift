@@ -11,7 +11,7 @@ import Foundation
 import CommonFeature
 import Common
 import Services
-import Models
+import BKModel
 
 import ComposableArchitecture
 

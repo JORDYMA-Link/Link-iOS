@@ -8,7 +8,7 @@
 
 import UIKit
 
-import Models
+import BKModel
 import Services
 import CommonFeature
 

@@ -15,7 +15,7 @@ let project = Project.make(
     targets: [
         .core(implements: .Services, factory: .init(
             dependencies: [
-                .core(implements: .Models),
+                .shared,
                 .shared(implements: .ThirdParty)
             ]
         ))

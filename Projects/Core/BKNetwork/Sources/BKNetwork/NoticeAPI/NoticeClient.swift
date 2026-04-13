@@ -6,7 +6,7 @@
 //  Copyright © 2024 com.kyuchul.blink. All rights reserved.
 //
 
-import Models
+import BKModel
 
 import Dependencies
 import Moya

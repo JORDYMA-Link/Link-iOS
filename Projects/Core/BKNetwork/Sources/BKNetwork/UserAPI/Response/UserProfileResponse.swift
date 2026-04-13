@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Models
+import BKModel
 
 struct UserProfileResponse: Decodable {
   let nickName: String

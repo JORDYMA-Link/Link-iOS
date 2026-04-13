@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Models
+import BKModel
 import Services
 
 import ComposableArchitecture

@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Models
+import BKModel
 
 struct LinkSummaryResponse: Decodable {
   let feedId: Int

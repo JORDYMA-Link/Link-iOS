@@ -9,7 +9,7 @@
 import Foundation
 
 import Services
-import Models
+import BKModel
 import Analytics
 import BKNetwork
 

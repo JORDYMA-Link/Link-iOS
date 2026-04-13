@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Models
+import BKModel
 
 public struct TokenResponse: Decodable {
   public let accessToken: String

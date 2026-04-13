@@ -9,7 +9,7 @@
 import SwiftUI
 
 import CommonFeature
-import Models
+import BKModel
 import Services
 
 struct SummaryStatusItem: View {

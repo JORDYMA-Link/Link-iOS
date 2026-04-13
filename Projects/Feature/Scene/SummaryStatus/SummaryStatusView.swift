@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import Models
+import BKModel
 import Services
 import Common
 import CommonFeature

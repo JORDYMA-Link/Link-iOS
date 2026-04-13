@@ -15,8 +15,7 @@ let project = Project.make(
         .core(implements: .BKNetwork, factory: .init(
             dependencies: [
                 .external(externalDependency: .moya),
-                .core(implements: .Models),
-                .shared(implements: .Common)
+                .shared
             ]
         ))
     ]

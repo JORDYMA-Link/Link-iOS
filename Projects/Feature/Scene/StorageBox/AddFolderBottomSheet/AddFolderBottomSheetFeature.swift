@@ -9,7 +9,7 @@
 import Foundation
 
 import Common
-import Models
+import BKModel
 import Services
 
 import ComposableArchitecture

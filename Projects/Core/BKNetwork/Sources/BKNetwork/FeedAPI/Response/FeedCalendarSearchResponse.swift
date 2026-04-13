@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Models
+import BKModel
 
 // MARK: - FeedCalendarSearchResponse
 struct FeedCalendarSearchResponse: Decodable {
