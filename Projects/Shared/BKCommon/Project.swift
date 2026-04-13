@@ -11,9 +11,9 @@ import DependencyPlugin
 
 
 let project = Project.make(
-    name: ModulePath.Shared.Common.rawValue,
+    name: ModulePath.Shared.BKCommon.rawValue,
     targets: [
-        .shared(implements: .Common, factory: .init(
+        .shared(implements: .BKCommon, factory: .init(
             dependencies: [
                 .external(externalDependency: .composableArchitecture)
             ]

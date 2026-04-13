@@ -8,7 +8,7 @@
 
 import UIKit
 
-import Common
+import BKCommon
 
 import Dependencies
 import DependenciesMacros

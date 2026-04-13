@@ -14,7 +14,7 @@ let project = Project.make(
     targets: [
         .shared(implements: .BKModel, factory: .init(
             dependencies: [
-                .shared(implements: .Common)
+                .shared(implements: .BKCommon)
             ]
         ))
     ]

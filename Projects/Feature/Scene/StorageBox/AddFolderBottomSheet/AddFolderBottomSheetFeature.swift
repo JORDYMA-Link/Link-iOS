@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Common
+import BKCommon
 import BKModel
 import Services
 

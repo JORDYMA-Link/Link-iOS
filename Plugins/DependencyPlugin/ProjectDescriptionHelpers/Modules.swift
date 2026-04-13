@@ -51,8 +51,8 @@ public extension ModulePath {
 
 public extension ModulePath {
     enum Shared: String, CaseIterable {
+        case BKCommon
         case BKModel
-        case Common
         case CommonFeature
         case CommonFeatureThirdParty
         case ThirdParty

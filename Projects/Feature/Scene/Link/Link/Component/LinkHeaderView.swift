@@ -11,7 +11,7 @@ import SwiftUI
 import CommonFeature
 import Services
 import BKModel
-import Common
+import BKCommon
 
 import ComposableArchitecture
 

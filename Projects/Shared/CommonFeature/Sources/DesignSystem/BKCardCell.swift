@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import Common
+import BKCommon
 
 public struct BKCardCell: View {
   private var sourceTitle: String

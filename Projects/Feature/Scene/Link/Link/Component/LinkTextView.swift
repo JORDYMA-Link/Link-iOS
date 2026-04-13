@@ -9,7 +9,7 @@
 import SwiftUI
 
 import CommonFeature
-import Common
+import BKCommon
 
 struct LinkTextView: View {
   private let content: String

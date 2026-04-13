@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import Common
+import BKCommon
 
 public enum HapticType {
   case impact(UIImpactFeedbackGenerator.FeedbackStyle)

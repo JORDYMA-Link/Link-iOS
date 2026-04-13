@@ -9,7 +9,7 @@
 import SwiftUI
 
 import CommonFeature
-import Common
+import BKCommon
 
 import ComposableArchitecture
 
