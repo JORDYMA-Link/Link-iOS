@@ -10,7 +10,7 @@ import OSLog
 
 import FirebaseAnalytics
 
-final class AnalyticsManager {
+final class AnalyticsManager: @unchecked Sendable {
   static let shared = AnalyticsManager()
   private let logger: Logger
   private var isEnableDebug: Bool {

@@ -16,7 +16,7 @@ let project = Project.make(
             product: .staticFramework,
             sources: nil,
             dependencies: [
-                .core(implements: .Analytics),
+                .core(implements: .AnalyticsClient),
                 .core(implements: .Services),
                 .core(implements: .UserClient),
                 .core(implements: .AuthClient),

@@ -17,7 +17,6 @@ let project = Project.make(
             factory: .init(
                 dependencies: [
                     .external(externalDependency: .kakaoSDK),
-                    .external(externalDependency: .firebaseAnalytics),
                     .external(externalDependency: .firebaseMessaging),
                     .external(externalDependency: .googleMobileAds),
                     .external(externalDependency: .introspect),

@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Analytics
+import AnalyticsClient
 import Services
 
 import ComposableArchitecture

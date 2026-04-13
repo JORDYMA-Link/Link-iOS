@@ -5,6 +5,13 @@ import DependencyPlugin
 let project = Project.make(
     name: ModulePath.Core.Clients.rawValue,
     targets: [
+        .core(implements: .AnalyticsClient, factory: .init(
+            sources: "AnalyticsClient/Sources/**",
+            dependencies: [
+                .shared,
+                .external(externalDependency: .firebaseAnalytics)
+            ]
+        )),
         .core(implements: .UserClient, factory: .init(
             sources: "UserClient/Sources/**",
             dependencies: [

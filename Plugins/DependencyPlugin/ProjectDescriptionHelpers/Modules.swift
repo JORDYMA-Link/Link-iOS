@@ -51,7 +51,7 @@ public extension ModulePath {
 
 public extension ModulePath {
     enum Core: String, CaseIterable {
-        case Analytics
+        case AnalyticsClient
         case BKNetwork
         case Clients
         case Services

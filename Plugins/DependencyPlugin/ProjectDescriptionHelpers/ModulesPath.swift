@@ -41,7 +41,7 @@ public extension ProjectDescription.Path {
     
     static func core(implementation module: ModulePath.Core) -> Self {
         switch module {
-        case .UserClient, .AuthClient, .FeedClient, .FeedClientInterface, .FolderClient, .LinkClient, .NoticeClient:
+        case .AnalyticsClient, .UserClient, .AuthClient, .FeedClient, .FeedClientInterface, .FolderClient, .LinkClient, .NoticeClient:
             return .relativeToRoot("Projects/\(ModulePath.Core.name)/Clients")
         default:
             return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(module.rawValue)")

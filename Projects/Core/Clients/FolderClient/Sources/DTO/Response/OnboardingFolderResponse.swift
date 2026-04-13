@@ -14,8 +14,8 @@ struct OnboardingFolderResponse: Decodable {
   let ids: [Int]
 }
 
-public extension OnboardingFolderResponse {
-  func toDomain() -> OnboardingFolder {
+extension OnboardingFolderResponse {
+  public func toDomain() -> OnboardingFolder {
     return OnboardingFolder(ids: ids)
   }
 }

@@ -28,8 +28,8 @@ extension FolderListResponse {
   }
 }
 
-public extension FolderResponse {
-  func toDomain() -> Folder {
+extension FolderResponse {
+  public func toDomain() -> Folder {
     return Folder(
       id: id,
       name: name,

@@ -8,7 +8,7 @@
 
 import Foundation
 
-import Analytics
+import AnalyticsClient
 import BKModel
 import LinkClient
 import NoticeClient
