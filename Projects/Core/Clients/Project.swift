@@ -98,6 +98,13 @@ let project = Project.make(
                 .external(externalDependency: .kakaoSDKUser)
             ]
         )),
+        .core(client: .GoogleMobileAdsClient, factory: .init(
+            sources: "GoogleMobileAdsClient/Sources/**",
+            dependencies: [
+                .shared,
+                .external(externalDependency: .googleMobileAds)
+            ]
+        )),
         .core(client: .NoticeClient, factory: .init(
             sources: "NoticeClient/Sources/**",
             dependencies: [

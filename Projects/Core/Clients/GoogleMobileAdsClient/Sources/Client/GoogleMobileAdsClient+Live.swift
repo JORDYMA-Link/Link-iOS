@@ -1,5 +1,5 @@
 //
-//  GoogleAdsClient.swift
+//  GoogleMobileAdsClient+Live.swift
 //  Services
 //
 //  Created by kyuchul on 11/30/24.
@@ -9,14 +9,9 @@
 import Foundation
 import GoogleMobileAds
 
-import Dependencies
-import DependenciesMacros
+import BKCommon
 
-@DependencyClient
-public struct GoogleMobileAdsClient {
-  public var start: @Sendable () async -> Void
-  public var load: @Sendable () async throws -> GoogleAd
-}
+import Dependencies
 
 extension GoogleMobileAdsClient: DependencyKey {
   public static var liveValue: GoogleMobileAdsClient = live()
@@ -30,7 +25,7 @@ extension GoogleMobileAdsClient: DependencyKey {
       #if DEBUG
           return "ca-app-pub-3940256099942544/4411468910"
       #else
-          return APIKey.googleAdUnitID
+          return Bundle.infoValue(for: "GOOGLE_AD_UNITID")
       #endif
         }
 
@@ -43,13 +38,5 @@ extension GoogleMobileAdsClient: DependencyKey {
         }
       }
     )
-  }
-}
-
-public struct GoogleAd: Equatable {
-  public var ad: InterstitialAd
-
-  public init(ad: InterstitialAd) {
-    self.ad = ad
   }
 }

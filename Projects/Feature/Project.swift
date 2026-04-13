@@ -10,7 +10,9 @@ let project = Project.make(
             sources: ["Scene/**"],
             dependencies: [
                 .core,
-                .designSystem
+                .designSystem,
+                .external(externalDependency: .introspect),
+                .external(externalDependency: .fSCalendar)
             ]
         ))
     ]

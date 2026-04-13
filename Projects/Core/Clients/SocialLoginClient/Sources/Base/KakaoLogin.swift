@@ -9,6 +9,7 @@
 import Foundation
 
 import BKModel
+import BKCommon
 
 import KakaoSDKAuth
 import KakaoSDKCommon
@@ -23,7 +24,7 @@ final class KakaoLogin {
 
   /// Kakao initSDK
   func initSDK() {
-    KakaoSDK.initSDK(appKey: APIKey.kakao)
+    KakaoSDK.initSDK(appKey: Bundle.infoValue(for: "KAKAO_NATIVE_APP_KEY"))
   }
 
   /// Handle KakaoTalkLoginUrl

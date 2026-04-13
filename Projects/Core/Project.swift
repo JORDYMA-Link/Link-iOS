@@ -22,7 +22,7 @@ let project = Project.make(
                 .core(client: .UserNotificationClient),
                 .core(client: .PasteboardClient),
                 .core(client: .URLOpenHandlerClient),
-                .core(implements: .Services),
+                .core(client: .GoogleMobileAdsClient),
                 .core(client: .UserClient),
                 .core(client: .AuthClient),
                 .core(client: .FeedClient),

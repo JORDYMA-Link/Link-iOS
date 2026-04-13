@@ -10,6 +10,7 @@ import SwiftUI
 
 import BKCommon
 import BKDesignSystem
+import GoogleMobileAdsClient
 
 import ComposableArchitecture
 
@@ -48,7 +49,7 @@ public struct SaveLinkView: View {
         // MARK: - 광고 관련 로직 임시 제거 (원복 가능하도록 주석 처리)
         // .fullScreenCover(isPresented: $store.isAdPresented) {
         //   WithPerceptionTracking {
-        //     BKGoogleAdView(
+        //     GoogleAdInterstitialView(
         //       isPresented: $store.isAdPresented,
         //       interstitialAd: $store.ad,
         //       dismissAdScreen: { store.send(.adDismissButtonTapped) }

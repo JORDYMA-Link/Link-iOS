@@ -1,5 +1,5 @@
 //
-//  BKGoogleAdView.swift
+//  GoogleAdInterstitialView.swift
 //  Feature
 //
 //  Created by kyuchul on 11/30/24.
@@ -7,18 +7,15 @@
 //
 
 import SwiftUI
-
-import Services
-
 import GoogleMobileAds
 
-struct BKGoogleAdView: UIViewControllerRepresentable {
+public struct GoogleAdInterstitialView: UIViewControllerRepresentable {
   @Binding private var isPresented: Bool
   @Binding private var interstitialAd: GoogleAd?
   private let dismissAdScreen: () -> Void
   private let viewController: UIViewController
-  
-  init(isPresented: Binding<Bool>,
+
+  public init(isPresented: Binding<Bool>,
        interstitialAd: Binding<GoogleAd?>,
        dismissAdScreen: @escaping () -> Void
   ) {
@@ -27,35 +24,35 @@ struct BKGoogleAdView: UIViewControllerRepresentable {
     self.dismissAdScreen = dismissAdScreen
     self.viewController = UIViewController()
   }
-  
-  func makeUIViewController(context: Context) -> UIViewController {    
+
+  public func makeUIViewController(context: Context) -> UIViewController {
     DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(1)) {
       if let interstitialAd {
         interstitialAd.ad.present(from: viewController)
       }
     }
-    
+
     return viewController
   }
-  
-  func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
-  
-  func makeCoordinator() -> Coordinator {
+
+  public func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
+
+  public func makeCoordinator() -> Coordinator {
     Coordinator(parent: self)
   }
 }
 
-extension BKGoogleAdView {
-  final class Coordinator: NSObject, FullScreenContentDelegate {
-    private let parent: BKGoogleAdView
+extension GoogleAdInterstitialView {
+  public final class Coordinator: NSObject, FullScreenContentDelegate {
+    private let parent: GoogleAdInterstitialView
 
-    init(parent: BKGoogleAdView) {
+    init(parent: GoogleAdInterstitialView) {
       self.parent = parent
       super.init()
       parent.interstitialAd?.ad.fullScreenContentDelegate = self
     }
 
-    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
+    public func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
       parent.isPresented.toggle()
       parent.dismissAdScreen()
     }
