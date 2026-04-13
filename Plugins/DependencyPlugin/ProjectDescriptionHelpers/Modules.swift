@@ -32,7 +32,7 @@ public extension ModulePath {
     enum Feature: String, CaseIterable {
         case StorageBox
         
-        public static let name: String = "Feature"
+        public static let name: String = "BKFeatures"
     }
 }
 
@@ -50,10 +50,8 @@ public extension ModulePath {
 // MARK: CoreModule
 
 public extension ModulePath {
-    enum Core: String, CaseIterable {
-        case BKNetwork
-
-        public static let name: String = "Core"
+    enum Core {
+        public static let name: String = "BKCore"
     }
 }
 
@@ -74,7 +72,10 @@ public extension ModulePath.Core {
         case KakaoChannelClient
         case SocialLoginClient
         case GoogleMobileAdsClient
+        case BKNetworkClient
         case NoticeClient
+        case KeychainClient
+        case UserDefaultsClient
 
         public static let name: String = "Clients"
     }
@@ -87,6 +88,6 @@ public extension ModulePath {
         case BKCommon
         case BKModel
         
-        public static let name: String = "Shared"
+        public static let name: String = "BKShared"
     }
 }

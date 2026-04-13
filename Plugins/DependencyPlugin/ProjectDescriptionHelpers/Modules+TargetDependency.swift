@@ -56,10 +56,6 @@ public extension TargetDependency {
         return .project(target: ModulePath.Core.name, path: .core)
     }
 
-    static func core(implements module: ModulePath.Core) -> Self {
-        return .project(target: module.rawValue, path: .core(implementation: module))
-    }
-
     static func core(client module: ModulePath.Core.Clients) -> Self {
         return .project(target: module.rawValue, path: .client(implementation: module))
     }

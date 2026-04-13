@@ -39,10 +39,6 @@ public extension ProjectDescription.Path {
         return .relativeToRoot("Projects/\(ModulePath.Core.name)")
     }
 
-    static func core(implementation module: ModulePath.Core) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(module.rawValue)")
-    }
-
     static func client(implementation module: ModulePath.Core.Clients) -> Self {
         return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(ModulePath.Core.Clients.name)")
     }

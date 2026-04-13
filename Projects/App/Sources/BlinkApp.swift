@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-import Feature
+import BKFeatures
 import BKDesignSystem
 
 import ComposableArchitecture

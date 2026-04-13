@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import Feature
+import BKFeatures
 import UserNotificationClient
 
 import ComposableArchitecture

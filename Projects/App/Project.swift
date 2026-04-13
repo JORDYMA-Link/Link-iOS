@@ -15,7 +15,7 @@ let project = Project.make(
         )),
         .shareExtension(factory: .init(
             dependencies: [
-                .core(implements: .BKNetwork)
+                .shared
             ]
         ))
     ],
