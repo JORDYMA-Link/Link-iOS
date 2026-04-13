@@ -10,7 +10,7 @@ import Foundation
 
 import BKModel
 
-import ComposableArchitecture
+import Dependencies
 
 extension SocialLoginClient: DependencyKey {
   public static var liveValue: SocialLoginClient {

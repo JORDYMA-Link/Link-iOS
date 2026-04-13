@@ -169,7 +169,7 @@ public struct HomeFeature: Reducer {
           operation: { send in
             switch type {
             case .instruction:
-              await urlOpenHandlerClient.openURL(urlType: .introduceService)
+              await urlOpenHandlerClient.openURL(.introduceService)
               
             case .kakaoChannel:
               try await kakaoChannelClient.chatChannel()

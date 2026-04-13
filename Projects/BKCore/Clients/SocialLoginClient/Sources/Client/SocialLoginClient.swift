@@ -10,7 +10,7 @@ import Foundation
 
 import BKModel
 
-import ComposableArchitecture
+import Dependencies
 
 public struct SocialLoginClient {
   public var initKakaoSDK: @Sendable () -> Void
