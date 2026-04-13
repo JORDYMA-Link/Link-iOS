@@ -6,7 +6,7 @@
 
 let packageSettings = PackageSettings(
     productTypes: [
-        "ComposableArchitecture": .framework,
+        "ComposableArchitecture": .staticLibrary,
         "Moya": .staticLibrary,
         "FirebaseMessaging": .staticLibrary,
         "FirebaseAnalytics": .staticLibrary,

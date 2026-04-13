@@ -15,7 +15,8 @@ let project = Project.make(
     targets: [
         .shared(implements: .BKCommon, factory: .init(
             dependencies: [
-                .external(externalDependency: .composableArchitecture)
+                .external(externalDependency: .dependencies),
+                .external(externalDependency: .dependenciesMacros)
             ]
         ))
     ]

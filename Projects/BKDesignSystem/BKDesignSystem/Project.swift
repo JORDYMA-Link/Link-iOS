@@ -15,7 +15,8 @@ let project = Project.make(
         .designSystem(implements: .BKDesignSystem, factory: .init(
             dependencies: [
                 .shared,
-                .designSystem(implements: .BKDesignSystemThirdParty)
+                .designSystem(implements: .BKDesignSystemThirdParty),
+                .external(externalDependency: .perception)
             ]
         )),
         .designSystem(example: .BKDesignSystem, factory: .init(

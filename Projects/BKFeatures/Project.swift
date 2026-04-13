@@ -11,6 +11,7 @@ let project = Project.make(
             dependencies: [
                 .core,
                 .designSystem,
+                .external(externalDependency: .composableArchitecture),
                 .external(externalDependency: .introspect),
                 .external(externalDependency: .fSCalendar)
             ]
