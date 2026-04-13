@@ -16,6 +16,7 @@ import FeedClient
 import FolderClient
 import LinkClient
 import Services
+import KakaoChannelClient
 import URLOpenHandlerClient
 import AlertClient
 

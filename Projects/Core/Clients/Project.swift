@@ -81,6 +81,23 @@ let project = Project.make(
                 .core(client: .FeedClientInterface)
             ]
         )),
+        .core(client: .KakaoChannelClient, factory: .init(
+            sources: "KakaoChannelClient/Sources/**",
+            dependencies: [
+                .shared,
+                .external(externalDependency: .kakaoSDKTalk)
+            ]
+        )),
+        .core(client: .SocialLoginClient, factory: .init(
+            sources: "SocialLoginClient/Sources/**",
+            dependencies: [
+                .shared,
+                .external(externalDependency: .googleSignIn),
+                .external(externalDependency: .kakaoSDKAuth),
+                .external(externalDependency: .kakaoSDKCommon),
+                .external(externalDependency: .kakaoSDKUser)
+            ]
+        )),
         .core(client: .NoticeClient, factory: .init(
             sources: "NoticeClient/Sources/**",
             dependencies: [

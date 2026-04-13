@@ -16,12 +16,10 @@ let project = Project.make(
             implements: .ThirdParty,
             factory: .init(
                 dependencies: [
-                    .external(externalDependency: .kakaoSDK),
                     .external(externalDependency: .firebaseMessaging),
                     .external(externalDependency: .googleMobileAds),
                     .external(externalDependency: .introspect),
                     .external(externalDependency: .fSCalendar),
-                    .external(externalDependency: .googleSignIn),
                     .sdk(name: "JavaScriptCore", type: .framework)
                 ]
             )

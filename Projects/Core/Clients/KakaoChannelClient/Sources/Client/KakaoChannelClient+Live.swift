@@ -1,5 +1,5 @@
 //
-//  KakaoChannelClient.swift
+//  KakaoChannelClient+Live.swift
 //  Services
 //
 //  Created by kyuchul on 12/24/24.
@@ -11,23 +11,17 @@ import Foundation
 import KakaoSDKTalk
 
 import Dependencies
-import DependenciesMacros
-
-@DependencyClient
-public struct KakaoChannelClient {
-  public var chatChannel: @Sendable () async throws -> Void
-}
 
 extension KakaoChannelClient: DependencyKey {
   public static var liveValue: KakaoChannelClient = live()
   private static func live() -> KakaoChannelClient {
-   
+
     return KakaoChannelClient {
       var activeContinuation: CheckedContinuation<Void, Error>?
-      
+
       return try await withCheckedThrowingContinuation { continuation in
         activeContinuation = continuation
-        
+
         TalkApi.shared.chatChannel(channelPublicId: "_zxfwdn") { error in
           if let error {
             activeContinuation?.resume(throwing: error)

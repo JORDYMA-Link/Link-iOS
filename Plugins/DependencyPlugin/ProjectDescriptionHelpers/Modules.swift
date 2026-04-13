@@ -72,6 +72,8 @@ public extension ModulePath.Core {
         case FeedClientInterface
         case FolderClient
         case LinkClient
+        case KakaoChannelClient
+        case SocialLoginClient
         case NoticeClient
 
         public static let name: String = "Clients"

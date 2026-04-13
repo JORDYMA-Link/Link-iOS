@@ -28,6 +28,8 @@ let project = Project.make(
                 .core(client: .FeedClient),
                 .core(client: .FolderClient),
                 .core(client: .LinkClient),
+                .core(client: .KakaoChannelClient),
+                .core(client: .SocialLoginClient),
                 .core(client: .NoticeClient)
             ]
         ))

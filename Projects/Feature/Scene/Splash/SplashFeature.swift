@@ -13,6 +13,7 @@ import AuthClient
 import BKCommon
 import BKModel
 import Services
+import SocialLoginClient
 import UserClient
 
 import ComposableArchitecture

@@ -12,4 +12,11 @@ extension Bundle {
   public static var currentAppVersion: String {
     return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
   }
+
+  public static func infoValue(for key: String) -> String {
+    guard let value = Bundle.main.infoDictionary?[key] as? String else {
+      fatalError("Missing Info.plist key: \(key)")
+    }
+    return value
+  }
 }

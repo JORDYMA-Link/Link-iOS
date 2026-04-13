@@ -1,6 +1,6 @@
 //
 //  KakaoLogin.swift
-//  CoreKit
+//  Services
 //
 //  Created by kyuchul on 6/17/24.
 //  Copyright © 2024 com.jordyma.blink. All rights reserved.
@@ -20,25 +20,25 @@ enum KakaoErrorType: Error {
 
 final class KakaoLogin {
   private var continuation: CheckedContinuation<SocialLoginInfo, Error>? = nil
-  
+
   /// Kakao initSDK
   func initSDK() {
     KakaoSDK.initSDK(appKey: APIKey.kakao)
   }
-  
+
   /// Handle KakaoTalkLoginUrl
   func handleKakaoTalkLoginUrl(url: URL) {
       guard AuthApi.isKakaoTalkLoginUrl(url) else { return }
       _ = AuthController.handleOpenUrl(url: url)
   }
-  
+
   /// 카카오톡 로그인
   @MainActor
   func kakaoLogin() async throws -> SocialLoginInfo {
     return try await withCheckedThrowingContinuation { continuation in
       self.continuation = continuation
       let nonce = UUID().uuidString
-      
+
       if UserApi.isKakaoTalkLoginAvailable() {
         loginWithKakaoTalk(nonce: nonce)
       } else {
@@ -46,12 +46,12 @@ final class KakaoLogin {
       }
     }
   }
-  
+
   /// 카카오톡(앱)으로 로그인
   private func loginWithKakaoTalk(nonce: String) {
     UserApi.shared.loginWithKakaoTalk(nonce: nonce) { [weak self] OAuthToken, error in
       guard let self else { return }
-      
+
       if let error {
         self.continuation?.resume(throwing: error)
         self.continuation = nil
@@ -67,12 +67,12 @@ final class KakaoLogin {
       }
     }
   }
-  
+
   /// 웹에서 카카오 계정 Access
   private func loginWithKakaoWeb(nonce: String) {
     UserApi.shared.loginWithKakaoAccount(nonce: nonce) { [weak self] OAuthToken, error in
       guard let self else { return }
-      
+
       if let error {
         self.continuation?.resume(throwing: error)
         self.continuation = nil
@@ -88,7 +88,7 @@ final class KakaoLogin {
       }
     }
   }
-  
+
   private func setSocialLoginData(idToken: String, nonce: String) {
     let info = SocialLoginInfo(idToken: idToken, nonce: nonce, provider: .kakao)
     continuation?.resume(returning: info)
