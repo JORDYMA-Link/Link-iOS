@@ -10,7 +10,7 @@ import UIKit
 
 import BKModel
 import Services
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 

@@ -10,7 +10,7 @@ import SwiftUI
 
 import BKModel
 import BKCommon
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -106,7 +106,7 @@ extension SearchView {
     var body: some View {
       HStack(spacing: 8) {
         BKIcon(
-          image: CommonFeature.Images.icoChevronLeft,
+          image: BKDesignSystem.Images.icoChevronLeft,
           color: .bkColor(.gray900),
           size: CGSize(width: 24, height: 24)
         )

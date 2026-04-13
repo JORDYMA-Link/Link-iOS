@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 import Services
 import BKModel
 import BKCommon
@@ -36,10 +36,10 @@ struct LinkHeaderView: View {
             BKImageView(
               imageURL: store.feed.thumbnailImage,
               downsamplingSize: .init(width: size.width, height: size.height),
-              placeholder: CommonFeature.Images.icoEmptyThumnail
+              placeholder: BKDesignSystem.Images.icoEmptyThumnail
             )
           } else {
-            CommonFeature.Images.icoEmptyThumnail
+            BKDesignSystem.Images.icoEmptyThumnail
               .resizable()
               .scaledToFill()
           }
@@ -90,7 +90,7 @@ struct LinkHeaderView: View {
     BKImageView(
       imageURL: store.feed.platformImage ?? "",
       downsamplingSize: .init(width: 24, height: 24),
-      placeholder: CommonFeature.Images.icoEmptyPlatform
+      placeholder: BKDesignSystem.Images.icoEmptyPlatform
     )
     .frame(width: 24, height: 24)
     .clipShape(Circle())
@@ -142,7 +142,7 @@ struct LinkHeaderView: View {
           store.send(.saveButtonTapped(!store.feed.isMarked))
         } label: {
           BKIcon(
-            image: store.feed.isMarked ? CommonFeature.Images.icoSaveClcik : CommonFeature.Images.icoSave,
+            image: store.feed.isMarked ? BKDesignSystem.Images.icoSaveClcik : BKDesignSystem.Images.icoSave,
             color: .white,
             size:CGSize(width: 20, height: 20)
           )
@@ -153,7 +153,7 @@ struct LinkHeaderView: View {
           store.send(.shareButtonTapped)
         } label: {
           BKIcon(
-            image: CommonFeature.Images.icoShare,
+            image: BKDesignSystem.Images.icoShare,
             color: .white,
             size: CGSize(width: 20, height: 20)
           )

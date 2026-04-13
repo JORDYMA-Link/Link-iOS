@@ -25,6 +25,16 @@ public extension ProjectDescription.Path {
 }
 
 public extension ProjectDescription.Path {
+    static var designSystem: Self {
+        return .relativeToRoot("Projects/\(ModulePath.DesignSystem.name)")
+    }
+
+    static func designSystem(implementation module: ModulePath.DesignSystem) -> Self {
+        return .relativeToRoot("Projects/\(ModulePath.DesignSystem.name)/\(module.rawValue)")
+    }
+}
+
+public extension ProjectDescription.Path {
     static var core: Self {
         return .relativeToRoot("Projects/\(ModulePath.Core.name)")
     }

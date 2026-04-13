@@ -9,7 +9,8 @@ let project = Project.make(
             product: .staticFramework,
             sources: ["Scene/**"],
             dependencies: [
-                .core
+                .core,
+                .designSystem
             ]
         ))
     ]

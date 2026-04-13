@@ -7,7 +7,7 @@
 //
 
 import BKModel
-import CommonFeature
+import BKDesignSystem
 
 extension Folder: FolderItem {
   public var folderName: String {

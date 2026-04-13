@@ -17,8 +17,7 @@ let project = Project.make(
                 product: .staticFramework,
                 sources: nil,
                 dependencies: [
-                    .shared(implements: .BKModel),
-                    .shared(implements: .CommonFeature)
+                    .shared(implements: .BKModel)
                 ]
             )
         )

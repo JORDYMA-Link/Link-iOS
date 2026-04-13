@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 import BKCommon
 
 struct LinkTextView: View {
@@ -73,7 +73,7 @@ private struct LinkTextViewExpandButton: View {
           color: .bkColor(.gray800)
         )
         
-        CommonFeature.Images.icoChevronDown
+        BKDesignSystem.Images.icoChevronDown
       }
       .frame(maxWidth: .infinity, minHeight: 20, maxHeight: 20)
     }

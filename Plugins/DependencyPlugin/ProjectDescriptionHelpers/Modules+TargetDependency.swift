@@ -42,6 +42,16 @@ public extension TargetDependency {
 }
 
 public extension TargetDependency {
+    static var designSystem: Self {
+        return .project(target: ModulePath.DesignSystem.BKDesignSystem.rawValue, path: .designSystem(implementation: .BKDesignSystem))
+    }
+
+    static func designSystem(implements module: ModulePath.DesignSystem) -> Self {
+        return .project(target: module.rawValue, path: .designSystem(implementation: module))
+    }
+}
+
+public extension TargetDependency {
     static var core: Self {
         return .project(target: ModulePath.Core.name, path: .core)
     }

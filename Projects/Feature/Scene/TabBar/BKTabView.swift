@@ -9,7 +9,7 @@
 import SwiftUI
 
 import BKCommon
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -22,18 +22,18 @@ enum BKTabViewType: Int, CaseIterable {
   var image: Image {
     switch self {
     case .home:
-      return CommonFeature.Images.icoHome
+      return BKDesignSystem.Images.icoHome
     case .folder:
-      return CommonFeature.Images.icoFolder
+      return BKDesignSystem.Images.icoFolder
     }
   }
   
   var selectedImage: Image {
     switch self {
     case .home:
-      return CommonFeature.Images.icoHomeClcik
+      return BKDesignSystem.Images.icoHomeClcik
     case .folder:
-      return CommonFeature.Images.icoFolderClick
+      return BKDesignSystem.Images.icoFolderClick
     }
   }
 }

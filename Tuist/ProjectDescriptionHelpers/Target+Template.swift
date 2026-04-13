@@ -211,6 +211,32 @@ public extension Target {
     }
 }
 
+// MARK: Target + DesignSystem
+
+public extension Target {
+    static func designSystem(implements module: ModulePath.DesignSystem, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = module.rawValue
+
+        if module == .BKDesignSystem {
+            newFactory.sources = .sources
+            newFactory.resources = ["Resources/**"]
+            newFactory.product = .staticFramework
+        }
+
+        return make(factory: newFactory)
+    }
+
+    static func designSystem(example module: ModulePath.DesignSystem, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = module.rawValue + "Example"
+        newFactory.sources = .exampleSources
+        newFactory.product = .app
+
+        return make(factory: newFactory)
+    }
+}
+
 // MARK: Target + Shared
 
 public extension Target {
@@ -223,15 +249,8 @@ public extension Target {
     
     static func shared(implements module: ModulePath.Shared, factory: TargetFactory) -> Self {
         var newFactory = factory
-        //        newFactory.name = ModulePath.Shared.name + module.rawValue
         newFactory.name = module.rawValue
-        
-        if module == .CommonFeature {
-            newFactory.sources = .sources
-            newFactory.resources = ["Resources/**"]
-            newFactory.product = .staticFramework
-        }
-        
+
         return make(factory: newFactory)
     }
     

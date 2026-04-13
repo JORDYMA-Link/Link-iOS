@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -32,7 +32,7 @@ public struct SplashView: View {
         }
         .ignoresSafeArea()
         .background(
-          CommonFeature.Images.splash
+          BKDesignSystem.Images.splash
             .resizable()
             .scaledToFill()
             .frame(width: proxy.size.width, height: proxy.size.height)
@@ -53,7 +53,7 @@ public struct SplashView: View {
       )
       .frame(maxWidth: .infinity, alignment: .center)
       
-      CommonFeature.Images.icoSplashLogo
+      BKDesignSystem.Images.icoSplashLogo
     }
   }
 }

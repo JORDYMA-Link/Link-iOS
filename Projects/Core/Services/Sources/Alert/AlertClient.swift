@@ -8,7 +8,7 @@
 
 import Foundation
 
-import CommonFeature
+import BKDesignSystem
 
 import Dependencies
 

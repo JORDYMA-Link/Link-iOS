@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 import BKCommon
 
 import ComposableArchitecture
@@ -72,7 +72,7 @@ extension SettingView {
           Button(action: {
             store.send(.tappedNicknameEdit)
           }, label: {
-            BKIcon(image: CommonFeature.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
+            BKIcon(image: BKDesignSystem.Images.icoEdit, color: Color.bkColor(.gray900), size: CGSize(width: 18, height: 18))
           }) //Button
         } //HStack
         .padding(EdgeInsets(top: 24, leading: 16, bottom: 24, trailing: 16))
@@ -201,15 +201,15 @@ extension SettingView {
           Button {
             store.send(.changeConfirmWithdrawModal)
           } label: {
-            BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
+            BKIcon(image: BKDesignSystem.Images.icoClose, color: .bkColor(.gray900), size: CGSize(width: 18, height: 18))
           }
         }
         
-        Text(BKModalType.withdrawNotice.modalTitle)
+        Text("유의사항")
           .font(.semiBold(size: ._14))
           .padding(.bottom, 8)
         
-        Text(BKModalType.withdrawNotice.modalDescription)
+        Text("탈퇴시 블링크에 저장한 콘텐츠 / 저장된 링크 / 폴더와 추천 키워드 / 계정 정보가 모두 삭제됩니다\n\n탈퇴 후 재가입의 경우에도 해당 데이터는 복원되지 않습니다")
           .font(.regular(size: ._14))
           .multilineTextAlignment(.leading)
           .foregroundStyle(BKColor.gray700.swiftUIColor)
@@ -223,7 +223,7 @@ extension SettingView {
               Image(systemName: "square" )
                 .foregroundStyle(Color.bkColor(.gray700))
             } else {
-              CommonFeature.Images.icoCheckBox
+              BKDesignSystem.Images.icoCheckBox
             }
             
             Text("안내사항을 확인하였으며, 이에 동의합니다")
@@ -236,7 +236,7 @@ extension SettingView {
         Button {
           
         } label: {
-          Text(BKModalType.withdrawNotice.okText)
+          Text("탈퇴하기")
             .foregroundStyle(store.isConfirmedWithdrawWarning ? BKColor.gray600.swiftUIColor : BKColor.white.swiftUIColor)
             .frame(maxWidth: 140, maxHeight: 48)
         }
@@ -394,7 +394,7 @@ fileprivate struct SignoutAlert: View {
       Spacer()
       
       BKIcon(
-        image: CommonFeature.Images.icoClose,
+        image: BKDesignSystem.Images.icoClose,
         color: .bkColor(.gray900),
         size: .init(width: 18, height: 18)
       )
@@ -451,7 +451,7 @@ fileprivate struct SignoutAlert: View {
   var checkBox: some View {
     Group {
       if isCheck {
-        CommonFeature.Images.icoCheckBox
+        BKDesignSystem.Images.icoCheckBox
           .resizable()
           .frame(width: 18, height: 18)
       } else {

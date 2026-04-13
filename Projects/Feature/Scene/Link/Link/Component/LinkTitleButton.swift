@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct LinkTitleButton: View {
   private let title: String

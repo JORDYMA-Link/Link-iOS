@@ -8,7 +8,7 @@
 import SwiftUI
 
 import Feature
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -17,7 +17,7 @@ struct BlinkApp: App {
   @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
   init() {
-    CommonFeatureFontFamily.registerAllCustomFonts()
+    BKDesignSystemFontFamily.registerAllCustomFonts()
     setupNavigationBarAppearance()
   }
     

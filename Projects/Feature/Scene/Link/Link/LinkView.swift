@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 import BKModel
 import BKCommon
 
@@ -321,7 +321,7 @@ struct LinkView: View {
             color: .bkColor(.gray900)
           )
           
-          CommonFeature.Images.icoConceptStar
+          BKDesignSystem.Images.icoConceptStar
             .resizable()
             .scaledToFill()
             .frame(width: 20, height: 20)

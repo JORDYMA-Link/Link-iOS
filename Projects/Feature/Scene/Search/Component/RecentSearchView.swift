@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 import BKCommon
 
 import ComposableArchitecture
@@ -45,7 +45,7 @@ struct RecentSearchView: View {
                   Spacer()
                   
                   BKIcon(
-                    image: CommonFeature.Images.icoClose,
+                    image: BKDesignSystem.Images.icoClose,
                     color: .bkColor(.gray700),
                     size: .init(width: 16, height: 16)
                   )

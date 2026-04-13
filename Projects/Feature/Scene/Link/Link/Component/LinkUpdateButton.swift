@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 enum LinkUpdateButtonType {
   case title
@@ -42,7 +42,7 @@ struct LinkUpdateButton: View {
         )
         
         BKIcon(
-          image: isUpdatable ? CommonFeature.Images.icoRoundEdit : CommonFeature.Images.icoCheck,
+          image: isUpdatable ? BKDesignSystem.Images.icoRoundEdit : BKDesignSystem.Images.icoCheck,
           color: .bkColor((type == .title && isUpdatable) ? .white : .gray700),
           size: .init(width: 16, height: 16))
       }

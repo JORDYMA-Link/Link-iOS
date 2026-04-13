@@ -9,7 +9,7 @@
 import SwiftUI
 
 import BKCommon
-import CommonFeature
+import BKDesignSystem
 import BKModel
 
 import ComposableArchitecture
@@ -86,7 +86,7 @@ public struct LoginView: View {
       )
       .frame(maxWidth: .infinity, alignment: .center)
       
-      CommonFeature.Images.icoLoginLogo
+      BKDesignSystem.Images.icoLoginLogo
         .resizable()
         .scaledToFit()
         .frame(width: 240, height: 54)
@@ -227,11 +227,11 @@ private struct SocialLoginButton: View {
   private var buttonImage: Image {
     switch socialType {
     case .kakao:
-      return CommonFeature.Images.icokakao
+      return BKDesignSystem.Images.icokakao
     case .apple:
-      return CommonFeature.Images.icoapple
+      return BKDesignSystem.Images.icoapple
     case .google:
-      return CommonFeature.Images.icoGoogle
+      return BKDesignSystem.Images.icoGoogle
     }
   }
 }

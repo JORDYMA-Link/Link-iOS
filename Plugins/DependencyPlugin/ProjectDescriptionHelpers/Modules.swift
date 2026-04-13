@@ -11,6 +11,7 @@ import ProjectDescription
 public enum ModulePath {
     case app(App)
     case feature(Feature)
+    case designSystem(DesignSystem)
     case core(Core)
     case shared(Shared)
 }
@@ -35,6 +36,17 @@ public extension ModulePath {
     }
 }
 
+// MARK: DesignSystemModule
+
+public extension ModulePath {
+    enum DesignSystem: String, CaseIterable {
+        case BKDesignSystem
+        case BKDesignSystemThirdParty
+
+        public static let name: String = "BKDesignSystem"
+    }
+}
+
 // MARK: CoreModule
 
 public extension ModulePath {
@@ -53,8 +65,6 @@ public extension ModulePath {
     enum Shared: String, CaseIterable {
         case BKCommon
         case BKModel
-        case CommonFeature
-        case CommonFeatureThirdParty
         case ThirdParty
         
         public static let name: String = "Shared"

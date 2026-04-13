@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct NotificationListView: View {
     @Environment(\.dismiss) private var dismiss

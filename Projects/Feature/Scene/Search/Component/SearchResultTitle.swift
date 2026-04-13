@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct SearchResultTitle: View {
   private let keyword: String

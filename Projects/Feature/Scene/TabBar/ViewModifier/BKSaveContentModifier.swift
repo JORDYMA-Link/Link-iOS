@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct BKSaveContentModifier: ViewModifier {
   @Binding var isPresented: Bool

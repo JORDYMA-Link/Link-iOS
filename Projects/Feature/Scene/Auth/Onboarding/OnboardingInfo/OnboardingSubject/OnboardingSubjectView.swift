@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -57,7 +57,7 @@ public struct OnboardingSubjectView: View {
       Button {
         store.send(.backButtonTapped)
       } label: {
-        CommonFeature.Images.icoChevronLeft
+        BKDesignSystem.Images.icoChevronLeft
       }
       
       Spacer()

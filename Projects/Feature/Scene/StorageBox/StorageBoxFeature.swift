@@ -13,7 +13,7 @@ import BKNetwork
 import Services
 import BKModel
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct BKContainerWebView: View {
   @StateObject private var viewModel = BKWebViewModel()
@@ -65,7 +65,7 @@ private struct NavigationBar: View {
   var body: some View {
     HStack(spacing: 12) {
       BKIcon(
-        image: CommonFeature.Images.icoClose,
+        image: BKDesignSystem.Images.icoClose,
         color: .bkColor(.gray900),
         size: .init(width: 24, height: 24)
       )
@@ -98,7 +98,7 @@ private struct BottomToolBar: View {
   var body: some View {
     HStack {
       BKIcon(
-        image: CommonFeature.Images.icoChevronLeft,
+        image: BKDesignSystem.Images.icoChevronLeft,
         color: .bkColor(viewModel.canGoBack ? .gray900 : .gray700),
         size: .init(width: 24, height: 24)
       )
@@ -111,7 +111,7 @@ private struct BottomToolBar: View {
       Spacer()
       
       BKIcon(
-        image: CommonFeature.Images.icoChevronRight,
+        image: BKDesignSystem.Images.icoChevronRight,
         color: .bkColor(viewModel.canGoForward ? .gray900 : .gray700),
         size: .init(width: 24, height: 24)
       )
@@ -124,7 +124,7 @@ private struct BottomToolBar: View {
       Spacer()
       
       BKIcon(
-        image: CommonFeature.Images.icoShare,
+        image: BKDesignSystem.Images.icoShare,
         color: .bkColor(.gray900),
         size: .init(width: 24, height: 24)
       )
@@ -135,7 +135,7 @@ private struct BottomToolBar: View {
       Spacer()
       
       BKIcon(
-        image: CommonFeature.Images.icoRotateRight,
+        image: BKDesignSystem.Images.icoRotateRight,
         color: .bkColor(.gray900),
         size: .init(width: 24, height: 24)
       )

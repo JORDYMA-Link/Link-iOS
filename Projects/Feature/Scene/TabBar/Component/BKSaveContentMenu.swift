@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 // MARK: - BKSaveContentMenuType
 
@@ -20,7 +20,7 @@ enum BKSaveContentMenuType: Int, CaseIterable {
   var image: Image {
     switch self {
     case .link:
-      return CommonFeature.Images.icoLink
+      return BKDesignSystem.Images.icoLink
       //        case .text:
       //            return CommonFeatureAsset.Images.icoRoundEdit.swiftUIImage
     }

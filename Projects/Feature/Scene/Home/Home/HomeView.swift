@@ -9,7 +9,7 @@
 import SwiftUI
 
 import BKCommon
-import CommonFeature
+import BKDesignSystem
 import BKModel
 
 import ComposableArchitecture
@@ -137,7 +137,7 @@ private struct HomeNavigationView: View {
       makeBKNavigationView(
         leadingType: .home,
         trailingType: .oneIcon(action: { store.send(.settingButtonTapped) },
-                               icon: CommonFeature.Images.icoSettings),
+                               icon: BKDesignSystem.Images.icoSettings),
         tintColor: .bkColor(.gray900)
       )
       .padding(.horizontal, 16)

@@ -12,7 +12,7 @@ import Analytics
 import Services
 import BKModel
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 

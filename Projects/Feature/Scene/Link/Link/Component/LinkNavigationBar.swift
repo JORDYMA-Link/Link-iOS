@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 import BKCommon
 
 import ComposableArchitecture
@@ -35,7 +35,7 @@ struct LinkNavigationBar: View {
             store.send(.closeButtonTapped)
           } label: {
             BKIcon(
-              image: CommonFeature.Images.icoChevronLeft,
+              image: BKDesignSystem.Images.icoChevronLeft,
               color: isScrollDetected ? .black : .white,
               size: CGSize(width: 24, height: 24)
             )
@@ -58,7 +58,7 @@ struct LinkNavigationBar: View {
             store.send(.menuButtonTapped)
           } label: {
             BKIcon(
-              image: CommonFeature.Images.icoMoreVertical,
+              image: BKDesignSystem.Images.icoMoreVertical,
               color: isScrollDetected ? .black : .white,
               size: CGSize(width: 24, height: 24)
             )

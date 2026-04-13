@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -35,7 +35,7 @@ public struct CalendarSearchView: View {
             HStack {
               Text(store.state.calendar.currentPage.toString(formatter: "YYYY. MM"))
                 .font(.semiBold(size: ._20))
-              CommonFeature.Images.icoChevronDown
+              BKDesignSystem.Images.icoChevronDown
             }
             .foregroundStyle(Color.bkColor(.gray900))
           }
@@ -155,7 +155,7 @@ public struct CalendarSearchView: View {
           Button {
             store.send(.calendarAction(.currentSheetButtonTapped))
           } label: {
-            BKIcon(image: CommonFeature.Images.icoClose, color: .bkColor(.black), size: .init(width: 16, height: 16))
+            BKIcon(image: BKDesignSystem.Images.icoClose, color: .bkColor(.black), size: .init(width: 16, height: 16))
           }
         }
         .padding(.horizontal, 28)
@@ -184,7 +184,7 @@ public struct CalendarSearchView: View {
   @ViewBuilder
   var noneContentsView : some View {
     VStack {
-      Image(uiImage: CommonFeature.Images.graphicFolderUIImage)
+      Image(uiImage: BKDesignSystem.Images.graphicFolderUIImage)
       Text("저장된 콘텐츠가 없습니다")
         .font(.semiBold(size: ._15))
         .foregroundStyle(Color.bkColor(.gray900))

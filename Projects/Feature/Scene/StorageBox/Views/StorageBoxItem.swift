@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct StorageBoxItem: View {
   private let count: Int
@@ -44,7 +44,7 @@ struct StorageBoxItem: View {
         
         Button(action: menuAction) {
           BKIcon(
-            image: CommonFeature.Images.icoMoreVertical,
+            image: BKDesignSystem.Images.icoMoreVertical,
             color: .bkColor(.gray600),
             size: CGSize(width: 20, height: 20)
           )

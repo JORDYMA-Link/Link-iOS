@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -24,7 +24,7 @@ struct EmptySearchView: View {
       VStack(alignment: .center, spacing: 0) {
         Spacer()
         
-        CommonFeature.Images.icoEmptySearch
+        BKDesignSystem.Images.icoEmptySearch
         
           SearchResultTitle(keyword: store.keyword, title: "에 대한 검색 결과가 없습니다.", isEmpty: true)
             .padding(.bottom, 4)

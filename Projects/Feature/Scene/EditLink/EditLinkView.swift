@@ -10,7 +10,7 @@ import SwiftUI
 
 import BKModel
 import BKCommon
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 import Kingfisher
@@ -265,7 +265,7 @@ private struct PhotoItem: View {
       BKImageView(
         imageURL: currentImage,
         downsamplingSize: .init(width: 80, height: 80),
-        placeholder: CommonFeature.Images.icoEmptyPhotoPicker
+        placeholder: BKDesignSystem.Images.icoEmptyPhotoPicker
       )
       .photoItemBackground()
     }
@@ -280,7 +280,7 @@ private struct AddPhotoItem: View {
       .clipShape(RoundedRectangle(cornerRadius: 10))
       .overlay(alignment: .center) {
         BKIcon(
-          image: CommonFeature.Images.icoFolderPlus,
+          image: BKDesignSystem.Images.icoFolderPlus,
           color: .bkColor(.gray700),
           size: .init(width: 24, height: 24)
         )

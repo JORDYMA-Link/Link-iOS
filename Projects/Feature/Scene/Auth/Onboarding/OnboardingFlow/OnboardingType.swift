@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 extension OnboardingFlowView {
   enum OnboardingType: CaseIterable {
@@ -71,30 +71,30 @@ extension OnboardingFlowView {
     var image: Image {
       switch self {
       case .onboarding1:
-        return CommonFeature.Images.onBoarding1
+        return BKDesignSystem.Images.onBoarding1
       case .onboarding2:
-        return CommonFeature.Images.onBoarding2
+        return BKDesignSystem.Images.onBoarding2
       case .onboarding3:
-        return CommonFeature.Images.onBoarding3
+        return BKDesignSystem.Images.onBoarding3
       case .onboarding4:
-        return CommonFeature.Images.onBoarding4
+        return BKDesignSystem.Images.onBoarding4
       case .onboarding5:
-        return CommonFeature.Images.onBoarding5
+        return BKDesignSystem.Images.onBoarding5
       }
     }
     
     var indicatorImage: Image {
       switch self {
       case .onboarding1:
-        return CommonFeature.Images.onBoardingIndicator1
+        return BKDesignSystem.Images.onBoardingIndicator1
       case .onboarding2:
-        return CommonFeature.Images.onBoardingIndicator2
+        return BKDesignSystem.Images.onBoardingIndicator2
       case .onboarding3:
-        return CommonFeature.Images.onBoardingIndicator3
+        return BKDesignSystem.Images.onBoardingIndicator3
       case .onboarding4:
-        return CommonFeature.Images.onBoardingIndicator4
+        return BKDesignSystem.Images.onBoardingIndicator4
       case .onboarding5:
-        return CommonFeature.Images.onBoardingIndicator5
+        return BKDesignSystem.Images.onBoardingIndicator5
       }
     }
   }

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -26,7 +26,7 @@ struct StorageBoxFeedListHeader: View {
           store.send(.closeButtonTapped)
         } label: {
           BKIcon(
-            image: CommonFeature.Images.icoChevronLeft,
+            image: BKDesignSystem.Images.icoChevronLeft,
             color: .bkColor(.gray900),
             size: CGSize(width: 24, height: 24)
           )

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 public struct BKRoundedTabIcon: View {
   @Binding var isPresented: Bool
@@ -34,7 +34,7 @@ public struct BKRoundedTabIcon: View {
         .frame(width: 56, height: 56)
         .shadow(radius: 4)
       
-      CommonFeature.Images.icoTabViewConceptStar
+      BKDesignSystem.Images.icoTabViewConceptStar
         .resizable()
         .aspectRatio(contentMode: .fit)
         .frame(width: 36, height: 36)

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-import CommonFeature
+import BKDesignSystem
 
 struct AddStorageBoxItem: View {
   private let action: () -> Void
@@ -20,7 +20,7 @@ struct AddStorageBoxItem: View {
   var body: some View {
     VStack(alignment: .center, spacing: 6) {
       BKIcon(
-        image: CommonFeature.Images.icoPlus,
+        image: BKDesignSystem.Images.icoPlus,
         color: .bkColor(.gray700),
         size: CGSize(width: 24, height: 24)
       )

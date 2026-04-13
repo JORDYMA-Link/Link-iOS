@@ -9,7 +9,7 @@
 import SwiftUI
 
 import BKCommon
-import CommonFeature
+import BKDesignSystem
 
 import ComposableArchitecture
 
@@ -156,7 +156,7 @@ private struct SaveLinkTextField: View {
   
   
   private var buttonView: some View {
-    CommonFeature.Images.icoChevronRight
+    BKDesignSystem.Images.icoChevronRight
       .renderingMode(.template)
       .foregroundStyle(Color.bkColor(store.isDisableSaveLinkButton ? .gray800 : .white))
       .frame(width: 46, height: 46)
@@ -203,7 +203,7 @@ private struct SaveLinkSummarizedList: View {
   private var titleView: some View {
     HStack(spacing: 2) {
       BKIcon(
-        image: CommonFeature.Images.icoCircleInfo,
+        image: BKDesignSystem.Images.icoCircleInfo,
         color: .bkColor(.gray600),
         size: .init(width: 20, height: 20)
       )
@@ -222,17 +222,17 @@ private struct SaveLinkSummarizedList: View {
   @ViewBuilder
   private var summarizedList: some View {
     let linkList: [(Image, String)] = [
-      (CommonFeature.Images.icoGoogleLogo, "구글"),
-      (CommonFeature.Images.icoNaverLogo, "네이버"),
-      (CommonFeature.Images.icoMediumLogo, "미디엄"),
-      (CommonFeature.Images.icoVelogLogo, "벨로그"),
-      (CommonFeature.Images.icoBrunchLogo, "브런치"),
-      (CommonFeature.Images.icoThreadsLogo, "쓰레드"),
-      (CommonFeature.Images.icoXLogo, "X"),
-      (CommonFeature.Images.icoRecentlyITLogo, "요즘IT"),
-      (CommonFeature.Images.icoEOLogo, "EO"),
-      (CommonFeature.Images.icoTStoryLogo, "티스토리"),
-      (CommonFeature.Images.icoTechBlogLogo, "기술블로그")
+      (BKDesignSystem.Images.icoGoogleLogo, "구글"),
+      (BKDesignSystem.Images.icoNaverLogo, "네이버"),
+      (BKDesignSystem.Images.icoMediumLogo, "미디엄"),
+      (BKDesignSystem.Images.icoVelogLogo, "벨로그"),
+      (BKDesignSystem.Images.icoBrunchLogo, "브런치"),
+      (BKDesignSystem.Images.icoThreadsLogo, "쓰레드"),
+      (BKDesignSystem.Images.icoXLogo, "X"),
+      (BKDesignSystem.Images.icoRecentlyITLogo, "요즘IT"),
+      (BKDesignSystem.Images.icoEOLogo, "EO"),
+      (BKDesignSystem.Images.icoTStoryLogo, "티스토리"),
+      (BKDesignSystem.Images.icoTechBlogLogo, "기술블로그")
     ]
     
     LazyVGrid(
