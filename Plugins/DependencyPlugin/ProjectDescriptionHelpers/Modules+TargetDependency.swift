@@ -42,50 +42,6 @@ public extension TargetDependency {
 }
 
 public extension TargetDependency {
-    static var domain: Self {
-        return .project(target: ModulePath.Domain.name, path: .domain)
-    }
-    
-    static func domain(implements module: ModulePath.Domain) -> Self {
-        return .project(target: ModulePath.Domain.name + module.rawValue, path: .domain(implementation: module))
-    }
-    
-    static func domain(interface module: ModulePath.Domain) -> Self {
-        return .project(target: ModulePath.Domain.name + module.rawValue + "Interface", path: .domain(implementation: module))
-    }
-    
-    static func domain(tests module: ModulePath.Domain) -> Self {
-        return .project(target: ModulePath.Domain.name + module.rawValue + "Tests", path: .domain(implementation: module))
-    }
-    
-    static func domain(testing module: ModulePath.Domain) -> Self {
-        return .project(target: ModulePath.Domain.name + module.rawValue + "Testing", path: .domain(implementation: module))
-    }
-}
-
-public extension TargetDependency {
-    static var data: Self {
-        return .project(target: ModulePath.Data.name, path: .data)
-    }
-    
-    static func data(implements module: ModulePath.Data) -> Self {
-        return .project(target: ModulePath.Data.name + module.rawValue, path: .data(implementation: module))
-    }
-    
-    static func data(interface module: ModulePath.Data) -> Self {
-        return .project(target: ModulePath.Data.name + module.rawValue + "Interface", path: .data(implementation: module))
-    }
-    
-    static func data(tests module: ModulePath.Data) -> Self {
-        return .project(target: ModulePath.Data.name + module.rawValue + "Tests", path: .data(implementation: module))
-    }
-    
-    static func data(testing module: ModulePath.Data) -> Self {
-        return .project(target: ModulePath.Data.name + module.rawValue + "Testing", path: .data(implementation: module))
-    }
-}
-
-public extension TargetDependency {
     static var core: Self {
         return .project(target: ModulePath.Core.name, path: .core)
     }

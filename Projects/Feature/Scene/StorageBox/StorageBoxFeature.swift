@@ -8,9 +8,8 @@
 
 import Foundation
 
-import DomainFolderInterface
-
 import Analytics
+import BKNetwork
 import Services
 import Models
 
@@ -73,7 +72,7 @@ public struct StorageBoxFeature: Reducer {
   }
   
   @Dependency(AnalyticsClient.self) private var analyticsClient
-  @Dependency(DomainFolderClient.self) private var folderClient
+  @Dependency(\.folderClient) private var folderClient
   @Dependency(\.alertClient) private var alertClient
   
   private enum DebounceId {
@@ -122,10 +121,8 @@ public struct StorageBoxFeature: Reducer {
       case .fetchFolderList:
         return .run(
           operation: { send in
-            async let folderList = folderClient.getFolders()
-            
-            let list = try await folderList.map { Folder(id: $0.id, name: $0.name, feedCount: $0.feedCount) }
-            
+            let list = try await folderClient.getFolders()
+
             await send(.setFolderList(list), animation: .default)
           },
           catch: { error, send in

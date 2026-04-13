@@ -25,26 +25,6 @@ public extension ProjectDescription.Path {
 }
 
 public extension ProjectDescription.Path {
-    static var domain: Self {
-        return .relativeToRoot("Projects/\(ModulePath.Domain.name)")
-    }
-    
-    static func domain(implementation module: ModulePath.Domain) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Domain.name)/\(module.rawValue)")
-    }
-}
-
-public extension ProjectDescription.Path {
-    static var data: Self {
-        return .relativeToRoot("Projects/\(ModulePath.Data.name)")
-    }
-    
-    static func data(implementation module: ModulePath.Data) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Data.name)/\(module.rawValue)")
-    }
-}
-
-public extension ProjectDescription.Path {
     static var core: Self {
         return .relativeToRoot("Projects/\(ModulePath.Core.name)")
     }

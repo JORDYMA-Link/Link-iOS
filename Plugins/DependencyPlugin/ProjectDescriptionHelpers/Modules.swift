@@ -11,8 +11,6 @@ import ProjectDescription
 public enum ModulePath {
     case app(App)
     case feature(Feature)
-    case domain(Domain)
-    case data(Data)
     case core(Core)
     case shared(Shared)
 }
@@ -34,26 +32,6 @@ public extension ModulePath {
         case StorageBox
         
         public static let name: String = "Feature"
-    }
-}
-
-// MARK: DomainModule
-
-public extension ModulePath {
-    enum Domain: String, CaseIterable {
-        case Folder
-        
-        public static let name: String = "Domain"
-    }
-}
-
-// MARK: DataModule
-
-public extension ModulePath {
-    enum Data: String, CaseIterable {
-        case Folder
-        
-        public static let name: String = "Data"
     }
 }
 
