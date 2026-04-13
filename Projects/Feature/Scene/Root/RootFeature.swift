@@ -9,6 +9,7 @@
 import Foundation
 
 import Services
+import ATTrackingManagerClient
 
 import ComposableArchitecture
 

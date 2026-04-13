@@ -16,6 +16,8 @@ import FeedClient
 import FolderClient
 import LinkClient
 import Services
+import URLOpenHandlerClient
+import AlertClient
 
 import ComposableArchitecture
 

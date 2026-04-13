@@ -9,6 +9,7 @@
 import Foundation
 
 import Services
+import UserNotificationClient
 
 import ComposableArchitecture
 import FirebaseMessaging

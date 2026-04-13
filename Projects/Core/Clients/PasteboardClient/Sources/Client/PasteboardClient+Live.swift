@@ -1,5 +1,5 @@
 //
-//  PasteboardClient.swift
+//  PasteboardClient+Live.swift
 //  Services
 //
 //  Created by 김규철 on 4/11/25.
@@ -9,15 +9,9 @@
 import UIKit
 import Combine
 
-import Dependencies
-import DependenciesMacros
+import BKCommon
 
-@DependencyClient
-public struct PasteboardClient {
-  public var hasString: @Sendable () -> AsyncStream<Void> = { .finished }
-  public var hasChange: @Sendable () -> AsyncStream<Void> = { .finished }
-  public var pasteboardURL: @Sendable () async -> String?
-}
+import Dependencies
 
 extension PasteboardClient: DependencyKey {
   public static var liveValue: PasteboardClient = live()
@@ -30,13 +24,7 @@ extension PasteboardClient: DependencyKey {
               urlString.isHTTPURL else {
           return nil
         }
-        
-        //          let pattern = try await UIPasteboard.general.detectedPatterns(for: [\.probableWebURL])
-        //
-        //          guard pattern.contains(\.probableWebURL) else {
-        //            return nil
-        //          }
-        
+
         return UIPasteboard.general.string
       }
     )
@@ -59,7 +47,7 @@ extension UIPasteboard {
     .values
     .eraseToStream()
   }
-  
+
   var hasString: AsyncStream<Void> {
     return Just(hasStrings)
       .merge(

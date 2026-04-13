@@ -51,10 +51,21 @@ public extension ModulePath {
 
 public extension ModulePath {
     enum Core: String, CaseIterable {
-        case AnalyticsClient
         case BKNetwork
-        case Clients
         case Services
+
+        public static let name: String = "Core"
+    }
+}
+
+public extension ModulePath.Core {
+    enum Clients: String, CaseIterable {
+        case AnalyticsClient
+        case AlertClient
+        case ATTrackingManagerClient
+        case UserNotificationClient
+        case PasteboardClient
+        case URLOpenHandlerClient
         case UserClient
         case AuthClient
         case FeedClient
@@ -63,7 +74,7 @@ public extension ModulePath {
         case LinkClient
         case NoticeClient
 
-        public static let name: String = "Core"
+        public static let name: String = "Clients"
     }
 }
 

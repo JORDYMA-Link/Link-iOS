@@ -9,7 +9,7 @@
 import SwiftUI
 
 import Feature
-import Services
+import UserNotificationClient
 
 import ComposableArchitecture
 

@@ -205,7 +205,14 @@ public extension Target {
         var newFactory = factory
         newFactory.name = module.rawValue + "Interface"
         newFactory.sources = .interface
-        
+
+        return make(factory: newFactory)
+    }
+
+    static func core(client module: ModulePath.Core.Clients, factory: TargetFactory) -> Self {
+        var newFactory = factory
+        newFactory.name = module.rawValue
+
         return make(factory: newFactory)
     }
 }

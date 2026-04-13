@@ -13,6 +13,7 @@ import AuthClient
 import BKModel
 import FolderClient
 import Services
+import AlertClient
 import UserClient
 
 import ComposableArchitecture

@@ -38,14 +38,13 @@ public extension ProjectDescription.Path {
     static var core: Self {
         return .relativeToRoot("Projects/\(ModulePath.Core.name)")
     }
-    
+
     static func core(implementation module: ModulePath.Core) -> Self {
-        switch module {
-        case .AnalyticsClient, .UserClient, .AuthClient, .FeedClient, .FeedClientInterface, .FolderClient, .LinkClient, .NoticeClient:
-            return .relativeToRoot("Projects/\(ModulePath.Core.name)/Clients")
-        default:
-            return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(module.rawValue)")
-        }
+        return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(module.rawValue)")
+    }
+
+    static func client(implementation module: ModulePath.Core.Clients) -> Self {
+        return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(ModulePath.Core.Clients.name)")
     }
 }
 

@@ -16,14 +16,19 @@ let project = Project.make(
             product: .staticFramework,
             sources: nil,
             dependencies: [
-                .core(implements: .AnalyticsClient),
+                .core(client: .AnalyticsClient),
+                .core(client: .AlertClient),
+                .core(client: .ATTrackingManagerClient),
+                .core(client: .UserNotificationClient),
+                .core(client: .PasteboardClient),
+                .core(client: .URLOpenHandlerClient),
                 .core(implements: .Services),
-                .core(implements: .UserClient),
-                .core(implements: .AuthClient),
-                .core(implements: .FeedClient),
-                .core(implements: .FolderClient),
-                .core(implements: .LinkClient),
-                .core(implements: .NoticeClient)
+                .core(client: .UserClient),
+                .core(client: .AuthClient),
+                .core(client: .FeedClient),
+                .core(client: .FolderClient),
+                .core(client: .LinkClient),
+                .core(client: .NoticeClient)
             ]
         ))
     ]

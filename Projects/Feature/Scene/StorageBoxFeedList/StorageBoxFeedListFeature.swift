@@ -14,6 +14,7 @@ import BKModel
 import FeedClient
 import FolderClient
 import Services
+import AlertClient
 
 import ComposableArchitecture
 

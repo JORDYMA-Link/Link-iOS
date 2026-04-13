@@ -13,6 +13,7 @@ import BKModel
 import LinkClient
 import NoticeClient
 import Services
+import URLOpenHandlerClient
 
 import ComposableArchitecture
 

@@ -12,6 +12,7 @@ import AnalyticsClient
 import BKModel
 import FolderClient
 import Services
+import AlertClient
 
 import BKDesignSystem
 

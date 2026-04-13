@@ -3,54 +3,85 @@ import ProjectDescriptionHelpers
 import DependencyPlugin
 
 let project = Project.make(
-    name: ModulePath.Core.Clients.rawValue,
+    name: ModulePath.Core.Clients.name,
     targets: [
-        .core(implements: .AnalyticsClient, factory: .init(
+        .core(client: .AnalyticsClient, factory: .init(
             sources: "AnalyticsClient/Sources/**",
             dependencies: [
                 .shared,
                 .external(externalDependency: .firebaseAnalytics)
             ]
         )),
-        .core(implements: .UserClient, factory: .init(
+        .core(client: .AlertClient, factory: .init(
+            sources: "AlertClient/Sources/**",
+            dependencies: [
+                .shared,
+                .designSystem
+            ]
+        )),
+        .core(client: .ATTrackingManagerClient, factory: .init(
+            sources: "ATTrackingManagerClient/Sources/**",
+            dependencies: [
+                .shared
+            ]
+        )),
+        .core(client: .UserNotificationClient, factory: .init(
+            sources: "UserNotificationClient/Sources/**",
+            dependencies: [
+                .shared
+            ]
+        )),
+        .core(client: .PasteboardClient, factory: .init(
+            sources: "PasteboardClient/Sources/**",
+            dependencies: [
+                .shared
+            ]
+        )),
+        .core(client: .URLOpenHandlerClient, factory: .init(
+            sources: "URLOpenHandlerClient/Sources/**",
+            dependencies: [
+                .shared
+            ]
+        )),
+        .core(client: .UserClient, factory: .init(
             sources: "UserClient/Sources/**",
             dependencies: [
                 .core(implements: .BKNetwork)
             ]
         )),
-        .core(implements: .AuthClient, factory: .init(
+        .core(client: .AuthClient, factory: .init(
             sources: "AuthClient/Sources/**",
             dependencies: [
                 .core(implements: .BKNetwork)
             ]
         )),
-        .core(implements: .FeedClientInterface, factory: .init(
+        .core(client: .FeedClientInterface, factory: .init(
             sources: "FeedClient/FeedClientInterface/Sources/**",
             dependencies: [
                 .core(implements: .BKNetwork)
             ]
         )),
-        .core(implements: .FeedClient, factory: .init(
+        .core(client: .FeedClient, factory: .init(
             sources: "FeedClient/FeedClient/Sources/**",
             dependencies: [
-                .core(implements: .FeedClientInterface)
+                .core(client: .FeedClientInterface)
             ]
         )),
-        .core(implements: .FolderClient, factory: .init(
+        .core(client: .FolderClient, factory: .init(
             sources: "FolderClient/Sources/**",
             dependencies: [
                 .core(implements: .BKNetwork),
-                .core(implements: .FeedClientInterface)
+                .core(client: .FeedClientInterface)
             ]
         )),
-        .core(implements: .LinkClient, factory: .init(
+        .core(client: .LinkClient, factory: .init(
             sources: "LinkClient/Sources/**",
             dependencies: [
                 .core(implements: .BKNetwork),
-                .core(implements: .FeedClientInterface)
+                .core(client: .FeedClientInterface)
             ]
         )),
-        .core(implements: .NoticeClient, factory: .init(
+        .core(client: .NoticeClient, factory: .init(
             sources: "NoticeClient/Sources/**",
             dependencies: [
                 .core(implements: .BKNetwork)
