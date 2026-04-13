@@ -26,9 +26,8 @@ public struct SaveLinkFeature {
     var isValidationURL: Bool = true
     var urlValidation: URLValidationError = .invalidScheme
     
-    // MARK: - 광고 관련 State 임시 제거 (원복 가능하도록 주석 처리)
-    // var ad: GoogleAd?
-    // var isAdPresented: Bool = false
+    var ad: GoogleAd?
+    var isAdPresented: Bool = false
     
     var pastoboardURL: String = ""
     var isPastoboardButtonPresented: Bool = false
@@ -43,21 +42,21 @@ public struct SaveLinkFeature {
     case onAppear
     case pastoboardButtonTapped
     case onTapNextButton
-    // case adDismissButtonTapped
+    case adDismissButtonTapped
     case onTapBackButton
     
     // MARK: Inner Business Action
     case postLinkSummary
-    // case loadAd
+    case loadAd
     case checkPasteboard
     case vaildatePastoboardURL
     case sendAnalyticsLog
     
     // MARK: Inner SetState Action
     case setURLValidation(isURL: Bool, isDisable: Bool)
-    // case setAd(GoogleAd)
+    case setAd(GoogleAd)
     case setPasteboardURL(String?)
-    // case setAdPresented(Bool)
+    case setAdPresented(Bool)
     case setLoading(Bool)
     
     // MARK: Present Action
@@ -69,7 +68,7 @@ public struct SaveLinkFeature {
   @Dependency(\.alertClient) private var alertClient
   @Dependency(\.linkClient) private var linkClient
   @Dependency(AnalyticsClient.self) private var analyticsClient
-  // @Dependency(GoogleMobileAdsClient.self) private var googleMobileAdsClient
+  @Dependency(GoogleMobileAdsClient.self) private var googleMobileAdsClient
   @Dependency(PasteboardClient.self) private var pasteboardClient
   
   public var body: some ReducerOf<Self> {
@@ -96,7 +95,7 @@ public struct SaveLinkFeature {
         
       case .onAppear:
         return .run { send in
-          // await send(.loadAd)
+          await send(.loadAd)
           await send(.checkPasteboard)
         }
         
@@ -113,17 +112,17 @@ public struct SaveLinkFeature {
           await send(.sendAnalyticsLog)
         }
         
-      // case .adDismissButtonTapped:
-      //   return .run { send in
-      //     await send(.setLoading(false))
-      //     await send(.linkSummaryLoadingAlertPresented)
-      //     
-      //     // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
-      //     try? await Task.sleep(for: .seconds(2))
-      //     
-      //     await alertClient.dismiss()
-      //     await send(.onTapBackButton)
-      //   }
+      case .adDismissButtonTapped:
+        return .run { send in
+          await send(.setLoading(false))
+          await send(.linkSummaryLoadingAlertPresented)
+
+          // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
+          try? await Task.sleep(for: .seconds(2))
+
+          await alertClient.dismiss()
+          await send(.onTapBackButton)
+        }
         
       case .postLinkSummary:
         return .run(
@@ -131,18 +130,8 @@ public struct SaveLinkFeature {
             await send(.setLoading(true))
             
             _ = try await linkClient.postLinkSummary(state.urlText.trimmingCharacters(in: .whitespaces))
-            
-            // await send(.setAdPresented(true))
-            
-            // 광고 로직 제거로 인해 바로 성공 처리
-            await send(.setLoading(false))
-            await send(.linkSummaryLoadingAlertPresented)
-            
-            // 요약 성공 시 LodingAlert 닫힌 후 2초 뒤 메인으로 이동
-            try? await Task.sleep(for: .seconds(2))
-            
-            await alertClient.dismiss()
-            await send(.onTapBackButton)
+
+            await send(.setAdPresented(true))
           },
           catch: { error, send in
             await send(.setLoading(false))
@@ -150,16 +139,16 @@ public struct SaveLinkFeature {
           }
         )
         
-      // case .loadAd:
-      //   return .run(
-      //     operation: { send in
-      //       let ad = try await googleMobileAdsClient.load()
-      //       await send(.setAd(ad))
-      //     },
-      //     catch: { error, send in
-      //       print(error)
-      //     }
-      //   )
+      case .loadAd:
+        return .run(
+          operation: { send in
+            let ad = try await googleMobileAdsClient.load()
+            await send(.setAd(ad))
+          },
+          catch: { error, send in
+            print(error)
+          }
+        )
         
       case .checkPasteboard:
         return .run { send in
@@ -178,9 +167,9 @@ public struct SaveLinkFeature {
         state.isDisableSaveLinkButton = isDisable
         return .none
         
-      // case let .setAd(ad):
-      //   state.ad = ad
-      //   return .none
+      case let .setAd(ad):
+        state.ad = ad
+        return .none
         
       case let .setPasteboardURL(url):
         guard let url else {
@@ -192,9 +181,9 @@ public struct SaveLinkFeature {
         state.isPastoboardButtonPresented = true
         return .none
         
-      // case let .setAdPresented(isPresented):
-      //   state.isAdPresented = isPresented
-      //   return .none
+      case let .setAdPresented(isPresented):
+        state.isAdPresented = isPresented
+        return .none
         
       case let .setLoading(isLoading):
         state.isLoading = isLoading
@@ -221,8 +210,8 @@ public struct SaveLinkFeature {
             rightButtonAction: { await send(.onTapBackButton) }
           ))
         }
-        
-      default:
+
+      case .binding:
         return .none
       }
     }
