@@ -21,10 +21,10 @@
 - **Swift Version**: 6.0
 - **Dependency Manager**: SPM (Tuist 통합)
 - **Project Generator**: Tuist 4.113.1
-- **Architecture**: `SwiftUI` · `TCA (The Composable Architecture) 1.23.1+` · `@Dependency 기반 DI` · `Swift Concurrency`
-- **Networking**: `Moya 15.0.3+`
-- **Firebase**: `Crashlytics` · `Analytics` · `Messaging (Push Notifications)`
-- **3rd Party**: `Kingfisher 8.6.2+` · `Lottie 4.5.2+` · `SwiftUI Introspect 26.0.0+` · `KakaoSDK 2.22.0` · `GoogleSignIn 9.0.0+` · `GoogleMobileAds 12.14.0+` · `FSCalendar 2.8.3+` · `FSPagerView 1.3.7+`
+- **Architecture**: SwiftUI · TCA (The Composable Architecture) 1.23.1+ · @Dependency 기반 DI · Swift Concurrency
+- **Networking**: Moya 15.0.3+
+- **Firebase**: Crashlytics · Analytics · Messaging (Push Notifications)
+- **3rd Party**: Kingfisher 8.6.2+ · Lottie 4.5.2+ · SwiftUI Introspect 26.0.0+ · KakaoSDK 2.22.0 · GoogleSignIn 9.0.0+ · GoogleMobileAds 12.14.0+ · FSCalendar 2.8.3+ · FSPagerView-SPM 1.3.7+
 
 # 🧩 모듈 구조
 
