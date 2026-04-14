@@ -34,7 +34,7 @@ let package = Package(
         .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", from: "1.23.1"),
         .package(url: "https://github.com/kakao/kakao-ios-sdk", exact: "2.22.0"),
         .package(url: "https://github.com/WenchaoD/FSCalendar.git", from: "2.8.3"),
-        .package(url: "https://github.com/kimkyuchul/FSPagerView-SPM", from: "1.3.5"),
+        .package(url: "https://github.com/kimkyuchul/FSPagerView-SPM", from: "1.3.7"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "9.0.0")
     ]
 )
