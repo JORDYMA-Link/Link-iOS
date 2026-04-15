@@ -31,27 +31,39 @@ The workspace is named **Blink** (`Workspace.swift`). After `tuist generate`, op
 
 ## Module Architecture
 
-All modules live under `Projects/` as static frameworks:
+All modules live under `Projects/` as static frameworks, grouped into five top-level projects:
 
 ```
 Projects/
-├── App/              # Main app target + ShareExtension
-├── Feature/          # UI/presentation layer (single module, scenes inside)
-│   └── Scene/        # 17 feature screens (Home, Auth, SaveLink, StorageBox, etc.)
-├── Domain/           # Business logic interfaces (e.g., Folder)
-├── Core/             # Services and infrastructure
-│   ├── BKNetwork/    # Moya-based networking, token interceptor
-│   ├── Services/     # Social login, pasteboard, notifications, ads
-│   ├── Analytics/    # Firebase Analytics event tracking
-│   └── Models/       # Shared data models
-└── Shared/           # Cross-cutting concerns
-    ├── Common/       # Extensions, Keychain, UserDefaults, URL literals
-    ├── CommonFeature/# Design system (BK-prefixed components: BKTextField, BKBottomSheet, etc.)
-    ├── ThirdParty/   # Third-party library re-exports
-    └── CommonFeatureThirdParty/
+├── App/                        # Main app target + ShareExtension
+│   ├── Sources/                # BlinkApp, AppDelegate(Feature), Extensions
+│   └── ShareExtension/         # Share extension target
+├── BKFeatures/                 # UI/presentation layer (TCA)
+│   ├── Sources/                # Feature scenes: Auth, Home, SaveLink, StorageBox,
+│   │                           #  StorageBoxFeedList, EditLink, Link, Search,
+│   │                           #  CalendarSearch, SummaryStatus, Setting,
+│   │                           #  Splash, Root, TabBar, Common
+│   └── ShareFeature/           # ShareExtension feature module
+├── BKDesignSystem/             # Design system (BK-prefixed components, resources)
+│   ├── BKDesignSystem/         # DesignSystem, Enum, PreferenceKey, ViewModifiers
+│   └── BKDesignSystemThirdParty/ # Third-party re-exports for design layer
+├── BKCore/                     # Services and infrastructure (per-Client modules)
+│   ├── Clients/                # Each Client is its own static framework target:
+│   │                           #  BKNetworkClient, AuthClient, UserClient,
+│   │                           #  FeedClient(+Interface), FolderClient, LinkClient,
+│   │                           #  NoticeClient, SocialLoginClient, KakaoChannelClient,
+│   │                           #  GoogleMobileAdsClient, AnalyticsClient, AlertClient,
+│   │                           #  ATTrackingManagerClient, UserNotificationClient,
+│   │                           #  PasteboardClient, URLOpenHandlerClient,
+│   │                           #  KeychainClient, UserDefaultsClient
+│   └── NetworkCore/            # Shared networking core (reserved)
+└── BKShared/                   # Cross-cutting shared code
+    ├── BKCommon/               # Extensions, Error, FeedbackGenerator, Literal
+    └── BKModel/                # Shared data models (Auth, Feed, Folder, Home, Link,
+                                #  LinkDetail, Notice, Setting, AppVersionAPI, etc.)
 ```
 
-Module definitions: `Plugins/DependencyPlugin/` (module paths, dependency mappings).
+Module definitions: `Plugins/DependencyPlugin/ProjectDescriptionHelpers/Modules.swift` — declares each top-level group (`App`, `Feature`, `DesignSystem`, `Core`, `Shared`) and the per-Client list under `Core.Clients`.
 Target templates: `Tuist/ProjectDescriptionHelpers/` (Target+Template, Project+Template, Settings).
 Resource code generation: `Tuist/ResourceSynthesizers/` (stencil templates for Assets, Fonts, JSON, Lottie).
 
