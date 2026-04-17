@@ -25,22 +25,12 @@ public extension ProjectDescription.Path {
 }
 
 public extension ProjectDescription.Path {
-    static var domain: Self {
-        return .relativeToRoot("Projects/\(ModulePath.Domain.name)")
+    static var designSystem: Self {
+        return .relativeToRoot("Projects/\(ModulePath.DesignSystem.name)")
     }
-    
-    static func domain(implementation module: ModulePath.Domain) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Domain.name)/\(module.rawValue)")
-    }
-}
 
-public extension ProjectDescription.Path {
-    static var data: Self {
-        return .relativeToRoot("Projects/\(ModulePath.Data.name)")
-    }
-    
-    static func data(implementation module: ModulePath.Data) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Data.name)/\(module.rawValue)")
+    static func designSystem(implementation module: ModulePath.DesignSystem) -> Self {
+        return .relativeToRoot("Projects/\(ModulePath.DesignSystem.name)/\(module.rawValue)")
     }
 }
 
@@ -48,9 +38,9 @@ public extension ProjectDescription.Path {
     static var core: Self {
         return .relativeToRoot("Projects/\(ModulePath.Core.name)")
     }
-    
-    static func core(implementation module: ModulePath.Core) -> Self {
-        return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(module.rawValue)")
+
+    static func client(implementation module: ModulePath.Core.Clients) -> Self {
+        return .relativeToRoot("Projects/\(ModulePath.Core.name)/\(ModulePath.Core.Clients.name)")
     }
 }
 

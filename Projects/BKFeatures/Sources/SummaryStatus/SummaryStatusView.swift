@@ -1,0 +1,90 @@
+//
+//  SummaryStatusView.swift
+//  Features
+//
+//  Created by kyuchul on 8/22/24.
+//  Copyright © 2024 com.kyuchul.blink. All rights reserved.
+//
+
+import SwiftUI
+
+import BKModel
+import BKCommon
+import BKDesignSystem
+
+import ComposableArchitecture
+
+struct SummaryStatusView: View {
+  @Perception.Bindable var store: StoreOf<SummaryStatusFeature>
+  @StateObject private var bkWebViewModel = BKWebViewModel()
+  private let timer = Timer.publish(every: 5, tolerance: 0.5, on: .main, in: .common).autoconnect()
+  
+  var body: some View {
+    WithPerceptionTracking {
+      VStack(spacing: 0) {
+        SummaryStatusNavigationBar(store: store)
+        
+        ScrollView(showsIndicators: false) {
+          LazyVStack(spacing: 0) {
+            ForEach(store.processingList, id: \.feedId) { item in
+              SummaryStatusItem(
+                title: item.title,
+                status: item.status,
+                url: item.originUrl,
+                deleteAction: { store.send(.deleteButtonTapped(item.feedId)) }
+              )
+              .onTapGesture {
+                if item.status == .completed {
+                  HapticFeedbackManager.shared.selection()
+                  store.send(.summaryStatusItemTapped(item.feedId))
+                }
+              }
+            }
+          }
+        }
+      }
+      .toolbar(.hidden, for: .navigationBar)
+      .bkWebViewAlert(
+        isPresented: $store.isWebViewPresented) {
+          BKWebView(
+            viewModel: bkWebViewModel,
+            url: URL(string: store.webViewInfo.link)!,
+            isScrollEnabled: false
+          ) { action in
+            switch action {
+            case .survey(.closeSurveyModal):
+              store.send(.closeBKWebView)
+              
+            case .survey(.openSurveyForm(let url)):
+              store.send(.openSurveyFormButtonTapped(url))
+              
+            default:
+              break
+            }
+          }
+        }
+      .onReceive(timer) { time in
+        /// 5초에 한번 API 재통신
+        store.send(.onAppear)
+      }
+      .onAppear { store.send(.onAppear) }
+      .onDisappear { timer.upstream.connect().cancel() }
+    }
+  }
+}
+
+private struct SummaryStatusNavigationBar: View {
+  private var store: StoreOf<SummaryStatusFeature>
+  
+  init(store: StoreOf<SummaryStatusFeature>) {
+    self.store = store
+  }
+  
+  var body: some View {
+    makeBKNavigationView(
+      leadingType: .dismiss("요약 중인 링크", { store.send(.closeButtonTapped) }),
+      trailingType: .none
+    )
+    .padding(.horizontal, 16)
+  }
+}

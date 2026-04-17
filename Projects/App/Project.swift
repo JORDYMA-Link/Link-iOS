@@ -8,13 +8,14 @@ let project = Project.make(
         .app(factory: .init(
             dependencies: [
                 .feature,
-                .shared(implements: .ThirdParty),
+                .external(externalDependency: .firebaseMessaging),
+                .sdk(name: "JavaScriptCore", type: .framework),
                 .target(name: "ShareExtension")
             ]
         )),
         .shareExtension(factory: .init(
             dependencies: [
-                .core(implements: .BKNetwork)
+                .shared
             ]
         ))
     ],

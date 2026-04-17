@@ -11,8 +11,7 @@ import ProjectDescription
 public enum ModulePath {
     case app(App)
     case feature(Feature)
-    case domain(Domain)
-    case data(Data)
+    case designSystem(DesignSystem)
     case core(Core)
     case shared(Shared)
 }
@@ -33,40 +32,52 @@ public extension ModulePath {
     enum Feature: String, CaseIterable {
         case StorageBox
         
-        public static let name: String = "Feature"
+        public static let name: String = "BKFeatures"
     }
 }
 
-// MARK: DomainModule
+// MARK: DesignSystemModule
 
 public extension ModulePath {
-    enum Domain: String, CaseIterable {
-        case Folder
-        
-        public static let name: String = "Domain"
-    }
-}
+    enum DesignSystem: String, CaseIterable {
+        case BKDesignSystem
+        case BKDesignSystemThirdParty
 
-// MARK: DataModule
-
-public extension ModulePath {
-    enum Data: String, CaseIterable {
-        case Folder
-        
-        public static let name: String = "Data"
+        public static let name: String = "BKDesignSystem"
     }
 }
 
 // MARK: CoreModule
 
 public extension ModulePath {
-    enum Core: String, CaseIterable {
-        case Analytics
-        case Models
-        case BKNetwork
-        case Services
+    enum Core {
+        public static let name: String = "BKCore"
+    }
+}
 
-        public static let name: String = "Core"
+public extension ModulePath.Core {
+    enum Clients: String, CaseIterable {
+        case AnalyticsClient
+        case AlertClient
+        case ATTrackingManagerClient
+        case UserNotificationClient
+        case PasteboardClient
+        case URLOpenHandlerClient
+        case UserClient
+        case AuthClient
+        case FeedClient
+        case FeedClientInterface
+        case FolderClient
+        case LinkClient
+        case KakaoChannelClient
+        case SocialLoginClient
+        case GoogleMobileAdsClient
+        case BKNetworkClient
+        case NoticeClient
+        case KeychainClient
+        case UserDefaultsClient
+
+        public static let name: String = "Clients"
     }
 }
 
@@ -74,11 +85,9 @@ public extension ModulePath {
 
 public extension ModulePath {
     enum Shared: String, CaseIterable {
-        case Common
-        case CommonFeature
-        case CommonFeatureThirdParty
-        case ThirdParty
+        case BKCommon
+        case BKModel
         
-        public static let name: String = "Shared"
+        public static let name: String = "BKShared"
     }
 }

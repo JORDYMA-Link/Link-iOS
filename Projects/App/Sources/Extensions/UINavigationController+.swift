@@ -8,9 +8,10 @@
 
 import UIKit
 
-import Common
+import UserDefaultsClient
+import BKCommon
 
-extension UINavigationController: UIGestureRecognizerDelegate {
+extension UINavigationController: @retroactive UIGestureRecognizerDelegate {
   
     override open func viewDidLoad() {
         super.viewDidLoad()

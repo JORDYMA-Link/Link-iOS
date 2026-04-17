@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-import Feature
-import Services
+import BKFeatures
+import UserNotificationClient
 
 import ComposableArchitecture
 
