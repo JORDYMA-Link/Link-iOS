@@ -11,6 +11,11 @@
 > 
 > **지속적인 업데이트**: 2024.09.25 ~ (진행중)
 
+### 📌 관련 사이트
+- [블링크 소개](https://daffy-sandal-6ef.notion.site/fbafde11a2474ee5a0d4f7ac957c14ef)
+- [블링크 사용 방법](https://daffy-sandal-6ef.notion.site/6addddc3f4164264b4fc58d01cbfd706)
+- [UIBowl 소개 글](https://uibowl.io/self-contents/cmbhiu3so0001jo077mz0myp5)
+
 ### 주요 기능
 - AI 링크 요약 및 분류 폴더 추천
 - 폴더 별 링크 아카이빙
